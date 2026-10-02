@@ -11,7 +11,7 @@
 1. **Primero lo riesgoso y lo que nunca se recorta.** El motor de sugerencias es lo único que no se recorta (00 §8) y la sync es lo más complejo (00 §9). El motor va temprano porque es puro. La sync tiene un spike en F1 y se implementa completa en F8.
 2. **Offline como invitado antes que la nube.** Los 4 RF del TPO (09 §1) funcionan 100 % en local. Al cerrar F5 la app ya cumple lo comprometido, aun sin auth ni sync.
 3. **Slices verticales.** Cada fase de producto termina en algo demostrable y con tests, no en una capa suelta.
-4. **Detalle justo a tiempo.** Solo las fases 0 y 1 tienen issues detallados desde el principio. Las tareas de cada fase siguiente se escriben al arrancarla, a partir de este plan y de la especificación.
+4. **Backlog completo, detalle justo a tiempo.** Todo el MVP está en el tablero como cards, una por slice, con su checklist de RF. Las tareas finas de cada card se agregan a su checklist al empezarla. Se trabaja con Kanban liviano ([convenciones.md §5](convenciones.md)).
 
 ## 2. Fases
 
@@ -67,3 +67,4 @@
 | Fecha | Cambio |
 |---|---|
 | 2026-10-02 | Versión inicial: fases F0–F9, stack y criterios de salida. |
+| 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#51), sin sprints ni estimaciones. |

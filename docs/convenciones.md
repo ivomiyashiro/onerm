@@ -19,7 +19,7 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
 ## 2. Ramas: GitHub Flow
 
 - `main` siempre compila y pasa la CI. Está protegida: no se hace push directo.
-- Cada issue se trabaja en una rama corta que sale de `main`:
+- Cada card se trabaja en una rama corta que sale de `main`:
 
   ```
   <tipo>/<número-de-issue>-<descripción-corta>
@@ -28,7 +28,7 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
   fix/57-temporizador-pantalla-bloqueada
   ```
 
-- La rama vive pocos días. Si crece, se parte el issue.
+- La rama vive pocos días. Si crece, se parte la card.
 
 ## 3. Commits: Conventional Commits
 
@@ -59,15 +59,25 @@ Ejemplo: `feat(sug): aplicar doble progresión al completar el tope del rango`.
 
 - Todo cambio entra por PR, aunque el equipo sea una persona: deja registro y corre la CI.
 - El título sigue Conventional Commits, porque se usa como mensaje del squash.
-- La descripción usa la plantilla y enlaza el issue con `Closes #N`.
+- La descripción usa la plantilla y enlaza la card con `Closes #N`.
 - **Squash and merge.** Se borra la rama después del merge.
 - PR chicos (idealmente menos de 400 líneas sin contar las generadas).
 
-## 5. Issues
+## 5. Tablero: Kanban liviano
 
-- **Plantillas:** `Tarea`, `Spike` y `Bug` (en `.github/ISSUE_TEMPLATE/`).
-- Cada issue tiene una milestone (fase), un tipo, una épica y una prioridad.
-- Cada tarea cita los RF, RN o AC que cubre (por ejemplo `RF-SUG-03.AC2`, `RN-SUG-02`).
+Sin sprints, sin story points y sin fechas intermedias. El único entregable es el MVP.
+
+- **Columnas:** `Backlog` → `En curso` → `Hecho`.
+- **El Backlog está ordenado:** se toma la card de más arriba que no esté bloqueada. El orden sigue las fases del [plan](plan-de-implementacion.md).
+- **Máximo 2 cards en curso.** Primero se termina y después se empieza otra.
+- **Una card es un slice que se puede demostrar.** Agrupa varios RF y lleva adentro una checklist de alcance. Si al empezarla resulta muy grande, se parte en dos cards.
+- **Las tareas chicas viven en la checklist de la card**, no en issues aparte. Se agregan al empezar la card.
+- **Una card, una rama, un PR.** El PR cierra la card con `Closes #N`.
+- La card enlaza los RF y AC de la especificación, **no los copia**: la especificación es la única fuente.
+
+### Plantillas de issue
+
+`Card`, `Spike` y `Bug` (en `.github/ISSUE_TEMPLATE/`). Cada issue tiene una milestone (fase), un tipo, una épica y una prioridad.
 
 ### Etiquetas
 
@@ -78,25 +88,16 @@ Ejemplo: `feat(sug): aplicar doble progresión al completar el tope del rango`.
 | Prioridad (MoSCoW) | `prioridad: must`, `prioridad: should`, `prioridad: could` |
 | Estado especial | `bloqueado` |
 
-### Columnas del Project
+## 6. Definición de Hecho
 
-`Backlog` → `Por hacer` → `En curso` → `En revisión` → `Hecho`.
+Una card pasa a `Hecho` cuando:
 
-## 6. Definiciones
-
-**Definición de Listo (DoR) de un issue:**
-- [ ] Tiene un objetivo claro y criterios de aceptación verificables.
-- [ ] Cita los RF, RN o ADR de la especificación que aplican.
-- [ ] Tiene milestone, tipo, épica y prioridad.
-- [ ] No depende de otro issue abierto, o la dependencia está indicada.
-
-**Definición de Hecho (DoD):**
-- [ ] Cumple los criterios de aceptación del issue.
+- [ ] Cumple lo que dice su checklist y su "Listo cuando".
 - [ ] Tiene tests: unitarios en el dominio y de integración en datos o sync, según la matriz de 09 §2.
 - [ ] La CI pasa: typecheck, lint (incluidas las reglas de capas) y tests.
 - [ ] Los textos de la UI salen de `presentation/strings` (RNF-21).
 - [ ] Si cambió una decisión o un comportamiento, se actualizaron la especificación o el ADR.
-- [ ] El PR fue revisado y mergeado con squash.
+- [ ] El PR se mergeó con squash.
 
 ## 7. Decisiones de entorno
 
