@@ -1,0 +1,175 @@
+# 04 — Reglas de negocio
+
+Las reglas se definen **una sola vez** acá, y los requisitos las referencian por ID. Si una regla cambia, se cambia solo en este archivo.
+
+Formato: `RN-<ÁREA>-NN`: enunciado, más una justificación o un ejemplo cuando hace falta.
+
+## GEN — Generales
+
+| ID | Regla |
+|---|---|
+| RN-GEN-01 | **Tiempo:** los instantes se guardan en **UTC**. Los conceptos de calendario (días transcurridos, "semana", "hoy") se calculan en la **zona horaria local del dispositivo**, contando días de calendario, no períodos de 24 h. |
+| RN-GEN-02 | **Igualdad de cargas:** dos cargas son iguales si difieren en menos de **0,05 kg**. Esto absorbe el redondeo de la conversión kg ↔ lb (RN-PERF-05). La misma tolerancia se usa para decidir si una carga **está en la grilla** (RN-SUG-09). |
+| RN-GEN-03 | **`updated_at` monótono:** en cada escritura local, `updated_at = máx(ahora, updated_at anterior + 1 ms)`. Así, si el reloj del dispositivo se corrige hacia atrás, no se pierden ediciones propias. |
+
+## AUTH
+
+| ID | Regla |
+|---|---|
+| RN-AUTH-01 | La contraseña tiene **al menos 8 caracteres**. No hay otras reglas de composición. Se sigue NIST SP 800-63B: largo antes que complejidad. |
+| RN-AUTH-02 | Los mensajes de **login y de recuperación no revelan si un email está registrado**. **Excepción aceptada:** el registro sí informa que el email ya existe (RF-AUTH-02 AC3), porque sin eso la persona no sabe que tiene que iniciar sesión. Lo mismo el mensaje de RN-AUTH-03, que además revela el método de ingreso. Es un riesgo de enumeración asumido y declarado. |
+| RN-AUTH-03 | **Una cuenta por email, con un único método de ingreso. No se vinculan identidades automáticamente.**<br>• Si el email ya tiene una cuenta con contraseña, "Continuar con Google" con ese email se **rechaza** con el mensaje "Ya tenés una cuenta con este email. Entrá con tu contraseña".<br>• Si el email ya tiene una cuenta de Google, registrarse con contraseña se rechaza con "Ya tenés una cuenta con este email. Entrá con Google".<br>*Motivo:* sin confirmar el email, la vinculación automática permitiría apropiarse de una cuenta antes de que su dueño la cree (ADR-0001, R10). |
+| RN-AUTH-04 | **Unir los datos del invitado a una cuenta existente** (algoritmo en 07 §4.3):<br>• Los registros se **agregan**; nada de la cuenta se sobrescribe.<br>• El **perfil** de la cuenta prevalece: el del invitado se descarta y nunca se sube. Hay **un perfil por usuario**, con `id = user_id` (RN-AUTH-06).<br>• La **rutina activa** de la cuenta prevalece. Si la cuenta no tiene rutina activa, se usa la del invitado. |
+| RN-AUTH-05 | **"La cuenta tiene datos"** significa que tiene al menos una rutina o un entrenamiento finalizado sin borrar. **"El invitado tiene datos"** se define igual, sobre los datos locales. |
+| RN-AUTH-06 | **Identidad del perfil:** el perfil de un usuario registrado tiene `id = user_id`, así que es imposible que existan dos. El perfil del invitado usa un id local fijo. Al unirse a una cuenta: si la cuenta ya tiene perfil en el servidor, gana ese; si no, el del invitado pasa a `id = user_id`. |
+| RN-AUTH-07 | **Una cuenta por dispositivo a la vez.** Si hay datos de un usuario registrado en el dispositivo, solo se puede iniciar sesión con **esa misma** cuenta. Para entrar con otra, primero hay que cerrar sesión (RF-AUTH-07). Si la sesión de autenticación venció o fue revocada, se ofrece volver a entrar **solo** con la misma cuenta. Así los datos de una persona nunca se suben a la cuenta de otra. |
+
+## SYNC
+
+| ID | Regla |
+|---|---|
+| RN-SYNC-01 | **Local primero.** Toda escritura se hace primero en la base local, y la interfaz lee siempre de la base local. Ninguna acción del usuario espera una respuesta de la red. |
+| RN-SYNC-02 | Los identificadores de los registros se generan **en el dispositivo** (UUID), así se puede crear sin conexión y sin colisiones. |
+| RN-SYNC-03 | **Last-write-wins por registro.** Ante dos versiones del mismo registro, prevalece la de `updated_at` más reciente. Si empatan, prevalece la del servidor. El servidor **acota** los `updated_at` que llegan del futuro (más de 5 min adelantados respecto de su reloj) a su hora actual, para que un reloj adelantado no bloquee ediciones posteriores. |
+| RN-SYNC-04 | **La eliminación es lógica y prevalece siempre.** Eliminar marca `deleted_at` y actualiza `updated_at`. Un borrado se aplica **sin importar su `updated_at`**, tanto en el servidor como en el cliente. Una vez borrado, un registro no se puede revivir. |
+| RN-SYNC-05 | La granularidad del conflicto es el **registro completo**, no el campo. *Riesgo aceptado* (ADR-0002, R3): en el **perfil**, que es la fila que más se edita, dos cambios hechos sin conexión en dos dispositivos (por ejemplo, la unidad en uno y la rutina activa en otro) conservan solo el más reciente. Se considera poco frecuente y fácil de rehacer. |
+| RN-SYNC-06 | **Cuándo se sincroniza:**<br>• (a) 3 s después de una escritura local, agrupando escrituras cercanas;<br>• (b) al recuperar la conexión;<br>• (c) al abrir la app o volver al primer plano;<br>• (d) de forma manual.<br>El orden es: catálogo → push → pull. |
+| RN-SYNC-07 | El pull es **incremental**: trae los registros con `server_updated_at` posterior al cursor, con una ventana de solapamiento (07 §4). |
+| RN-SYNC-08 | **Pendiente = cambio subible:** un registro con `_dirty = 1` que no pertenece a un entrenamiento en curso (RN-SYNC-13). Los conteos de "sin respaldar" usan solo pendientes y conflictos. **Nunca se descartan cambios pendientes sin confirmación explícita del usuario.** Al cerrar sesión se borran del dispositivo los datos del usuario (excepto el catálogo), pero solo si no quedan pendientes o si el usuario confirma perderlos. |
+| RN-SYNC-09 | El invitado **no sincroniza** datos propios. Solo descarga el catálogo. |
+| RN-SYNC-10 | **Los datos derivados no se guardan como fuente ni se sincronizan.** Sugerencias, e1RM, récords y próximo día se calculan a partir del historial local. |
+| RN-SYNC-11 | **Cambio rechazado:** si el servidor rechaza un registro por validación (no por la red), queda **en conflicto**.<br>• No bloquea al resto.<br>• Sus registros hijos **no se envían** hasta que se resuelva.<br>• El usuario puede ver el detalle y elegir **"Descartar este cambio"**: la fila vuelve a la versión del servidor, o se borra si nunca se subió. Si se borra, **se borran también sus hijos** que nunca se subieron, y el diálogo informa cuántos (D12).<br>• También puede **"Reintentar"**, por ejemplo después de actualizar la app.<br>• Los registros en conflicto se cuentan aparte de los pendientes normales. |
+| RN-SYNC-12 | **Hijos de un padre borrado:** un registro cuyo padre (en cualquier nivel) está borrado se considera **borrado** en todas las lecturas. El servidor aplica la misma regla (07 §3). |
+| RN-SYNC-13 | **El entrenamiento en curso no se sincroniza.** Un entrenamiento, junto con sus ejercicios y series, se sube recién cuando se **finaliza**. En el pull solo se reciben entrenamientos finalizados. Un entrenamiento descartado que nunca se subió se **borra físicamente**. *Riesgo aceptado y declarado* (00 §9): si el teléfono se pierde o se rompe durante el entrenamiento, ese entrenamiento se pierde. Sobrevive a que se cierre la app o se reinicie el teléfono. |
+| RN-SYNC-14 | **Compatibilidad de versiones:** el servidor publica una **versión mínima de app** para sincronizar. Si la app es más vieja, pausa la sync y muestra "Actualizá la app para respaldar tus datos". Los datos locales siguen funcionando. |
+| RN-SYNC-15 | **Borrado en el cliente:** el cliente **siempre** borra de forma lógica. Si llega un tombstone de una fila que no existe localmente, se inserta igual (lo necesitan RN-RUT-01 y RN-SYNC-12). Una fila local con `deleted_at` **nunca** vuelve a estar viva por un pull. |
+
+## PERF — Perfil
+
+| ID | Regla |
+|---|---|
+| RN-PERF-01 | **Recomendación de plantilla** según nivel y días por semana ([11 §4](11-plantillas.md#4-recomendación-de-plantilla-onboarding)):<br>• **Novato:** 2 días → PLT-FB2; 3 o más → PLT-FB3. Con 4 o más días se ofrece PLT-TP4 como alternativa.<br>• **Intermedio o avanzado:** 2 → PLT-FB2; 3 → PLT-FB3; 4 o más → PLT-TP4. Con 5 o 6 días se aclara que la plantilla es de 4 días. |
+| RN-PERF-02 | **Valores por defecto** para las preguntas que no se respondieron (si se saltea el onboarding): nivel *novato*, objetivo *salud general*, *3 días*. Las respuestas que ya se habían dado **se conservan**. |
+| RN-PERF-03 | **Prescripción por objetivo, rol y nivel:** rango de repeticiones, RIR objetivo, descanso y series máximas según [11 §2](11-plantillas.md#2-parametrización-por-objetivo).<br>• Se aplica al adoptar una plantilla, al agregar un ejercicio a una rutina y al usar "Ajustar mi rutina" (D06).<br>• **Al agregar un ejercicio:** el rol sale de `mechanic` (`compound` → principal, `isolation` → accesorio) y las series por defecto son 3 para un principal y 2 para un accesorio. Las dos cosas se pueden editar.<br>• **Ajustar** también reduce a 3 series por ejercicio si el objetivo pasa a fuerza (C-10).<br>• D06 se ofrece al cambiar el **objetivo** o el **nivel**, y en cualquier rutina, no solo en las adoptadas. |
+| RN-PERF-04 | **Modo de esfuerzo por defecto:** novato → *escala simple*; intermedio o avanzado → *RIR numérico*. Una vez que el usuario lo elige a mano, un cambio de nivel no lo modifica. |
+| RN-PERF-05 | **Unidades:** las cargas se **guardan en kg**, sin redondear (1 lb = 0,45359237 kg). La unidad elegida solo afecta cómo se muestran y cómo se ingresan: en kg con hasta 2 decimales y en lb con hasta 1 decimal, sin ceros finales. |
+| RN-PERF-06 | **Incrementos mínimos por equipamiento, definidos por unidad:** el perfil guarda **un mapa para kg y otro para lb**, y se usa el de la unidad activa. Cambiar de unidad no convierte incrementos.<br>Valores por defecto (*criterio de práctica*):<br>• Barra: 2,5 kg · 5 lb.<br>• Mancuerna: 2 kg · 5 lb.<br>• Polea: 2,5 kg · 5 lb.<br>• Máquina: 5 kg · 10 lb.<br>• Kettlebell: 4 kg · 10 lb.<br>El peso corporal no tiene incremento. El incremento de un ejercicio sale de su **equipamiento principal** (`primaryEquipment`, RN-CAT-03). |
+| RN-PERF-07 | **Niveles:**<br>• **Novato:** menos de 6 meses entrenando de forma regular, o volviendo después de más de 6 meses sin entrenar.<br>• **Intermedio:** entre 6 meses y 2 años de entrenamiento regular.<br>• **Avanzado:** más de 2 años, y arma sus propias rutinas.<br>En el MVP, intermedio y avanzado **se comportan igual**. La distinción se conserva para el lenguaje y para evoluciones futuras. |
+| RN-PERF-08 | **Carga mínima por equipamiento:**<br>• Barra: 20 kg · 45 lb, configurable (por ejemplo, para barras de 15 kg).<br>• Resto: un incremento.<br>Ninguna carga sugerida queda por debajo de la carga mínima. |
+
+## RUT — Rutinas
+
+| ID | Regla |
+|---|---|
+| RN-RUT-01 | **Próximo día:** sea D el día del último entrenamiento **finalizado** de la rutina activa, ordenando por `finishedAt`. El próximo día es el primer día **vivo** con una `position` mayor que la de D, en forma circular. D se considera aunque esté borrado lógicamente: se usa su `position`. Si nunca se entrenó con esa rutina, es el primer día. Las `position` **no se compactan** al borrar días. Reordenar reasigna posiciones solo a los días vivos. Es un **dato derivado** (RN-SYNC-10, ADR-0006). |
+| RN-RUT-02 | Hay **como máximo una rutina activa**. Puede no haber ninguna. `active_routine_id` es una **referencia débil**: si apunta a una rutina inexistente o borrada, se trata como si no hubiera rutina activa. |
+| RN-RUT-03 | **Adoptar una plantilla crea una copia** que pertenece al usuario. Los cambios posteriores en la plantilla no la afectan. |
+| RN-RUT-04 | **Límites de una prescripción:**<br>• Series: 1–10.<br>• Repeticiones: piso 1–30, tope entre el piso y 30.<br>• Descanso: 30–600 s, en pasos de 15 s.<br>• RIR objetivo: 0–5.<br>Las plantillas **nunca** usan RIR 0 (P-05). El usuario puede elegirlo, con una advertencia informativa. |
+| RN-RUT-05 | **Rutina válida:**<br>• Nombre de 1 a 50 caracteres.<br>• Entre 1 y 7 días.<br>• Cada día con un nombre y entre 1 y 20 ejercicios. |
+| RN-RUT-06 | **Los cambios en una rutina aplican desde el próximo entrenamiento.** El entrenamiento en curso usa la copia de la prescripción tomada al iniciarlo (RN-ENT-08). |
+| RN-RUT-07 | **Eliminar una rutina, un día o un ejercicio de rutina nunca elimina historial.** Los entrenamientos y las series conservan su ejercicio y su copia de la prescripción. Los entrenamientos **no son hijos** de la rutina: la referencia es débil, así que RN-SYNC-12 no los alcanza. |
+| RN-RUT-08 | **Cambiar el ejercicio de un ejercicio de rutina** (por ejemplo, reemplazar un ejercicio obsoleto) no reescribe el historial. Las exposiciones anteriores siguen perteneciendo al ejercicio que se hizo (`exerciseId`). La progresión del nuevo ejercicio arranca con RN-SUG-02, sin ERR. |
+| RN-RUT-09 | **Rutina activa y entrenamiento en curso:** adoptar una plantilla como activa, activar otra rutina o eliminar la rutina activa **no se puede** con un entrenamiento en curso. Se muestra D14 ("Terminá tu entrenamiento primero"). Editar la rutina sí se puede (RN-RUT-06). |
+
+## ENT — Entrenamiento
+
+| ID | Regla |
+|---|---|
+| RN-ENT-01 | Hay **como máximo un entrenamiento en curso** en el dispositivo. Como el entrenamiento en curso no se sincroniza (RN-SYNC-13), la regla no necesita identificar dispositivos. |
+| RN-ENT-02 | **Serie válida:**<br>• Carga de 0 a 1000 kg, solo en ejercicios de carga externa.<br>• Repeticiones enteras de 0 a 100.<br>• Esfuerzo (RIR) **opcional**, de 0 a 5, donde 5 significa "5 o más".<br>• **Excepción:** en la calibración, el esfuerzo es obligatorio (RN-SUG-06), salvo con 0 repeticiones, donde no se pide.<br>• Marca de calentamiento opcional (RN-ENT-12). |
+| RN-ENT-03 | **Escala de esfuerzo simple.** Pregunta: *"¿Cuántas más podías hacer?"*<br>• "Ninguna" → RIR 0.<br>• "1" → RIR 1.<br>• "2 o 3" → RIR 2.<br>• "4 o más" → RIR 4.<br>"2 o 3" se traduce a 2, el valor conservador (P-06). Son las **únicas** etiquetas de la escala. |
+| RN-ENT-04 | **Precarga de valores:**<br>• La primera serie muestra la sugerencia.<br>• Las siguientes muestran la sugerencia, salvo que el usuario haya cambiado la carga en la serie anterior: en ese caso se precarga la carga que usó.<br>• **En calibración, la primera serie no tiene carga precargada:** el campo muestra "—", y el primer toque en "+" pone el valor de un incremento. Se sugiere escribir la carga con el teclado.<br>• Las series siguientes de la calibración muestran lo que indica RN-SUG-06. |
+| RN-ENT-05 | **Convención de carga:**<br>• **Unilaterales y ejercicios con mancuernas:** por mancuerna o por lado.<br>• **Barra:** total, incluida la barra.<br>• **Máquina y polea:** el valor que indica la máquina.<br>La interfaz indica la convención junto al campo de carga (ADR-0008). |
+| RN-ENT-06 | **Lado limitante** en unilaterales:<br>• El lado con **menos repeticiones**.<br>• Si empatan: el de **menor RIR** entre los informados. Si solo un lado tiene RIR, ese lado. Si ninguno lo tiene, el izquierdo (para que el resultado sea determinista).<br>El motor usa **solo** el lado limitante (ADR-0008). |
+| RN-ENT-07 | **Temporizador:** se guarda la **hora de fin absoluta** del descanso, no un contador. El tiempo restante es `fin − ahora`. El aviso se programa como notificación local para esa hora. "+15 s" y "Reiniciar" reprograman el aviso; "Saltear" lo cancela. |
+| RN-ENT-08 | **Copia de la prescripción:** al iniciar un entrenamiento se copia, para cada ejercicio:<br>• el **ejercicio planificado** (`plannedExerciseId`);<br>• su prescripción (series, rango, descanso, RIR objetivo y rol);<br>• los atributos del ejercicio que definen el formato de las series (`loadType`, `isUnilateral`).<br>El historial se interpreta siempre contra esa copia. En el entrenamiento se copia también el nombre de la rutina y del día. |
+| RN-ENT-09 | **Ejercicio salteado:** los ejercicios salteados, o sin series efectivas al finalizar, **no cuentan como fallo ni como realización** para el motor. Si después se le agregan series efectivas (en el entrenamiento o al editar el pasado), pasa a "hecho" y cuenta normalmente. |
+| RN-ENT-10 | **Sustitución:** crea un **nuevo** ejercicio de entrenamiento con el ejercicio sustituto y conserva el ejercicio de rutina de origen, el ejercicio planificado y la copia de la prescripción.<br>• Si el original ya tenía series, **las conserva**: queda con estado "hecho" si tiene series efectivas, o "salteado" si no.<br>• Las series del sustituto son exposiciones **del ejercicio** sustituto (RN-SUG-01), no del ejercicio de rutina.<br>• Solo afecta al entrenamiento en curso.<br>• Hay sustitución cuando `exerciseId ≠ plannedExerciseId`. |
+| RN-ENT-11 | **Entrenamiento abandonado:** entrenamiento en curso iniciado hace **más de 12 horas**. Al abrir la app se pregunta si continuar, finalizar o descartar. Si se finaliza, `finishedAt` = `completedAt` de la última serie, o `startedAt` si no hay series. |
+| RN-ENT-12 | **Series de calentamiento:** cada serie tiene un interruptor "Calentamiento", apagado por defecto. Las de calentamiento **no son efectivas**: no cuentan para el motor, el e1RM, los récords ni el volumen. Se muestran atenuadas y no disparan el temporizador. El interruptor **no está disponible durante la calibración**. |
+
+## CAT — Catálogo
+
+| ID | Regla |
+|---|---|
+| RN-CAT-01 | Los ejercicios del catálogo **nunca se eliminan**: se marcan como obsoletos. Los obsoletos no aparecen en la búsqueda, pero las rutinas y el historial que los referencian siguen siendo válidos (ADR-0004). |
+| RN-CAT-02 | **Búsqueda normalizada:** no distingue mayúsculas ni tildes. El texto se divide en palabras, y **todas** tienen que aparecer, en cualquier orden, en el nombre o en algún alias. |
+| RN-CAT-03 | **Vocabularios controlados:**<br>• **Músculos:** pecho, espalda, hombros, bíceps, tríceps, antebrazos, abdominales, cuádriceps, isquios, glúteos, gemelos, aductores.<br>• **Equipamiento:** barra, mancuerna, máquina, polea, peso corporal, kettlebell.<br>Cada ejercicio tiene **un equipamiento principal** (`primaryEquipment`), que se usa para el incremento, y una **lista de equipamiento** (`equipment`), que se usa para los filtros. Los valores sin mapeo se rechazan en el seed (ADR-0004). |
+| RN-CAT-04 | La app trae un **snapshot** del catálogo y lo actualiza con descargas incrementales. Si llega un registro de usuario que referencia un ejercicio todavía ausente en el catálogo local, **se guarda igual** y se fuerza la actualización del catálogo. Mientras tanto, el ejercicio se muestra como "Ejercicio no disponible todavía", y el motor usa los atributos copiados en el entrenamiento (RN-ENT-08) con el incremento por defecto de la barra. |
+| RN-CAT-05 | **Atributos inmutables:** una vez publicado un ejercicio, **no cambian** su `loadType`, su `isUnilateral` ni su `primaryEquipment`. Si hace falta cambiarlos, se crea un ejercicio nuevo y el anterior se marca como obsoleto. |
+
+## SUG — Motor de sugerencias
+
+> Arquitectura: [ADR-0009](adr/0009-motor-como-funcion-pura.md). Casos resueltos: [sugerencias.md § Casos de referencia](03-requisitos/sugerencias.md#casos-de-referencia). Textos: [13-textos.md](13-textos.md#4-motivos-de-sugerencia).
+
+### RN-SUG-00 — Parámetros
+
+Son constantes nombradas en un solo lugar del código.
+
+| Parámetro | Valor | Fundamento |
+|---|---|---|
+| `LOAD_INCREASE` | 5 % | P-11: dentro del rango del ACSM, 2–10 % |
+| `LOAD_INCREASE_HIGH` | 10 % | P-11: límite superior del ACSM |
+| `MAX_JUMP_WITHOUT_OVERSHOOT` | 10 % | P-11: si el salto mínimo disponible supera el 10 %, primero se progresa por repeticiones |
+| `REP_OVERSHOOT` | +2 repeticiones sobre el tope | P-11 (Plotkin 2022: progresar por repeticiones es equivalente) |
+| `DELOAD` | −10 % | P-12: criterio de práctica, sin evidencia directa |
+| `STAGNATION_THRESHOLD` | 3 exposiciones | P-12: criterio de práctica |
+| `SUSTAINED_SIGNAL` | 2 exposiciones | P-06: el esfuerzo es una señal con ruido |
+| `EFFORT_DEVIATION` | 2 de RIR | P-06: supera el error medio de estimación, ~1 repetición |
+| `SIMPLE_SCALE_MAX_RIR` | 4 | Tope de la escala simple (RN-ENT-03) |
+| `MAX_CONSECUTIVE_CONSOLIDATIONS` | 1 | Evita quedar estancado por esfuerzo alto |
+| `REENTRY_1` | hueco de inactividad > 21 días → −10 % | P-13: pérdidas triviales en las primeras ~4 semanas (Bosquet 2013) + margen conservador |
+| `REENTRY_2` | hueco de inactividad > 42 días → −20 % | P-13: criterio conservador |
+| `E1RM_STANDARD_MAX` | 10 repeticiones hasta el fallo | P-10: LeSuer 1997 |
+| `E1RM_MAX` | 15 repeticiones hasta el fallo | P-10: extrapolación |
+| `CALIBRATION_STEP_UP` | +20 % | Criterio de práctica |
+| `CALIBRATION_STEP_DOWN` | −20 % | Criterio de práctica |
+
+### Orden de decisión
+
+Para cada ejercicio de rutina se aplica la **primera** regla que corresponda. La **reentrada** (RN-SUG-05) es además un **modificador** que se aplica sobre el resultado de las prioridades 1 y 2.
+
+| Prioridad | Regla | Código de motivo |
+|---|---|---|
+| 1 | Sin ERR: estimación, historial del ejercicio o calibración (RN-SUG-02, 06, 08) · + reentrada si corresponde | `ESTIMATED_FROM_E1RM`, `FROM_EXERCISE_HISTORY`, `CALIBRATION` |
+| 2 | Cambió la prescripción (RN-SUG-14) · + reentrada si corresponde | `PRESCRIPTION_CHANGED` |
+| 3 | Reentrada después de una pausa (RN-SUG-05) | `REENTRY` |
+| 4 | Descarga por estancamiento (RN-SUG-04) | `DELOAD` |
+| 5 | Consolidar por esfuerzo alto (RN-SUG-03) | `CONSOLIDATE` |
+| 6 | Subida anticipada o mayor por esfuerzo bajo (RN-SUG-03) | `EARLY_INCREASE`, `HIGH_INCREASE` |
+| 7 | Tope alcanzado (RN-SUG-02) | `INCREASE_LOAD` o `EXTEND_REPS` |
+| 8 | Dentro del rango (RN-SUG-02) | `ADD_REP` o `COMPLETE_SETS` |
+| 9 | Por debajo del rango (RN-SUG-02) | `REPEAT` |
+
+Cuando la reentrada modifica a 1 o 2, el motivo lleva la marca `withReentry` y el texto suma la frase de reentrada (13 §4).
+
+### Reglas
+
+| ID | Regla |
+|---|---|
+| RN-SUG-01 | **Series y exposiciones.**<br>• **Serie efectiva:** no es de calentamiento (RN-ENT-12) y tiene al menos 1 repetición. En unilaterales se usa el lado limitante (RN-ENT-06).<br>• **Exposición de ejercicio (EE):** las series efectivas de **un ejercicio** (`exerciseId`) en un entrenamiento **finalizado**, en cualquier contexto: rutina, sustitución o ejercicio no planificado. Se usa para el e1RM, el progreso, los récords y como historial alternativo.<br>• **Exposición de ejercicio de rutina (ERR):** una EE que además pertenece al ejercicio de rutina (`routineExerciseId`) **y** cuyo ejercicio coincide con el ejercicio **actual** de ese ejercicio de rutina. Así quedan fuera los sustitutos (RN-ENT-10) y los ejercicios anteriores a un cambio (RN-RUT-08). Es la unidad de la **doble progresión**.<br>• **Carga de trabajo (W):** la carga **más usada** entre las series efectivas de la exposición (igualdad según RN-GEN-02). Si empatan, la mayor.<br>• **Series con W:** las series efectivas cuya carga es igual a W.<br>• **N:** las series de la prescripción de referencia.<br>• **Tope alcanzado** (definición única, la usan RN-SUG-02, 03 y 04): hay **al menos N** series con W y **todas** tienen repeticiones ≥ tope.<br>• **Orden:** las exposiciones se ordenan por `finishedAt` del entrenamiento.<br>• **Prescripción de referencia:** la **copia** guardada en la última ERR (RN-ENT-08). |
+| RN-SUG-02 | **Sin ERR (prioridad 1) y doble progresión (prioridades 7 a 9).**<br>**Sin ERR:**<br>• Si el ejercicio tiene alguna EE con e1RM → estimación (RN-SUG-08). Código `ESTIMATED_FROM_E1RM`.<br>• Si tiene EE pero ninguna con e1RM, o la estimación no aplica → W de la última EE, ajustada a la grilla, con el piso del rango actual. Código `FROM_EXERCISE_HISTORY`.<br>• Si no tiene ninguna EE → calibración (RN-SUG-06).<br>**Doble progresión**, sobre la última ERR y su prescripción de referencia:<br>• **7. Tope alcanzado:**<br>  – Si subida(W, `LOAD_INCREASE`) ≤ W × 1,10 → esa carga, con repeticiones = piso. Código `INCREASE_LOAD`.<br>  – Si el salto mínimo supera el 10 %: mientras alguna serie con W tenga menos de tope + `REP_OVERSHOOT` repeticiones → W, repeticiones = mín(tope + 2, mínimo con W + 1). Código `EXTEND_REPS`. Cuando todas llegan a tope + 2 → subida, con repeticiones = piso. Código `INCREASE_LOAD`.<br>• **8. Dentro del rango:** todas las series con W tienen repeticiones ≥ piso.<br>  – Si todas están en el tope pero hay menos de N series con W → W, repeticiones = tope. Código `COMPLETE_SETS`.<br>  – Si no → W, repeticiones = mín(tope, mínimo con W + 1). Código `ADD_REP`.<br>• **9. Por debajo del rango** → W, repeticiones = piso. Código `REPEAT`. |
+| RN-SUG-03 | **Ajuste por esfuerzo (prioridades 5 y 6).**<br>• Se usa el **RIR medio** de las series con W que tienen esfuerzo informado.<br>• La condición tiene que cumplirse en las últimas `SUSTAINED_SIGNAL` ERR, **con la misma W y sin reinicio entre medio**. Una ERR sin esfuerzo informado no califica.<br>• **Consolidar (5):** RIR medio ≤ máx(objetivo − 2, 0) **y** < objetivo, **y** la última ERR tiene **tope alcanzado** → carga = W, repeticiones = tope. No se consolida si la sugerencia anterior ya fue `CONSOLIDATE`: en ese caso sigue la prioridad 7.<br>• **Subida anticipada o mayor (6):** RIR medio ≥ mín(objetivo + 2, `SIMPLE_SCALE_MAX_RIR`) **y** > objetivo.<br>  – Si la última ERR está dentro del rango sin tope alcanzado → subida(W, `LOAD_INCREASE`). Código `EARLY_INCREASE`.<br>  – Si tiene tope alcanzado → subida(W, `LOAD_INCREASE_HIGH`). Código `HIGH_INCREASE`.<br>  – En ambos casos, repeticiones = piso.<br>• Si la última ERR está **por debajo del rango**, el ajuste por esfuerzo no aplica y sigue la prioridad 9.<br>*Nota:* con RIR objetivo 5 la subida anticipada no aplica, y con RIR objetivo 0 no se consolida. Son casos declarados. |
+| RN-SUG-04 | **Estancamiento y descarga (prioridad 4).**<br>• **Marca** de una ERR: el par (W, **repeticiones medias por serie** con W). Se comparan primero por carga y, a igual carga, por repeticiones medias. Una serie extra no la infla y una serie menos no la baja.<br>• Una ERR **mejora** si su marca supera la mejor marca desde el último reinicio.<br>• Una ERR con **tope alcanzado nunca** suma al conteo.<br>• El conteo suma 1 por cada ERR que no mejora y vuelve a 0 cuando una mejora.<br>• Con conteo = `STAGNATION_THRESHOLD` → bajada(W, `DELOAD`), repeticiones = piso.<br>• **Reinician** la mejor marca y el conteo:<br>  – la ERR hecha después de una sugerencia `DELOAD`, `REENTRY`, `PRESCRIPTION_CHANGED`, `ESTIMATED_FROM_E1RM`, `FROM_EXERCISE_HISTORY` o de calibración;<br>  – una ERR cuya W es **menor** que la de la ERR anterior sin que el motor lo haya sugerido (el usuario bajó la carga por su cuenta);<br>  – una ERR cuyo N es distinto al de la anterior.<br>Qué se sugirió en cada punto se **recalcula** con el mismo fold (RN-SUG-17); no se guarda. |
+| RN-SUG-05 | **Reentrada (prioridad 3 y modificador de 1 y 2).**<br>• **Hueco de inactividad:** el mayor intervalo, en días locales, entre dos entrenamientos finalizados consecutivos **del usuario** (cualquier rutina), o entre el último y hoy, considerado **desde la última exposición usada como base** (la última ERR, o la EE de la estimación).<br>• Más de 42 días → bajada(base, 20 %).<br>• Más de 21 días → bajada(base, 10 %).<br>• En ambos casos, repeticiones = piso.<br>*Ejemplo:* en una rutina de 4 días, después de 30 días sin entrenar, cada ejercicio recibe la reentrada **la primera vez** que se vuelve a hacer, aunque ese día el último entrenamiento haya sido hace 2 días. Una rotación larga **sin** hueco de inactividad no la dispara (caso O). |
+| RN-SUG-06 | **Calibración** (sin ninguna EE, carga externa).<br>• **Serie 1:** carga vacía (RN-ENT-04) e instrucción "Elegí un peso con el que puedas hacer entre {piso} y {tope} repeticiones con buena técnica". Esfuerzo **obligatorio** (salvo con 0 repeticiones). El calentamiento no está disponible.<br>• **Después de cada serie de calibración**, con RTF = repeticiones + RIR:<br>  – **0 repeticiones:** siguiente = redondeo hacia abajo de carga × 0,8, siempre menor que la carga y nunca debajo de la carga mínima. Código `CALIBRATION_STEP_DOWN`.<br>  – **RTF > `E1RM_MAX`:** siguiente = máx(carga + inc, redondeo hacia abajo de carga × 1,2). Código `CALIBRATION_STEP`.<br>  – **En los demás casos:** e1RM de **esa serie** (RN-SUG-07), y la siguiente carga se calcula con la fórmula de RN-SUG-08 sobre ese e1RM. La calibración termina.<br>• En todos los casos, repeticiones = piso. En unilaterales se usa el lado limitante. |
+| RN-SUG-07 | **e1RM** con Brzycki: `e1RM = carga × 36 / (37 − RTF)`, donde RTF = repeticiones + RIR.<br>• Sin RIR informado se asume **RIR 0** (conservador).<br>• Si RTF = 1, entonces e1RM = carga.<br>• **Estándar** si RTF ≤ 10 (dentro del rango validado de la fórmula); **aproximado** si va de 11 a 15 (extrapolación); no se calcula si RTF > 15.<br>• El e1RM de una EE es el mayor e1RM de sus series efectivas.<br>*Fundamento:* P-10. Como el RIR es **estimado**, incluso el e1RM "estándar" tiene un error del orden de una repetición. Tiende a quedar **por debajo** del real (P-06), es decir, del lado seguro. |
+| RN-SUG-08 | **Estimación desde el e1RM.** Se usa el e1RM de la **EE más reciente** que lo tenga (o el de la serie de calibración recién hecha, RN-SUG-06).<br>• RTF objetivo = piso + RIR objetivo. **Si supera 15, la estimación no aplica** y se sigue con `FROM_EXERCISE_HISTORY` (o con la calibración, si no hay EE).<br>• carga = redondeo hacia abajo a la grilla de e1RM × (37 − RTF objetivo) / 36, nunca por debajo de la carga mínima.<br>• repeticiones = piso. |
+| RN-SUG-09 | **Grilla y redondeo.** La **grilla** son los múltiplos del incremento del ejercicio en la **unidad del usuario** (RN-PERF-06). La pertenencia se evalúa con la tolerancia de RN-GEN-02. `redondear` va al múltiplo más cercano; si queda justo en la mitad, hacia arriba.<br>• **subida(W, p)** = redondear(máx(W + inc, W × (1 + p))). Si el resultado no supera a W, se toma el siguiente múltiplo por encima de W.<br>• **bajada(W, p)** = redondear(mín(W − inc, W × (1 − p))). Si el resultado no queda debajo de W, se toma el múltiplo anterior. **Nunca** queda por debajo de la carga mínima (RN-PERF-08).<br>• **Mantener W:** si W no está en la grilla (porque se escribió a mano o se cambió de unidad), se muestra el múltiplo **más cercano** (si queda en la mitad, hacia abajo).<br>• **Estimaciones** (RN-SUG-06, RN-SUG-08): siempre hacia abajo.<br>• **Toda carga sugerida está en la grilla** y es ≥ la carga mínima. |
+| RN-SUG-10 | **El motor usa lo realizado, no lo sugerido.** Las sugerencias no se guardan. El usuario puede registrar cualquier valor válido (RN-ENT-02) sin advertencias que lo bloqueen. |
+| RN-SUG-11 | **Motivo.** Cada sugerencia lleva un código, sus parámetros y la marca opcional `withReentry`. Códigos:<br>`CALIBRATION`, `CALIBRATION_STEP`, `CALIBRATION_STEP_DOWN`, `ESTIMATED_FROM_E1RM`, `FROM_EXERCISE_HISTORY`, `PRESCRIPTION_CHANGED`, `REENTRY`, `DELOAD`, `CONSOLIDATE`, `EARLY_INCREASE`, `HIGH_INCREASE`, `INCREASE_LOAD`, `EXTEND_REPS`, `ADD_REP`, `COMPLETE_SETS`, `REPEAT`, `BODYWEIGHT_CALIBRATION`, `BODYWEIGHT_ADD_REP`, `BODYWEIGHT_READY`.<br>En unilaterales, los parámetros incluyen el **lado limitante**. La presentación convierte todo en textos ([13-textos](13-textos.md#4-motivos-de-sugerencia)). |
+| RN-SUG-12 | **Peso corporal** (ADR-0005):<br>• **Calibración:** "Hacé las que puedas con buena técnica y frená cuando te queden 1 o 2". Las series siguientes precargan las repeticiones de la primera. Código `BODYWEIGHT_CALIBRATION`.<br>• **Después:** si hay al menos N series y todas llegan al tope → repeticiones = tope, código `BODYWEIGHT_READY`. Si no → máx(piso, mín(tope, mínimo + 1)), código `BODYWEIGHT_ADD_REP`.<br>• No hay descarga, reentrada ni e1RM. |
+| RN-SUG-13 | **Dentro del entrenamiento** la sugerencia no se recalcula serie a serie, salvo en la calibración. |
+| RN-SUG-14 | **Cambio de prescripción (prioridad 2).** Si el **rango** (piso o tope) o el **RIR objetivo** actuales difieren de la prescripción de referencia, se vuelve a estimar con RN-SUG-08, usando el e1RM de la última EE que lo tenga. Si no hay e1RM o la estimación no aplica → W, ajustada a la grilla, con el piso del rango actual. Después se aplica la reentrada como modificador, si corresponde. Un cambio solo en la **cantidad de series** no dispara esta regla (pero reinicia la marca, RN-SUG-04). |
+| RN-SUG-15 | **Sustituto y ejercicio no planificado.**<br>• **Prescripción:** la copia del ejercicio de rutina de origen (sustituto) o la que corresponde a un accesorio según el objetivo (ejercicio no planificado, RN-PERF-03).<br>• **Carga:** la regla "sin ERR" de RN-SUG-02, usando las EE de ese ejercicio. |
+| RN-SUG-16 | **Determinismo:** con el mismo historial y la **misma fecha local**, la sugerencia es siempre la misma. La fecha interviene solo en la reentrada (RN-SUG-05). |
+| RN-SUG-17 | **Entradas del fold** (ADR-0009):<br>• las ERR del ejercicio de rutina;<br>• las EE del ejercicio;<br>• las fechas (`startedAt`, `finishedAt`) de **todos** los entrenamientos finalizados del usuario;<br>• la prescripción actual, el incremento, la unidad, la carga mínima y la fecha de hoy.<br>Para reconstruir qué se sugirió **antes** de cada ERR pasada, se usa como "hoy" histórico la fecha local de `startedAt` del entrenamiento de esa ERR. |
+
+## PROG — Progreso
+
+| ID | Regla |
+|---|---|
+| RN-PROG-01 | El progreso es por **ejercicio**: junta todas sus EE (RN-SUG-01). |
+| RN-PROG-02 | El **gráfico de e1RM** tiene un punto por EE con e1RM calculable (RN-SUG-07), marcado como de precisión alta o aproximada. Hace falta al menos **2 puntos** para dibujar la línea; con 1 se muestra solo el punto. |
+| RN-PROG-03 | **Récords personales**, calculados solo con series efectivas:<br>• (a) mayor e1RM, de precisión alta o aproximada;<br>• (b) mayor carga con al menos 1 repetición;<br>• (c) más repeticiones con cada carga ya usada.<br>En peso corporal: más repeticiones en una serie.<br>**En el resumen del entrenamiento** (RF-ENT-11) solo se **destacan** (a) y (b), y solo si el ejercicio ya tenía al menos una EE anterior. (c) se ve únicamente en el progreso del ejercicio. |
+| RN-PROG-04 | **Volumen semanal:** la semana va de lunes a domingo (RN-GEN-01). Por cada serie efectiva se suma **1 a cada músculo principal** del ejercicio y **0,5 a cada músculo secundario** (método fraccional, P-03). Una serie unilateral cuenta como 1 serie (ADR-0008). |

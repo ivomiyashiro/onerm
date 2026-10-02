@@ -1,0 +1,29 @@
+# 05 — Requisitos no funcionales
+
+Se clasifican según **ISO/IEC 25010**. Cada RNF indica **cómo se verifica**.
+
+| ID | Característica (ISO 25010) | Requisito | Verificación |
+|---|---|---|---|
+| RNF-01 | Fiabilidad · Disponibilidad | Ninguna acción de rutinas, entrenamiento, sugerencias ni progreso requiere conexión. | Prueba manual en modo avión que recorre todos los RF de esas épicas. |
+| RNF-02 | Fiabilidad · Tolerancia a fallos | Una serie confirmada persiste aunque la app se cierre o se mate el proceso inmediatamente después. | Confirmar una serie, matar el proceso desde la configuración de Android, reabrir y verificar. |
+| RNF-03 | Eficiencia · Tiempo de respuesta | Confirmar una serie da respuesta visual en **menos de 100 ms**, con o sin conexión. | Medición en un dispositivo de gama media. |
+| RNF-04 | Fiabilidad · Recuperabilidad | La sincronización es **idempotente**: reenviar el mismo cambio no genera duplicados. | Test de integración que reenvía el mismo lote dos veces. |
+| RNF-05 | Fiabilidad · Consistencia | **Convergencia:** después de sincronizar dos dispositivos sin cambios nuevos, sus datos son idénticos. | Test con dos clientes simulados y ediciones cruzadas (RF-SYNC-05). Incluye un test de pull con más de 500 filas dentro de una misma ventana de 5 s (paginación por keyset, 07 §4.1). |
+| RNF-06 | Seguridad · Confidencialidad | Un usuario **no puede leer ni modificar** datos de otro usuario. Todas las tablas con datos de usuario tienen RLS activo. | Test automatizado con dos usuarios contra Supabase y revisión del Security Advisor de Supabase. |
+| RNF-07 | Seguridad · Confidencialidad | La sesión de autenticación se guarda **cifrada** (AES), con la clave en el **almacenamiento seguro del sistema operativo** (Keystore o Keychain, vía `expo-secure-store`). Nunca en texto plano (07 §1.1). | Revisión de código. |
+| RNF-08 | Seguridad | La clave `service_role` de Supabase **nunca** se incluye en la app. Solo la usa el seed del catálogo desde la máquina del mantenedor. | Búsqueda en el bundle y revisión de código. |
+| RNF-09 | Seguridad | Toda comunicación con servicios remotos es HTTPS. | Configuración y revisión. |
+| RNF-10 | Usabilidad · Protección contra errores | La sincronización **nunca bloquea** la interfaz ni muestra diálogos durante un entrenamiento en curso. | Prueba manual: cortar la red durante un entrenamiento. |
+| RNF-11 | Mantenibilidad · Modularidad | La capa de dominio **no importa** SDKs externos (Supabase, SQLite, Expo). Supabase y las fuentes de catálogo solo aparecen en la capa de datos o en el seed. | Regla de lint de imports (ej.: `eslint-plugin-boundaries`) en CI. |
+| RNF-12 | Mantenibilidad · Capacidad de prueba | Las reglas de negocio del motor y de sync se prueban con tests unitarios **sin red ni base real**. | Suite de tests del dominio. |
+| RNF-13 | Eficiencia · Tiempo de respuesta | Calcular la sugerencia de un ejercicio, recorriendo todo su historial, toma **menos de 50 ms** con 500 exposiciones en un dispositivo de gama media. | Benchmark del motor con un historial sintético. |
+| RNF-14 | Eficiencia · Capacidad | El historial y los gráficos siguen siendo fluidos (sin frames perdidos visibles) con **1.000 entrenamientos** registrados. | Prueba con datos sintéticos y el monitor de rendimiento de React Native. |
+| RNF-15 | Mantenibilidad · Capacidad de prueba | Cada caso de referencia de [sugerencias.md](03-requisitos/sugerencias.md#casos-de-referencia) tiene su test unitario, y todos pasan. | Suite de tests del dominio en CI. Además, cada código de motivo (RN-SUG-11) aparece en al menos un caso. |
+| RNF-16 | Usabilidad · Accesibilidad | Los blancos táctiles miden **≥ 48 × 48 dp**, y las acciones principales del entrenamiento ("Hecho", ±) **≥ 56 dp**. | Revisión en Figma e inspector de accesibilidad. |
+| RNF-17 | Usabilidad · Accesibilidad | Contraste de texto **≥ 4,5:1** (WCAG 2.1 AA), y ≥ 3:1 en texto grande y en íconos significativos. | Verificador de contraste sobre los tokens de color. |
+| RNF-18 | Usabilidad · Accesibilidad | Todo control tiene una **etiqueta para el lector de pantalla** (TalkBack / VoiceOver). Con la fuente del sistema al **150 %**, las pantallas S07, S09 y S21 no cortan contenido ni superponen controles. | Prueba manual con TalkBack y fuente grande. |
+| RNF-19 | Compatibilidad | Android **mínimo: el `minSdkVersion` por defecto del SDK de Expo** que se use (hoy API 24, Android 7.0; se confirma al fijar el SDK). Se prueba en Android 10 o superior. **Plataforma de referencia del TPO.** | Configuración de build + pruebas en emulador o dispositivo. Resuelve Q-08. |
+| RNF-20 | Portabilidad | La app compila y ejecuta **todas las funciones del MVP en el simulador de iOS**, sin código exclusivo de Android (ADR-0012). *Should.* | Prueba de humo en iOS antes de cada entrega. |
+| RNF-21 | Usabilidad | La interfaz está **en español**, con todos los textos centralizados en `presentation/strings`. No hay textos escritos directamente en los componentes. | Lint o revisión de código. |
+| RNF-22 | Eficiencia · Batería | El temporizador **no usa procesos en segundo plano**: se basa en una notificación local programada (RN-ENT-07). La pantalla se mantiene encendida **solo** en S09. La sync no hace sondeos periódicos (solo usa los disparadores de RN-SYNC-06). Los reintentos con backoff (07 §4.1) solo corren con la app en primer plano y con pendientes. | Revisión de código y prueba de 30 minutos con la app en segundo plano. |
+| RNF-23 | Fiabilidad · Madurez | El aviso de fin de descanso con la pantalla bloqueada llega con **≤ 5 s de retraso** cuando el sistema permite alarmas exactas. Si el sistema no las permite (por ejemplo, restricciones de Android 12+ o del modo de ahorro), el retraso se documenta como limitación conocida y el aviso en primer plano sigue siendo exacto. | Prueba en un dispositivo físico Android 12+ y en el simulador de iOS (spike técnico). |

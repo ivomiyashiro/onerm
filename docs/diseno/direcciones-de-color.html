@@ -1,0 +1,337 @@
+<title>Direcciones de color OneRM</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,400..800&family=Barlow+Semi+Condensed:wght@500;600;700&family=Figtree:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&family=Onest:wght@400;500;600;700&family=Schibsted+Grotesk:wght@400;500;600;700&display=swap">
+<style>
+/* Layout: página de trabajo — encabezado con el brief, luego una sección por dirección con muestras, contraste y 4 maquetas (S07/S09 × claro/oscuro). */
+:root {
+  --bg: #F2F3F1;
+  --panel: #FFFFFF;
+  --ink: #16181A;
+  --ink-2: #53575C;
+  --line: #D9DBD7;
+  --focus: #1747C8;
+  --pass: #1F7A45;
+  --fail: #B42318;
+  --font-ui: "Schibsted Grotesk", "Helvetica Neue", Arial, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #121315; --panel: #1B1C1F; --ink: #ECECEA; --ink-2: #A3A6AA; --line: #2E3034;
+    --focus: #7FA6FF; --pass: #5BC98A; --fail: #FF7B7B; color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #121315; --panel: #1B1C1F; --ink: #ECECEA; --ink-2: #A3A6AA; --line: #2E3034;
+  --focus: #7FA6FF; --pass: #5BC98A; --fail: #FF7B7B; color-scheme: dark;
+}
+* { box-sizing: border-box; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-ui); font-size: 15px; line-height: 1.5; padding-inline: 16px; padding-block: 32px 64px; }
+.wrap { max-width: 1480px; margin: 0 auto; display: grid; gap: 48px; }
+h1, h2, h3 { text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(28px, 4vw, 40px); font-weight: 700; letter-spacing: -0.01em; }
+h2 { font-size: 26px; font-weight: 700; }
+p { margin: 0; }
+.eyebrow { font-size: 12px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-2); font-weight: 600; }
+.intro { display: grid; gap: 20px; }
+.intro .lede { max-width: 68ch; color: var(--ink-2); font-size: 17px; }
+.principles { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 12px; }
+.principles div { background: var(--panel); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px; display: grid; gap: 4px; }
+.principles b { font-size: 14px; }
+.principles span { color: var(--ink-2); font-size: 14px; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; position: sticky; top: env(safe-area-inset-top, 0px); z-index: 5; background: var(--bg); padding-block: 10px; border-bottom: 1px solid var(--line); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 999px; overflow: hidden; background: var(--panel); }
+.seg button { font: inherit; font-size: 14px; border: 0; background: transparent; color: var(--ink); padding: 8px 14px; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--ink); color: var(--bg); }
+.seg button:focus-visible, a:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.controls .hint { color: var(--ink-2); font-size: 13px; }
+section.dir { display: grid; gap: 24px; padding-top: 8px; }
+.dir-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.2fr); gap: 24px 40px; align-items: start; }
+@media (max-width: 900px) { .dir-head { grid-template-columns: minmax(0, 1fr); } }
+.dir-head .idea { display: grid; gap: 10px; }
+.dir-head .idea p { color: var(--ink-2); max-width: 60ch; }
+.typesample { display: flex; flex-wrap: wrap; gap: 8px 18px; align-items: baseline; margin-top: 6px; }
+.typesample .num { font-size: 40px; line-height: 1; }
+.typesample .body { font-size: 15px; }
+.typesample small { display: block; color: var(--ink-2); font-size: 12px; font-family: var(--font-ui); }
+.swatches { display: grid; grid-template-columns: repeat(auto-fill, minmax(118px, 1fr)); gap: 10px; }
+.sw { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--panel); font-size: 12px; }
+.sw .chip { height: 46px; display: flex; align-items: flex-end; justify-content: space-between; padding: 6px 8px; }
+.sw .chip i { font-style: normal; font-weight: 600; font-size: 13px; }
+.sw .meta { padding: 6px 8px; display: grid; gap: 1px; }
+.sw .meta b { font-size: 12px; }
+.sw .meta code { font-size: 11px; color: var(--ink-2); }
+.contrast { font-size: 13px; color: var(--ink-2); display: flex; flex-wrap: wrap; gap: 6px 14px; }
+.contrast .ok { color: var(--pass); font-weight: 600; }
+.contrast .ko { color: var(--fail); font-weight: 600; }
+.phones { display: flex; flex-wrap: wrap; justify-content: center; gap: 32px 40px; }
+.pair { display: flex; flex-wrap: wrap; justify-content: center; gap: 28px 20px; }
+figure { margin: 0; display: grid; gap: 10px; justify-items: center; }
+figcaption { font-size: 13px; color: var(--ink-2); }
+hr.sep { border: 0; border-top: 1px solid var(--line); margin: 0; }
+footer { color: var(--ink-2); font-size: 13px; max-width: 80ch; }
+
+/* ——— Teléfono: todo sale de variables --p-* definidas por dirección y modo ——— */
+.phone { width: 376px; height: 808px; border-radius: 36px; background: var(--p-bg); color: var(--p-text); border: 8px solid #0A0A0B; box-shadow: 0 1px 0 rgba(0,0,0,.04), 0 18px 40px -18px rgba(0,0,0,.35); overflow: hidden; display: flex; flex-direction: column; font-family: var(--p-font-body); position: relative; }
+.phone .status { height: 30px; flex: none; display: flex; justify-content: space-between; align-items: center; padding: 0 20px; font-size: 12px; font-weight: 600; color: var(--p-text); font-family: var(--font-ui); }
+.phone .num { font-family: var(--p-font-num); font-stretch: var(--p-num-stretch, 100%); }
+.muted { color: var(--p-muted); }
+/* S07 */
+.s07 .top { padding: 8px 18px 14px; display: grid; gap: 2px; }
+.s07 .top .rt { font-size: 12px; color: var(--p-muted); }
+.s07 .top h4 { margin: 0; font-size: 26px; font-family: var(--p-font-head); font-weight: var(--p-head-weight); font-stretch: var(--p-num-stretch, 100%); letter-spacing: -0.01em; }
+.s07 .top a { color: var(--p-link); font-size: 13px; font-weight: 600; text-decoration: none; justify-self: start; padding-block: 4px; }
+.s07 .list { flex: 1; min-height: 0; overflow: hidden; padding: 0 12px; display: grid; gap: 8px; align-content: start; }
+.s07 .ex { background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 14px; padding: 10px 12px; display: grid; gap: 2px; }
+.s07 .ex .name { font-size: 13px; font-weight: 600; }
+.s07 .ex .sug { font-size: 22px; font-weight: 600; line-height: 1.15; }
+.s07 .ex .sug small { font-size: 14px; font-weight: 500; color: var(--p-muted); }
+.s07 .ex .why { font-size: 12px; color: var(--p-muted); line-height: 1.35; }
+.tag { display: inline-block; font-size: 12px; font-weight: 600; padding: 3px 8px; border-radius: 999px; background: var(--p-surface2); color: var(--p-text); justify-self: start; margin-block: 3px; }
+.tag.reentry { background: var(--p-accent-soft); color: var(--p-text); }
+.cta { flex: none; padding: 10px 14px 8px; background: var(--p-bg); }
+.btn { height: 56px; border-radius: 16px; background: var(--p-primary); color: var(--p-on-primary); display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 17px; font-family: var(--p-font-body); letter-spacing: 0.01em; }
+.tabs { flex: none; display: grid; grid-template-columns: repeat(4, 1fr); border-top: 1px solid var(--p-border); padding: 6px 0 12px; background: var(--p-surface); }
+.tabs div { display: grid; justify-items: center; gap: 2px; font-size: 11px; color: var(--p-muted); }
+.tabs div.on { color: var(--p-link); font-weight: 600; }
+.tabs svg { width: 22px; height: 22px; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+/* S09 */
+.s09 .bar { flex: none; display: flex; align-items: center; justify-content: space-between; padding: 4px 16px 6px; }
+.s09 .bar .t { display: grid; }
+.s09 .bar .t b { font-size: 15px; }
+.s09 .bar .t span { font-size: 11px; color: var(--p-muted); }
+.s09 .bar .clock { font-size: 15px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.s09 .dots { width: 36px; height: 36px; border-radius: 10px; display: grid; place-items: center; color: var(--p-muted); font-size: 20px; line-height: 1; }
+.s09 .body { flex: 1; min-height: 0; overflow: hidden; padding: 4px 14px 0; display: grid; gap: 8px; align-content: start; }
+.s09 .progress { display: flex; gap: 4px; }
+.s09 .progress i { flex: 1; height: 4px; border-radius: 4px; background: var(--p-surface2); }
+.s09 .progress i.d { background: var(--p-primary); }
+.s09 .progress i.c { background: var(--p-primary); opacity: .45; }
+.s09 h4 { margin: 4px 0 0; font-size: 21px; font-family: var(--p-font-head); font-weight: var(--p-head-weight); font-stretch: var(--p-num-stretch, 100%); line-height: 1.15; }
+.s09 .meta { display: flex; flex-wrap: wrap; gap: 6px; align-items: center; }
+.s09 .reason { background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 12px; padding: 8px 10px; font-size: 12.5px; line-height: 1.35; display: flex; gap: 8px; justify-content: space-between; align-items: flex-start; }
+.s09 .reason a { color: var(--p-link); font-weight: 600; text-decoration: none; white-space: nowrap; }
+.sets { display: grid; gap: 6px; }
+.set { display: grid; grid-template-columns: 22px 1fr auto 26px; align-items: center; gap: 8px; padding: 8px 10px; border-radius: 12px; background: var(--p-surface); border: 1px solid var(--p-border); font-size: 13px; }
+.set .n { color: var(--p-muted); font-weight: 600; font-size: 12px; }
+.set .v { font-size: 17px; font-weight: 600; }
+.set .e { font-size: 12px; color: var(--p-muted); }
+.set .ok { width: 24px; height: 24px; border-radius: 50%; background: var(--p-success-soft); color: var(--p-success); display: grid; place-items: center; font-size: 13px; font-weight: 700; }
+.set.cur { border: 2px solid var(--p-primary); background: var(--p-bg); }
+.set.cur .v { color: var(--p-muted); }
+.effort { grid-column: 1 / -1; display: grid; gap: 6px; margin-top: 4px; }
+.effort span { font-size: 12px; color: var(--p-text); font-weight: 600; }
+.effort .opts { display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.effort .opts b { height: 40px; border-radius: 10px; border: 1px solid var(--p-border-strong); display: grid; place-items: center; font-size: 13px; font-weight: 600; background: var(--p-bg); }
+.timer { flex: none; margin: 8px 14px 0; border-radius: 14px; background: var(--p-accent); color: var(--p-on-accent); padding: 8px 10px 8px 14px; display: flex; align-items: center; gap: 8px; }
+.timer .tt { flex: 1; display: grid; }
+.timer .tt small { font-size: 11px; font-weight: 600; opacity: .85; }
+.timer .tt b { font-size: 26px; line-height: 1; font-variant-numeric: tabular-nums; }
+.timer .tb { height: 36px; min-width: 44px; padding: 0 8px; border-radius: 10px; display: grid; place-items: center; font-size: 12px; font-weight: 700; background: var(--p-on-accent-veil); }
+.panel { flex: none; padding: 10px 14px 14px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 10px; background: var(--p-bg); }
+.steppers { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.stp { background: var(--p-surface); border: 1px solid var(--p-border); border-radius: 16px; padding: 8px; display: grid; gap: 2px; justify-items: center; }
+.stp small { font-size: 11px; color: var(--p-muted); font-weight: 600; }
+.stp .row { display: grid; grid-template-columns: 56px 56px; justify-content: center; gap: 8px; }
+.stp .pm { width: 56px; height: 56px; border-radius: 12px; background: var(--p-surface2); display: grid; place-items: center; font-size: 22px; font-weight: 600; color: var(--p-text); }
+.stp .val { text-align: center; font-size: 36px; font-weight: 700; line-height: 1.05; }
+.stp .val small { font-size: 14px; font-weight: 500; color: var(--p-muted); margin-left: 3px; }
+.stp .unit { font-size: 11px; color: var(--p-muted); }
+.warm { display: flex; justify-content: space-between; align-items: center; font-size: 13px; color: var(--p-muted); padding: 0 4px; }
+.switch { width: 40px; height: 24px; border-radius: 999px; background: var(--p-surface2); border: 1px solid var(--p-border-strong); position: relative; }
+.switch::after { content: ""; position: absolute; top: 3px; left: 3px; width: 16px; height: 16px; border-radius: 50%; background: var(--p-muted); }
+@media (prefers-reduced-motion: no-preference) { .phone { transition: background-color .2s; } }
+</style>
+
+<div class="wrap">
+  <header class="intro">
+    <p class="eyebrow">Fase 1 · Identidad visual</p>
+    <h1>Direcciones de color</h1>
+    <p class="lede">Un entrenador que sabe de ciencia, habla claro y te dice exactamente qué hacer hoy. Cada dirección se muestra sobre Inicio (S07) y Entrenamiento en curso (S09), en claro y oscuro, con datos de los casos de referencia del motor.</p>
+    <div class="principles">
+      <div><b>El número es el héroe</b><span>Carga × repeticiones, grande y con dígitos tabulares.</span></div>
+      <div><b>Un color para actuar</b><span>El primario marca solo la acción siguiente.</span></div>
+      <div><b>Un color para el tiempo</b><span>El acento es para el descanso y los récords.</span></div>
+      <div><b>Semántica aparte</b><span>Éxito, advertencia y error no son la marca.</span></div>
+      <div><b>Accesible por defecto</b><span>Todo texto ≥ 4,5:1 en ambos modos (RNF-17).</span></div>
+    </div>
+  </header>
+
+  <div class="controls" role="group" aria-label="Opciones de visualización">
+    <div class="seg" id="modeSeg">
+      <button type="button" id="m-both" data-mode="both" aria-pressed="true">Claro y oscuro</button>
+      <button type="button" id="m-light" data-mode="light" aria-pressed="false">Solo claro</button>
+      <button type="button" id="m-dark" data-mode="dark" aria-pressed="false">Solo oscuro</button>
+    </div>
+    <div class="seg" id="dirSeg">
+      <button type="button" id="d-all" data-dir="all" aria-pressed="true">Las tres</button>
+      <button type="button" id="d-A" data-dir="A" aria-pressed="false">A</button>
+      <button type="button" id="d-B" data-dir="B" aria-pressed="false">B</button>
+      <button type="button" id="d-C" data-dir="C" aria-pressed="false">C</button>
+    </div>
+    <span class="hint">Las maquetas usan su propio modo, independiente del tema de esta página.</span>
+  </div>
+
+  <main id="dirs" style="display:grid;gap:56px"></main>
+
+  <footer>Contraste calculado con la fórmula de luminancia relativa de WCAG 2.x sobre los mismos valores que usan las maquetas. Textos tomados de 13-textos (motivos en versión novato). Datos: casos de referencia A, G, O y Q de sugerencias.</footer>
+</div>
+
+<script>
+const DIRS = {
+  A: {
+    name: 'A · Disco calibrado',
+    idea: 'Los discos olímpicos: el azul de 20 kg y el amarillo de 15 kg sobre neutros de acero. Deportiva y técnica, reconocible en cualquier gimnasio.',
+    fonts: { num: '"Barlow Semi Condensed", "Arial Narrow", sans-serif', body: 'Figtree, "Helvetica Neue", Arial, sans-serif', head: '"Barlow Semi Condensed", "Arial Narrow", sans-serif', headWeight: 700, stretch: '100%' },
+    fontLabel: 'Barlow Semi Condensed / Figtree',
+    light: { bg:'#F4F6F9', surface:'#FFFFFF', surface2:'#E9EDF3', border:'#DCE2EA', borderStrong:'#B9C3D1', text:'#0E1726', muted:'#4A5568', primary:'#1747C8', onPrimary:'#FFFFFF', link:'#1747C8', accent:'#F5C518', onAccent:'#1A1400', accentSoft:'#FCEFB4', success:'#177A3E', successSoft:'#DCF1E4', warning:'#8A5D00', danger:'#C62828' },
+    dark:  { bg:'#0B1018', surface:'#131A25', surface2:'#1C2533', border:'#253041', borderStrong:'#3A4658', text:'#E8EDF5', muted:'#9AA7B8', primary:'#7FA6FF', onPrimary:'#06122E', link:'#7FA6FF', accent:'#F5C518', onAccent:'#1A1400', accentSoft:'#3D3510', success:'#4CC47A', successSoft:'#12301F', warning:'#E3B341', danger:'#FF7B7B' }
+  },
+  B: {
+    name: 'B · Bitácora',
+    idea: 'El cuaderno de entrenamiento con método: petróleo de tinta y ámbar de resaltador. Tranquila y científica, la más cercana a "basada en evidencia".',
+    fonts: { num: '"IBM Plex Mono", ui-monospace, Menlo, monospace', body: '"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif', head: '"IBM Plex Sans", "Helvetica Neue", Arial, sans-serif', headWeight: 600, stretch: '100%' },
+    fontLabel: 'IBM Plex Mono / IBM Plex Sans',
+    light: { bg:'#F3F5F4', surface:'#FFFFFF', surface2:'#E6ECEA', border:'#D8E0DE', borderStrong:'#B3C1BE', text:'#111C1B', muted:'#4B5957', primary:'#0D5C63', onPrimary:'#FFFFFF', link:'#0D5C63', accent:'#E8A33D', onAccent:'#1F1403', accentSoft:'#F8E3C0', success:'#2E7D4F', successSoft:'#DDEFE3', warning:'#855600', danger:'#B3261E' },
+    dark:  { bg:'#0C1414', surface:'#121D1D', surface2:'#1A2828', border:'#223232', borderStrong:'#35494A', text:'#E4EEEC', muted:'#93A6A3', primary:'#5CC3C9', onPrimary:'#04201F', link:'#5CC3C9', accent:'#F0B458', onAccent:'#1F1403', accentSoft:'#3A2C14', success:'#5CC98A', successSoft:'#13301F', warning:'#E6B450', danger:'#FF7A70' }
+  },
+  C: {
+    name: 'C · Brasa',
+    idea: 'Esfuerzo y calor sobre hierro: naranja quemado y grafito, con una grotesca condensada. La más enérgica de las tres, sin caer en lo agresivo.',
+    fonts: { num: 'Archivo, "Arial Narrow", sans-serif', body: 'Onest, "Helvetica Neue", Arial, sans-serif', head: 'Archivo, "Arial Narrow", sans-serif', headWeight: 800, stretch: '78%' },
+    fontLabel: 'Archivo condensada / Onest',
+    light: { bg:'#F4F4F3', surface:'#FFFFFF', surface2:'#EAE9E7', border:'#DEDDDA', borderStrong:'#BDBBB7', text:'#17181A', muted:'#52555A', primary:'#B93C0B', onPrimary:'#FFFFFF', link:'#B93C0B', accent:'#24272D', onAccent:'#FFFFFF', accentSoft:'#FBE3D6', success:'#1F7A45', successSoft:'#DCF0E3', warning:'#8A5800', danger:'#BE123C' },
+    dark:  { bg:'#111214', surface:'#1A1B1E', surface2:'#24262A', border:'#2C2E33', borderStrong:'#43464C', text:'#EDEDEC', muted:'#A1A3A8', primary:'#FF8047', onPrimary:'#2A0E00', link:'#FF8047', accent:'#E7E5E4', onAccent:'#111214', accentSoft:'#3A2216', success:'#5BC98A', successSoft:'#12301F', warning:'#F2B84B', danger:'#FF6B8A' }
+  }
+};
+
+function lum(h) {
+  const c = [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16) / 255).map(x => x <= 0.03928 ? x / 12.92 : Math.pow((x + 0.055) / 1.055, 2.4));
+  return 0.2126 * c[0] + 0.7152 * c[1] + 0.0722 * c[2];
+}
+function ratio(a, b) { const [x, y] = [lum(a), lum(b)].sort((m, n) => n - m); return (x + 0.05) / (y + 0.05); }
+const fmt = r => r.toFixed(1).replace('.', ',');
+
+function vars(d, m) {
+  const p = DIRS[d][m], f = DIRS[d].fonts;
+  return `--p-bg:${p.bg};--p-surface:${p.surface};--p-surface2:${p.surface2};--p-border:${p.border};--p-border-strong:${p.borderStrong};--p-text:${p.text};--p-muted:${p.muted};--p-primary:${p.primary};--p-on-primary:${p.onPrimary};--p-link:${p.link};--p-accent:${p.accent};--p-on-accent:${p.onAccent};--p-accent-soft:${p.accentSoft};--p-success:${p.success};--p-success-soft:${p.successSoft};--p-on-accent-veil:${p.onAccent === '#FFFFFF' ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.10)'};--p-font-num:${f.num};--p-font-body:${f.body};--p-font-head:${f.head};--p-head-weight:${f.headWeight};--p-num-stretch:${f.stretch}`;
+}
+
+const ICONS = {
+  home: '<svg viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9h-5v-6H9v6H4z"/></svg>',
+  list: '<svg viewBox="0 0 24 24"><path d="M8 6h12M8 12h12M8 18h12M4 6h.01M4 12h.01M4 18h.01"/></svg>',
+  chart: '<svg viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg>',
+  user: '<svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21c1.5-4 4.5-6 8-6s6.5 2 8 6"/></svg>'
+};
+const status = '<div class="status"><span>9:41</span><span>▮▮▮ ◔</span></div>';
+
+function s07() {
+  const ex = [
+    ['Prensa de piernas', '90', '10', 'Volvés después de 25 días: arrancamos un poco más liviano.', 'reentry'],
+    ['Press de pecho en máquina', '62,5', '8', '¡Completaste 3 × 12! Subimos a 62,5 kg.'],
+    ['Remo sentado en polea', '45', '11', 'Mismo peso, intentá 11 repeticiones.'],
+    ['Peso muerto rumano con mancuernas', null, null, 'Primera vez: elegí un peso con el que puedas hacer entre 8 y 12 con buena técnica.'],
+    ['Press de hombros con mancuernas', '12', '14', 'Antes de subir, intentá 14: el próximo peso es un salto grande.'],
+    ['Curl de bíceps con mancuernas', '10', '12', 'Hacé las 2 series con 10 kg × 12 para subir.']
+  ];
+  const items = ex.map(([n, kg, r, why, k]) => `
+    <div class="ex">
+      <div class="name">${n}</div>
+      ${kg ? `<div class="sug num">${kg} <small>kg</small> × ${r}</div>` : '<span class="tag">Calibración</span>'}
+      ${k === 'reentry' ? '<span class="tag reentry">Volvés de una pausa</span>' : ''}
+      <div class="why">${why}</div>
+    </div>`).join('');
+  return `<div class="s07" style="display:contents">${status}
+    <div class="top"><span class="rt">Cuerpo completo A/B · 3 días</span><h4>Hoy toca: Día A</h4><a href="#" onclick="return false">Cambiar día</a></div>
+    <div class="list">${items}</div>
+    <div class="cta"><div class="btn">Empezar</div></div>
+    <nav class="tabs"><div class="on">${ICONS.home}Inicio</div><div>${ICONS.list}Rutinas</div><div>${ICONS.chart}Progreso</div><div>${ICONS.user}Perfil</div></nav></div>`;
+}
+
+function s09() {
+  return `<div class="s09" style="display:contents">${status}
+    <div class="bar"><div class="t"><b>Día A</b><span>Se respalda al finalizar</span></div><span class="clock num">18:42</span><span class="dots" aria-hidden="true">⋯</span></div>
+    <div class="body">
+      <div class="progress" aria-hidden="true"><i class="d"></i><i class="c"></i><i></i><i></i><i></i><i></i></div>
+      <h4>Press de pecho en máquina</h4>
+      <div class="meta"><span class="tag num">3 × 8–12</span><span class="muted" style="font-size:12px">Ejercicio 2 de 6</span></div>
+      <div class="reason"><span>¡Completaste 3 × 12! Subimos a 62,5 kg.</span><a href="#" onclick="return false">¿Por qué?</a></div>
+      <div class="sets">
+        <div class="set"><span class="n">1</span><span class="v num">62,5 kg × 8</span><span class="e">2 o 3 más</span><span class="ok">✓</span></div>
+        <div class="set"><span class="n">2</span><span class="v num">62,5 kg × 8</span><span class="e"></span><span class="ok">✓</span>
+          <div class="effort"><span>¿Cuántas más podías hacer?</span><div class="opts"><b>Ninguna</b><b>1</b><b>2 o 3</b><b>4 o más</b></div></div></div>
+        <div class="set cur"><span class="n">3</span><span class="v num">62,5 kg × 8</span><span class="e">En curso</span><span></span></div>
+      </div>
+    </div>
+    <div class="timer"><div class="tt"><small>Descanso</small><b class="num">1:34</b></div><span class="tb">+15 s</span><span class="tb">Reiniciar</span><span class="tb">Saltear</span></div>
+    <div class="panel">
+      <div class="steppers">
+        <div class="stp"><small>Carga</small><span class="val num">62,5<small>kg</small></span><div class="row"><span class="pm">−</span><span class="pm">+</span></div></div>
+        <div class="stp"><small>Repeticiones</small><span class="val num">8</span><div class="row"><span class="pm">−</span><span class="pm">+</span></div></div>
+      </div>
+      <div class="warm"><span>Calentamiento</span><span class="switch" aria-hidden="true"></span></div>
+      <div class="btn">Hecho</div>
+    </div></div>`;
+}
+
+function contrastRow(d, m) {
+  const p = DIRS[d][m];
+  const pairs = [['Texto / fondo', p.text, p.bg], ['Secundario / superficie', p.muted, p.surface], ['Botón', p.onPrimary, p.primary], ['Enlace / fondo', p.link, p.bg], ['Temporizador', p.onAccent, p.accent], ['Éxito', p.success, p.surface]];
+  return pairs.map(([l, a, b]) => { const r = ratio(a, b); return `<span>${l} <span class="${r >= 4.5 ? 'ok' : 'ko'}">${fmt(r)}:1</span></span>`; }).join('');
+}
+
+function swatches(d) {
+  const L = DIRS[d].light, D = DIRS[d].dark;
+  const list = [['Primario', 'primary', 'onPrimary'], ['Acento', 'accent', 'onAccent'], ['Fondo', 'bg', 'text'], ['Superficie', 'surface2', 'text'], ['Texto', 'text', 'bg'], ['Éxito', 'success', 'surface'], ['Advertencia', 'warning', 'surface'], ['Error', 'danger', 'surface']];
+  return list.map(([label, k, on]) => `
+    <div class="sw">
+      <div style="display:grid;grid-template-columns:1fr 1fr">
+        <div class="chip" style="background:${L[k]};color:${L[on]}"><i>Aa</i></div>
+        <div class="chip" style="background:${D[k]};color:${D[on]}"><i>Aa</i></div>
+      </div>
+      <div class="meta"><b>${label}</b><code>${L[k]} · ${D[k]}</code></div>
+    </div>`).join('');
+}
+
+let state = { mode: 'both', dir: 'all' };
+try { const s = JSON.parse(localStorage.getItem('onerm-dirs') || 'null'); if (s) state = Object.assign(state, s); } catch (e) {}
+
+function render() {
+  const modes = state.mode === 'both' ? ['light', 'dark'] : [state.mode];
+  const dirs = state.dir === 'all' ? ['A', 'B', 'C'] : [state.dir];
+  const label = { light: 'claro', dark: 'oscuro' };
+  document.getElementById('dirs').innerHTML = dirs.map((d, i) => {
+    const D = DIRS[d];
+    const phones = [];
+    for (const m of modes) {
+      phones.push(`<div class="pair"><figure><div class="phone" style="${vars(d, m)}">${s07()}</div><figcaption>S07 Inicio · ${label[m]}</figcaption></figure>
+        <figure><div class="phone" style="${vars(d, m)}">${s09()}</div><figcaption>S09 Entrenamiento · ${label[m]}</figcaption></figure></div>`);
+    }
+    return `${i ? '<hr class="sep">' : ''}<section class="dir" aria-labelledby="h-${d}">
+      <div class="dir-head">
+        <div class="idea">
+          <p class="eyebrow">Dirección ${d}</p>
+          <h2 id="h-${d}">${D.name}</h2>
+          <p>${D.idea}</p>
+          <div class="typesample">
+            <span><span class="num" style="font-family:${D.fonts.num};font-stretch:${D.fonts.stretch};font-weight:700">62,5 × 8</span><small>Datos</small></span>
+            <span><span class="body" style="font-family:${D.fonts.body}">¿Cuántas más podías hacer?</span><small>Texto · ${D.fontLabel}</small></span>
+          </div>
+        </div>
+        <div style="display:grid;gap:12px">
+          <div class="swatches">${swatches(d)}</div>
+          <div class="contrast"><b style="color:var(--ink)">Claro</b>${contrastRow(d, 'light')}</div>
+          <div class="contrast"><b style="color:var(--ink)">Oscuro</b>${contrastRow(d, 'dark')}</div>
+        </div>
+      </div>
+      <div class="phones">${phones.join('')}</div>
+    </section>`;
+  }).join('');
+  for (const b of document.querySelectorAll('#modeSeg button')) b.setAttribute('aria-pressed', String(b.dataset.mode === state.mode));
+  for (const b of document.querySelectorAll('#dirSeg button')) b.setAttribute('aria-pressed', String(b.dataset.dir === state.dir));
+  try { localStorage.setItem('onerm-dirs', JSON.stringify(state)); } catch (e) {}
+}
+document.getElementById('modeSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.mode = b.dataset.mode; render(); } });
+document.getElementById('dirSeg').addEventListener('click', e => { const b = e.target.closest('button'); if (b) { state.dir = b.dataset.dir; render(); } });
+render();
+</script>
