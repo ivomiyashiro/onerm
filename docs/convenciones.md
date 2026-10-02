@@ -115,5 +115,6 @@ Una card pasa a `Hecho` cuando:
 | Gestor de paquetes | **bun** (soportado por Expo). Solo se commitea `bun.lock` |
 | Node | 22 LTS |
 | Estructura | La app en la raíz del repo, sin monorepo: `app/`, `src/`, `supabase/`, `tools/`, `docs/` (12 §5) |
-| Nombre y bundle id | **TODO:** se define antes del primer development build (issue en F0). Por ahora, `onerm` |
+| Nombre y bundle id | App **OneRM** · bundle id `com.training.onerm`, igual en Android (`applicationId`) e iOS (`bundleIdentifier`). Decidido el 2026-10-02 (#1) |
+| Ramas de larga vida | Solo `main`, sin `dev`: no hay ambientes ni releases que separar. Los hitos (preentrega, entrega final) se marcan con tags SemVer sobre `main` (`v0.1.0`, `v1.0.0`) |
 | Idioma | Código e identificadores en inglés (glosario 01). Documentación, commits e issues en español |

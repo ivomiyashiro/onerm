@@ -121,7 +121,7 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 
 | # | Entregable | Fuente en la especificación |
 |---|---|---|
-| 1 | Nombre provisorio | README (onerm, provisional) — **falta definir el nombre de la app** |
+| 1 | Nombre provisorio | **OneRM** · bundle id `com.training.onerm` (docs/convenciones.md §7) |
 | 2 | Descripción del problema | 00 §2 |
 | 3 | Usuarios principales | 00 §3, 02 |
 | 4 | Contexto de uso | 00 §3 |
