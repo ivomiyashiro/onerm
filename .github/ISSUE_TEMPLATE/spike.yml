@@ -1,0 +1,36 @@
+name: Spike
+description: Exploración técnica con tiempo acotado que responde una pregunta.
+title: "spike: "
+labels: ["tipo: spike"]
+projects: ["ivomiyashiro/2"]
+body:
+  - type: textarea
+    id: pregunta
+    attributes:
+      label: Pregunta
+      description: Qué necesitamos saber y qué bloquea.
+    validations:
+      required: true
+  - type: input
+    id: referencias
+    attributes:
+      label: ADR / RNF relacionados
+    validations:
+      required: true
+  - type: textarea
+    id: exito
+    attributes:
+      label: Criterio de éxito
+      description: Qué tiene que pasar para responder "sí".
+    validations:
+      required: true
+  - type: input
+    id: tiempo
+    attributes:
+      label: Tiempo acotado
+      placeholder: "4 horas"
+    validations:
+      required: true
+  - type: markdown
+    attributes:
+      value: "Al cerrar, dejar la nota en `docs/spikes/` con la plantilla de `docs/spikes/README.md`."

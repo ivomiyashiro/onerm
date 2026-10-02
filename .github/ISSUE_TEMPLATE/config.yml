@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Especificación del MVP
+    url: https://github.com/ivomiyashiro/onerm/blob/main/docs/especificacion/README.md
+    about: RF, RN, RNF y ADR. Consultala antes de abrir un issue.

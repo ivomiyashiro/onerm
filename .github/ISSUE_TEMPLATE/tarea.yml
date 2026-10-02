@@ -1,0 +1,41 @@
+name: Tarea
+description: Trabajo planificado que implementa parte de la especificación.
+title: "<tipo>(<ámbito>): "
+projects: ["ivomiyashiro/2"]
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qué se logra y por qué. Una sola tarea testeable.
+    validations:
+      required: true
+  - type: input
+    id: referencias
+    attributes:
+      label: Referencias de la especificación
+      description: RF, AC, RN, RNF o ADR que cubre.
+      placeholder: "RF-SUG-03.AC1, RN-SUG-02, RNF-15"
+    validations:
+      required: true
+  - type: textarea
+    id: criterios
+    attributes:
+      label: Criterios de aceptación
+      description: Verificables. Se pueden copiar los Gherkin de la especificación.
+      value: |
+        - [ ] 
+    validations:
+      required: true
+  - type: textarea
+    id: verificacion
+    attributes:
+      label: Cómo se verifica
+      description: "Tests (unitario, integración) o prueba manual reproducible. Ver la matriz de 09 §2."
+    validations:
+      required: true
+  - type: textarea
+    id: notas
+    attributes:
+      label: Notas y dependencias
+      description: "Fuera de alcance, issues de los que depende (#N)."
