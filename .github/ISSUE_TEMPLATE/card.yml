@@ -1,0 +1,39 @@
+name: Card
+description: Un slice del MVP que se puede demostrar. Agrupa RF y lleva su checklist.
+title: "F<n> <Fase> - "
+projects: ["ivomiyashiro/2"]
+body:
+  - type: textarea
+    id: objetivo
+    attributes:
+      label: Objetivo
+      description: Qué se logra y para quién.
+    validations:
+      required: true
+  - type: textarea
+    id: alcance
+    attributes:
+      label: Alcance
+      description: RF de la especificación y tareas. Las tareas finas se agregan al empezar la card.
+      value: |
+        - [ ] RF-XXX-NN — 
+    validations:
+      required: true
+  - type: textarea
+    id: listo
+    attributes:
+      label: Listo cuando
+      description: Cómo se demuestra que está terminada (test o prueba manual reproducible).
+    validations:
+      required: true
+  - type: textarea
+    id: referencias
+    attributes:
+      label: Referencias
+      description: Enlaces a la especificación, ADR y RNF. No copiar los Gherkin, enlazarlos.
+  - type: input
+    id: dependencias
+    attributes:
+      label: Depende de
+      description: Issues que tienen que estar cerrados antes de empezar.
+      placeholder: "#21, #27"

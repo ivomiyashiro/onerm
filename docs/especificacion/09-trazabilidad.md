@@ -100,10 +100,10 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 | RF-ENT-12 | Must | 02 | RN-SYNC-04 | S09 | U | RF02 |
 | RF-ENT-13 | Must | 02 | RN-ENT-07, 11 | S09, D02 | M | RF02 |
 | RF-ENT-14 | Should | 02 | RN-ENT-12 | S09 | U, M | RF02 |
-| RF-SUG-01 | Must | 01 | RN-SUG-01, 02, 09 | S07, S09 | U | RF03 |
-| RF-SUG-02 | Must | 01 | RN-SUG-02, 06..08 | S09 | U (casos E, K, L, R) | RF03 |
+| RF-SUG-01 | Must | 01 | RN-SUG-01, 02, 09, 15 | S07, S09 | U (caso K) | RF03 |
+| RF-SUG-02 | Must | 01 | RN-SUG-02, 06..08 | S09 | U (casos E, L, R) | RF03 |
 | RF-SUG-03 | Must | 01 | RN-SUG-01, 02, 09, RN-PERF-08 | S09 | U (casos A, F, G, I, N, Q) | RF03 |
-| RF-SUG-04 | Must | 01, 03 | RN-SUG-03 | S09 | U (casos B, C) | RF03 |
+| RF-SUG-04 | Must | 01, 03 | RN-SUG-03 | S09 | U (casos B, C, J) | RF03 |
 | RF-SUG-05 | Must | 01 | RN-SUG-04 | S09 | U (casos A, P) | RF03 |
 | RF-SUG-06 | Must | 01 | RN-SUG-05, 17 | S09 | U (casos D, O) | RF03 |
 | RF-SUG-07 | Must | 03 | RN-SUG-11 | S10 | U, M | RF03 |
@@ -121,7 +121,7 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 
 | # | Entregable | Fuente en la especificación |
 |---|---|---|
-| 1 | Nombre provisorio | README (onerm, provisional) — **falta definir el nombre de la app** |
+| 1 | Nombre provisorio | **OneRM** · bundle id `com.training.onerm` (docs/convenciones.md §7) |
 | 2 | Descripción del problema | 00 §2 |
 | 3 | Usuarios principales | 00 §3, 02 |
 | 4 | Contexto de uso | 00 §3 |

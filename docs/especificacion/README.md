@@ -169,6 +169,7 @@ El TPO pide **entre 3 y 4 RF** en la preentrega. Esta especificación tiene más
 | 2026-10-01 | S09: hoja "Menú del entrenamiento" (Finalizar, Descartar) y descanso de calibración a pantalla completa con esfuerzo obligatorio (13-textos §10, diseno/marca.md §13). |
 | 2026-10-01 | S21: hojas de ajustes para Nivel, Objetivo, Días por semana, Unidad de peso y Esfuerzo (13-textos §10, diseno/marca.md §14). |
 | 2026-10-01 | Revisión final del diseño: checklist 08 §7 completo (snackbar de deshacer, S09 con notificaciones rechazadas y calibración hacia arriba); calibración corregida según RN-SUG-06 y RN-ENT-04; 09-trazabilidad enlaza el archivo de Figma. |
+| 2026-10-02 | 09 §2: el caso K pasa a RF-SUG-01 (sustituto, RN-SUG-15) y el caso J se suma a RF-SUG-04 (revisión del backlog con jueces). |
 
 ### Preguntas resueltas
 
