@@ -1,6 +1,6 @@
 name: Bug
 description: Comportamiento que no coincide con la especificación.
-title: "fix(<ámbito>): "
+title: "Bug - "
 labels: ["tipo: fix"]
 projects: ["ivomiyashiro/2"]
 body:

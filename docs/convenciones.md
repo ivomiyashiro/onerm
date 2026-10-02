@@ -73,7 +73,13 @@ Sin sprints, sin story points y sin fechas intermedias. El único entregable es 
 - **Una card es un slice que se puede demostrar.** Agrupa varios RF y lleva adentro una checklist de alcance. Si al empezarla resulta muy grande, se parte en dos cards.
 - **Las tareas chicas viven en la checklist de la card**, no en issues aparte. Se agregan al empezar la card.
 - **Una card, una rama, un PR.** El PR cierra la card con `Closes #N`.
+- **Título de la card:** `F<n> <Fase> - <Qué se logra>`, por ejemplo `F3 Dominio - Motor: estructura, entradas y calibración`. El título del **PR** sigue Conventional Commits, porque es el mensaje del squash.
+- **Plan por card, no por fase ni por tarea.** Al empezar una card se publica su plan de implementación como comentario del issue (tareas en orden de TDD). La fase ya tiene su plan en [plan-de-implementacion.md](plan-de-implementacion.md); una tarea suelta es demasiado chica para tener plan propio.
 - La card enlaza los RF y AC de la especificación, **no los copia**: la especificación es la única fuente.
+
+### Trabajo con agentes
+
+El flujo de una card está en la skill del proyecto [`/card`](../.claude/skills/card/SKILL.md) y las reglas para el agente en [`CLAUDE.md`](../CLAUDE.md). Uso: `/card 22` implementa esa card; `/card F3` toma la próxima card abierta de la fase. El agente lee la card y la especificación, publica el plan en el issue, trabaja con TDD en una rama y abre el PR. El merge lo decide una persona.
 
 ### Plantillas de issue
 

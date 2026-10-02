@@ -1,6 +1,6 @@
 name: Card
 description: Un slice del MVP que se puede demostrar. Agrupa RF y lleva su checklist.
-title: "<tipo>(<ámbito>): "
+title: "F<n> <Fase> - "
 projects: ["ivomiyashiro/2"]
 body:
   - type: textarea
