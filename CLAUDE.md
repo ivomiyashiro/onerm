@@ -18,7 +18,7 @@ Si el código contradice la especificación, **no se inventa**: se señala el hu
 
 ## Cómo se trabaja una card
 
-Usar la skill `/card <número>` (o `/card F3` para tomar la próxima card abierta de una fase). Resumen: leer la card y la especificación → publicar el plan en el issue → rama → TDD tarea por tarea → verificar → PR con `Closes #N`.
+Usar la skill `/card <número>` (o `/card F3` para tomar la próxima card abierta de una fase). Resumen: leer la card y la especificación → publicar el plan en el issue → rama → TDD tarea por tarea → verificar → PR con `Closes #N`. El tablero se mueve con `tools/board.sh`.
 
 ## Arquitectura (ADR-0011, 12-arquitectura)
 
@@ -43,8 +43,9 @@ src/di/              composition root: crea implementaciones y las provee por Co
 3. **Refactor** con los tests en verde.
 
 - Dominio: tests unitarios sin red ni base (RNF-12). Los casos de referencia de `sugerencias.md` son tests literales (RNF-15).
-- Datos y sync: tests de integración (`*.int.test.ts`).
-- ViewModels: tests con repositorios falsos inyectados.
+- Datos y sync: tests de integración (`*.int.test.ts`). Cómo se corren contra SQLite lo define el spike #11, y contra Supabase local el spike #12; al cerrarlos se completa esta sección.
+- ViewModels: siempre con test, con repositorios falsos inyectados, cubriendo cada estado de la unión.
+- Pantallas: un test con Testing Library por estado (`loading`, `content`, `empty`, `error`…) que verifica qué se muestra y que las acciones llaman al ViewModel. Lo visual fino se revisa contra Figma, no con tests.
 - Los tests van junto al archivo: `foo.ts` → `foo.test.ts`.
 - No se escribe código de producción sin un test que lo pida, salvo configuración y componentes puramente visuales.
 
@@ -63,6 +64,7 @@ bunx expo run:android
 ## Reglas
 
 - Commits en Conventional Commits, en español (`feat(sug): …`). Un commit por paso de TDD terminado, no uno gigante al final.
+- Archivos en kebab-case (`log-set.ts`, `workout-screen.tsx`); los símbolos en PascalCase (tipos, componentes, casos de uso) o camelCase (funciones, variables).
 - Código e identificadores en inglés, con los nombres del glosario (`docs/especificacion/01-glosario.md`). Documentación, commits, issues y PR en español.
 - "Sesión" nunca va sola: "sesión de autenticación" o "entrenamiento".
 - No agregar dependencias sin justificarlas en el PR (qué problema resuelven, alternativa más simple). Las del stack están en el plan §4.

@@ -31,3 +31,9 @@ body:
     attributes:
       label: Referencias
       description: Enlaces a la especificación, ADR y RNF. No copiar los Gherkin, enlazarlos.
+  - type: input
+    id: dependencias
+    attributes:
+      label: Depende de
+      description: Issues que tienen que estar cerrados antes de empezar.
+      placeholder: "#21, #27"

@@ -22,10 +22,10 @@
 | F2 | [Esqueleto](https://github.com/ivomiyashiro/onerm/milestone/3) | Arquitectura de 12 §5 funcionando de punta a punta | ADR-0011 · RNF-21 | Se navega por las 4 pestañas. El tema sale de los tokens de diseño. Un ViewModel se prueba con un repositorio falso inyectado |
 | F3 | [Dominio](https://github.com/ivomiyashiro/onerm/milestone/4) | Motor de sugerencias y reglas puras, con TDD | RF-SUG-* · RNF-12, 13, 15 | Cada caso de referencia (A–R) tiene su test y pasa. Benchmark de menos de 50 ms con 500 exposiciones. Sin UI |
 | F4 | [Persistencia](https://github.com/ivomiyashiro/onerm/milestone/5) | Base local completa y repositorios | ADR-0010 · RNF-02 | Esquema con las columnas de sync desde el inicio (07 §2.1). Catálogo y plantillas cargados. Tests de integración de los repositorios |
-| F5 | [Producto offline](https://github.com/ivomiyashiro/onerm/milestone/6) | Los 4 RF del TPO como invitado | RF01–RF04 del TPO | Cada RF macro se recorre en modo avión (RNF-01). Matar el proceso durante un entrenamiento y retomarlo (RNF-02). Ver el desglose en §3 |
+| F5 | [Producto offline](https://github.com/ivomiyashiro/onerm/milestone/6) | Los 4 RF del TPO como invitado | RF01–RF04 del TPO | La card de recorrido en modo avión (#52) pasa: RNF-01, RNF-02, RNF-03 y los criterios de RF01–RF04. Ver el desglose en §3 |
 | F6 | [Supabase](https://github.com/ivomiyashiro/onerm/milestone/7) | Esquema remoto, RLS y triggers | RNF-06, RNF-08, RNF-09 | Test con dos usuarios: ninguno lee ni modifica los datos del otro. Security Advisor sin alertas |
-| F7 | [Auth](https://github.com/ivomiyashiro/onerm/milestone/8) | Cuenta opcional y unión de los datos del invitado | RF-AUTH-* | Tests de integración y flujo manual de registro, login, logout y unión |
-| F8 | [Sync](https://github.com/ivomiyashiro/onerm/milestone/9) | Respaldo, restauración y multidispositivo | RF-SYNC-* · RNF-04, 05, 10 | Idempotencia, convergencia con dos clientes simulados y pull de más de 500 filas en la misma ventana |
+| F7 | [Auth](https://github.com/ivomiyashiro/onerm/milestone/8) | Cuenta opcional | RF-AUTH-* (salvo RF-AUTH-05) | Tests de integración y flujo manual de registro, login y logout |
+| F8 | [Sync](https://github.com/ivomiyashiro/onerm/milestone/9) | Respaldo, restauración, multidispositivo y unión de los datos del invitado | RF-SYNC-*, RF-AUTH-05 · RNF-04, 05, 10, 12 | Idempotencia, convergencia con dos clientes simulados, pull de más de 500 filas en la misma ventana y unión del invitado sin duplicar ni perder filas |
 | F9 | [Cierre](https://github.com/ivomiyashiro/onerm/milestone/10) | Should, accesibilidad, iOS y entrega | RNF-16..20, 22, 23 | Checklist de [etapa-2-entrega-final.md](etapa-2-entrega-final.md) completo y README según §7.4 |
 
 ## 3. Desglose de F5 (orden del flujo principal)
@@ -67,4 +67,5 @@
 | Fecha | Cambio |
 |---|---|
 | 2026-10-02 | Versión inicial: fases F0–F9, stack y criterios de salida. |
-| 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#51), sin sprints ni estimaciones. |
+| 2026-10-02 | Revisión con dos jueces: dependencias en todas las cards, la unión del invitado pasa a F8 (necesita sync), el e1RM pasa a la primera card del motor, cards nuevas #52 (modo avión) y #53 (estados de UI), y `tools/board.sh`. |
+| 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#16 y #18–#53), sin sprints ni estimaciones. |

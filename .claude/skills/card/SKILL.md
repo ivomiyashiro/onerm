@@ -5,31 +5,41 @@ description: Planifica e implementa una card del tablero de OneRM con TDD, de pu
 
 # Implementar una card
 
-Argumento: un número de issue (`22`) o una fase (`F3`). Con una fase, tomar la card abierta de número más bajo de esa milestone que no esté bloqueada.
+Argumento: un número de issue (`22`) o una fase (`F3`).
 
-Una card = una rama = un PR. Para una fase entera, repetir el ciclo completo card por card, en orden, sin mezclar cards en un mismo PR.
+- **Con una fase:** `tools/board.sh next F3` lista las cards del Backlog en el orden del tablero, sin las Could. Tomar la primera cuyas dependencias estén cerradas.
+- **Una fase entera** ("hacé F3 completa"): repetir el ciclo completo card por card. Después de cada PR, **frenar hasta que el usuario lo mergee**, porque la card siguiente sale de `main` actualizado. Solo si el usuario autorizó el merge en su pedido ("…y mergeá"), mergear con squash cuando la CI esté en verde y seguir.
 
 ## 1. Entender
 
-1. `gh issue view <N> --comments`. Leer objetivo, alcance, "Listo cuando", referencias y dependencias.
-2. Si una dependencia (`Depende de: #X`) sigue abierta, frenar y avisar.
-3. Leer **las secciones de la especificación que la card enlaza**, completas: RF con sus Gherkin, RN, RNF, ADR, casos de referencia y textos de `13-textos.md` de las pantallas involucradas. Si es una card de UI, mirar el diseño de esas pantallas en Figma.
-4. Leer `CLAUDE.md` y el código existente que se va a tocar. Si es una card posterior a F1, leer las notas de `docs/spikes/` relacionadas.
+1. `gh issue view <N>` para leer la card, y `gh issue view <N> --comments` para ver si ya tiene un plan publicado.
+2. **Dependencias:** cada número de la línea `Depende de:` tiene que estar cerrado (`gh issue view <X> --json state`). Si alguna sigue abierta, frenar y avisar. Tampoco empezar una fase si quedan abiertas cards Must de fases anteriores, salvo que el usuario lo pida.
+3. **Límite de 2 cards en curso:** `tools/board.sh wip`. Si ya hay 2, avisar antes de empezar otra.
+4. Leer **completas las secciones de la especificación que la card enlaza**: RF con sus Gherkin, RN, RNF, ADR, casos de referencia y los textos de `13-textos.md` de las pantallas involucradas.
+5. **Cards de UI:** mirar el diseño de cada pantalla en Figma. Cargar antes la skill `figma:figma-design-to-code` y usar las herramientas del MCP de Figma sobre el archivo `73VZUZ69JtHsIzM4vgIlHZ`. Los frames se llaman por pantalla y estado (por ejemplo `S09 · Primera serie`).
+6. Leer `CLAUDE.md`, el código que se va a tocar y, desde F2 en adelante, las notas de `docs/spikes/` relacionadas.
+
+Las cards #1–#16 usan otro formato ("Criterios de aceptación", "Cómo se verifica"). Para el resto vale "Alcance" y "Listo cuando".
+
+**Cards que no son de código:**
+- Una **decisión humana** (por ejemplo #1): proponer 2–3 opciones con pros y contras y frenar.
+- Una **configuración manual** (por ejemplo #8): dar los pasos o los comandos `gh api` y frenar. No llevan PR.
 
 ## 2. Planificar
 
-Escribir el plan y publicarlo como comentario del issue (`gh issue comment <N> --body-file …`) con el título `## Plan de implementación`:
+Publicar el plan como comentario del issue con el título `## Plan de implementación` (`gh issue comment <N> --body-file <archivo>`). El plan es el único lugar de las tareas finas: no se copian a la checklist de la card.
 
 - **Enfoque** en 3–5 líneas: qué se construye y en qué capas.
 - **Tareas en orden de TDD**, cada una chica (menos de medio día) y con su test primero:
-  `- [ ] <tarea> — test: <qué verifica, con el ID del AC o caso>`
+  `- [ ] <tarea> — test: <qué verifica, con el ID del AC o del caso>`
 - **Archivos** que se crean o modifican.
+- **PRs:** uno solo, salvo que la card supere unas 400 líneas. En ese caso, 2 o 3 PRs secuenciales, cada uno con `main` en verde. Los intermedios usan `Refs #N` y el último usa `Closes #N`.
 - **Fuera de alcance** de esta card.
 - **Preguntas abiertas o huecos de la especificación.**
 
-Si hay preguntas que cambian el comportamiento definido en la especificación, **frenar y preguntar** antes de codificar. Si no, seguir. Si el usuario pidió revisar el plan antes de empezar, frenar acá.
+Si hay preguntas que cambian lo que define la especificación, **frenar y preguntar** antes de codificar. Si no, seguir. Si el usuario pidió revisar el plan antes de empezar, frenar acá.
 
-Pasar la card a `En curso` en el Project.
+Mover la card: `tools/board.sh move <N> curso`.
 
 ## 3. Implementar
 
@@ -38,20 +48,24 @@ Pasar la card a `En curso` en el Project.
    - **Rojo:** escribir el test y verlo fallar por la razón correcta.
    - **Verde:** el código mínimo para pasarlo.
    - **Refactor** con todo en verde.
-   - Commit en Conventional Commits que referencie la card (`Refs #N`).
-3. Respetar las reglas de capas y de textos de `CLAUDE.md`. No desactivar reglas de lint ni saltear tests para avanzar.
+   - Commit en Conventional Commits con `Refs #N`.
+3. Respetar las reglas de capas, textos y tests de `CLAUDE.md`. No desactivar reglas de lint ni saltear tests para avanzar.
 
-**Spikes (F1):** el objetivo es responder la pregunta, no código de producción. TDD solo donde ayude. El entregable es la nota en `docs/spikes/NN-nombre.md` con la plantilla de `docs/spikes/README.md`, y el ADR actualizado si la decisión cambia.
+**Spikes (F1):** el objetivo es responder la pregunta, no escribir código de producción.
+- El código exploratorio vive en la rama `spike/<N>-…` y **no se mergea**.
+- El PR lleva solo la nota `docs/spikes/<N>-<nombre>.md` (N = número de issue, con la plantilla de `docs/spikes/README.md`), la fila del índice y el ADR actualizado si la decisión cambia.
+- Lo que valga la pena conservar se reescribe con TDD en la card que corresponda.
 
 ## 4. Verificar
 
-- `bun run typecheck`, `bun run lint` y `bun run test` en verde.
-- Repasar cada ítem de "Listo cuando" y del alcance. Lo que requiera prueba manual (emulador, modo avión, dispositivo físico), listarlo para el usuario con los pasos exactos: no darlo por hecho.
+- `bun run typecheck`, `bun run lint` y `bun run test` en verde, y los scripts de integración que existan.
+- Repasar cada ítem del alcance y de "Listo cuando". Lo que requiera prueba manual (emulador, modo avión, dispositivo físico), listarlo para el usuario con los pasos exactos. **No darlo por hecho.**
 - Si cambió una decisión o un comportamiento, actualizar la especificación o el ADR en la misma rama.
 - Si el cambio es visible para el usuario, agregarlo a `CHANGELOG.md`.
 
 ## 5. Cerrar
 
-1. Marcar en el cuerpo del issue los ítems del alcance cumplidos.
-2. Push y PR con la plantilla: título en Conventional Commits, `Closes #N`, cómo se probó y lo que queda de prueba manual.
-3. Informar al usuario: qué se hizo, qué tests se agregaron, qué falta probar a mano y cualquier hueco detectado en la especificación. No mergear sin que el usuario lo pida.
+1. Marcar en el cuerpo del issue los ítems del alcance cumplidos (`gh issue edit <N> --body-file …`).
+2. Push y PR con la plantilla: título en Conventional Commits, `Closes #N`, cómo se probó y qué queda de prueba manual.
+3. Informar al usuario qué se hizo, qué tests se agregaron, qué falta probar a mano y si se detectó algún hueco en la especificación.
+4. Cuando el PR se mergea: `tools/board.sh move <N> hecho`, salvo que el workflow del Project ya lo haya movido.
