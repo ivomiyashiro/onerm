@@ -1,1 +1,42 @@
+# dependencias
+node_modules/
+
+# Solo se commitea bun.lock (convenciones §7)
+package-lock.json
+yarn.lock
+pnpm-lock.yaml
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# Nativo: android/ e ios/ se generan con prebuild (ADR-0007)
+/ios
+/android
+.kotlin/
+*.orig.*
+*.jks
+*.p8
+*.p12
+*.key
+*.mobileprovision
+
+# Metro
+.metro-health-check*
+
+# debug
+npm-debug.*
+yarn-debug.*
+yarn-error.*
+
+# macOS
 .DS_Store
+*.pem
+
+# variables de entorno locales
+.env*.local
+
+# TypeScript
+*.tsbuildinfo
