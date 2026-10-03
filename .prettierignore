@@ -1,0 +1,8 @@
+android/
+ios/
+.expo/
+dist/
+bun.lock
+docs/
+*.md
+.github/
