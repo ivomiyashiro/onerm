@@ -6,7 +6,7 @@ const prettierConfig = require('eslint-config-prettier');
 
 module.exports = defineConfig([
   {
-    ignores: ['dist/', 'android/', 'ios/', '.expo/', 'expo-env.d.ts'],
+    ignores: ['dist/', 'coverage/', 'android/', 'ios/', '.expo/', 'expo-env.d.ts'],
   },
   expoConfig,
   {
