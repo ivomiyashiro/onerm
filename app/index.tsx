@@ -1,3 +1,3 @@
-import { HomeScreen } from '@/presentation/features/home/home-screen';
+import { SpikeSessionScreen } from '@/di/spike-session';
 
-export default HomeScreen;
+export default SpikeSessionScreen;
