@@ -1,12 +1,12 @@
 # Changelog
 
-Todos los cambios relevantes del proyecto se registran en este archivo.
+All notable changes to this project are recorded in this file.
 
-El formato sigue [Keep a Changelog](https://keepachangelog.com/es-ES/1.1.0/) y el proyecto usa [Versionado Semántico](https://semver.org/lang/es/).
+The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and the project uses [Semantic Versioning](https://semver.org/).
 
-## [Sin publicar]
+## [Unreleased]
 
-### Agregado
+### Added
 
-- Especificación del MVP, diseño y entregable de la Etapa 1.
-- Plan de implementación por fases, convenciones de trabajo y plantillas de issues y PR.
+- MVP specification, design and the Stage 1 deliverable.
+- Phased implementation plan, working conventions, and issue and PR templates.

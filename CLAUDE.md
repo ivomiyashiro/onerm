@@ -1,93 +1,98 @@
 # OneRM
 
-App móvil (React Native + Expo) que le dice a quien entrena fuerza qué peso, series y repeticiones hacer, y registra el entrenamiento en el gimnasio, con o sin señal. Proyecto del TPO de Desarrollo de Aplicaciones I (UADE). Una sola persona con asistencia de IA: **todo el código tiene que poder explicarse en la defensa**.
+Mobile app (React Native + Expo) that tells strength trainees what weight, sets and reps to do, and logs the workout at the gym, with or without signal. Project for the TPO of Desarrollo de Aplicaciones I (UADE). One person with AI assistance: **every line of code must be explainable at the defense**.
 
-## Fuentes de verdad
+## Language
 
-| Qué | Dónde |
+- **English:** code, identifiers, comments, JSDoc, test names, scripts, config, `README.md`, `CHANGELOG.md`, branch names, commits, PRs, this file and the skills.
+- **Spanish:** cards (GitHub issues, their plans and comments), the specification and the rest of `docs/`, and the UI texts (the app is in Spanish; they live in `src/presentation/strings`, from `13-textos.md`).
+- Identifiers use the glossary names (`docs/especificacion/01-glosario.md`).
+
+## Sources of truth
+
+| What | Where |
 |---|---|
-| Qué hace la app (RF, RN, RNF) | `docs/especificacion/` — empezar por `README.md` |
-| Decisiones técnicas | `docs/especificacion/adr/` |
-| Fases y criterios de salida | `docs/plan-de-implementacion.md` |
-| Ramas, commits, PR, tablero, Definición de Hecho | `docs/convenciones.md` |
-| Textos de la UI | `docs/especificacion/13-textos.md` |
-| Diseño | Figma (enlace en `docs/especificacion/09-trazabilidad.md` §3) y `docs/diseno/marca.md` |
-| Tareas y su estado | GitHub Issues + Project «OneRM MVP» (`gh issue view N`) |
+| What the app does (RF, RN, RNF) | `docs/especificacion/` — start with `README.md` |
+| Technical decisions | `docs/especificacion/adr/` |
+| Phases and exit criteria | `docs/plan-de-implementacion.md` |
+| Branches, commits, PRs, board, Definition of Done | `docs/convenciones.md` |
+| UI texts | `docs/especificacion/13-textos.md` |
+| Design | Figma (link in `docs/especificacion/09-trazabilidad.md` §3) and `docs/diseno/marca.md` |
+| Tasks and their status | GitHub Issues + Project «OneRM MVP» (`gh issue view N`) |
 
-Si el código contradice la especificación, **no se inventa**: se señala el hueco y se corrige primero la especificación (o se escribe un ADR nuevo).
+If the code contradicts the specification, **don't invent**: flag the gap and fix the specification first (or write a new ADR).
 
-## Cómo se trabaja una card
+## Working a card
 
-Usar la skill `/card <número>` (o `/card F3` para tomar la próxima card abierta de una fase). Resumen: leer la card y la especificación → publicar el plan en el issue → rama → TDD tarea por tarea → verificar → PR con `Closes #N`. El tablero se mueve con `tools/board.sh`.
+Use the `/card <number>` skill (or `/card F3` to take the next open card of a phase). Summary: read the card and the specification → post the plan on the issue → branch → TDD task by task → verify → PR with `Closes #N`. The board is updated with `tools/board.sh`.
 
-**Merge automático:** si todas las verificaciones las completó el agente (incluida la prueba en el emulador) y la CI está en verde, el agente mergea el PR con squash y sigue con la próxima card sin frenar. Al terminar una fase se corren dos jueces sobre todo lo hecho y las correcciones van en un PR aparte. Detalle en la skill `/card` §5–§6.
+**Auto-merge:** if the agent completed every verification (including the emulator test) and CI is green, the agent squash-merges the PR and moves on to the next card without stopping. When a phase ends, two judges review everything done and the fixes go in a separate PR. Details in the `/card` skill §5–§6.
 
-## Skills del proyecto
+## Project skills
 
-En `.claude/skills/` (versionadas en `skills-lock.json`; se actualizan con `npx skills update -p`):
+In `.claude/skills/` (pinned in `skills-lock.json`; updated with `npx skills update -p`):
 
-| Skill | Origen | Para qué |
+| Skill | Source | Purpose |
 |---|---|---|
-| `card` | propia | Flujo de una card de punta a punta |
-| `expo-router` | expo/skills | Rutas, Stack, tabs y modales de Expo Router (F2, F5) |
-| `expo-upgrade` | expo/skills | Subir de SDK de Expo y arreglar dependencias |
-| `react-native-testing` | callstackincubator/agent-skills | Tests con Testing Library v14 (render y userEvent asincrónicos) |
+| `card` | own | End-to-end flow of a card |
+| `expo-router` | expo/skills | Expo Router routes, Stack, tabs and modals (F2, F5) |
+| `expo-upgrade` | expo/skills | Upgrading the Expo SDK and fixing dependencies |
+| `react-native-testing` | callstackincubator/agent-skills | Tests with Testing Library v14 (async render and userEvent) |
 
-Descartadas: las de EAS (build en la nube y tiendas, pagas y fuera del alcance), `expo-dev-client` (asume EAS; acá se compila local con `expo run:android`), `expo-native-ui`/`expo-ui`/`expo-design-system` (el diseño sale de Figma y de los tokens propios), `react-navigation` (se usa Expo Router) y `react-native-best-practices` (6 MB de imágenes; el rendimiento exigido está en el motor, que es TypeScript puro; se puede sumar en F9).
+Discarded: the EAS ones (cloud builds and stores, paid and out of scope), `expo-dev-client` (assumes EAS; here we build locally with `expo run:android`), `expo-native-ui`/`expo-ui`/`expo-design-system` (the design comes from Figma and our own tokens), `react-navigation` (we use Expo Router) and `react-native-best-practices` (6 MB of images; the required performance is in the engine, which is pure TypeScript; may be added in F9).
 
-- Si una skill externa choca con la especificación, el diseño de Figma o este archivo, **ganan estos**. Por ejemplo, `expo-router` empuja patrones de iOS (Link previews, NativeTabs): se usan solo si el diseño los pide.
-- **No mandar feedback** a Expo (`submit-expo-feedback`) ni a otro servicio sin que el usuario lo pida.
+- If an external skill conflicts with the specification, the Figma design or this file, **these win**. For example, `expo-router` pushes iOS patterns (Link previews, NativeTabs): use them only if the design asks for them.
+- **Don't send feedback** to Expo (`submit-expo-feedback`) or any other service unless the user asks.
 
-## Arquitectura (ADR-0011, 12-arquitectura)
+## Architecture (ADR-0011, 12-arquitectura)
 
 ```
-app/                 Expo Router: solo composición de pantallas
-src/domain/          TypeScript puro: modelos, reglas (motor), casos de uso, interfaces de repositorio
-src/data/            Drizzle/SQLite, supabase-js, repositorios, mappers, sync
-src/presentation/    componentes, ViewModels (useXViewModel), tema, strings
-src/di/              composition root: crea implementaciones y las provee por Context
+app/                 Expo Router: screen composition only
+src/domain/          Pure TypeScript: models, rules (engine), use cases, repository interfaces
+src/data/            Drizzle/SQLite, supabase-js, repositories, mappers, sync
+src/presentation/    components, ViewModels (useXViewModel), theme, strings
+src/di/              composition root: creates the implementations and provides them via Context
 ```
 
-- Las dependencias apuntan **hacia el dominio**. `domain` no importa React, Expo, Supabase ni Drizzle. `presentation` no importa `data`. Lo verifica el lint (RNF-11): no se desactiva la regla.
-- El **ViewModel** es un hook que expone `{ state, actions }`. El estado es una unión discriminada (`loading | content | empty | error | …`). Llama casos de uso, nunca repositorios ni SDKs.
-- **SQLite es la fuente de verdad** de la UI. Toda escritura va primero a la base local (RN-SYNC-01). La UI observa la base; nunca espera a la red.
-- El **motor de sugerencias** es una función pura en `src/domain/rules/` (ADR-0009). Sin fechas implícitas: el "ahora" entra como parámetro.
-- Los textos de la UI salen de `src/presentation/strings` (RNF-21). Nunca escritos en el componente.
+- Dependencies point **towards the domain**. `domain` doesn't import React, Expo, Supabase or Drizzle. `presentation` doesn't import `data`. The lint enforces it (RNF-11): the rule is never disabled.
+- The **ViewModel** is a hook that exposes `{ state, actions }`. The state is a discriminated union (`loading | content | empty | error | …`). It calls use cases, never repositories or SDKs.
+- **SQLite is the source of truth** for the UI. Every write goes to the local database first (RN-SYNC-01). The UI observes the database; it never waits for the network.
+- The **suggestion engine** is a pure function in `src/domain/rules/` (ADR-0009). No implicit dates: "now" is passed in as a parameter.
+- UI texts come from `src/presentation/strings` (RNF-21). Never hard-coded in the component.
 
 ## TDD
 
-1. **Rojo:** escribir primero el test que falla, derivado del AC o del caso de referencia de la especificación. Nombrar el test con el ID (`RF-SUG-03.AC1`, `caso A`).
-2. **Verde:** el código mínimo para pasarlo.
-3. **Refactor** con los tests en verde.
+1. **Red:** first write the failing test, derived from the AC or the reference case in the specification. Name the test with the ID (`RF-SUG-03.AC1`, `caso A`).
+2. **Green:** the minimum code to make it pass.
+3. **Refactor** with the tests green.
 
-- Dominio: tests unitarios sin red ni base (RNF-12). Los casos de referencia de `sugerencias.md` son tests literales (RNF-15).
-- Datos y sync: tests de integración (`*.int.test.ts`). Cómo se corren contra SQLite lo define el spike #11, y contra Supabase local el spike #12; al cerrarlos se completa esta sección.
-- ViewModels: siempre con test, con repositorios falsos inyectados, cubriendo cada estado de la unión.
-- Pantallas: un test con Testing Library por estado (`loading`, `content`, `empty`, `error`…) que verifica qué se muestra y que las acciones llaman al ViewModel. Lo visual fino se revisa contra Figma, no con tests.
-- Los tests van junto al archivo: `foo.ts` → `foo.test.ts`.
-- **Nada de tests en `app/`:** Expo Router toma cada archivo de `app/` como una ruta. La pantalla vive en `src/presentation/features/<feature>/<x>-screen.tsx` (con su test al lado) y el archivo de `app/` solo la reexporta.
-- No se escribe código de producción sin un test que lo pida, salvo configuración y componentes puramente visuales.
+- Domain: unit tests with no network or database (RNF-12). The reference cases in `sugerencias.md` are literal tests (RNF-15).
+- Data and sync: integration tests (`*.int.test.ts`). How they run against SQLite is defined by spike #11, and against local Supabase by spike #12; this section is completed when they close.
+- ViewModels: always tested, with fake repositories injected, covering every state of the union.
+- Screens: one Testing Library test per state (`loading`, `content`, `empty`, `error`…) checking what is shown and that actions call the ViewModel. Fine visual details are checked against Figma, not with tests.
+- Tests live next to the file: `foo.ts` → `foo.test.ts`.
+- **No tests in `app/`:** Expo Router treats every file in `app/` as a route. The screen lives in `src/presentation/features/<feature>/<x>-screen.tsx` (with its test next to it) and the `app/` file only re-exports it.
+- No production code without a test that calls for it, except config and purely visual components.
 
-## Comandos
+## Commands
 
 ```bash
 bun install
 bun run typecheck
-bun run lint           # ESLint, falla con cualquier advertencia
-bun run format         # Prettier (format:check en CI)
+bun run lint           # ESLint, fails on any warning
+bun run format         # Prettier (format:check in CI)
 bun run test           # Jest (jest-expo); test:watch, test:coverage
-bun run android        # development build en el emulador (expo run:android)
-bun run start          # solo Metro, con la app ya instalada
+bun run android        # development build on the emulator (expo run:android)
+bun run start          # Metro only, with the app already installed
 ```
 
-No lanzar Metro con `CI=1`: desactiva la vigilancia de archivos y Fast Refresh.
+Don't start Metro with `CI=1`: it disables file watching and Fast Refresh.
 
-## Reglas
+## Rules
 
-- Commits en Conventional Commits, en español (`feat(sug): …`). Un commit por paso de TDD terminado, no uno gigante al final.
-- Archivos en kebab-case (`log-set.ts`, `workout-screen.tsx`); los símbolos en PascalCase (tipos, componentes, casos de uso) o camelCase (funciones, variables).
-- Código e identificadores en inglés, con los nombres del glosario (`docs/especificacion/01-glosario.md`). Documentación, commits, issues y PR en español.
-- "Sesión" nunca va sola: "sesión de autenticación" o "entrenamiento".
-- No agregar dependencias sin justificarlas en el PR (qué problema resuelven, alternativa más simple). Las del stack están en el plan §4.
-- La clave `service_role` de Supabase nunca entra en la app (RNF-08).
-- No editar `android/` ni `ios/`: se generan con prebuild.
+- Commits in Conventional Commits, in English (`feat(sug): …`). One commit per finished TDD step, not one giant commit at the end.
+- Files in kebab-case (`log-set.ts`, `workout-screen.tsx`); symbols in PascalCase (types, components, use cases) or camelCase (functions, variables).
+- "Session" never stands alone: in code it is `AuthSession` or `Workout`; in Spanish texts, "sesión de autenticación" or "entrenamiento" (glossary).
+- Don't add dependencies without justifying them in the PR (what problem they solve, the simpler alternative). The stack's are in the plan §4.
+- The Supabase `service_role` key never goes into the app (RNF-08).
+- Don't edit `android/` or `ios/`: they are generated by prebuild.

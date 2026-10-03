@@ -1,6 +1,6 @@
 # Convenciones de trabajo
 
-**Estado:** Vigente · **Fecha:** 2026-10-02
+**Estado:** Vigente · **Fecha:** 2026-10-03
 Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y criterio de commits) y al §7.4 de la Etapa 2.
 
 ## 1. Dónde vive cada cosa
@@ -22,10 +22,10 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
 - Cada card se trabaja en una rama corta que sale de `main`:
 
   ```
-  <tipo>/<número-de-issue>-<descripción-corta>
-  feat/42-motor-doble-progresion
+  <tipo>/<número-de-issue>-<descripción-corta-en-inglés>
+  feat/42-double-progression-engine
   spike/11-sqlite-drizzle
-  fix/57-temporizador-pantalla-bloqueada
+  fix/57-timer-locked-screen
   ```
 
 - La rama vive pocos días. Si crece, se parte la card.
@@ -33,7 +33,7 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
 ## 3. Commits: Conventional Commits
 
 ```
-<tipo>(<ámbito>): <descripción en imperativo y en minúscula>
+<tipo>(<ámbito>): <descripción en inglés, en imperativo y en minúscula>
 
 [cuerpo opcional: el porqué, no el qué]
 
@@ -53,7 +53,7 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
 
 **Ámbitos:** los códigos de épica de la especificación en minúscula (`auth`, `sync`, `perf`, `cat`, `rut`, `ent`, `sug`, `prog`), más `app`, `db`, `ui`, `infra` y `docs`.
 
-Ejemplo: `feat(sug): aplicar doble progresión al completar el tope del rango`.
+Ejemplo: `feat(sug): apply double progression when the top of the range is reached`.
 
 ## 4. Pull requests
 
@@ -74,7 +74,7 @@ Sin sprints, sin story points y sin fechas intermedias. El único entregable es 
 - **Las tareas finas viven en el plan de la card** (un comentario del issue), no en issues aparte ni en la checklist.
 - **Una card, una rama, un PR.** El PR cierra la card con `Closes #N`. Si la card supera unas 400 líneas, se entrega en 2 o 3 PRs secuenciales: los intermedios con `Refs #N` y el último con `Closes #N`.
 - **Los spikes no mergean código:** el código exploratorio queda en su rama y al `main` llega solo la nota de `docs/spikes/<N>-<nombre>.md` (N = número de issue) y el ADR si cambia.
-- **Mover cards:** `tools/board.sh move <N> backlog|curso|hecho`. En *Workflows* del Project conviene activar «Item closed» y «Pull request merged» → Hecho, e «Item added to project» → Backlog.
+- **Mover cards:** `tools/board.sh move <N> backlog|progress|done`. En *Workflows* del Project conviene activar «Item closed» y «Pull request merged» → Hecho, e «Item added to project» → Backlog.
 - **Título de la card:** `F<n> <Fase> - <Qué se logra>`, por ejemplo `F3 Dominio - Motor: estructura, entradas y calibración`. El título del **PR** sigue Conventional Commits, porque es el mensaje del squash.
 - **Plan por card, no por fase ni por tarea.** Al empezar una card se publica su plan de implementación como comentario del issue (tareas en orden de TDD). La fase ya tiene su plan en [plan-de-implementacion.md](plan-de-implementacion.md); una tarea suelta es demasiado chica para tener plan propio.
 - La card enlaza los RF y AC de la especificación, **no los copia**: la especificación es la única fuente.
@@ -117,4 +117,4 @@ Una card pasa a `Hecho` cuando:
 | Estructura | La app en la raíz del repo, sin monorepo: `app/`, `src/`, `supabase/`, `tools/`, `docs/` (12 §5) |
 | Nombre y bundle id | App **OneRM** · bundle id `com.training.onerm`, igual en Android (`applicationId`) e iOS (`bundleIdentifier`). Decidido el 2026-10-02 (#1) |
 | Ramas de larga vida | Solo `main`, sin `dev`: no hay ambientes ni releases que separar. Los hitos (preentrega, entrega final) se marcan con tags SemVer sobre `main` (`v0.1.0`, `v1.0.0`) |
-| Idioma | Código e identificadores en inglés (glosario 01). Documentación, commits e issues en español |
+| Idioma | **Inglés:** código, identificadores (glosario 01), comentarios, tests, scripts, configuración, `README.md`, `CHANGELOG.md`, ramas, commits, PR, `CLAUDE.md` y skills. **Español:** cards (issues), especificación y el resto de `docs/`, y los textos de la UI (`13-textos.md`) |

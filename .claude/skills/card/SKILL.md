@@ -1,93 +1,95 @@
 ---
 name: card
-description: Planifica e implementa una card del tablero de OneRM con TDD, de punta a punta hasta el PR. Usar cuando el usuario dice "/card 22", "hacé la card 22", "seguí con la próxima card de F3" o pide implementar una fase o un issue del Project.
+description: Plans and implements a OneRM board card with TDD, end to end up to the PR. Use when the user says "/card 22", "hacé la card 22", "seguí con la próxima card de F3" or asks to implement a phase or an issue from the Project.
 ---
 
-# Implementar una card
+# Implement a card
 
-Argumento: un número de issue (`22`) o una fase (`F3`).
+Argument: an issue number (`22`) or a phase (`F3`).
 
-- **Con una fase:** `tools/board.sh next F3` lista las cards del Backlog en el orden del tablero, sin las Could. Tomar la primera cuyas dependencias estén cerradas.
-- **Una fase entera** ("hacé F3 completa"): repetir el ciclo completo card por card, **sin frenar** entre cards (ver «Merge automático» en §5). Cada card sale de `main` actualizado. Al terminar la fase, correr la revisión de fase (§6).
+- **With a phase:** `tools/board.sh next F3` lists the Backlog cards in board order, without the Could ones. Take the first one whose dependencies are closed.
+- **A whole phase** ("hacé F3 completa"): repeat the full cycle card by card, **without stopping** between cards (see «Auto-merge» in §5). Each card starts from an up-to-date `main`. When the phase ends, run the phase review (§6).
 
-## 1. Entender
+**Language** (`CLAUDE.md`): code, comments, tests, branches, commits and PRs in English. The issue, its plan and its comments in Spanish, like the specification.
 
-1. `gh issue view <N>` para leer la card, y `gh issue view <N> --comments` para ver si ya tiene un plan publicado.
-2. **Dependencias:** cada número de la línea `Depende de:` tiene que estar cerrado (`gh issue view <X> --json state`). Si alguna sigue abierta, frenar y avisar. Tampoco empezar una fase si quedan abiertas cards Must de fases anteriores, salvo que el usuario lo pida.
-3. **Límite de 2 cards en curso:** `tools/board.sh wip`. Si ya hay 2, avisar antes de empezar otra.
-4. Leer **completas las secciones de la especificación que la card enlaza**: RF con sus Gherkin, RN, RNF, ADR, casos de referencia y los textos de `13-textos.md` de las pantallas involucradas.
-5. **Cards de UI:** mirar el diseño de cada pantalla en Figma. Cargar antes la skill `figma:figma-design-to-code` y usar las herramientas del MCP de Figma sobre el archivo `73VZUZ69JtHsIzM4vgIlHZ`. Los frames se llaman por pantalla y estado (por ejemplo `S09 · Primera serie`).
-6. Leer `CLAUDE.md`, el código que se va a tocar y, desde F2 en adelante, las notas de `docs/spikes/` relacionadas.
+## 1. Understand
 
-Las cards #1–#16 usan otro formato ("Criterios de aceptación", "Cómo se verifica"). Para el resto vale "Alcance" y "Listo cuando".
+1. `gh issue view <N>` to read the card, and `gh issue view <N> --comments` to see whether it already has a published plan.
+2. **Dependencies:** every number on the `Depende de:` line must be closed (`gh issue view <X> --json state`). If any is still open, stop and tell the user. Also don't start a phase while Must cards from earlier phases are open, unless the user asks.
+3. **Limit of 2 cards in progress:** `tools/board.sh wip`. If there are already 2, warn before starting another.
+4. Read **in full the specification sections the card links to**: RFs with their Gherkin, RN, RNF, ADRs, reference cases and the `13-textos.md` texts of the screens involved.
+5. **UI cards:** look at each screen's design in Figma. First load the `figma:figma-design-to-code` skill and use the Figma MCP tools on file `73VZUZ69JtHsIzM4vgIlHZ`. Frames are named by screen and state (for example `S09 · Primera serie`).
+6. Read `CLAUDE.md`, the code to be touched and, from F2 onwards, the related notes in `docs/spikes/`.
 
-**Cards que no son de código:**
-- Una **decisión humana** (por ejemplo #1): proponer 2–3 opciones con pros y contras y frenar.
-- Una **configuración manual** (por ejemplo #8): dar los pasos o los comandos `gh api` y frenar. No llevan PR.
+Cards #1–#16 use another format ("Criterios de aceptación", "Cómo se verifica"). The rest use "Alcance" and "Listo cuando".
 
-## 2. Planificar
+**Non-code cards:**
+- A **human decision** (for example #1): propose 2–3 options with pros and cons, and stop.
+- A **manual setup** (for example #8): give the steps or the `gh api` commands, and stop. They have no PR.
 
-Publicar el plan como comentario del issue con el título `## Plan de implementación` (`gh issue comment <N> --body-file <archivo>`). El plan es el único lugar de las tareas finas: no se copian a la checklist de la card.
+## 2. Plan
 
-- **Enfoque** en 3–5 líneas: qué se construye y en qué capas.
-- **Tareas en orden de TDD**, cada una chica (menos de medio día) y con su test primero:
-  `- [ ] <tarea> — test: <qué verifica, con el ID del AC o del caso>`
-- **Archivos** que se crean o modifican.
-- **PRs:** uno solo, salvo que la card supere unas 400 líneas. En ese caso, 2 o 3 PRs secuenciales, cada uno con `main` en verde. Los intermedios usan `Refs #N` y el último usa `Closes #N`.
-- **Fuera de alcance** de esta card.
-- **Preguntas abiertas o huecos de la especificación.**
+Post the plan as a comment on the issue, in Spanish, titled `## Plan de implementación` (`gh issue comment <N> --body-file <file>`). The plan is the only place for the fine-grained tasks: they are not copied into the card's checklist.
 
-Si hay preguntas que cambian lo que define la especificación, **frenar y preguntar** antes de codificar. Si no, seguir. Si el usuario pidió revisar el plan antes de empezar, frenar acá.
+- **Approach** in 3–5 lines: what gets built and in which layers.
+- **Tasks in TDD order**, each one small (under half a day) and with its test first:
+  `- [ ] <task> — test: <what it checks, with the AC or case ID>`
+- **Files** created or modified.
+- **PRs:** a single one, unless the card exceeds about 400 lines. In that case, 2 or 3 sequential PRs, each keeping `main` green. The intermediate ones use `Refs #N` and the last one `Closes #N`.
+- **Out of scope** for this card.
+- **Open questions or specification gaps.**
 
-Mover la card: `tools/board.sh move <N> curso`.
+If there are questions that change what the specification defines, **stop and ask** before coding. Otherwise, continue. If the user asked to review the plan before starting, stop here.
 
-## 3. Implementar
+Move the card: `tools/board.sh move <N> progress`.
 
-1. Rama desde `main` actualizado: `<tipo>/<N>-<descripción-corta>` (ver `docs/convenciones.md` §2).
-2. Por cada tarea del plan:
-   - **Rojo:** escribir el test y verlo fallar por la razón correcta.
-   - **Verde:** el código mínimo para pasarlo.
-   - **Refactor** con todo en verde.
-   - Commit en Conventional Commits con `Refs #N`.
-3. Respetar las reglas de capas, textos y tests de `CLAUDE.md`. No desactivar reglas de lint ni saltear tests para avanzar.
+## 3. Implement
 
-**Spikes (F1):** el objetivo es responder la pregunta, no escribir código de producción.
-- El código exploratorio vive en la rama `spike/<N>-…` y **no se mergea**.
-- El PR lleva solo la nota `docs/spikes/<N>-<nombre>.md` (N = número de issue, con la plantilla de `docs/spikes/README.md`), la fila del índice y el ADR actualizado si la decisión cambia.
-- Lo que valga la pena conservar se reescribe con TDD en la card que corresponda.
+1. Branch from an up-to-date `main`: `<type>/<N>-<short-description>`, in English (see `docs/convenciones.md` §2).
+2. For each task in the plan:
+   - **Red:** write the test and watch it fail for the right reason.
+   - **Green:** the minimum code to make it pass.
+   - **Refactor** with everything green.
+   - Commit in Conventional Commits, in English, with `Refs #N`.
+3. Follow the layer, text and test rules in `CLAUDE.md`. Don't disable lint rules or skip tests to move faster.
 
-## 4. Verificar
+**Spikes (F1):** the goal is to answer the question, not to write production code.
+- The exploratory code lives on the `spike/<N>-…` branch and **is not merged**.
+- The PR only carries the note `docs/spikes/<N>-<name>.md` (N = issue number, using the template in `docs/spikes/README.md`, in Spanish), the index row and the updated ADR if the decision changes.
+- Whatever is worth keeping is rewritten with TDD in the corresponding card.
 
-- `bun run typecheck`, `bun run lint` y `bun run test` en verde, y los scripts de integración que existan.
-- Repasar cada ítem del alcance y de "Listo cuando". Lo que requiera prueba manual (emulador, modo avión, dispositivo físico), **hacerla el agente** si puede (emulador con `adb`, capturas con `adb exec-out screencap`). Solo lo que no pueda hacer (dispositivo físico, cuentas, decisiones), listarlo para el usuario con los pasos exactos. **No darlo por hecho.**
-- Si cambió una decisión o un comportamiento, actualizar la especificación o el ADR en la misma rama.
-- Si el cambio es visible para el usuario, agregarlo a `CHANGELOG.md`.
+## 4. Verify
 
-## 5. Cerrar
+- `bun run typecheck`, `bun run lint` and `bun run test` green, plus any integration scripts that exist.
+- Go through each item of the scope and of "Listo cuando". Whatever needs a manual test (emulator, airplane mode, physical device), **the agent does it** if it can (emulator via `adb`, screenshots with `adb exec-out screencap`). Only what it can't do (physical device, accounts, decisions) is listed for the user with the exact steps. **Don't assume it is done.**
+- If a decision or a behavior changed, update the specification or the ADR on the same branch.
+- If the change is user-visible, add it to `CHANGELOG.md`.
 
-1. Marcar en el cuerpo del issue los ítems del alcance cumplidos (`gh issue edit <N> --body-file …`).
-2. Push y PR con la plantilla: título en Conventional Commits, `Closes #N`, cómo se probó y qué queda de prueba manual.
-3. Informar al usuario qué se hizo, qué tests se agregaron, qué falta probar a mano y si se detectó algún hueco en la especificación.
-4. Cuando el PR se mergea: `tools/board.sh move <N> hecho`, salvo que el workflow del Project ya lo haya movido.
+## 5. Close
 
-### Merge automático (regla del proyecto, 2026-10-02)
+1. Tick the scope items met in the issue body (`gh issue edit <N> --body-file …`).
+2. Push and open the PR with the template: title in Conventional Commits, `Closes #N`, how it was tested and what manual testing remains.
+3. Tell the user what was done, which tests were added, what remains to be tested by hand and whether a specification gap was found.
+4. When the PR is merged: `tools/board.sh move <N> done`, unless the Project workflow already moved it.
 
-Si **todas** las verificaciones de la card están completas y las hizo el agente (typecheck, lint, tests, CI en verde cuando exista, y la prueba manual en el emulador), el agente **mergea el PR él mismo** con squash y borra la rama (`gh pr merge <N> --squash --delete-branch`), mueve la card a Hecho y sigue con la siguiente sin esperar.
+### Auto-merge (project rule, 2026-10-02)
 
-No se mergea automáticamente si:
-- queda alguna verificación que solo puede hacer una persona (dispositivo físico, cuenta externa, decisión);
-- la CI falla o no terminó;
-- la card cambia la especificación de forma no trivial o requiere un ADR nuevo.
+If **all** of the card's verifications are complete and were done by the agent (typecheck, lint, tests, green CI when it exists, and the manual emulator test), the agent **merges the PR itself** with squash and deletes the branch (`gh pr merge <N> --squash --delete-branch`), moves the card to Done and continues with the next one without waiting.
 
-En esos casos se frena y se avisa.
+Don't auto-merge if:
+- a verification remains that only a person can do (physical device, external account, decision);
+- CI fails or hasn't finished;
+- the card changes the specification in a non-trivial way or needs a new ADR.
 
-## 6. Revisión de fase
+In those cases, stop and tell the user.
 
-Al cerrar la última card de una fase, correr **dos jueces independientes**: dos subagentes `general-purpose` lanzados en paralelo con el mismo encargo, sin ver el trabajo del otro.
+## 6. Phase review
 
-**Encargo del juez:** revisar todo el diff de la fase (`git diff <primer commit de la fase>^..main`) contra las cards de la fase, la especificación, `CLAUDE.md` y `docs/convenciones.md`. El juez es de solo lectura: puede correr los scripts de verificación y crear archivos temporales para probar huecos, siempre que los borre. Cada hallazgo lleva severidad, `archivo:línea`, evidencia (comando y salida) y una corrección sugerida, y se marca CONFIRMADO si lo ejecutó o PLAUSIBLE si solo lo infirió.
+After closing the last card of a phase, run **two independent judges**: two `general-purpose` subagents launched in parallel with the same brief, without seeing each other's work.
 
-Después:
-1. Sintetizar los dos informes y **reproducir cada hallazgo** antes de corregirlo. Se descartan los que no se confirman.
-2. Hacer las correcciones en **un PR aparte** (`fix/F<n>-correcciones-jueces`), con `Refs` a las cards afectadas y una tabla de lo que no se corrige y por qué. Ese PR sigue la regla de merge automático.
-3. Los huecos de la especificación no se corrigen solos: se le plantean al usuario.
+**Judge brief:** review the whole phase diff (`git diff <first commit of the phase>^..main`) against the phase's cards, the specification, `CLAUDE.md` and `docs/convenciones.md`. The judge is read-only: it may run the verification scripts and create temporary files to probe gaps, as long as it deletes them. Each finding has a severity, `file:line`, evidence (command and output) and a suggested fix, and is marked CONFIRMED if it was executed or PLAUSIBLE if only inferred.
+
+Then:
+1. Synthesize both reports and **reproduce each finding** before fixing it. Findings that don't reproduce are discarded.
+2. Make the fixes in **a separate PR** (`fix/F<n>-judge-fixes`), with `Refs` to the affected cards and a table of what isn't fixed and why. That PR follows the auto-merge rule.
+3. Specification gaps aren't fixed unilaterally: raise them with the user.
