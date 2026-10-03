@@ -43,3 +43,7 @@ yarn-error.*
 
 # tests
 coverage/
+
+# Supabase CLI local state
+supabase/.branches/
+supabase/.temp/
