@@ -83,4 +83,11 @@ En esos casos se frena y se avisa.
 
 ## 6. Revisión de fase
 
-Al cerrar la última card de una fase, correr **dos jueces independientes** (`harness:judge-a` y `harness:judge-b`) sobre todo el diff de la fase contra la especificación, `CLAUDE.md` y `docs/convenciones.md`. Sintetizar sus hallazgos, descartar los que no se confirman y, si hay correcciones, hacerlas en **un PR aparte** (`fix/F<n>-correcciones-jueces` o `chore/…`) con `Refs` a las cards afectadas. Ese PR sigue la regla de merge automático.
+Al cerrar la última card de una fase, correr **dos jueces independientes**: dos subagentes `general-purpose` lanzados en paralelo con el mismo encargo, sin ver el trabajo del otro.
+
+**Encargo del juez:** revisar todo el diff de la fase (`git diff <primer commit de la fase>^..main`) contra las cards de la fase, la especificación, `CLAUDE.md` y `docs/convenciones.md`. El juez es de solo lectura: puede correr los scripts de verificación y crear archivos temporales para probar huecos, siempre que los borre. Cada hallazgo lleva severidad, `archivo:línea`, evidencia (comando y salida) y una corrección sugerida, y se marca CONFIRMADO si lo ejecutó o PLAUSIBLE si solo lo infirió.
+
+Después:
+1. Sintetizar los dos informes y **reproducir cada hallazgo** antes de corregirlo. Se descartan los que no se confirman.
+2. Hacer las correcciones en **un PR aparte** (`fix/F<n>-correcciones-jueces`), con `Refs` a las cards afectadas y una tabla de lo que no se corrige y por qué. Ese PR sigue la regla de merge automático.
+3. Los huecos de la especificación no se corrigen solos: se le plantean al usuario.
