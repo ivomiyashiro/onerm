@@ -73,7 +73,10 @@ src/di/              composition root: creates the implementations and provides 
   - the change notifications behind `observe…()` don't exist in Jest: test the query and the re-run on a manual change event, and check the live wiring on the emulator;
   - Jest's SQLite (3.53) is newer than the device's (3.50): don't rely on newer SQL features;
   - `bun run test` runs the unit tests and `bun run test:int` the integration tests; CI runs both. The script and `openTestDatabase()` land in #27.
-- Sync against local Supabase: defined by spike #12; this section is completed when it closes.
+- Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job (they land in #40):
+  - **pgTAP** in `supabase/tests/*.sql` for the trigger and RLS rules, one transaction with `rollback` per file;
+  - **Jest + supabase-js** in `*.supabase.test.ts` (with `jest.supabase.config.js`, plain Node: `jest-expo` replaces `fetch`) for what the client sees through PostgREST, with two real users;
+  - start the stack first with `bunx supabase start` (Docker; project `onerm-mvp`, ports 553xx).
 - ViewModels: always tested, with fake repositories injected, covering every state of the union.
 - Screens: one Testing Library test per state (`loading`, `content`, `empty`, `error`…) checking what is shown and that actions call the ViewModel. Fine visual details are checked against Figma, not with tests.
 - Tests live next to the file: `foo.ts` → `foo.test.ts`.
