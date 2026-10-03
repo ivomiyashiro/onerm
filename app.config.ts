@@ -20,9 +20,11 @@ const config: ExpoConfig = {
       monochromeImage: './assets/images/android-icon-monochrome.png',
     },
     predictiveBackGestureEnabled: false,
+    permissions: ['android.permission.SCHEDULE_EXACT_ALARM'],
   },
   plugins: [
     'expo-router',
+    'expo-notifications',
     [
       'expo-splash-screen',
       {
