@@ -7,7 +7,7 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  # Solo en PRs: en main cada merge tiene que quedar verificado, aunque lleguen dos seguidos.
+  # PRs only: on main every merge must be verified, even when two land back to back.
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -16,7 +16,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: Generar los tipos de Expo Router (typedRoutes)
+      - name: Generate Expo Router types (typedRoutes)
         run: tools/ci/generate-expo-types.sh
       - run: bun run typecheck
 
@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
-      - name: ESLint (incluye las reglas de capas, RNF-11)
+      - name: ESLint (includes the layer rules, RNF-11)
         run: bun run lint
       - name: Prettier
         run: bun run format:check
