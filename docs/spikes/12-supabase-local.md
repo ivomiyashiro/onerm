@@ -32,7 +32,7 @@ Si los triggers no alcanzan, hace falta otro ADR antes de F6.
 
 ## Qué se hizo
 
-**Versiones:** Supabase CLI 2.119.0 (paquete `supabase` de npm, como devDependency), `@supabase/supabase-js` 2.x, pgTAP del stack local, Docker 27.5.
+**Versiones:** Supabase CLI 2.119.0 (paquete `supabase` de npm, como devDependency), `@supabase/supabase-js` 2.117.2, pgTAP del stack local, Docker 27.5.
 
 1. `supabase init`. En `config.toml` se apagaron studio, storage, realtime, edge runtime y analytics, que no se usan. El stack arranca en unos 50 s en local y en unos 60 s en la CI.
 2. **Puertos 553xx y `project_id = "onerm-mvp"`.** En la máquina ya corría un stack con el `project_id` `onerm` de un proyecto anterior, con datos, y el CLI lo reusaba en vez de crear uno nuevo. No se tocó.
