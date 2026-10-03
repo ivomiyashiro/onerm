@@ -1,5 +1,3 @@
-import { View } from 'react-native';
+import { HomeScreen } from '@/presentation/features/home/home-screen';
 
-export default function Index() {
-  return <View style={{ flex: 1 }} />;
-}
+export default HomeScreen;

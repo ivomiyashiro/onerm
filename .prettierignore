@@ -6,3 +6,4 @@ bun.lock
 docs/
 *.md
 .github/
+coverage/
