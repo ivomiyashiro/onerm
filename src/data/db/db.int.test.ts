@@ -65,6 +65,8 @@ describe('spike #11 · drizzle on better-sqlite3', () => {
     expect(() => db.insert(workoutSets).values(set('s1', 8)).run()).toThrow(/FOREIGN KEY/);
     db.insert(workouts).values(workout).run();
     db.insert(workoutSets).values(set('s1', 8)).run();
-    expect(db.select().from(workoutSets).where(eq(workoutSets.workoutId, 'w1')).all()).toHaveLength(1);
+    expect(db.select().from(workoutSets).where(eq(workoutSets.workoutId, 'w1')).all()).toHaveLength(
+      1,
+    );
   });
 });

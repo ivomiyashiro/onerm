@@ -3,5 +3,6 @@
 module.exports = {
   testEnvironment: 'node',
   testMatch: ['<rootDir>/tools/supabase/**/*.supabase.test.ts'],
+  moduleNameMapper: { '^@/(.*)$': '<rootDir>/src/$1' },
   transform: { '^.+\\.ts$': ['babel-jest', { presets: ['babel-preset-expo'] }] },
 };
