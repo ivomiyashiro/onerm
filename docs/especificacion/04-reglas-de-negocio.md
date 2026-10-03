@@ -9,7 +9,7 @@ Formato: `RN-<ÁREA>-NN`: enunciado, más una justificación o un ejemplo cuando
 | ID | Regla |
 |---|---|
 | RN-GEN-01 | **Tiempo:** los instantes se guardan en **UTC**. Los conceptos de calendario (días transcurridos, "semana", "hoy") se calculan en la **zona horaria local del dispositivo**, contando días de calendario, no períodos de 24 h. |
-| RN-GEN-02 | **Igualdad de cargas:** dos cargas son iguales si difieren en menos de **0,05 kg**. Esto absorbe el redondeo de la conversión kg ↔ lb (RN-PERF-05). La misma tolerancia se usa para decidir si una carga **está en la grilla** (RN-SUG-09). |
+| RN-GEN-02 | **Igualdad de cargas:** dos cargas son iguales si difieren en menos de **0,05 kg**. Esto absorbe el redondeo de la conversión kg ↔ lb (RN-PERF-05). La misma tolerancia se usa para decidir si una carga **está en la grilla** (RN-SUG-09). En lb, 0,1 lb son 0,045 kg: dos cargas que difieren en 0,1 lb cuentan como iguales. **Aceptado** (2026-10-03): es menor que cualquier incremento real y no cambia ninguna sugerencia. |
 | RN-GEN-03 | **`updated_at` monótono:** en cada escritura local, `updated_at = máx(ahora, updated_at anterior + 1 ms)`. Así, si el reloj del dispositivo se corrige hacia atrás, no se pierden ediciones propias. |
 
 ## AUTH
