@@ -49,19 +49,22 @@ src/di/              composition root: crea implementaciones y las provee por Co
 - ViewModels: siempre con test, con repositorios falsos inyectados, cubriendo cada estado de la unión.
 - Pantallas: un test con Testing Library por estado (`loading`, `content`, `empty`, `error`…) que verifica qué se muestra y que las acciones llaman al ViewModel. Lo visual fino se revisa contra Figma, no con tests.
 - Los tests van junto al archivo: `foo.ts` → `foo.test.ts`.
+- **Nada de tests en `app/`:** Expo Router toma cada archivo de `app/` como una ruta. La pantalla vive en `src/presentation/features/<feature>/<x>-screen.tsx` (con su test al lado) y el archivo de `app/` solo la reexporta.
 - No se escribe código de producción sin un test que lo pida, salvo configuración y componentes puramente visuales.
 
 ## Comandos
 
-> Se completan al crear el proyecto (card #2).
-
 ```bash
 bun install
 bun run typecheck
-bun run lint
-bun run test
-bunx expo run:android
+bun run lint           # ESLint, falla con cualquier advertencia
+bun run format         # Prettier (format:check en CI)
+bun run test           # Jest (jest-expo); test:watch, test:coverage
+bun run android        # development build en el emulador (expo run:android)
+bun run start          # solo Metro, con la app ya instalada
 ```
+
+No lanzar Metro con `CI=1`: desactiva la vigilancia de archivos y Fast Refresh.
 
 ## Reglas
 
