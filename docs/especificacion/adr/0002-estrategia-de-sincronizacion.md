@@ -70,4 +70,4 @@ Fuerzas en juego:
 
 - Si aparecen datos **compartidos entre usuarios** (por ejemplo, el modo coach/alumno).
 - Si la pérdida a nivel de campo se vuelve un problema real.
-- Si la sync propia no se termina a tiempo: pasar a una librería (plan B).
+- Si la sync propia no se termina a tiempo: pasar a una librería (plan B). **Punto de control superado** en el [spike #13](../../spikes/13-push-pull.md) (2026-10-03): el núcleo entró en 280 líneas con todos los casos de 07 §4.1 testeados contra Supabase. El plan B no se activa.
