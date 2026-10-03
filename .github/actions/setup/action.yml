@@ -1,9 +1,9 @@
-name: Preparar bun
-description: Instala Node 22, bun y las dependencias con caché.
+name: Set up bun
+description: Installs Node 22, bun and the dependencies, with caching.
 runs:
   using: composite
   steps:
-    # Node 22 LTS (convenciones §7): Jest, tsc y ESLint corren sobre Node.
+    # Node 22 LTS (convenciones §7): Jest, tsc and ESLint run on Node.
     - uses: actions/setup-node@v4
       with:
         node-version: 22

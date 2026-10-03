@@ -2,70 +2,70 @@
 
 [![CI](https://github.com/ivomiyashiro/onerm/actions/workflows/ci.yml/badge.svg)](https://github.com/ivomiyashiro/onerm/actions/workflows/ci.yml)
 
-App móvil (React Native + Expo) que le dice a quien entrena fuerza qué peso, series y repeticiones hacer, y registra el entrenamiento en el gimnasio, con o sin señal.
+Mobile app (React Native + Expo) that tells strength trainees what weight, sets and reps to do, and logs the workout at the gym, with or without signal.
 
-TPO de Desarrollo de Aplicaciones I (UADE).
+TPO for Desarrollo de Aplicaciones I (UADE). The app's UI and the specification are in Spanish; the code and this README are in English.
 
-## Problema y propuesta de valor
+## Problem and value proposition
 
-Quien entrena fuerza en el gimnasio **no sabe con qué peso, series y repeticiones hacer cada ejercicio** para seguir progresando sin lastimarse, y el novato ni siquiera sabe qué rutina seguir. Hoy lo resuelve a ojo, con notas del celular o pagando un personal trainer.
+People who strength-train at the gym **don't know what weight, sets and reps to use** on each exercise to keep progressing without getting hurt, and beginners don't even know which routine to follow. Today they guess, keep notes on their phone or pay a personal trainer.
 
-OneRM le dice **qué hacer hoy** en cada ejercicio, con el motivo de cada sugerencia, y registra el entrenamiento en un toque por serie, **aunque no haya señal** (subsuelos, zonas sin cobertura). Con cuenta, el historial se respalda y se restaura en otro dispositivo.
+OneRM tells them **what to do today** on each exercise, with the reason behind each suggestion, and logs the workout with one tap per set, **even without signal** (basements, dead zones). With an account, the history is backed up and restored on another device.
 
-Detalle: [visión y alcance](docs/especificacion/00-vision-y-alcance.md).
+Details: [vision and scope](docs/especificacion/00-vision-y-alcance.md) (Spanish).
 
-## Funcionalidades implementadas
+## Implemented features
 
-> En construcción. Hoy el proyecto tiene la base técnica (F0): app Expo vacía, development build, lint con reglas de capas, tests y CI.
+> Under construction. The project currently has the technical foundation (F0): an empty Expo app, a development build, lint with layer rules, tests and CI.
 
-## Requisitos funcionales alcanzados
+## Functional requirements met
 
-> En construcción. Los RF del TPO (RF01–RF04) se cierran en la fase F5 del [plan](docs/plan-de-implementacion.md).
+> Under construction. The TPO's functional requirements (RF01–RF04) are completed in phase F5 of the [plan](docs/plan-de-implementacion.md).
 
-## Arquitectura
+## Architecture
 
 MVVM + Clean Architecture ([12-arquitectura](docs/especificacion/12-arquitectura.md), [ADR-0011](docs/especificacion/adr/0011-mvvm-clean-en-react-native.md)):
 
 ```
-app/                 Expo Router: solo composición de pantallas
-src/domain/          TypeScript puro: modelos, reglas (motor de sugerencias), casos de uso, interfaces
-src/data/            SQLite (Drizzle), Supabase, repositorios, sync
-src/presentation/    pantallas, componentes, ViewModels (hooks), textos
-src/di/              composition root: crea las implementaciones y las provee por Context
+app/                 Expo Router: screen composition only
+src/domain/          Pure TypeScript: models, rules (suggestion engine), use cases, interfaces
+src/data/            SQLite (Drizzle), Supabase, repositories, sync
+src/presentation/    screens, components, ViewModels (hooks), texts
+src/di/              composition root: creates the implementations and provides them via Context
 ```
 
-Las dependencias apuntan hacia el dominio. Lo verifica el lint (`eslint-plugin-boundaries`): por ejemplo, un import de `domain` a `data` hace fallar `bun run lint` y la CI.
+Dependencies point towards the domain. The lint enforces it (`eslint-plugin-boundaries`): for example, an import from `domain` to `data` makes `bun run lint` and CI fail.
 
-> El diagrama final y el flujo de datos implementado se completan al cerrar F2.
+> The final diagram and the implemented data flow are added when F2 closes.
 
-## Tecnologías utilizadas
+## Technologies
 
-| Área | Elección | Por qué |
+| Area | Choice | Why |
 |---|---|---|
 | Framework | React Native 0.86 + Expo SDK 57, development build, Expo Router | [ADR-0007](docs/especificacion/adr/0007-react-native-con-expo.md) |
-| Lenguaje | TypeScript `strict` | — |
-| Gestor de paquetes | bun | [Convenciones §7](docs/convenciones.md) |
+| Language | TypeScript `strict` | — |
+| Package manager | bun | [Conventions §7](docs/convenciones.md) |
 | Tests | Jest (`jest-expo`) + Testing Library | RNF-12, RNF-15 |
-| Calidad | ESLint + Prettier + `eslint-plugin-boundaries` | RNF-11 |
-| CI | GitHub Actions: typecheck, lint y tests en cada PR | — |
-| Base local, remoto, estado | SQLite + Drizzle, Supabase, Zustand | En construcción (F1–F4). [Plan §4](docs/plan-de-implementacion.md) |
+| Quality | ESLint + Prettier + `eslint-plugin-boundaries` | RNF-11 |
+| CI | GitHub Actions: typecheck, lint and tests on every PR | — |
+| Local database, backend, state | SQLite + Drizzle, Supabase, Zustand | Under construction (F1–F4). [Plan §4](docs/plan-de-implementacion.md) |
 
-## Estrategia offline y persistencia
+## Offline strategy and persistence
 
-> En construcción. La decisión está en [ADR-0002](docs/especificacion/adr/0002-estrategia-de-sincronizacion.md) y [07-datos-y-sincronizacion](docs/especificacion/07-datos-y-sincronizacion.md): SQLite es la fuente de verdad y la sincronización con Supabase corre aparte.
+> Under construction. The decision is in [ADR-0002](docs/especificacion/adr/0002-estrategia-de-sincronizacion.md) and [07-datos-y-sincronizacion](docs/especificacion/07-datos-y-sincronizacion.md): SQLite is the source of truth and sync with Supabase runs separately.
 
-## Instrucciones de ejecución
+## Running the project
 
-### Requisitos
+### Requirements
 
-- [bun](https://bun.sh) 1.3 o superior y Node 22 LTS.
-- JDK 17 o superior (`JAVA_HOME` apuntando a él).
-- Android SDK (el de Android Studio) con `ANDROID_HOME` configurado y `platform-tools` en el `PATH`.
-- Un emulador Android 10 o superior, o un dispositivo con depuración USB.
+- [bun](https://bun.sh) 1.3 or later and Node 22 LTS.
+- JDK 17 or later (`JAVA_HOME` pointing to it).
+- Android SDK (Android Studio's) with `ANDROID_HOME` set and `platform-tools` on the `PATH`.
+- An Android 10+ emulator, or a device with USB debugging.
 
-> Docker y Supabase CLI se suman cuando se cierre el spike #12.
+> Docker and the Supabase CLI are added when spike #12 closes.
 
-### Instalar
+### Install
 
 ```bash
 git clone https://github.com/ivomiyashiro/onerm.git
@@ -73,49 +73,49 @@ cd onerm
 bun install
 ```
 
-### Compilar y correr en Android
+### Build and run on Android
 
-La app usa un **development build** propio, no Expo Go ([ADR-0007](docs/especificacion/adr/0007-react-native-con-expo.md)).
+The app uses its own **development build**, not Expo Go ([ADR-0007](docs/especificacion/adr/0007-react-native-con-expo.md)).
 
 ```bash
 bun run android          # = bunx expo run:android
 ```
 
-La primera vez genera `android/` con prebuild, compila el APK de debug, lo instala en el emulador o dispositivo conectado y levanta Metro. La compilación inicial tarda varios minutos (descarga Gradle y el NDK).
+The first run generates `android/` with prebuild, compiles the debug APK, installs it on the connected emulator or device and starts Metro. The initial build takes several minutes (it downloads Gradle and the NDK).
 
-Después, mientras no cambien los módulos nativos, alcanza con levantar Metro y abrir la app ya instalada:
+After that, as long as the native modules don't change, starting Metro and opening the installed app is enough:
 
 ```bash
 bun run start            # = bunx expo start
 ```
 
-Los cambios en archivos TS/TSX se ven al instante con Fast Refresh. Hay que volver a correr `bun run android` solo al agregar o actualizar un módulo nativo o cambiar `app.config.ts`.
+Changes to TS/TSX files show up instantly with Fast Refresh. Run `bun run android` again only when adding or updating a native module or changing `app.config.ts`.
 
-`android/` e `ios/` no se commitean ni se editan a mano: se regeneran con `bunx expo prebuild --clean`.
+`android/` and `ios/` are neither committed nor edited by hand: they are regenerated with `bunx expo prebuild --clean`.
 
-### Tests y calidad
+### Tests and quality
 
 ```bash
 bun run test             # Jest; test:watch, test:coverage
 bun run typecheck        # tsc --noEmit
-bun run lint             # ESLint con las reglas de capas; falla con cualquier advertencia
+bun run lint             # ESLint with the layer rules; fails on any warning
 bun run format:check     # Prettier
 ```
 
-No hay claves de API todavía.
+There are no API keys yet.
 
-## Decisiones relevantes
+## Relevant decisions
 
-Los ADR están en [docs/especificacion/adr/](docs/especificacion/adr/README.md).
+The ADRs are in [docs/especificacion/adr/](docs/especificacion/adr/README.md) (Spanish).
 
-## Limitaciones conocidas
+## Known limitations
 
-> En construcción.
+> Under construction.
 
-## Documentación del proyecto
+## Project documentation (Spanish)
 
-- [Especificación](docs/especificacion/README.md): requisitos, reglas de negocio, modelo de datos y textos.
-- [Plan de implementación](docs/plan-de-implementacion.md): fases y criterios de salida.
-- [Convenciones](docs/convenciones.md): ramas, commits, PR y Definición de Hecho.
-- [Project «OneRM MVP»](https://github.com/users/ivomiyashiro/projects/2): tablero de tareas.
+- [Specification](docs/especificacion/README.md): requirements, business rules, data model and texts.
+- [Implementation plan](docs/plan-de-implementacion.md): phases and exit criteria.
+- [Conventions](docs/convenciones.md): branches, commits, PRs and Definition of Done.
+- [Project «OneRM MVP»](https://github.com/users/ivomiyashiro/projects/2): task board.
 - [CHANGELOG](CHANGELOG.md).

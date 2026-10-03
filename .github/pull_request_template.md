@@ -1,29 +1,29 @@
-<!-- Título en Conventional Commits: se usa como mensaje del squash. -->
+<!-- Title in Conventional Commits: it becomes the squash commit message. -->
 
 Closes #
 
-## Qué cambia
+## What changes
 
 -
 
-## Referencias de la especificación
+## Specification references
 
-<!-- RF, AC, RN, RNF o ADR -->
+<!-- RF, AC, RN, RNF or ADR -->
 
-## Cómo se probó
+## How it was tested
 
-- [ ] Tests unitarios
-- [ ] Tests de integración
-- [ ] Prueba manual (describir los pasos y si fue con o sin conexión)
+- [ ] Unit tests
+- [ ] Integration tests
+- [ ] Manual test (describe the steps and whether it was online or offline)
 
-## Checklist (Definición de Hecho)
+## Checklist (Definition of Done)
 
-- [ ] Cumple los criterios de aceptación del issue
-- [ ] La CI pasa (typecheck, lint con las reglas de capas, tests)
-- [ ] Los textos de la UI salen de `presentation/strings`
-- [ ] La especificación o los ADR están actualizados, si cambió una decisión
-- [ ] `CHANGELOG.md` actualizado, si el cambio es visible para el usuario
+- [ ] Meets the issue's acceptance criteria
+- [ ] CI passes (typecheck, lint with the layer rules, tests)
+- [ ] UI texts come from `presentation/strings`
+- [ ] The specification or ADRs are updated, if a decision changed
+- [ ] `CHANGELOG.md` updated, if the change is user-visible
 
-## Capturas
+## Screenshots
 
-<!-- Si cambia la UI -->
+<!-- If the UI changes -->

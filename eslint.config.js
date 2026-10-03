@@ -5,9 +5,9 @@ const tseslint = require('typescript-eslint');
 const prettierConfig = require('eslint-config-prettier');
 const boundaries = require('eslint-plugin-boundaries');
 
-// SDKs de infraestructura: solo los puede importar data (y di, que la compone).
-// Lista cerrada: al sumar cualquier SDK de persistencia o red (otro SQLite, un cliente HTTP),
-// se agrega acá y en tools/lint/boundaries.test.ts.
+// Infrastructure SDKs: only data may import them (and di, which composes it).
+// Closed list: when adding any persistence or network SDK (another SQLite, an HTTP client),
+// add it here and in tools/lint/boundaries.test.ts.
 const INFRASTRUCTURE_SDKS = [
   '@supabase/**',
   'expo-sqlite',
@@ -25,7 +25,7 @@ module.exports = defineConfig([
     files: ['**/*.ts', '**/*.tsx'],
     extends: [tseslint.configs.recommended],
   },
-  // Reglas de capas de Clean Architecture (12 §1, ADR-0011, RNF-11). No se desactivan.
+  // Clean Architecture layer rules (12 §1, ADR-0011, RNF-11). Never disabled.
   {
     files: ['src/**/*.{js,jsx,ts,tsx}', 'app/**/*.{js,jsx,ts,tsx}'],
     plugins: { boundaries },
@@ -34,8 +34,8 @@ module.exports = defineConfig([
         typescript: { project: './tsconfig.json' },
       },
       'boundaries/elements': [
-        // partialMatch: false: el patrón se compara con la ruta completa desde la raíz. Sin esto,
-        // una carpeta src/domain/app/ se clasificaba como app y heredaba sus permisos.
+        // partialMatch: false: the pattern is matched against the full path from the root. Without it,
+        // a src/domain/app/ folder was classified as app and inherited its permissions.
         { type: 'domain', partialMatch: false, pattern: 'src/domain/**' },
         { type: 'data', partialMatch: false, pattern: 'src/data/**' },
         { type: 'presentation', partialMatch: false, pattern: 'src/presentation/**' },
@@ -44,18 +44,18 @@ module.exports = defineConfig([
       ],
     },
     rules: {
-      // Todo archivo de src/ y app/ pertenece a una capa: nada de src/shared/ o src/utils/ como
-      // puente para saltar las reglas. Y ninguna capa importa archivos locales sin capa.
+      // Every file in src/ and app/ belongs to a layer: no src/shared/ or src/utils/ as a
+      // bridge to bypass the rules. And no layer imports local files outside the layers.
       'boundaries/no-unknown-files': 'error',
       'boundaries/no-unknown-dependencies': 'error',
       'boundaries/dependencies': [
         'error',
         {
           default: 'disallow',
-          // Sin esto la regla ignora los paquetes externos y domain podría importar React.
+          // Without this the rule ignores external packages and domain could import React.
           checkAllOrigins: true,
           policies: [
-            // domain es TypeScript puro: ni otras capas ni paquetes externos.
+            // domain is pure TypeScript: no other layers and no external packages.
             {
               from: { element: { type: 'domain' } },
               allow: { to: { element: { type: 'domain' } } },
@@ -74,7 +74,7 @@ module.exports = defineConfig([
                 { to: { module: { origin: 'external' } } },
               ],
             },
-            // Composition root: el único que conoce a la vez data y presentation.
+            // Composition root: the only layer that knows both data and presentation.
             {
               from: { element: { type: 'di' } },
               allow: [
@@ -82,7 +82,7 @@ module.exports = defineConfig([
                 { to: { module: { origin: 'external' } } },
               ],
             },
-            // Expo Router: solo composición de pantallas.
+            // Expo Router: screen composition only.
             {
               from: { element: { type: 'app' } },
               allow: [
@@ -90,7 +90,7 @@ module.exports = defineConfig([
                 { to: { module: { origin: 'external' } } },
               ],
             },
-            // Va al final porque gana la última política que coincide.
+            // Goes last because the last matching policy wins.
             {
               from: { element: { types: { anyOf: ['presentation', 'app'] } } },
               disallow: { to: { module: { origin: 'external', source: INFRASTRUCTURE_SDKS } } },
@@ -100,6 +100,6 @@ module.exports = defineConfig([
       ],
     },
   },
-  // Último: apaga las reglas de formato que pisan a Prettier.
+  // Last: turns off the formatting rules that conflict with Prettier.
   prettierConfig,
 ]);
