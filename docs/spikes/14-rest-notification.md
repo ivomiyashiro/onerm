@@ -12,7 +12,7 @@ RN-ENT-07 y RNF-22 piden que el temporizador no use procesos en segundo plano: s
 ## Criterio de éxito
 
 - [x] Notificación programada para una hora de fin absoluta. Reprogramarla (+15 s) y cancelarla (Saltear) funcionan.
-- [ ] Retraso medido con la pantalla bloqueada en un **dispositivo físico** Android 12+, con y sin permiso de alarmas exactas. **Pendiente: se midió solo en el emulador** (ver «Para el dispositivo físico»).
+- [~] Retraso medido con la pantalla bloqueada, con y sin permiso de alarmas exactas: **solo en el emulador**. La medición en un dispositivo físico queda como **limitación conocida** (RNF-23), por decisión del 2026-10-03.
 - [x] Comportamiento con el permiso de notificaciones rechazado.
 - [~] `expo-keep-awake` mantiene la pantalla encendida solo mientras está activo. Verificado en el código. En la build de desarrollo no se puede observar, y en el dispositivo físico queda pendiente con una build de release.
 - [x] Limitaciones anotadas para RNF-23.
@@ -56,17 +56,15 @@ RN-ENT-07 y RNF-22 piden que el temporizador no use procesos en segundo plano: s
 3. El estado del permiso de notificaciones se lee con `getPermissionsAsync()` para mostrar el aviso de S09 y S21.
 4. `useKeepAwake` va solo en S09.
 
-**Decisión pendiente (del usuario).** Las alarmas exactas en Android 14+ necesitan un permiso que **viene denegado por defecto**. Sin él, el aviso con la pantalla bloqueada llega hasta un 75 % tarde. Opciones:
+**Decisión (2026-10-03): se pide el permiso de alarmas exactas y, sin él, no se programa el aviso.** Un aviso que puede llegar hasta un 75 % tarde (1:30 en un descanso de 2 min) es peor que ninguno.
+- Se declara `SCHEDULE_EXACT_ALARM`. Después de D05, si el sistema no permite alarmas exactas, D17 explica por qué hacen falta y abre «Alarmas y recordatorios» en los ajustes del teléfono.
+- Sin el permiso, el temporizador no programa la notificación. Queda el aviso en primer plano (vibración y pantalla) y el aviso discreto en S09 con «Permitir» (RF-ENT-06 AC10).
+- Hace falta leer `AlarmManager.canScheduleExactAlarms()`, que `expo-notifications` no expone, y abrir `ACTION_REQUEST_SCHEDULE_EXACT_ALARM`. Se resuelve en la card del temporizador: un módulo nativo chico (Expo Modules API) o `expo-intent-launcher` más una comprobación nativa.
+- Descartadas: `USE_EXACT_ALARM`, porque Play lo restringe a apps de alarmas o de calendario y es un argumento débil en la defensa, y aceptar el aviso inexacto.
 
-| Opción | A favor | En contra |
-|---|---|---|
-| **A. `SCHEDULE_EXACT_ALARM` + pedirlo** (llevar a «Alarmas y recordatorios» en los ajustes, con una explicación) | Cumple RNF-23 si el usuario lo concede. Es lo que espera Play para una app que no es de alarmas | Un paso más en el onboarding o en S09. Hace falta un texto nuevo en 13-textos y leer `canScheduleExactAlarms()`, que `expo-notifications` no expone: es un módulo nativo chico o `expo-intent-launcher` para abrir los ajustes |
-| **B. `USE_EXACT_ALARM`** (se concede solo) | Cero fricción. Cumple RNF-23 siempre | Play lo restringe a apps cuyo núcleo es una alarma o un calendario. La app no se publica en Play (TPO), pero el argumento es débil en la defensa |
-| **C. Aceptar el aviso inexacto** y documentarlo como limitación (RNF-23 ya lo prevé) | Nada que agregar | Con la pantalla bloqueada, en un descanso de 2 min el aviso puede llegar 1:30 tarde. Es la función principal del temporizador |
+Especificación actualizada en este mismo PR: RN-ENT-07, RNF-23, RF-ENT-06 (AC5, AC9 y el nuevo AC10), D17 en 08 y 13-textos, y el aviso de S09 y S21.
 
-Recomendación: **A**, con C como degradación si el usuario no concede el permiso. Hay que agregar el texto en 13-textos.
-
-## Para el dispositivo físico (pendiente de una persona)
+## Para el dispositivo físico (limitación conocida; pasos por si se retoma)
 
 Con un Android 12 o superior y la depuración USB activada:
 
@@ -77,7 +75,7 @@ Con un Android 12 o superior y la depuración USB activada:
 5. Con el ahorro de batería activado y las alarmas exactas concedidas, repetir 2 veces.
 6. Keep-awake: compilar en release (`cd android && ./gradlew app:assembleRelease -Dorg.gradle.jvmargs=-Xmx4g`, después `adb install -r app/build/outputs/apk/release/app-release.apk`). Con la pantalla en 30 s de apagado automático, verificar que con el interruptor apagado se apaga y que con el interruptor encendido no.
 
-Pasar los resultados para completar la tabla de esta nota.
+Si se hace, los resultados completan la tabla de esta nota y RNF-23.
 
 ## Código
 
