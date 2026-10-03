@@ -67,7 +67,13 @@ src/di/              composition root: creates the implementations and provides 
 3. **Refactor** with the tests green.
 
 - Domain: unit tests with no network or database (RNF-12). The reference cases in `sugerencias.md` are literal tests (RNF-15).
-- Data and sync: integration tests (`*.int.test.ts`). How they run against SQLite is defined by spike #11, and against local Supabase by spike #12; this section is completed when they close.
+- Data: integration tests (`*.int.test.ts`, next to the repository in `src/data/`) against a real SQLite database, never a mocked one (spike #11):
+  - each test opens a fresh in-memory `better-sqlite3` database with `openTestDatabase()`, which applies the same `drizzle/` migrations and the same PRAGMAs (WAL, `foreign_keys`) as the app;
+  - repositories take `AppDatabase` (`BaseSQLiteDatabase<'sync', unknown>`), so the same code runs on `expo-sqlite` and `better-sqlite3`;
+  - the change notifications behind `observe…()` don't exist in Jest: test the query and the re-run on a manual change event, and check the live wiring on the emulator;
+  - Jest's SQLite (3.53) is newer than the device's (3.50): don't rely on newer SQL features;
+  - `bun run test` runs the unit tests and `bun run test:int` the integration tests; CI runs both. The script and `openTestDatabase()` land in #27.
+- Sync against local Supabase: defined by spike #12; this section is completed when it closes.
 - ViewModels: always tested, with fake repositories injected, covering every state of the union.
 - Screens: one Testing Library test per state (`loading`, `content`, `empty`, `error`…) checking what is shown and that actions call the ViewModel. Fine visual details are checked against Figma, not with tests.
 - Tests live next to the file: `foo.ts` → `foo.test.ts`.

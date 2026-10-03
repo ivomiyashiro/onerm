@@ -33,3 +33,4 @@ Los datos son **relacionales**: rutina → días → ejercicios; entrenamiento �
 - ✅ Tipos de punta a punta: esquema → mappers → modelos de dominio.
 - ✅ En la defensa se explica como "el Room de React Native".
 - ⚠️ Los mappers fila ↔ dominio son explícitos: más código, pero la capa de dominio queda limpia de detalles de la base.
+- ⚠️ `expo-sqlite` abre sin WAL y sin claves foráneas: hay que activarlos con PRAGMA en cada apertura. Validado en el [spike #11](../../spikes/11-sqlite-drizzle.md), junto con los tests de integración sobre `better-sqlite3`.

@@ -6,7 +6,7 @@ Un spike responde **una pregunta técnica** con código exploratorio y tiempo ac
 
 | Nota | Pregunta | Issue | Decisión |
 |---|---|---|---|
-| — | — | — | — |
+| [11-sqlite-drizzle](11-sqlite-drizzle.md) | ¿Drizzle sobre expo-sqlite cubre ADR-0010 y cómo se testean los repositorios en Jest? | #11 | Se confirma. WAL y FK se activan al abrir; tests de integración con `better-sqlite3` |
 
 ## Plantilla
 
