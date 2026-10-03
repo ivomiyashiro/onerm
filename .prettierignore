@@ -7,3 +7,6 @@ docs/
 *.md
 .github/
 coverage/
+# skills de terceros: se actualizan con npx skills update
+.claude/skills/
+skills-lock.json

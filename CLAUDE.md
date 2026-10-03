@@ -22,6 +22,22 @@ Usar la skill `/card <número>` (o `/card F3` para tomar la próxima card abiert
 
 **Merge automático:** si todas las verificaciones las completó el agente (incluida la prueba en el emulador) y la CI está en verde, el agente mergea el PR con squash y sigue con la próxima card sin frenar. Al terminar una fase se corren dos jueces sobre todo lo hecho y las correcciones van en un PR aparte. Detalle en la skill `/card` §5–§6.
 
+## Skills del proyecto
+
+En `.claude/skills/` (versionadas en `skills-lock.json`; se actualizan con `npx skills update -p`):
+
+| Skill | Origen | Para qué |
+|---|---|---|
+| `card` | propia | Flujo de una card de punta a punta |
+| `expo-router` | expo/skills | Rutas, Stack, tabs y modales de Expo Router (F2, F5) |
+| `expo-upgrade` | expo/skills | Subir de SDK de Expo y arreglar dependencias |
+| `react-native-testing` | callstackincubator/agent-skills | Tests con Testing Library v14 (render y userEvent asincrónicos) |
+
+Descartadas: las de EAS (build en la nube y tiendas, pagas y fuera del alcance), `expo-dev-client` (asume EAS; acá se compila local con `expo run:android`), `expo-native-ui`/`expo-ui`/`expo-design-system` (el diseño sale de Figma y de los tokens propios), `react-navigation` (se usa Expo Router) y `react-native-best-practices` (6 MB de imágenes; el rendimiento exigido está en el motor, que es TypeScript puro; se puede sumar en F9).
+
+- Si una skill externa choca con la especificación, el diseño de Figma o este archivo, **ganan estos**. Por ejemplo, `expo-router` empuja patrones de iOS (Link previews, NativeTabs): se usan solo si el diseño los pide.
+- **No mandar feedback** a Expo (`submit-expo-feedback`) ni a otro servicio sin que el usuario lo pida.
+
 ## Arquitectura (ADR-0011, 12-arquitectura)
 
 ```
