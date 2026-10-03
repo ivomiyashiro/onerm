@@ -236,10 +236,10 @@ Escenario: AC4 — Saltear
   Entonces se detiene y no se emite ningún aviso
 
 Escenario: AC5 — Aviso con la pantalla bloqueada
-  Dado que el temporizador está corriendo, la pantalla está bloqueada y di permiso de notificaciones
+  Dado que el temporizador está corriendo, la pantalla está bloqueada y di permiso de notificaciones y de alarmas exactas
   Cuando el descanso termina
   Entonces recibo una notificación con vibración que dice que es hora de la siguiente serie
-  Y llega con un retraso de 5 s como máximo, cuando el sistema permite alarmas exactas (RNF-23)
+  Y llega con un retraso de 5 s como máximo (RNF-23)
 
 Escenario: AC6 — Aviso con la app abierta
   Dado que la app está en primer plano
@@ -261,7 +261,15 @@ Escenario: AC9 — Pedido del permiso en contexto
   Dado que nunca se me pidió el permiso de notificaciones
   Cuando confirmo mi primera serie
   Entonces se me explica para qué se usa y se me pide el permiso
-  Y el entrenamiento sigue igual si lo rechazo
+  Y si lo doy y el sistema no permite alarmas exactas, se me explica por qué hacen falta y puedo abrir los ajustes del teléfono para permitirlas (D17)
+  Y el entrenamiento sigue igual si rechazo cualquiera de los dos
+
+Escenario: AC10 — Alarmas exactas no permitidas
+  Dado que di permiso de notificaciones pero no de alarmas exactas
+  Cuando arranca el temporizador
+  Entonces no se programa el aviso con la pantalla bloqueada (RN-ENT-07)
+  Y si el descanso termina con la app en primer plano, el teléfono vibra y la pantalla lo indica
+  Y en la pantalla de entrenamiento veo un aviso discreto: "Permití las alarmas para que te avisemos a tiempo con la pantalla bloqueada", con la acción "Permitir"
 ```
 
 ---

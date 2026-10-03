@@ -125,6 +125,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | D13 Sugerencia de crear cuenta | Guardá tu progreso | Tus datos están solo en este teléfono. Creá una cuenta gratis para no perderlos. | **Crear cuenta** · Ahora no |
 | D15 Activar rutina nueva | ¿Empezar a usar {rutina}? | La vas a ver en Inicio como tu rutina actual. | **Activar** · Ahora no |
 | D16 Eliminar del historial | ¿Eliminar {esta serie / este entrenamiento}? | {Se elimina la serie. / Se eliminan el entrenamiento y sus {n} series.} Tus sugerencias se recalculan. | **Cancelar** · Eliminar (destructivo) |
+| D17 Permiso de alarmas exactas (Android 12+) | Para avisarte justo a tiempo | Sin este permiso el teléfono puede demorar el aviso hasta más de un minuto. Activá «Alarmas y recordatorios» para OneRM. | **Abrir ajustes** · Ahora no |
 
 **Snackbar de deshacer** (RF-ENT-04): "Serie eliminada" · **Deshacer** (visible 5 s).
 
@@ -153,6 +154,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Restaurando | Restaurando tus datos… {porcentaje} |
 | Restauración incompleta | Faltan datos por restaurar. Las sugerencias pueden no estar al día. |
 | Permiso de notificaciones rechazado (S09) | Activá las notificaciones para que te avisemos con la pantalla bloqueada. **Activar** |
+| Alarmas exactas no permitidas (S09) | Permití las alarmas para que te avisemos a tiempo con la pantalla bloqueada. **Permitir** |
 | Ejercicio ausente del catálogo | Ejercicio no disponible todavía. |
 | Ejercicio obsoleto | Ya no está en el catálogo. **Reemplazar** |
 | Error al preparar los datos (migración) | No pudimos preparar tus datos. **Reintentar** |
@@ -212,7 +214,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S19 | Entrenamiento · Editar entrenamiento · {día_semana} {d} de {mes} · Sustituye a {ejercicio} · Salteado · Tocá una serie para corregirla. Tus sugerencias se recalculan solas. · Agregar serie · Eliminar entrenamiento |
 | S20 | Máximo estimado · Mayor carga · Mejor serie · récord · aproximado · 4 semanas · 3 meses · Todo · Máximo estimado en {unidad} · Precisión alta · Aproximada · Récord · Calculado con el peso y las repeticiones que hiciste. Los puntos huecos son aproximados (series largas). El punto lima es tu récord. · Sin e1RM: Repeticiones totales · Repeticiones de la mejor serie ({carga}) · Con más de 15 repeticiones no podemos estimar tu máximo con precisión, así que te mostramos tu mejor serie. · Mejor serie de cada entrenamiento · Máximas reps · Reps totales · Máximas repeticiones por entrenamiento · Es un ejercicio de peso corporal: seguimos tus repeticiones, sin máximo estimado. |
 | Récord | Nuevo récord |
-| S21 | Perfil · Invitado · Sin cuenta · Entrenamiento · Nivel · Objetivo · Días por semana · Preferencias · Unidad de peso · Esfuerzo · Escala simple · Incrementos de peso · Por equipamiento · Notificaciones del descanso · Te avisamos aunque la pantalla esté bloqueada. · Acerca de y créditos · Cerrar sesión · Respaldar ahora · Están bloqueadas en los ajustes del teléfono. Activalas ahí para que te avisemos con la pantalla bloqueada. · Abrir ajustes del teléfono · Incrementos: Usamos estos saltos para que las sugerencias sean pesos que existen en tu gimnasio. · En kg · Peso de la barra · Si cambiás a lb usamos otros saltos (5 lb, 10 lb): no se convierten. |
+| S21 | Perfil · Invitado · Sin cuenta · Entrenamiento · Nivel · Objetivo · Días por semana · Preferencias · Unidad de peso · Esfuerzo · Escala simple · Incrementos de peso · Por equipamiento · Notificaciones del descanso · Te avisamos aunque la pantalla esté bloqueada. · Acerca de y créditos · Cerrar sesión · Respaldar ahora · Están bloqueadas en los ajustes del teléfono. Activalas ahí para que te avisemos con la pantalla bloqueada. · Abrir ajustes del teléfono · Alarmas exactas desactivadas: sin ellas no te avisamos con la pantalla bloqueada. · Permitir · Incrementos: Usamos estos saltos para que las sugerencias sean pesos que existen en tu gimnasio. · En kg · Peso de la barra · Si cambiás a lb usamos otros saltos (5 lb, 10 lb): no se convierten. |
 | S22 | Acerca de · Versión {versión} · Créditos · Catálogo de ejercicios · Fotos · Tipografías · En qué nos basamos · {n} principios · Los principios detrás de las sugerencias y sus fuentes científicas. |
 | S25 | Cambios sin respaldar · No pudimos respaldar estos cambios. Tocá uno para ver qué pasó y qué podés hacer. · Todo respaldado · No hay cambios pendientes. |
 | S16 | Buscar ejercicio · Mismo músculo |

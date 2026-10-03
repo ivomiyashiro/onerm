@@ -55,6 +55,7 @@ Responde a los §4.8 (UI/UX/CX) y §4.9 (flujo de pantallas) del TPO. Es la **gu
 | D03 | Cerrar sesión con pendientes | S21 | RF-AUTH-07 AC3 |
 | D14 | Terminá tu entrenamiento primero (reemplaza a D04) | S21 (cerrar sesión), S13/S14 (activar, adoptar o eliminar la activa) | RF-AUTH-07 AC4, RN-RUT-09 |
 | D05 | Permiso de notificaciones, en contexto | S09 (primera serie) | RF-ENT-06 AC9 |
+| D17 | Permiso de alarmas exactas (Android 12+), después de D05 | S09 (primera serie), S21 | RF-ENT-06 AC9, AC10 |
 | D06 | Ajustar la rutina al nuevo objetivo | S21 | RF-PERF-03 AC2 |
 | D07 | Reemplazar la rutina activa | S14, S13 | RF-RUT-02 AC2, RF-RUT-07 |
 | D08 | Cambios sin guardar | S15 | RF-RUT-03 AC5 |
@@ -127,7 +128,9 @@ flowchart TD
     PRE -- "Hecho (1 toque)" --> LOG[["Guardar serie en SQLite (< 100 ms) + háptico"]]
     PRE -- "± / teclado / 'Distinto por lado'" --> LOG
     LOG --> FIRSTP{¿Primera serie y permiso nunca pedido?}
-    FIRSTP -- sí --> D05{{D05 Permiso}} --> EFF
+    FIRSTP -- sí --> D05{{D05 Permiso}} --> EXACT{¿Alarmas exactas permitidas?}
+    EXACT -- sí --> EFF
+    EXACT -- no --> D17{{D17 Alarmas exactas}} --> EFF
     FIRSTP -- no --> EFF["Opciones de esfuerzo en la fila de la serie (1 toque, opcional)"]
     EFF --> TIMER["Temporizador: +15 s · Reiniciar · Saltear"]
     TIMER --> MORE{¿Quedan series?}
@@ -212,6 +215,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 - [x] S21 con los 9 estados de sync.
 - [x] S09 en variante de peso corporal y "ejercicio no disponible todavía".
 - [x] Todos los diálogos (D01–D03, D05–D16) y el snackbar de deshacer.
+- [ ] D17 (permiso de alarmas exactas) y el aviso de S09 «Alarmas exactas no permitidas»: agregados el 2026-10-03 (spike #14).
 - [x] Componentes: paso de carga y repeticiones (±), opciones de esfuerzo (simple y RIR, simple y por lado), temporizador, tarjeta de ejercicio, indicador de sync, fila de serie (estados).
 - [x] Accesibilidad: RNF-16, RNF-17 y RNF-18 (fuente al 150 % en S07, S09 y S21).
 

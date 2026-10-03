@@ -9,6 +9,7 @@ Un spike responde **una pregunta técnica** con código exploratorio y tiempo ac
 | [11-sqlite-drizzle](11-sqlite-drizzle.md) | ¿Drizzle sobre expo-sqlite cubre ADR-0010 y cómo se testean los repositorios en Jest? | #11 | Se confirma. WAL y FK se activan al abrir; tests de integración con `better-sqlite3` |
 | [12-supabase-local](12-supabase-local.md) | ¿RLS y triggers imponen solos las reglas de 07 §3, y se testea con dos usuarios? | #12 | Se confirma. Trigger compartido, pgTAP + supabase-js, job de CI |
 | [13-push-pull](13-push-pull.md) | ¿La sync propia de ADR-0002 entra en el tiempo? (plan B) | #13 | Se confirma la sync propia. Plan B descartado. F8 ≈ 6 días |
+| [14-rest-notification](14-rest-notification.md) | ¿La notificación programada avisa con ≤ 5 s de retraso con la pantalla bloqueada? | #14 | Sí con alarmas exactas (0,5 s). Sin el permiso de alarmas exactas no se programa el aviso: se pide al usuario. Medición en un dispositivo físico: limitación conocida |
 | [15-secure-session](15-secure-session.md) | ¿La sesión cifrada (clave en el Keystore) funciona como `storage` de supabase-js? | #15 | Se confirma, con `expo-crypto` AES-GCM, `expo-secure-store` y `expo-sqlite/kv-store` |
 
 ## Plantilla
