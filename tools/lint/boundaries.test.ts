@@ -100,12 +100,17 @@ describe('RNF-11 · reglas de capas', () => {
       ['src/domain/app/probe.ts', "import { useState } from 'react';"],
       ['src/domain/rules/app/probe.ts', "import Constants from 'expo-constants';"],
       ['src/data/app/probe.ts', PRESENTATION],
-    ])('una carpeta app/ dentro de una capa no hereda los permisos de app (%s)', async (file, code) => {
-      expect(await boundaryErrors(file, code)).not.toHaveLength(0);
-    });
+    ])(
+      'una carpeta app/ dentro de una capa no hereda los permisos de app (%s)',
+      async (file, code) => {
+        expect(await boundaryErrors(file, code)).not.toHaveLength(0);
+      },
+    );
 
     it('un archivo de src/ fuera de las capas falla', async () => {
-      expect(await boundaryErrors('src/shared/probe.ts', 'export const x = 1;')).not.toHaveLength(0);
+      expect(await boundaryErrors('src/shared/probe.ts', 'export const x = 1;')).not.toHaveLength(
+        0,
+      );
     });
 
     it('una capa no importa archivos locales fuera de las capas', async () => {
