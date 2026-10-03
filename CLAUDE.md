@@ -20,6 +20,8 @@ Si el código contradice la especificación, **no se inventa**: se señala el hu
 
 Usar la skill `/card <número>` (o `/card F3` para tomar la próxima card abierta de una fase). Resumen: leer la card y la especificación → publicar el plan en el issue → rama → TDD tarea por tarea → verificar → PR con `Closes #N`. El tablero se mueve con `tools/board.sh`.
 
+**Merge automático:** si todas las verificaciones las completó el agente (incluida la prueba en el emulador) y la CI está en verde, el agente mergea el PR con squash y sigue con la próxima card sin frenar. Al terminar una fase se corren dos jueces sobre todo lo hecho y las correcciones van en un PR aparte. Detalle en la skill `/card` §5–§6.
+
 ## Arquitectura (ADR-0011, 12-arquitectura)
 
 ```

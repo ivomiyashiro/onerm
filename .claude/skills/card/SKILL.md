@@ -8,7 +8,7 @@ description: Planifica e implementa una card del tablero de OneRM con TDD, de pu
 Argumento: un número de issue (`22`) o una fase (`F3`).
 
 - **Con una fase:** `tools/board.sh next F3` lista las cards del Backlog en el orden del tablero, sin las Could. Tomar la primera cuyas dependencias estén cerradas.
-- **Una fase entera** ("hacé F3 completa"): repetir el ciclo completo card por card. Después de cada PR, **frenar hasta que el usuario lo mergee**, porque la card siguiente sale de `main` actualizado. Solo si el usuario autorizó el merge en su pedido ("…y mergeá"), mergear con squash cuando la CI esté en verde y seguir.
+- **Una fase entera** ("hacé F3 completa"): repetir el ciclo completo card por card, **sin frenar** entre cards (ver «Merge automático» en §5). Cada card sale de `main` actualizado. Al terminar la fase, correr la revisión de fase (§6).
 
 ## 1. Entender
 
@@ -59,7 +59,7 @@ Mover la card: `tools/board.sh move <N> curso`.
 ## 4. Verificar
 
 - `bun run typecheck`, `bun run lint` y `bun run test` en verde, y los scripts de integración que existan.
-- Repasar cada ítem del alcance y de "Listo cuando". Lo que requiera prueba manual (emulador, modo avión, dispositivo físico), listarlo para el usuario con los pasos exactos. **No darlo por hecho.**
+- Repasar cada ítem del alcance y de "Listo cuando". Lo que requiera prueba manual (emulador, modo avión, dispositivo físico), **hacerla el agente** si puede (emulador con `adb`, capturas con `adb exec-out screencap`). Solo lo que no pueda hacer (dispositivo físico, cuentas, decisiones), listarlo para el usuario con los pasos exactos. **No darlo por hecho.**
 - Si cambió una decisión o un comportamiento, actualizar la especificación o el ADR en la misma rama.
 - Si el cambio es visible para el usuario, agregarlo a `CHANGELOG.md`.
 
@@ -69,3 +69,18 @@ Mover la card: `tools/board.sh move <N> curso`.
 2. Push y PR con la plantilla: título en Conventional Commits, `Closes #N`, cómo se probó y qué queda de prueba manual.
 3. Informar al usuario qué se hizo, qué tests se agregaron, qué falta probar a mano y si se detectó algún hueco en la especificación.
 4. Cuando el PR se mergea: `tools/board.sh move <N> hecho`, salvo que el workflow del Project ya lo haya movido.
+
+### Merge automático (regla del proyecto, 2026-10-02)
+
+Si **todas** las verificaciones de la card están completas y las hizo el agente (typecheck, lint, tests, CI en verde cuando exista, y la prueba manual en el emulador), el agente **mergea el PR él mismo** con squash y borra la rama (`gh pr merge <N> --squash --delete-branch`), mueve la card a Hecho y sigue con la siguiente sin esperar.
+
+No se mergea automáticamente si:
+- queda alguna verificación que solo puede hacer una persona (dispositivo físico, cuenta externa, decisión);
+- la CI falla o no terminó;
+- la card cambia la especificación de forma no trivial o requiere un ADR nuevo.
+
+En esos casos se frena y se avisa.
+
+## 6. Revisión de fase
+
+Al cerrar la última card de una fase, correr **dos jueces independientes** (`harness:judge-a` y `harness:judge-b`) sobre todo el diff de la fase contra la especificación, `CLAUDE.md` y `docs/convenciones.md`. Sintetizar sus hallazgos, descartar los que no se confirman y, si hay correcciones, hacerlas en **un PR aparte** (`fix/F<n>-correcciones-jueces` o `chore/…`) con `Refs` a las cards afectadas. Ese PR sigue la regla de merge automático.
