@@ -7,7 +7,8 @@ on:
 
 concurrency:
   group: ci-${{ github.ref }}
-  cancel-in-progress: true
+  # Solo en PRs: en main cada merge tiene que quedar verificado, aunque lleguen dos seguidos.
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   typecheck:
@@ -15,6 +16,8 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
+      - name: Generar los tipos de Expo Router (typedRoutes)
+        run: tools/ci/generate-expo-types.sh
       - run: bun run typecheck
 
   lint:

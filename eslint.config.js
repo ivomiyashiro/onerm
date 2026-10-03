@@ -6,6 +6,8 @@ const prettierConfig = require('eslint-config-prettier');
 const boundaries = require('eslint-plugin-boundaries');
 
 // SDKs de infraestructura: solo los puede importar data (y di, que la compone).
+// Lista cerrada: al sumar cualquier SDK de persistencia o red (otro SQLite, un cliente HTTP),
+// se agrega acá y en tools/lint/boundaries.test.ts.
 const INFRASTRUCTURE_SDKS = [
   '@supabase/**',
   'expo-sqlite',
@@ -25,21 +27,27 @@ module.exports = defineConfig([
   },
   // Reglas de capas de Clean Architecture (12 §1, ADR-0011, RNF-11). No se desactivan.
   {
-    files: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
+    files: ['src/**/*.{js,jsx,ts,tsx}', 'app/**/*.{js,jsx,ts,tsx}'],
     plugins: { boundaries },
     settings: {
       'import/resolver': {
         typescript: { project: './tsconfig.json' },
       },
       'boundaries/elements': [
-        { type: 'domain', pattern: 'src/domain' },
-        { type: 'data', pattern: 'src/data' },
-        { type: 'presentation', pattern: 'src/presentation' },
-        { type: 'di', pattern: 'src/di' },
-        { type: 'app', pattern: 'app' },
+        // partialMatch: false: el patrón se compara con la ruta completa desde la raíz. Sin esto,
+        // una carpeta src/domain/app/ se clasificaba como app y heredaba sus permisos.
+        { type: 'domain', partialMatch: false, pattern: 'src/domain/**' },
+        { type: 'data', partialMatch: false, pattern: 'src/data/**' },
+        { type: 'presentation', partialMatch: false, pattern: 'src/presentation/**' },
+        { type: 'di', partialMatch: false, pattern: 'src/di/**' },
+        { type: 'app', partialMatch: false, pattern: 'app/**' },
       ],
     },
     rules: {
+      // Todo archivo de src/ y app/ pertenece a una capa: nada de src/shared/ o src/utils/ como
+      // puente para saltar las reglas. Y ninguna capa importa archivos locales sin capa.
+      'boundaries/no-unknown-files': 'error',
+      'boundaries/no-unknown-dependencies': 'error',
       'boundaries/dependencies': [
         'error',
         {
@@ -91,10 +99,6 @@ module.exports = defineConfig([
         },
       ],
     },
-  },
-  {
-    // Destinos de import del test de las reglas de capas; no se usan en la app.
-    ignores: ['src/**/__fixtures__/**'],
   },
   // Último: apaga las reglas de formato que pisan a Prettier.
   prettierConfig,

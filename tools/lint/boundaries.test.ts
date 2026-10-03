@@ -93,4 +93,41 @@ describe('RNF-11 · reglas de capas', () => {
       expect(await boundaryErrors('app/probe.tsx', code)).toEqual([]);
     });
   });
+
+  // Huecos encontrados en la revisión de fase F0.
+  describe('sin atajos para saltar las reglas', () => {
+    it.each([
+      ['src/domain/app/probe.ts', "import { useState } from 'react';"],
+      ['src/domain/rules/app/probe.ts', "import Constants from 'expo-constants';"],
+      ['src/data/app/probe.ts', PRESENTATION],
+    ])(
+      'una carpeta app/ dentro de una capa no hereda los permisos de app (%s)',
+      async (file, code) => {
+        expect(await boundaryErrors(file, code)).not.toHaveLength(0);
+      },
+    );
+
+    it('un archivo de src/ fuera de las capas falla', async () => {
+      expect(await boundaryErrors('src/shared/probe.ts', 'export const x = 1;')).not.toHaveLength(
+        0,
+      );
+    });
+
+    it('una capa no importa archivos locales fuera de las capas', async () => {
+      const code = "import config from '../../tools/lint/boundaries.test';";
+      expect(await boundaryErrors('src/domain/probe.ts', code)).not.toHaveLength(0);
+    });
+
+    it.each([['src/domain/probe.js'], ['src/domain/probe.jsx']])(
+      'los archivos JS también se revisan (%s)',
+      async (file) => {
+        expect(await boundaryErrors(file, "import { useState } from 'react';")).not.toHaveLength(0);
+      },
+    );
+
+    it('los __fixtures__ de los tests también se revisan', async () => {
+      const code = "import { useState } from 'react';";
+      expect(await boundaryErrors('src/domain/__fixtures__/probe.ts', code)).not.toHaveLength(0);
+    });
+  });
 });
