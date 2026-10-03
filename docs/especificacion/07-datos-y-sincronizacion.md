@@ -68,7 +68,7 @@ Nunca se guarda en texto plano (RNF-07).
 
 | Tabla | Contenido |
 |---|---|
-| `sync_state` | `table_name`, `cursor`, `last_success_at`, `restore_completed` |
+| `sync_state` | `table_name`, `cursor` (TEXT: el `server_updated_at` y el `id` de la última fila, tal como los devuelve el servidor; un `Date` truncaría los microsegundos, spike #13), `last_success_at`, `restore_completed` |
 | `app_state` | `owner` (`guest` o `user_id`), `pending_migration_uid?` (unión del invitado sin terminar, §4.3), `onboarding_step?` (RF-PERF-01 AC6), `catalog_version`, `rest_timer_ends_at?`, `rest_timer_notification_id?`, `last_account_nudge_at?`, `notification_permission_asked` |
 
 ## 3. Servidor: seguridad, LWW y borrado
