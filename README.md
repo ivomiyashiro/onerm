@@ -63,7 +63,7 @@ Dependencies point towards the domain. The lint enforces it (`eslint-plugin-boun
 - Android SDK (Android Studio's) with `ANDROID_HOME` set and `platform-tools` on the `PATH`.
 - An Android 10+ emulator, or a device with USB debugging.
 
-> Docker and the Supabase CLI are added when spike #12 closes.
+- Docker, only for the tests against local Supabase (`bunx supabase start`; the CLI comes as a dev dependency from #40).
 
 ### Install
 
