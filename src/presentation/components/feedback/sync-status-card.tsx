@@ -99,7 +99,13 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   texts: { flex: 1, minHeight: 36, justifyContent: 'center' },
-  action: { minHeight: size.targetMin, justifyContent: 'center', alignSelf: 'flex-start' },
+  // «Ver» alone is narrower than 48 dp: the minimum width keeps the target (RNF-16).
+  action: {
+    minHeight: size.targetMin,
+    minWidth: size.targetMin,
+    justifyContent: 'center',
+    alignSelf: 'flex-start',
+  },
   actionLabel: {
     color: colors.textPrimary,
     paddingTop: 4,

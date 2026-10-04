@@ -44,6 +44,8 @@ export function TextField({
         <TextInput
           {...inputProps}
           accessibilityLabel={label}
+          // The help or the error is read whenever the field gets focus, not only when it appears.
+          accessibilityHint={error ?? help}
           value={value}
           onChangeText={onChangeText}
           editable={!disabled}
