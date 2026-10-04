@@ -52,6 +52,9 @@ const TEXT_PAIRS: Pair[] = [
     ['textWarn', 'bgWarnSoft', panel],
     ['textErr', 'bgErrSoft', panel],
     ['textErr', 'bgErrSoftStrong', panel],
+    // Sync status messages over their warning and error tints.
+    ['textPrimary', 'bgWarnSoft', panel],
+    ['textPrimary', 'bgErrSoft', panel],
   ]),
 ];
 
