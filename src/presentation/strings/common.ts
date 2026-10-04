@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /** Actions and words repeated across screens (13-textos). */
 export const common = {
   cancel: 'Cancelar',
@@ -23,8 +25,8 @@ export const common = {
     perSide: 'por lado',
     totalWithBar: 'total con barra',
   },
-  days: (n: number) => `${n} días`,
+  days: (n: number) => count(n, 'día', 'días'),
   minutes: (n: number) => `~${n} min`,
-  exercises: (n: number) => `${n} ejercicios`,
-  sets: (n: number) => `${n} series`,
+  exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
+  sets: (n: number) => count(n, 'serie', 'series'),
 } as const;

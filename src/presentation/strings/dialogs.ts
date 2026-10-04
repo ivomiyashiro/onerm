@@ -1,12 +1,38 @@
+import { count } from '@/presentation/strings/plural';
+
+/** "3 entrenamientos y 2 rutinas", leaving out a part in zero (13 §1 «Plurales»). */
+function guestData(workouts: number, routines: number): string {
+  return [
+    workouts > 0 && count(workouts, 'entrenamiento', 'entrenamientos'),
+    routines > 0 && count(routines, 'rutina', 'rutinas'),
+  ]
+    .filter(Boolean)
+    .join(' y ');
+}
+
+function dependentsClause(dependents: number | null): string {
+  if (dependents === null) return 'vuelve a la versión guardada';
+  if (dependents === 0) return 'se borra';
+  return dependents === 1
+    ? 'se borra junto con 1 registro que depende de él'
+    : `se borra junto con ${dependents} registros que dependen de él`;
+}
+
+function deletedWorkout(sets: number): string {
+  if (sets === 0) return 'Se elimina el entrenamiento.';
+  if (sets === 1) return 'Se eliminan el entrenamiento y su serie.';
+  return `Se eliminan el entrenamiento y sus ${sets} series.`;
+}
+
 /**
  * Dialogs D01–D17 (13 §8). The highlighted action is listed first, as on screen; the
- * destructive ones are marked in the name.
+ * destructive ones are marked in the name. Counts follow 13 §1 «Plurales».
  */
 export const dialogs = {
   D01: {
     title: '¿Sumamos tus datos a la cuenta?',
     body: (workouts: number, routines: number) =>
-      `En este teléfono tenés ${workouts} entrenamientos y ${routines} rutinas. Podés sumarlos a tu cuenta o descartarlos.`,
+      `En este teléfono tenés ${guestData(workouts, routines)}. Podés sumarlos a tu cuenta o descartarlos.`,
     merge: 'Sumar a mi cuenta',
     discard: 'Descartar',
     cancel: 'Cancelar',
@@ -14,7 +40,7 @@ export const dialogs = {
   D01b: {
     title: '¿Descartar tus datos?',
     body: (workouts: number, routines: number, withWorkoutInProgress: boolean) =>
-      `Se van a borrar de este teléfono ${workouts} entrenamientos y ${routines} rutinas${
+      `Se van a borrar de este teléfono ${guestData(workouts, routines)}${
         withWorkoutInProgress ? ', y el entrenamiento en curso' : ''
       }. No se puede deshacer.`,
     cancel: 'Cancelar',
@@ -22,13 +48,16 @@ export const dialogs = {
   },
   D02: {
     title: 'Tenés un entrenamiento sin terminar',
-    body: (date: string, sets: number) => `Lo empezaste el ${date} y registraste ${sets} series.`,
+    body: (date: string, sets: number) =>
+      sets === 0
+        ? `Lo empezaste el ${date} y todavía no registraste series.`
+        : `Lo empezaste el ${date} y registraste ${count(sets, 'serie', 'series')}.`,
     finish: 'Finalizarlo',
     continue: 'Continuar',
     discard: 'Descartar',
   },
   D03: {
-    title: (n: number) => `Tenés ${n} cambios sin respaldar`,
+    title: (n: number) => `Tenés ${count(n, 'cambio', 'cambios')} sin respaldar`,
     body: 'Si cerrás sesión ahora, se pierden. Conectate para respaldarlos antes.',
     cancel: 'Cancelar',
     signOutDestructive: 'Cerrar sesión igual',
@@ -61,12 +90,16 @@ export const dialogs = {
   },
   D09: {
     title: '¿Descartar el entrenamiento?',
-    body: (sets: number) => `Se borran las ${sets} series registradas.`,
+    body: (sets: number) => {
+      if (sets === 0) return 'Se descarta el entrenamiento, que no tiene series.';
+      if (sets === 1) return 'Se borra la serie registrada.';
+      return `Se borran las ${sets} series registradas.`;
+    },
     cancel: 'Cancelar',
     discardDestructive: 'Descartar',
   },
   D10: {
-    title: (n: number) => `Te faltan ${n} ejercicios`,
+    title: (n: number) => (n === 1 ? 'Te falta 1 ejercicio' : `Te faltan ${n} ejercicios`),
     body: 'Los que no hiciste quedan como salteados.',
     finish: 'Finalizar igual',
     keepTraining: 'Seguir entrenando',
@@ -81,18 +114,14 @@ export const dialogs = {
     title: 'No pudimos respaldar un cambio',
     /** `dependents` is null when the change was uploaded before: it goes back to that version. */
     body: (detail: string, dependents: number | null) =>
-      `${detail}. Si lo descartás, ${
-        dependents === null
-          ? 'vuelve a la versión guardada'
-          : `se borra junto con ${dependents} registros que dependen de él`
-      }.`,
+      `${detail}. Si lo descartás, ${dependentsClause(dependents)}.`,
     retry: 'Reintentar',
     discardDestructive: 'Descartar este cambio',
     close: 'Cerrar',
   },
   D13: {
     title: 'Guardá tu progreso',
-    body: 'Tus datos están solo en este teléfono. Creá una cuenta gratis para no perderlos.',
+    body: 'Tus datos solo están en este teléfono. Creá una cuenta gratis para no perderlos.',
     createAccount: 'Crear cuenta',
     notNow: 'Ahora no',
   },
@@ -119,12 +148,8 @@ export const dialogs = {
     title: (target: 'set' | 'workout') =>
       target === 'set' ? '¿Eliminar esta serie?' : '¿Eliminar este entrenamiento?',
     /** `sets` is the number of sets of the deleted workout; ignored for a set. */
-    body: (target: 'set' | 'workout', sets = 0) =>
-      `${
-        target === 'set'
-          ? 'Se elimina la serie.'
-          : `Se eliminan el entrenamiento y sus ${sets} series.`
-      } Tus sugerencias se recalculan.`,
+    body: (target: 'set' | 'workout', sets?: number) =>
+      `${target === 'set' ? 'Se elimina la serie.' : deletedWorkout(sets ?? 0)} Tus sugerencias se recalculan.`,
     cancel: 'Cancelar',
     deleteDestructive: 'Eliminar',
   },

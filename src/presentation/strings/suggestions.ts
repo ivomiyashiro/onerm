@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /**
  * Suggestion reasons (13 §4): a short line for novices and for advanced users, and the detail of
  * S10 «¿Por qué?». Loads arrive already formatted with their unit ("62,5 kg").
@@ -58,7 +60,8 @@ export const suggestions = {
         'Después de una pausa la fuerza baja un poco. Retomamos más liviano y volvés a subir rápido.',
     },
     DELOAD: {
-      novice: (n: number) => `Hace ${n} veces que no mejorás: bajamos un poco para tomar envión.`,
+      novice: (n: number) =>
+        `Hace ${count(n, 'vez', 'veces')} que no mejorás: bajamos un poco para tomar envión.`,
       advanced: () => 'Descarga por estancamiento: −10 %.',
       detail: (n: number, mark: string) =>
         `En tus últimas ${n} veces no superaste tu mejor marca (${mark}). Bajar un poco ayuda a recuperarse y a volver a progresar.`,
@@ -107,7 +110,9 @@ export const suggestions = {
     },
     COMPLETE_SETS: {
       novice: (sets: number, load: string, cap: number) =>
-        `Hacé las ${sets} series con ${load} × ${cap} para subir.`,
+        sets === 1
+          ? `Hacé la serie con ${load} × ${cap} para subir.`
+          : `Hacé las ${sets} series con ${load} × ${cap} para subir.`,
       advanced: (sets: number) => `Completar ${sets} series al tope.`,
       detail: () => 'La última vez llegaste al tope, pero en menos series que las prescriptas.',
     },

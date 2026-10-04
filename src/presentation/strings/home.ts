@@ -1,8 +1,10 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S07 Inicio and S08 Elegir día (13 §7, §9, §10). */
 export const home = {
   todayIs: 'Hoy toca',
-  exercises: (n: number) => `${n} ejercicios`,
-  sets: (n: number) => `${n} series`,
+  exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
+  sets: (n: number) => count(n, 'serie', 'series'),
   minutes: (n: number) => `~${n} min`,
   thisWeek: 'Esta semana',
   weekProgress: (done: number, goal: number) => `${done} de ${goal}`,
@@ -30,10 +32,10 @@ export const home = {
   },
   chooseDay: {
     title: 'Elegir día',
-    routineDays: (n: number) => `${n} días`,
+    routineDays: (n: number) => count(n, 'día', 'días'),
     choose: (day: string) => `Elegir ${day}`,
     recommended: 'Recomendado',
-    doneDaysAgo: (n: number) => `Hecho hace ${n} días`,
+    doneDaysAgo: (n: number) => `Hecho hace ${count(n, 'día', 'días')}`,
     neverDone: 'Nunca hecho',
     yourTurnToday: 'Te toca hoy',
   },

@@ -89,12 +89,12 @@ describe('strings (13-textos, RNF-21)', () => {
       [strings.profile.sync.synced('2 min'), 'Respaldado · hace 2 min'],
       [strings.dialogs.D09.body(9), 'Se borran las 9 series registradas.'],
       [
-        strings.dialogs.D01b.body(4, 1, false),
-        'Se van a borrar de este teléfono 4 entrenamientos y 1 rutinas. No se puede deshacer.',
+        strings.dialogs.D01b.body(4, 2, false),
+        'Se van a borrar de este teléfono 4 entrenamientos y 2 rutinas. No se puede deshacer.',
       ],
       [
-        strings.dialogs.D01b.body(4, 1, true),
-        'Se van a borrar de este teléfono 4 entrenamientos y 1 rutinas, y el entrenamiento en curso. No se puede deshacer.',
+        strings.dialogs.D01b.body(4, 2, true),
+        'Se van a borrar de este teléfono 4 entrenamientos y 2 rutinas, y el entrenamiento en curso. No se puede deshacer.',
       ],
       [
         strings.dialogs.D12.body('Falta el ejercicio', null),
@@ -121,5 +121,81 @@ describe('strings (13-textos, RNF-21)', () => {
     ])('%s', (actual, expected) => {
       expect(actual).toBe(expected);
     });
+  });
+
+  // 13-textos §1 «Plurales»: singular with {n} = 1, and the {n} = 0 forms of its table.
+  describe('plurals', () => {
+    it.each([
+      [strings.common.days(1), '1 día'],
+      [strings.common.sets(1), '1 serie'],
+      [strings.common.exercises(1), '1 ejercicio'],
+      [strings.home.chooseDay.doneDaysAgo(1), 'Hecho hace 1 día'],
+      [strings.routines.template.setsByRange(1, '8–12'), '1 serie × 8–12'],
+      [strings.progress.overview.records(1), '1 récord'],
+      [strings.catalog.search.count(1), '1 ejercicio'],
+      [strings.profile.sync.pendingOffline(1), '1 cambio sin respaldar · sin conexión'],
+      [strings.profile.sync.pendingOnline(1), '1 cambio por respaldar…'],
+      [strings.profile.sync.conflict(1), '1 cambio no se pudo respaldar'],
+      [strings.profile.about.principlesCount(1), '1 principio'],
+      [strings.dialogs.D03.title(1), 'Tenés 1 cambio sin respaldar'],
+      [strings.dialogs.D10.title(1), 'Te falta 1 ejercicio'],
+      [
+        strings.dialogs.D02.body('3 de octubre', 1),
+        'Lo empezaste el 3 de octubre y registraste 1 serie.',
+      ],
+      [
+        strings.dialogs.D02.body('3 de octubre', 0),
+        'Lo empezaste el 3 de octubre y todavía no registraste series.',
+      ],
+      [strings.dialogs.D09.body(1), 'Se borra la serie registrada.'],
+      [strings.dialogs.D09.body(0), 'Se descarta el entrenamiento, que no tiene series.'],
+      [
+        strings.dialogs.D12.body('Falta el ejercicio', 1),
+        'Falta el ejercicio. Si lo descartás, se borra junto con 1 registro que depende de él.',
+      ],
+      [
+        strings.dialogs.D12.body('Falta el ejercicio', 0),
+        'Falta el ejercicio. Si lo descartás, se borra.',
+      ],
+      [
+        strings.dialogs.D16.body('workout', 1),
+        'Se eliminan el entrenamiento y su serie. Tus sugerencias se recalculan.',
+      ],
+      [
+        strings.dialogs.D16.body('workout', 0),
+        'Se elimina el entrenamiento. Tus sugerencias se recalculan.',
+      ],
+      [
+        strings.dialogs.D01.body(1, 1),
+        'En este teléfono tenés 1 entrenamiento y 1 rutina. Podés sumarlos a tu cuenta o descartarlos.',
+      ],
+      [
+        strings.dialogs.D01.body(3, 0),
+        'En este teléfono tenés 3 entrenamientos. Podés sumarlos a tu cuenta o descartarlos.',
+      ],
+      [
+        strings.dialogs.D01b.body(0, 2, false),
+        'Se van a borrar de este teléfono 2 rutinas. No se puede deshacer.',
+      ],
+      [
+        strings.suggestions.reasons.COMPLETE_SETS.novice(1, '60 kg', 12),
+        'Hacé la serie con 60 kg × 12 para subir.',
+      ],
+      [
+        strings.suggestions.reasons.DELOAD.novice(1),
+        'Hace 1 vez que no mejorás: bajamos un poco para tomar envión.',
+      ],
+    ])('%s', (actual, expected) => {
+      expect(actual).toBe(expected);
+    });
+  });
+
+  it('S09 shows that the workout is backed up when it ends (08 §5)', () => {
+    expect(strings.workout.header.backedUpOnFinish).toBe('Se respalda al finalizar');
+  });
+
+  it('the guest texts say «solo están» (RF-SYNC-06, RF-AUTH)', () => {
+    expect(strings.profile.sync.guest).toBe('Sin respaldo: tus datos solo están en este teléfono.');
+    expect(strings.dialogs.D13.body).toMatch(/^Tus datos solo están en este teléfono\./);
   });
 });
