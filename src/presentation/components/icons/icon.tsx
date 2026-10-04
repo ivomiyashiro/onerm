@@ -19,7 +19,9 @@ import MinusSvg from '@/presentation/components/icons/svg/minus.svg';
 import PlusSvg from '@/presentation/components/icons/svg/plus.svg';
 import RefreshSvg from '@/presentation/components/icons/svg/refresh.svg';
 import SearchSvg from '@/presentation/components/icons/svg/search.svg';
+import SkipSvg from '@/presentation/components/icons/svg/skip.svg';
 import SpinnerSvg from '@/presentation/components/icons/svg/spinner.svg';
+import SwapSvg from '@/presentation/components/icons/svg/swap.svg';
 import UserSvg from '@/presentation/components/icons/svg/user.svg';
 import WifiOffSvg from '@/presentation/components/icons/svg/wifi-off.svg';
 import XSvg from '@/presentation/components/icons/svg/x.svg';
@@ -44,7 +46,9 @@ const ICONS = {
   plus: PlusSvg,
   refresh: RefreshSvg,
   search: SearchSvg,
+  skip: SkipSvg,
   spinner: SpinnerSvg,
+  swap: SwapSvg,
   user: UserSvg,
   'wifi-off': WifiOffSvg,
   x: XSvg,
