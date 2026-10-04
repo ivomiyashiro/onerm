@@ -1,5 +1,6 @@
-import { View } from 'react-native';
+import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
 
+/** S07 · Inicio: skeleton until F5 (#34). */
 export function HomeScreen() {
-  return <View testID="home-screen" style={{ flex: 1 }} />;
+  return <ScreenPlaceholder id="S07" />;
 }

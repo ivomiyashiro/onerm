@@ -1,7 +1,7 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
-import { colors, radius, size, typography } from '@/presentation/theme';
+import { colors, size, typography } from '@/presentation/theme';
 
 export interface TabItem {
   key: string;
@@ -39,7 +39,8 @@ export function TabBar({ tabs, activeKey, onSelect, bottomInset = 0 }: TabBarPro
             onPress={() => onSelect(tab.key)}
             style={styles.tab}
           >
-            <View style={[styles.pill, active && styles.pillActive]}>
+            <View style={styles.pill}>
+              {active && <View testID="tab-pill" style={styles.pillActive} />}
               <Icon name={tab.icon} size={21} color={color} />
             </View>
             <Text style={[typography.tab, { color }]}>{tab.label}</Text>
@@ -70,9 +71,18 @@ const styles = StyleSheet.create({
   pill: {
     width: 58,
     height: 32,
-    borderRadius: radius.full,
     alignItems: 'center',
     justifyContent: 'center',
   },
-  pillActive: { backgroundColor: colors.bgRaised },
+  // Its own view, mounted when the tab turns active: on Android (Fabric) a background added
+  // later to a view with a border radius showed up square.
+  pillActive: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: 16,
+    backgroundColor: colors.bgRaised,
+  },
 });
