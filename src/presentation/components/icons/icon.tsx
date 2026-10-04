@@ -7,17 +7,21 @@ import BackSvg from '@/presentation/components/icons/svg/back.svg';
 import ChartSvg from '@/presentation/components/icons/svg/chart.svg';
 import CheckSvg from '@/presentation/components/icons/svg/check.svg';
 import ChevronSvg from '@/presentation/components/icons/svg/chevron.svg';
+import ClockSvg from '@/presentation/components/icons/svg/clock.svg';
 import CloudOffSvg from '@/presentation/components/icons/svg/cloud-off.svg';
 import CloudOkSvg from '@/presentation/components/icons/svg/cloud-ok.svg';
 import DumbbellSvg from '@/presentation/components/icons/svg/dumbbell.svg';
 import HomeSvg from '@/presentation/components/icons/svg/home.svg';
 import InfoSvg from '@/presentation/components/icons/svg/info.svg';
 import ListSvg from '@/presentation/components/icons/svg/list.svg';
+import LockSvg from '@/presentation/components/icons/svg/lock.svg';
 import MinusSvg from '@/presentation/components/icons/svg/minus.svg';
 import PlusSvg from '@/presentation/components/icons/svg/plus.svg';
 import RefreshSvg from '@/presentation/components/icons/svg/refresh.svg';
 import SearchSvg from '@/presentation/components/icons/svg/search.svg';
+import SkipSvg from '@/presentation/components/icons/svg/skip.svg';
 import SpinnerSvg from '@/presentation/components/icons/svg/spinner.svg';
+import SwapSvg from '@/presentation/components/icons/svg/swap.svg';
 import UserSvg from '@/presentation/components/icons/svg/user.svg';
 import WifiOffSvg from '@/presentation/components/icons/svg/wifi-off.svg';
 import XSvg from '@/presentation/components/icons/svg/x.svg';
@@ -30,17 +34,21 @@ const ICONS = {
   chart: ChartSvg,
   check: CheckSvg,
   chevron: ChevronSvg,
+  clock: ClockSvg,
   'cloud-off': CloudOffSvg,
   'cloud-ok': CloudOkSvg,
   dumbbell: DumbbellSvg,
   home: HomeSvg,
   info: InfoSvg,
   list: ListSvg,
+  lock: LockSvg,
   minus: MinusSvg,
   plus: PlusSvg,
   refresh: RefreshSvg,
   search: SearchSvg,
+  skip: SkipSvg,
   spinner: SpinnerSvg,
+  swap: SwapSvg,
   user: UserSvg,
   'wifi-off': WifiOffSvg,
   x: XSvg,
