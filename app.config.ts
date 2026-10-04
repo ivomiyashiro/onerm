@@ -23,6 +23,7 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    '@react-native-google-signin/google-signin',
     [
       'expo-splash-screen',
       {

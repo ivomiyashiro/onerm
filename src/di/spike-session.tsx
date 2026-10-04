@@ -5,7 +5,30 @@ import { AppState, Button, LogBox, ScrollView, Text } from 'react-native';
 
 LogBox.ignoreAllLogs();
 
+import { GoogleSignin, isSuccessResponse } from '@react-native-google-signin/google-signin';
+
 import { secureSessionStorage } from '@/data/auth/secure-session-storage';
+
+// SPIKE #16: the WEB client id makes Google issue an ID token whose audience Supabase accepts.
+GoogleSignin.configure({
+  webClientId: '190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com',
+});
+
+async function signInWithGoogle() {
+  await GoogleSignin.hasPlayServices();
+  const response = await GoogleSignin.signIn();
+  if (!isSuccessResponse(response) || !response.data.idToken) {
+    return { error: new Error(`google: ${response.type}`) };
+  }
+  const result = await supabase.auth.signInWithIdToken({
+    provider: 'google',
+    token: response.data.idToken,
+  });
+  console.log(
+    `[spike16] identities=${result.data.user?.identities?.map((i) => i.provider).join(',')}`,
+  );
+  return result;
+}
 
 // adb reverse tcp:55321 tcp:55321
 const supabase = createClient(
@@ -62,7 +85,14 @@ export function SpikeSessionScreen() {
         title="Sign in"
         onPress={run('signIn', () => supabase.auth.signInWithPassword(credentials))}
       />
-      <Button title="Sign out" onPress={run('signOut', () => supabase.auth.signOut())} />
+      <Button
+        title="Sign out"
+        onPress={run('signOut', async () => {
+          await GoogleSignin.signOut().catch(() => {});
+          return supabase.auth.signOut();
+        })}
+      />
+      <Button title="Google" onPress={run('google', signInWithGoogle)} />
       {log.map((l, i) => (
         <Text key={i}>{l}</Text>
       ))}
