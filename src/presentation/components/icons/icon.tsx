@@ -2,6 +2,7 @@ import type { FC } from 'react';
 import type { SvgProps } from 'react-native-svg';
 
 import AlertSvg from '@/presentation/components/icons/svg/alert.svg';
+import ArrowSvg from '@/presentation/components/icons/svg/arrow.svg';
 import BackSvg from '@/presentation/components/icons/svg/back.svg';
 import ChartSvg from '@/presentation/components/icons/svg/chart.svg';
 import CheckSvg from '@/presentation/components/icons/svg/check.svg';
@@ -16,6 +17,7 @@ import MinusSvg from '@/presentation/components/icons/svg/minus.svg';
 import PlusSvg from '@/presentation/components/icons/svg/plus.svg';
 import RefreshSvg from '@/presentation/components/icons/svg/refresh.svg';
 import SearchSvg from '@/presentation/components/icons/svg/search.svg';
+import SpinnerSvg from '@/presentation/components/icons/svg/spinner.svg';
 import UserSvg from '@/presentation/components/icons/svg/user.svg';
 import WifiOffSvg from '@/presentation/components/icons/svg/wifi-off.svg';
 import XSvg from '@/presentation/components/icons/svg/x.svg';
@@ -23,6 +25,7 @@ import XSvg from '@/presentation/components/icons/svg/x.svg';
 // Exported from the Figma «Íconos» section (stroke icons, 24 dp, 2 px stroke).
 const ICONS = {
   alert: AlertSvg,
+  arrow: ArrowSvg,
   back: BackSvg,
   chart: ChartSvg,
   check: CheckSvg,
@@ -37,6 +40,7 @@ const ICONS = {
   plus: PlusSvg,
   refresh: RefreshSvg,
   search: SearchSvg,
+  spinner: SpinnerSvg,
   user: UserSvg,
   'wifi-off': WifiOffSvg,
   x: XSvg,
