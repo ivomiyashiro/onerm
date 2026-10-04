@@ -1,6 +1,7 @@
 /**
  * Receives the values of an observed query (ADR-0011 §3): `next` runs once on subscribe and again
- * after every change in the local database.
+ * after every change in the local database. After `error` the observation is over: no more values
+ * arrive and the caller has to subscribe again.
  */
 export interface Observer<T> {
   next(value: T): void;
