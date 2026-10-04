@@ -89,7 +89,7 @@ After that, as long as the native modules don't change, starting Metro and openi
 bun run start            # = bunx expo start
 ```
 
-Changes to TS/TSX files show up instantly with Fast Refresh. Run `bun run android` again only when adding or updating a native module or changing `app.config.ts`.
+Changes to TS/TSX files show up instantly with Fast Refresh. Run `bun run android` again only when adding or updating a native module or changing `app.config.ts`. If `android/` already exists, regenerate it first with `bunx expo prebuild --platform android --clean`: `expo run:android` does not apply config plugin changes (such as new fonts) to an existing `android/`.
 
 `android/` and `ios/` are neither committed nor edited by hand: they are regenerated with `bunx expo prebuild --clean`.
 
