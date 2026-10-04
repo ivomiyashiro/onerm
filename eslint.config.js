@@ -16,6 +16,12 @@ const INFRASTRUCTURE_SDKS = [
   'drizzle-orm/**',
 ];
 
+// Props that carry UI text. Literal values are not allowed in them (RNF-21).
+const TEXT_PROPS =
+  '/^(label|title|subtitle|body|message|note|help|error|placeholder|loadingLabel|closeLabel|decrementLabel|incrementLabel|accessibilityLabel|accessibilityHint|aria-label)$/';
+const LITERAL_TEXT_MESSAGE =
+  'UI texts come from src/presentation/strings (RNF-21), never written in the component.';
+
 module.exports = defineConfig([
   {
     ignores: ['dist/', 'coverage/', 'android/', 'ios/', '.expo/', 'expo-env.d.ts'],
@@ -96,6 +102,29 @@ module.exports = defineConfig([
               disallow: { to: { module: { origin: 'external', source: INFRASTRUCTURE_SDKS } } },
             },
           ],
+        },
+      ],
+    },
+  },
+  // RNF-21: no literal UI text in screens or components. Tests and the strings themselves may.
+  {
+    files: ['src/presentation/**/*.tsx', 'app/**/*.tsx'],
+    ignores: ['**/*.test.tsx', 'src/presentation/strings/**'],
+    rules: {
+      'no-restricted-syntax': [
+        'error',
+        { selector: 'JSXText[value=/\\S/]', message: LITERAL_TEXT_MESSAGE },
+        {
+          selector: 'JSXElement > JSXExpressionContainer > Literal[value=/\\S/]',
+          message: LITERAL_TEXT_MESSAGE,
+        },
+        {
+          selector: `JSXAttribute[name.name=${TEXT_PROPS}] > Literal`,
+          message: LITERAL_TEXT_MESSAGE,
+        },
+        {
+          selector: `JSXAttribute[name.name=${TEXT_PROPS}] > JSXExpressionContainer > Literal`,
+          message: LITERAL_TEXT_MESSAGE,
         },
       ],
     },
