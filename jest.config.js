@@ -2,6 +2,7 @@
 module.exports = {
   preset: 'jest-expo',
   moduleNameMapper: {
+    '\\.svg$': '<rootDir>/tools/jest/svg-mock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
