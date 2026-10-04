@@ -128,7 +128,9 @@ flowchart TD
     PRE -- "Hecho (1 toque)" --> LOG[["Guardar serie en SQLite (< 100 ms) + háptico"]]
     PRE -- "± / teclado / 'Distinto por lado'" --> LOG
     LOG --> FIRSTP{¿Primera serie y permiso nunca pedido?}
-    FIRSTP -- sí --> D05{{D05 Permiso}} --> EXACT{¿Alarmas exactas permitidas?}
+    FIRSTP -- sí --> D05{{D05 Permiso}}
+    D05 -- "Ahora no" --> EFF
+    D05 -- "Permitir" --> EXACT{¿Alarmas exactas permitidas?}
     EXACT -- sí --> EFF
     EXACT -- no --> D17{{D17 Alarmas exactas}} --> EFF
     FIRSTP -- no --> EFF["Opciones de esfuerzo en la fila de la serie (1 toque, opcional)"]
@@ -163,7 +165,7 @@ flowchart TD
 | Después de "Hecho" | Si no se eligió el esfuerzo en la hoja, las **opciones de esfuerzo** aparecen en el descanso a pantalla completa y, si se minimiza, en la fila de esa serie. Siguen visibles hasta que se elige una o se confirma la serie siguiente. Después se puede cambiar tocando la serie. En unilaterales "divididos" hay dos filas de opciones (Izq / Der). En calibración quedan resaltadas y **bloquean la serie siguiente** hasta elegir una |
 | Temporizador | Después de **Hecho** se abre el **descanso a pantalla completa**: cuenta regresiva grande con anillo de progreso · +15 s · Reiniciar · tarjeta de la serie recién hecha con las **opciones de esfuerzo** · "Siguiente: serie 2 de 3 · 62,5 kg × 8" · **Saltear descanso** · **Minimizar**. Minimizado, queda una **barra mínima** sobre Hecho (anillo, tiempo, siguiente serie, +15 s); tocarla vuelve a la pantalla completa. Al terminar: **"¡Descanso terminado!"** con vibración y **"Ir a la serie 2"** (decisión de diseño, diseno/marca.md §13) |
 | Navegación | Deslizar o usar una lista de ejercicios para saltar a otro · "Saltear ejercicio" · "Sustituir" · "Agregar serie" |
-| Avisos discretos | Permiso de notificaciones rechazado · (nunca errores de red, UX-04) |
+| Avisos discretos | Permiso de notificaciones rechazado · Alarmas exactas no permitidas (RF-ENT-06 AC10) · (nunca errores de red, UX-04) |
 
 ### Anatomía de S07 (Inicio)
 
@@ -189,7 +191,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S23 Restaurando | ✅ indeterminado + cantidad de registros | — | — | ✅ se cortó: aviso + continuar usando | ✅ = error | — | — |
 | S07 Inicio | ✅ esqueleto | ✅ próximo día + sugerencias | ✅ sin rutina activa | ✅ error de lectura local: Reintentar | ✅ igual + indicador de pendientes | — | Restauración incompleta · barra de entrenamiento en curso |
 | S08 Elegir día | — | ✅ días con "hace N días" y el recomendado | — | — | ✅ | — | — |
-| S09 Entrenamiento | — | ✅ precargada · editando · calibración (subir y bajar) · unilateral dividido · calentamiento · descanso corriendo · descanso terminado · esfuerzo simple vs. RIR · **peso corporal** · repeticiones extra (EXTEND_REPS) | — | ✅ valor inválido (en el campo) | ✅ **idéntico** | ✅ notificaciones rechazadas | Ejercicio salteado · sustituido · último ejercicio · **ejercicio no disponible todavía** |
+| S09 Entrenamiento | — | ✅ precargada · editando · calibración (subir y bajar) · unilateral dividido · calentamiento · descanso corriendo · descanso terminado · esfuerzo simple vs. RIR · **peso corporal** · repeticiones extra (EXTEND_REPS) | — | ✅ valor inválido (en el campo) | ✅ **idéntico** | ✅ notificaciones rechazadas · alarmas exactas no permitidas | Ejercicio salteado · sustituido · último ejercicio · **ejercicio no disponible todavía** |
 | S10 ¿Por qué? | — | ✅ versión novato · versión avanzado | — | — | ✅ | — | Uno por código de motivo (13 §4) |
 | S11 Sustituir | — | ✅ mismo músculo primero + búsqueda | ✅ sin resultados | — | ✅ | — | — |
 | S12 Resumen | — | ✅ con récords · sin récords | — | — | ✅ | — | Invitado: D13 |
@@ -201,7 +203,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S18 Progreso | ✅ | ✅ historial · volumen semanal | ✅ sin entrenamientos | ✅ | ✅ | — | Ítem "pendiente de respaldo" |
 | S19 Detalle editable | — | ✅ lectura · edición | — | ✅ validación | ✅ | — | Sustitutos y salteados marcados · D16 |
 | S20 Progreso de ejercicio | ✅ | ✅ línea (≥ 2 puntos) + récords | ✅ 1 punto | — | ✅ | — | Solo mejor serie (sin e1RM) · peso corporal |
-| S21 Perfil | — | ✅ sync: respaldado · sincronizando · pendiente (sin conexión) · pendiente (con conexión, por respaldar) · conflicto · error de red · **sesión vencida** · invitado · app vieja | — | ✅ | ✅ | ✅ estado del permiso de notificaciones | D03, D06, D14 |
+| S21 Perfil | — | ✅ sync: respaldado · sincronizando · pendiente (sin conexión) · pendiente (con conexión, por respaldar) · conflicto · error de red · **sesión vencida** · invitado · app vieja | — | ✅ | ✅ | ✅ estado del permiso de notificaciones y de alarmas exactas | D03, D06, D14, D17 |
 | S22 Acerca de | — | ✅ versión + créditos | — | — | ✅ | — | — |
 | S25 Conflictos | — | ✅ lista de cambios rechazados | ✅ "Todo respaldado" | — | ✅ | — | D12 |
 

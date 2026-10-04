@@ -47,7 +47,7 @@ La sesión de Supabase no entra en `expo-secure-store`, que en algunas plataform
 
 **Problemas encontrados:**
 1. **En Android, `AESSealedData.fromCombined()` rechaza un string base64** («Value is a string, expected an Object»), aunque el tipo de TypeScript lo acepta. Hay que pasarle los bytes: `Uint8Array.from(atob(s), c => c.charCodeAt(0))`.
-2. **Ese error hizo visible un antipatrón:** el `catch` de `getItem` borraba la sesión ante *cualquier* error, para "comportarse como sesión cerrada". Por un bug del adaptador, la sesión se perdía en silencio en cada arranque. El adaptador definitivo borra solo si falla la autenticación del sobre (clave perdida o datos alterados). Cualquier otro error se propaga y se registra.
+2. **Ese error hizo visible un antipatrón:** el `catch` de `getItem` borraba la sesión ante *cualquier* error, para "comportarse como sesión cerrada". Por un bug del adaptador, la sesión se perdía en silencio en cada arranque. El código del spike todavía tiene ese `catch`. El adaptador de #42 tiene que borrar solo si falla la autenticación del sobre (clave perdida o datos alterados), y propagar y registrar cualquier otro error.
 3. **Con `createClient` a nivel de módulo, Fast Refresh deja clientes viejos vivos**, con sus timers de refresh, que leen y escriben el mismo storage. En la app definitiva el cliente se crea una sola vez en el composition root (`src/di`), no en un módulo que se recarga.
 
 ## Decisión

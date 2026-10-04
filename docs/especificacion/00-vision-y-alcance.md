@@ -100,7 +100,7 @@ El detalle y la prioridad de cada RF están en `03-requisitos/`.
 | Plan gratuito de Supabase: pausa por inactividad y límite de emails | Chequeo antes de la demo; Q-01 | ADR-0001 |
 | Calidad y licencia de los datos de wger | Modelo canónico, curaduría y atribución | ADR-0004 |
 | Alcance para una sola persona | MoSCoW estricto. Pasaron a **Should** las piezas de mayor riesgo: Google (RF-AUTH-04) y la recepción continua de cambios de otro dispositivo (RF-SYNC-02); la restauración sigue siendo Must. **Plan B** de sync (ADR-0002): si al terminar el spike de sync no están cubiertos los casos de RF-SYNC-05, se evalúa una librería | ADR-0002 |
-| Apropiación previa de cuentas sin email confirmado | No se vinculan identidades (RN-AUTH-03) y se verifica en el spike | ADR-0001 R10 |
-| Temporizador con la pantalla bloqueada impreciso en algunos Android | Hora de fin absoluta; tolerancia declarada | RNF-23 |
+| Apropiación previa de cuentas sin email confirmado | No se vinculan identidades (RN-AUTH-03): un trigger en `auth.identities` rechaza la vinculación automática de Supabase (spike #16) | ADR-0001 R10 |
+| Temporizador con la pantalla bloqueada impreciso en algunos Android | Hora de fin absoluta; se pide el permiso de alarmas exactas y, sin él, no se programa el aviso (spike #14) | RNF-23 |
 | Pérdida del entrenamiento en curso si se rompe o se pierde el teléfono durante el entrenamiento | Riesgo aceptado: el entrenamiento en curso vive solo en el dispositivo y se respalda al finalizarlo. Sobrevive a cierres de la app y reinicios | RN-SYNC-13 |
 | Fuerza sin ejercicios con barra en las plantillas | Limitación declarada en S06 y S14; el usuario puede crear su rutina | 11 §7 |

@@ -55,7 +55,7 @@ Move the card: `tools/board.sh move <N> progress`.
 
 **Spikes (F1):** the goal is to answer the question, not to write production code.
 - The exploratory code lives on the `spike/<N>-…` branch and **is not merged**.
-- The PR only carries the note `docs/spikes/<N>-<name>.md` (N = issue number, using the template in `docs/spikes/README.md`, in Spanish), the index row and the updated ADR if the decision changes.
+- The PR only carries the note `docs/spikes/<N>-<name>.md` (N = issue number, using the template in `docs/spikes/README.md`, in Spanish), the index row, and the updated ADR and specification if the decision changes them.
 - Whatever is worth keeping is rewritten with TDD in the corresponding card.
 
 ## 4. Verify

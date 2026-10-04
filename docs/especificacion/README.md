@@ -170,6 +170,7 @@ El TPO pide **entre 3 y 4 RF** en la preentrega. Esta especificación tiene más
 | 2026-10-01 | S21: hojas de ajustes para Nivel, Objetivo, Días por semana, Unidad de peso y Esfuerzo (13-textos §10, diseno/marca.md §14). |
 | 2026-10-01 | Revisión final del diseño: checklist 08 §7 completo (snackbar de deshacer, S09 con notificaciones rechazadas y calibración hacia arriba); calibración corregida según RN-SUG-06 y RN-ENT-04; 09-trazabilidad enlaza el archivo de Figma. |
 | 2026-10-02 | 09 §2: el caso K pasa a RF-SUG-01 (sustituto, RN-SUG-15) y el caso J se suma a RF-SUG-04 (revisión del backlog con jueces). |
+| 2026-10-03 | Spikes de F1: ADR-0010 (PRAGMA de WAL y `foreign_keys` al abrir), ADR-0002 (punto de control del plan B superado), 07 §2.4 (cursor de `sync_state` como TEXT; `rest_timer_notification_id` reemplazado por un identificador fijo), RN-ENT-07 y RNF-23 (el aviso con la pantalla bloqueada requiere alarmas exactas; sin el permiso no se programa), RF-ENT-06 AC5, AC9 y AC10, D17 y su aviso en S09 y S21, ADR-0001 R10 (trigger contra la vinculación automática de identidades), RN-GEN-02 (0,1 lb cuenta como igual, aceptado). |
 
 ### Preguntas resueltas
 

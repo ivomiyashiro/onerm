@@ -55,18 +55,18 @@ Documentación: [Drizzle + Expo SQLite](https://orm.drizzle.team/docs/connect-ex
 - La versión de SQLite no es la misma: 3.53.2 en Jest y 3.50.3 en el dispositivo. No se usan funciones de SQL más nuevas que la del dispositivo.
 - `useLiveQuery` y `addDatabaseChangeListener` son de `expo-sqlite`: en Jest no hay notificaciones de cambios. Se testea la consulta que usa `observe…()`, no la suscripción. El cableado reactivo se prueba en el emulador.
 - El migrador es distinto: en Jest lee la carpeta `drizzle/` y en la app, `migrations.js`. Los dos aplican los mismos `.sql` en el mismo orden según `_journal.json`.
-- Los PRAGMA (`foreign_keys`, WAL) se configuran en los dos lados, con una sola función compartida.
+- Los PRAGMA se configuran por separado en el spike: `client.ts` activa WAL y `foreign_keys`, y el test solo `foreign_keys`. **WAL no se aplica a una base `:memory:`** (`PRAGMA journal_mode` responde `memory`), así que en Jest solo se puede igualar `foreign_keys`. WAL se verifica en el emulador.
 
 ## Decisión
 
 **Se confirma ADR-0010**, con tres ajustes que entran en #27:
 
-1. Al abrir la conexión se ejecuta `PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;`. La misma función configura la base de los tests.
+1. Al abrir la conexión se ejecuta `PRAGMA journal_mode = WAL; PRAGMA foreign_keys = ON;`. En #27, una función compartida configura también la base de los tests (ahí solo `foreign_keys`: WAL no aplica en memoria).
 2. Las migraciones van en `drizzle/` en la raíz, con `metro.config.js`, `babel.config.js` y `babel-plugin-inline-import`. Ninguna se edita a mano después de mergeada (07 §6: aditivas).
 3. Los repositorios reciben `AppDatabase = BaseSQLiteDatabase<'sync', unknown>`, no el tipo de un driver.
 
 **Tests de integración** (`*.int.test.ts`, en `src/data/` junto al repositorio):
-- Base `better-sqlite3` `:memory:` nueva por test, con las migraciones de `drizzle/` y los mismos PRAGMA. Sin mocks de la base.
+- Base `better-sqlite3` `:memory:` nueva por test, con las migraciones de `drizzle/` y `foreign_keys = ON`. Sin mocks de la base.
 - `bun run test` corre solo los unitarios y `bun run test:int`, solo los de integración. La CI corre los dos.
 - El script, el helper `openTestDatabase()` y la excepción de lint para `node:*` en `*.int.test.ts` entran en #27. Hoy el lint rechaza `node:path` desde `data`, y la excepción va **solo** en los tests.
 - `better-sqlite3` queda en la **v12** hasta que bun deje de compilar la v13.

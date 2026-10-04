@@ -186,7 +186,7 @@ Escenario: AC5 — Sin conexión
 
 **Notas:**
 - Requiere un development build de Expo y la configuración del cliente OAuth en Google Cloud (ADR-0007, ADR-0001 R7).
-- La vinculación automática de Supabase tiene que quedar **deshabilitada o neutralizada**. Se verifica en el spike técnico (ADR-0001 R10).
+- La vinculación automática de Supabase tiene que quedar **neutralizada**: Supabase vincula sola una identidad de Google verificada, así que un trigger en `auth.identities` la rechaza (spike #16, ADR-0001 R10).
 - Queda en **Should** para reducir el alcance: el MVP funciona completo con email y contraseña.
 
 ---

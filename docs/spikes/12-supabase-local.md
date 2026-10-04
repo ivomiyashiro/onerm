@@ -75,7 +75,7 @@ Documentación: [Supabase CLI local](https://supabase.com/docs/guides/local-deve
    - **pgTAP** (`supabase/tests/*.sql`) para las reglas del trigger, una transacción con `rollback` por archivo;
    - **Jest + supabase-js** (`*.supabase.test.ts`, con `jest.supabase.config.js`) para lo que ve el cliente por PostgREST: la fila devuelta por el upsert, la idempotencia y los dos usuarios.
 
-**Para F7 (push):** un error 42501 en el upsert es un rechazo definitivo de esa fila (RN-SYNC-11), no un error de red.
+**Para F8 (push, #45):** un error 42501 en el upsert es un rechazo definitivo de esa fila (RN-SYNC-11), no un error de red.
 
 ## Código
 
