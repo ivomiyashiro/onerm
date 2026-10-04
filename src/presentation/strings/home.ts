@@ -1,0 +1,45 @@
+/** S07 Inicio and S08 Elegir día (13 §7, §9, §10). */
+export const home = {
+  todayIs: 'Hoy toca',
+  exercises: (n: number) => `${n} ejercicios`,
+  sets: (n: number) => `${n} series`,
+  minutes: (n: number) => `~${n} min`,
+  thisWeek: 'Esta semana',
+  weekProgress: (done: number, goal: number) => `${done} de ${goal}`,
+  today: 'Hoy',
+  todayList: 'Lo de hoy',
+  goesUpIn: (n: number) => `Sube en ${n}`,
+  addsRepsIn: (n: number) => `suma reps en ${n}`,
+  calibrate: 'Calibrar',
+  inProgress: 'En curso',
+  startToday: 'Arrancá hoy',
+  start: 'Empezar',
+  continueWorkout: 'Continuar entrenamiento',
+  changeDay: 'Cambiar día',
+  restoreIncomplete: 'Faltan datos por restaurar. Las sugerencias pueden no estar al día.',
+  noRoutine: {
+    title: 'Todavía no tenés una rutina',
+    body: 'Elegí una de las nuestras o armá la tuya.',
+    chooseRoutine: 'Elegir una rutina',
+    createRoutine: 'Crear rutina',
+  },
+  readError: {
+    title: 'No pudimos cargar tu inicio',
+    body: 'Tus datos siguen guardados en este teléfono. Probá de nuevo.',
+    retry: 'Reintentar',
+  },
+  chooseDay: {
+    title: 'Elegir día',
+    routineDays: (n: number) => `${n} días`,
+    choose: (day: string) => `Elegir ${day}`,
+    recommended: 'Recomendado',
+    doneDaysAgo: (n: number) => `Hecho hace ${n} días`,
+    neverDone: 'Nunca hecho',
+    yourTurnToday: 'Te toca hoy',
+  },
+  /** Bar shown on every tab while a workout is in progress. */
+  workoutBar: {
+    title: 'Entrenamiento en curso',
+    continue: 'Continuar',
+  },
+} as const;

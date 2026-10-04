@@ -16,7 +16,10 @@ Details: [vision and scope](docs/especificacion/00-vision-y-alcance.md) (Spanish
 
 ## Implemented features
 
-> Under construction. The project currently has the technical foundation (F0): an empty Expo app, a development build, lint with layer rules, tests and CI.
+> Under construction. Done so far:
+> - **F0:** technical foundation: development build, lint with layer rules, tests and CI.
+> - **F1:** spikes that confirm the stack (see [docs/spikes](docs/spikes/README.md), Spanish).
+> - **F2:** the app skeleton: the four tabs (Inicio, Rutinas, Progreso, Perfil) and every screen S01–S25 as a placeholder, the Kinetic dark theme from Figma with its fonts and base components, and every UI text of the specification in `src/presentation/strings`. In development builds, Perfil → «Pantallas (desarrollo)» opens any screen and the component showcase.
 
 ## Functional requirements met
 
@@ -36,7 +39,18 @@ src/di/              composition root: creates the implementations and provides 
 
 Dependencies point towards the domain. The lint enforces it (`eslint-plugin-boundaries`): for example, an import from `domain` to `data` makes `bun run lint` and CI fail.
 
-> The final diagram and the implemented data flow are added when F2 closes.
+How the layers connect today (the example slice of #18; no screen uses it yet, its test does):
+
+```
+app/_layout.tsx ── AppProviders (src/di)            creates the implementations once
+                     ├─ UseCasesProvider            ObserveExercises(InMemoryExerciseRepository)
+                     └─ AppStoreProvider            Zustand store: data owner, sync status
+ViewModel useExerciseListViewModel()                { state: loading | empty | content | error, actions }
+             └─ useUseCases().observeExercises      domain use case
+                  └─ ExerciseRepository.observeAll  domain interface, implemented in src/data
+```
+
+The SQLite repositories replace the in-memory one in F4 by changing only `src/di/create-dependencies.ts`.
 
 ## Technologies
 

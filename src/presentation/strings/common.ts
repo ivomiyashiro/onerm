@@ -1,0 +1,30 @@
+/** Actions and words repeated across screens (13-textos). */
+export const common = {
+  cancel: 'Cancelar',
+  retry: 'Reintentar',
+  continue: 'Continuar',
+  save: 'Guardar',
+  done: 'Hecho',
+  ready: 'Listo',
+  close: 'Cerrar',
+  notNow: 'Ahora no',
+  accept: 'Aceptar',
+  next: 'Siguiente',
+  back: 'Atrás',
+  skip: 'Saltear',
+  why: '¿Por qué?',
+  understood: 'Entendido',
+  newRecord: 'Nuevo récord',
+  skipped: 'Salteado',
+  units: { kg: 'kg', lb: 'lb' },
+  /** Load convention (13 §9). */
+  loadUnit: {
+    perDumbbell: 'por mancuerna',
+    perSide: 'por lado',
+    totalWithBar: 'total con barra',
+  },
+  days: (n: number) => `${n} días`,
+  minutes: (n: number) => `~${n} min`,
+  exercises: (n: number) => `${n} ejercicios`,
+  sets: (n: number) => `${n} series`,
+} as const;
