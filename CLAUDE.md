@@ -68,11 +68,11 @@ src/di/              composition root: creates the implementations and provides 
 
 - Domain: unit tests with no network or database (RNF-12). The reference cases in `sugerencias.md` are literal tests (RNF-15).
 - Data: integration tests (`*.int.test.ts`, next to the repository in `src/data/`) against a real SQLite database, never a mocked one (spike #11):
-  - each test opens a fresh in-memory `better-sqlite3` database with `openTestDatabase()`, which applies the same `drizzle/` migrations and the same PRAGMAs (WAL, `foreign_keys`) as the app;
+  - each test will open a fresh in-memory `better-sqlite3` database with `openTestDatabase()`, which applies the same `drizzle/` migrations and `foreign_keys = ON` as the app (WAL doesn't apply to an in-memory database: it is checked on the emulator);
   - repositories take `AppDatabase` (`BaseSQLiteDatabase<'sync', unknown>`), so the same code runs on `expo-sqlite` and `better-sqlite3`;
   - the change notifications behind `observe…()` don't exist in Jest: test the query and the re-run on a manual change event, and check the live wiring on the emulator;
   - Jest's SQLite (3.53) is newer than the device's (3.50): don't rely on newer SQL features;
-  - `bun run test` runs the unit tests and `bun run test:int` the integration tests; CI runs both. The script and `openTestDatabase()` land in #27.
+  - `bun run test` will run the unit tests and `bun run test:int` the integration tests, both in CI. The script, its CI step and `openTestDatabase()` land in #27; until then neither exists.
 - Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job (they land in #40):
   - **pgTAP** in `supabase/tests/*.sql` for the trigger and RLS rules, one transaction with `rollback` per file;
   - **Jest + supabase-js** in `*.supabase.test.ts` (with `jest.supabase.config.js`, plain Node: `jest-expo` replaces `fetch`) for what the client sees through PostgREST, with two real users;

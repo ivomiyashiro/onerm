@@ -39,9 +39,12 @@ RN-ENT-07 y RNF-22 piden que el temporizador no use procesos en segundo plano: s
 | Permiso declarado pero no concedido (por defecto en Android 14+) | +22,5 s | **23,7 s** |
 | Permiso concedido, pantalla bloqueada (2 veces) | 0 | **0,5 s y 0,6 s** |
 | Permiso concedido, pantalla bloqueada y Doze forzado | 0 | **0,7 s** |
+
+Las mediciones se hicieron con `tools/spike/measure-alarm.sh`, versionado en la rama del spike.
 | Permiso concedido y ahorro de batería | — | No concluyente: el sistema del emulador se colgó («Process system isn't responding») y una alarma llegó 78 s tarde. No se puede separar el ahorro de batería del cuelgue |
 
 - **Sin alarmas exactas, Android programa una ventana del 75 % del intervalo** (22 s en un descanso de 30 s, 1:30 en uno de 2 min). Entonces RNF-23 no se cumple sin el permiso, **ni siquiera con la app en primer plano**: la notificación llega igual de tarde. Lo exacto en primer plano tiene que ser la cuenta regresiva de la UI, que sale de la hora de fin y no depende de la alarma.
+- **«Reiniciar» no se probó**: la pantalla del spike no tiene ese botón. Reprograma igual que +15 s (mismo identificador, hora de fin nueva) y se testea en #36.
 - **+15 s y Saltear** funcionan si la notificación se programa **siempre con el mismo identificador** (`identifier: 'rest-timer'`). Programar de nuevo reemplaza la alarma anterior, y Saltear cancela por ese identificador. La primera versión guardaba el id en el estado de React. Con toques seguidos el estado quedaba desfasado y **quedó una alarma huérfana que sonó después de Saltear**. Con el id fijo se verificó en la lista de alarmas: al iniciar hay una, con +15 s y +15 s sigue habiendo una (a las 20:23:26, 20:23:41 y 20:23:56) y con Saltear no queda ninguna.
 - **Permiso de notificaciones rechazado:** `scheduleNotificationAsync` no falla y la alarma se programa, pero no se muestra nada. El listener de primer plano igual se ejecuta. La app tiene que leer el permiso con `getPermissionsAsync()` para mostrar el aviso de S09 («Activá las notificaciones…», 13-textos), porque el error nunca llega.
 - **Keep-awake:** `useKeepAwake(tag)` agrega `FLAG_KEEP_SCREEN_ON` a la ventana al montar y lo saca al desmontar, contando los tags (`ExpoKeepAwakeManager.kt`). En la **build de desarrollo, Expo activa su propio tag** (`expo/src/launch/withDevTools`) apenas `expo-keep-awake` está instalado, así que la pantalla nunca se apaga y la verificación no sirve. Hay que probarlo en una build de release. Se compiló una, pero el emulador se colgó antes de poder probarla.

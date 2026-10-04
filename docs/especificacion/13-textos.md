@@ -125,7 +125,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | D13 Sugerencia de crear cuenta | Guardá tu progreso | Tus datos están solo en este teléfono. Creá una cuenta gratis para no perderlos. | **Crear cuenta** · Ahora no |
 | D15 Activar rutina nueva | ¿Empezar a usar {rutina}? | La vas a ver en Inicio como tu rutina actual. | **Activar** · Ahora no |
 | D16 Eliminar del historial | ¿Eliminar {esta serie / este entrenamiento}? | {Se elimina la serie. / Se eliminan el entrenamiento y sus {n} series.} Tus sugerencias se recalculan. | **Cancelar** · Eliminar (destructivo) |
-| D17 Permiso de alarmas exactas (Android 12+) | Para avisarte justo a tiempo | Sin este permiso el teléfono puede demorar el aviso hasta más de un minuto. Activá «Alarmas y recordatorios» para OneRM. | **Abrir ajustes** · Ahora no |
+| D17 Permiso de alarmas exactas (Android 12+) | Para avisarte justo a tiempo | Sin este permiso no podemos avisarte con la pantalla bloqueada. Activá «Alarmas y recordatorios» para OneRM. | **Abrir ajustes** · Ahora no |
 
 **Snackbar de deshacer** (RF-ENT-04): "Serie eliminada" · **Deshacer** (visible 5 s).
 

@@ -48,6 +48,9 @@ ADR-0007 R3 y ADR-0001 R7 piden validar temprano el login nativo con Google, por
 
 ## Configuración (para repetirla)
 
+Los Client ID se publican acá por decisión del usuario (2026-10-03): son públicos por diseño (van dentro de la app) y no dan acceso a nada. El plan de #16 decía que no irían al repositorio. El *Client secret* no se usa y nunca se commiteó.
+
+
 1. **Google Cloud Console** → proyecto → *APIs y servicios* → *Pantalla de consentimiento de OAuth*: tipo **Externo**, en modo de prueba, con las cuentas de prueba como *usuarios de prueba*.
 2. *Credenciales* → *ID de cliente de OAuth*:
    - **Aplicación web:** sin orígenes de JavaScript ni URI de redireccionamiento. Su Client ID es el `webClientId` de la app y el `client_id` de Supabase. Client ID del TPO: `190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com`.
