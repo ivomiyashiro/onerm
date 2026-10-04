@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S18 Progreso, S19 Detalle de entrenamiento, S20 Progreso de ejercicio (13 §7, §9, §10). */
 export const progress = {
   overview: {
@@ -6,8 +8,8 @@ export const progress = {
     volume: 'Volumen',
     monthYear: (month: string, year: number) => `${month} ${year}`,
     duration: (minutes: number) => `${minutes} min`,
-    sets: (n: number) => `${n} series`,
-    records: (n: number) => `${n} récords`,
+    sets: (n: number) => count(n, 'serie', 'series'),
+    records: (n: number) => count(n, 'récord', 'récords'),
     pending: 'Pendiente',
     thisWeek: 'Esta semana',
     dateRange: (from: string, to: string) => `${from} – ${to}`,

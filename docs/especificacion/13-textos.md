@@ -8,6 +8,16 @@ Son los textos de la interfaz que ya están definidos, para usarlos **tal cual e
 - **Novato:** sin jerga. Nunca "RIR", "1RM", "e1RM", "volumen" ni "descarga" en la primera línea: se explican con palabras.
 - **Intermedio y avanzado:** pueden aparecer términos técnicos y números en el detalle.
 - En todos los errores se dice **qué pasó** y **qué se puede hacer**.
+- **Plurales.** Los textos de este catálogo están escritos en plural. Con **{n} = 1** se usa el singular en toda la frase: «1 día», «1 serie», «Hecho hace 1 día», «1 cambio sin respaldar», «Te falta 1 ejercicio». Las frases que cambian más que el sustantivo están en la tabla de abajo. Con **{n} = 0**, solo se muestran los casos de la tabla; en los demás el texto no aparece (no hay pendientes, conflictos ni resultados que contar).
+
+| Texto | {n} = 1 | {n} = 0 |
+|---|---|---|
+| D02: Lo empezaste el {fecha} y registraste {n} series. | …y registraste 1 serie. | Lo empezaste el {fecha} y todavía no registraste series. |
+| D09: Se borran las {n} series registradas. | Se borra la serie registrada. | Se descarta el entrenamiento, que no tiene series. |
+| D12: …se borra junto con {n} registros que dependen de él. | …se borra junto con 1 registro que depende de él. | …se borra. |
+| D16: Se eliminan el entrenamiento y sus {n} series. | Se eliminan el entrenamiento y su serie. | Se elimina el entrenamiento. |
+| D01 / D01b: {n_ent} entrenamientos y {n_rut} rutinas | 1 entrenamiento · 1 rutina (cada uno por separado) | Se omite la parte en cero: «En este teléfono tenés 3 entrenamientos.» |
+| Motivo `COMPLETE_SETS`: Hacé las {series} series con… | Hacé la serie con… | — |
 
 ## 2. Onboarding
 
@@ -122,7 +132,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | D10 Finalizar con pendientes | Te faltan {n} ejercicios | Los que no hiciste quedan como salteados. | **Finalizar igual** · Seguir entrenando |
 | D11 Eliminar rutina | ¿Eliminar {rutina}? | Tus entrenamientos con esta rutina se conservan en el historial. | **Cancelar** · Eliminar (destructivo) |
 | D12 Cambio que no se pudo respaldar | No pudimos respaldar un cambio | {detalle}. Si lo descartás, {vuelve a la versión guardada / se borra junto con {n} registros que dependen de él}. | **Reintentar** · Descartar este cambio (destructivo) · Cerrar |
-| D13 Sugerencia de crear cuenta | Guardá tu progreso | Tus datos están solo en este teléfono. Creá una cuenta gratis para no perderlos. | **Crear cuenta** · Ahora no |
+| D13 Sugerencia de crear cuenta | Guardá tu progreso | Tus datos solo están en este teléfono. Creá una cuenta gratis para no perderlos. | **Crear cuenta** · Ahora no |
 | D15 Activar rutina nueva | ¿Empezar a usar {rutina}? | La vas a ver en Inicio como tu rutina actual. | **Activar** · Ahora no |
 | D16 Eliminar del historial | ¿Eliminar {esta serie / este entrenamiento}? | {Se elimina la serie. / Se eliminan el entrenamiento y sus {n} series.} Tus sugerencias se recalculan. | **Cancelar** · Eliminar (destructivo) |
 | D17 Permiso de alarmas exactas (Android 12+) | Para avisarte justo a tiempo | Sin este permiso no podemos avisarte con la pantalla bloqueada. Activá «Alarmas y recordatorios» para OneRM. | **Abrir ajustes** · Ahora no |
@@ -149,7 +159,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Login con otra cuenta (RN-AUTH-07) | Para entrar con otra cuenta, primero cerrá sesión. |
 | Sync: conflicto | {n} cambios no se pudieron respaldar · **Ver** |
 | Sync: error de red | No pudimos respaldar. Lo intentamos de nuevo solos. **Reintentar** |
-| Sync: invitado | Sin respaldo: tus datos están solo en este teléfono. **Crear cuenta** |
+| Sync: invitado | Sin respaldo: tus datos solo están en este teléfono. **Crear cuenta** |
 | Sync: app vieja | Actualizá la app para respaldar tus datos. |
 | Restaurando | Restaurando tus datos… {porcentaje} |
 | Restauración incompleta | Faltan datos por restaurar. Las sugerencias pueden no estar al día. |
@@ -190,7 +200,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: editar serie y carga | Editar serie {n} · Carga · Serie {n} · {ejercicio} · Cancelar · La carga tiene que estar entre 0 y 1000 kg. |
 | Barra de entrenamiento en curso | Entrenamiento en curso · {día} · {tiempo} · Continuar |
 | S07 | Hoy toca · {n} ejercicios · {n} series · ~{min} min · Esta semana · {hechos} de {meta} · Hoy · Lo de hoy · Sube en {n} · suma reps en {n} · Calibrar · En curso · {tiempo} · Arrancá hoy |
-| S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) |
+| S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) · Se respalda al finalizar (solo con cuenta, 08 §5) |
 | S08 | Elegir día (título de la hoja) · {rutina} · {n} días · Elegir {día} · Recomendado · Hecho hace {n} días · Nunca hecho |
 | S12 | Entrenamiento · {día} · Terminado · Duración · Series · Ejercicios · {hechos} de {total} · Récords de hoy · Nuevo récord · Mayor carga · Nuevo récord · Máximo estimado · {valor} (aprox. si corresponde) · Lo que hiciste · {n} series · mejor {carga} × {reps} · Salteado · Próximo: {día} · Listo |
 | S10 | ¿Por qué {carga} × {reps}? · La última vez · Esfuerzo medio · Subida · En qué nos basamos: {principio} · Entendido · *Avanzado:* La última vez · RIR medio · Reserva media · Máximo estimado (aprox.) · Tope del rango · Días sin entrenar · W anterior · Ajuste. Títulos por motivo: ¿Por qué elegís vos el peso? (calibración) |

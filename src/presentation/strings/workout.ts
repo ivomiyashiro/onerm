@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S09 Entrenamiento, S11 Sustituir, S12 Resumen, effort, rest timer and notification (13 §3, §9, §10). */
 export const workout = {
   header: {
@@ -5,6 +7,7 @@ export const workout = {
     seeAll: 'Ver todos',
     nOfTotal: (n: number, total: number) => `${n} de ${total}`,
     exerciseOf: (n: number, total: number) => `Ejercicio ${n} de ${total}`,
+    /** Only with an account (08 §5). */
     backedUpOnFinish: 'Se respalda al finalizar',
   },
   set: {
@@ -166,7 +169,7 @@ export const workout = {
     estimatedMax: 'Máximo estimado',
     whatYouDid: 'Lo que hiciste',
     exerciseLine: (sets: number, load: string, reps: number) =>
-      `${sets} series · mejor ${load} × ${reps}`,
+      `${count(sets, 'serie', 'series')} · mejor ${load} × ${reps}`,
     skipped: 'Salteado',
     nextDay: (day: string) => `Próximo: ${day}`,
     ready: 'Listo',

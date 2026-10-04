@@ -1,10 +1,12 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S16 Buscador and S17 Detalle de ejercicio (13 §7, §9, §10). */
 export const catalog = {
   search: {
     placeholder: 'Buscar ejercicio',
     sameMuscle: 'Mismo músculo',
     addTo: (day: string) => `Agregar al ${day}`,
-    count: (n: number) => `${n} ejercicios`,
+    count: (n: number) => count(n, 'ejercicio', 'ejercicios'),
     moreFilters: 'Más filtros',
     empty: {
       title: 'No encontramos ejercicios',

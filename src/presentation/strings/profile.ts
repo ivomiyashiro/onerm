@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S21 Perfil, its setting sheets, S22 Acerca de, S23 Restaurando, S25 Conflictos (13 §9, §10). */
 export const profile = {
   title: 'Perfil',
@@ -58,16 +60,17 @@ export const profile = {
   sync: {
     synced: (time: string) => `Respaldado · hace ${time}`,
     syncing: 'Respaldando…',
-    pendingOffline: (n: number) => `${n} cambios sin respaldar · sin conexión`,
-    pendingOnline: (n: number) => `${n} cambios por respaldar…`,
+    pendingOffline: (n: number) => `${count(n, 'cambio', 'cambios')} sin respaldar · sin conexión`,
+    pendingOnline: (n: number) => `${count(n, 'cambio', 'cambios')} por respaldar…`,
     workoutInProgress: 'Tu entrenamiento se respalda al finalizarlo.',
     sessionExpired: 'Tu sesión venció. Tus datos siguen en este teléfono.',
     signInAgain: 'Volver a entrar',
-    conflict: (n: number) => `${n} cambios no se pudieron respaldar`,
+    conflict: (n: number) =>
+      n === 1 ? '1 cambio no se pudo respaldar' : `${n} cambios no se pudieron respaldar`,
     see: 'Ver',
     networkError: 'No pudimos respaldar. Lo intentamos de nuevo solos.',
     retry: 'Reintentar',
-    guest: 'Sin respaldo: tus datos están solo en este teléfono.',
+    guest: 'Sin respaldo: tus datos solo están en este teléfono.',
     createAccount: 'Crear cuenta',
     appOutdated: 'Actualizá la app para respaldar tus datos.',
     backUpNow: 'Respaldar ahora',
@@ -80,12 +83,13 @@ export const profile = {
     photos: 'Fotos',
     fonts: 'Tipografías',
     basedOn: 'En qué nos basamos',
-    principlesCount: (n: number) => `${n} principios`,
+    principlesCount: (n: number) => count(n, 'principio', 'principios'),
     principlesHelp: 'Los principios detrás de las sugerencias y sus fuentes científicas.',
   },
   restoring: {
     title: (percent: string) => `Restaurando tus datos… ${percent}`,
-    progress: (done: number, total: number) => `${done} de ${total} registros`,
+    progress: (done: number, total: number) =>
+      `${done} de ${count(total, 'registro', 'registros')}`,
     help: 'Si se corta la conexión, lo que ya bajó queda guardado y seguimos solos después.',
     interrupted: 'Se cortó la conexión',
     interruptedBody:

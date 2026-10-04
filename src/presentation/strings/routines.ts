@@ -1,3 +1,5 @@
+import { count } from '@/presentation/strings/plural';
+
 /** S13 Rutinas, S14 Plantilla, S15 Editor (13 §5, §7, §9, §10). */
 export const routines = {
   list: {
@@ -7,7 +9,7 @@ export const routines = {
     active: 'Rutina activa',
     recommended: 'Recomendada para vos',
     create: 'Crear rutina',
-    days: (n: number) => `${n} días`,
+    days: (n: number) => count(n, 'día', 'días'),
     minutes: (n: number) => `~${n} min`,
     templatesHelp:
       'Las plantillas se copian a Mis rutinas cuando las usás: después podés cambiarlas sin afectar el original.',
@@ -29,8 +31,8 @@ export const routines = {
     prescription: (goal: string, range: string, rir: number) =>
       `Prescripción calculada para tu objetivo: ${goal} (${range} repeticiones, dejando ${rir} en reserva).`,
     day: (day: string) => `Día ${day}`,
-    exercises: (n: number) => `${n} ejercicios`,
-    setsByRange: (sets: number, range: string) => `${sets} series × ${range}`,
+    exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
+    setsByRange: (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`,
     main: 'Principal',
     accessory: 'Accesorio',
     use: 'Usar esta rutina',
