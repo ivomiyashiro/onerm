@@ -5,8 +5,7 @@ import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, radius, size, typography } from '@/presentation/theme';
 
-interface BottomSheetProps {
-  visible: boolean;
+interface SheetContentProps {
   title: string;
   subtitle?: string;
   /** Accessibility label of the close button. */
@@ -14,34 +13,24 @@ interface BottomSheetProps {
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
-  testID?: string;
 }
 
 /**
- * Figma «BottomSheet»: the single bottom sheet of the app (menus, lists, edit set, keypad…).
- * It closes with the × button, the scrim or the back button.
+ * The scrim and the sheet surface, without the Modal: route sheets (S08, S10, S11) are already
+ * shown over the screen by the router and render this directly.
  */
-export function BottomSheet({
-  visible,
+export function SheetOverlay({
   title,
   subtitle,
   closeLabel,
   onClose,
   children,
   footer,
-  testID,
-}: BottomSheetProps) {
+  scrimTestID,
+}: SheetContentProps & { scrimTestID?: string }) {
   return (
-    <Modal
-      testID={testID}
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      navigationBarTranslucent
-      onRequestClose={onClose}
-    >
-      <Scrim onPress={onClose} testID={testID && `${testID}-scrim`} />
+    <>
+      <Scrim onPress={onClose} testID={scrimTestID} />
       <View style={styles.sheet} accessibilityViewIsModal>
         <View style={styles.handleArea}>
           <View style={styles.handle} />
@@ -72,6 +61,30 @@ export function BottomSheet({
         {children}
         {footer && <View style={styles.footer}>{footer}</View>}
       </View>
+    </>
+  );
+}
+
+/**
+ * Figma «BottomSheet»: the single bottom sheet of the app (menus, lists, edit set, keypad…).
+ * It closes with the × button, the scrim or the back button.
+ */
+export function BottomSheet({
+  visible,
+  testID,
+  ...content
+}: SheetContentProps & { visible: boolean; testID?: string }) {
+  return (
+    <Modal
+      testID={testID}
+      visible={visible}
+      transparent
+      animationType="slide"
+      statusBarTranslucent
+      navigationBarTranslucent
+      onRequestClose={content.onClose}
+    >
+      <SheetOverlay {...content} scrimTestID={testID && `${testID}-scrim`} />
     </Modal>
   );
 }
