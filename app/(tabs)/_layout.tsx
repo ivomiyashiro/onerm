@@ -1,8 +1,8 @@
 import { Tabs } from 'expo-router';
-import type { BottomTabBarProps } from 'expo-router/js-tabs';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import { TabBar, type TabItem } from '@/presentation/components/navigation/tab-bar';
+import { RouterTabBar } from '@/presentation/components/navigation/router-tab-bar';
+import type { TabItem } from '@/presentation/components/navigation/tab-bar';
 import { navigation } from '@/presentation/strings/navigation';
 
 const TABS: TabItem[] = [
@@ -12,21 +12,13 @@ const TABS: TabItem[] = [
   { key: 'profile', label: navigation.tabs.profile, icon: 'user' },
 ];
 
-function AppTabBar({ state, navigation: tabs }: BottomTabBarProps) {
-  const insets = useSafeAreaInsets();
-  return (
-    <TabBar
-      tabs={TABS}
-      activeKey={state.routes[state.index].name}
-      bottomInset={insets.bottom}
-      onSelect={(key) => tabs.navigate(key)}
-    />
-  );
-}
-
 /** The 4 tabs of 08 §2; the workout (S09) is a full screen outside them. */
 export default function TabsLayout() {
+  const insets = useSafeAreaInsets();
   return (
-    <Tabs tabBar={(props) => <AppTabBar {...props} />} screenOptions={{ headerShown: false }} />
+    <Tabs
+      tabBar={(props) => <RouterTabBar tabs={TABS} bottomInset={insets.bottom} {...props} />}
+      screenOptions={{ headerShown: false }}
+    />
   );
 }
