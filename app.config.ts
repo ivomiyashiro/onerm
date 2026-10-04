@@ -23,6 +23,22 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    // Embeds the fonts in the native build: no async loading or blank first frame.
+    [
+      'expo-font',
+      {
+        fonts: [
+          './assets/fonts/Archivo-Regular.ttf',
+          './assets/fonts/Archivo-Medium.ttf',
+          './assets/fonts/Archivo-SemiBold.ttf',
+          './assets/fonts/Archivo-Bold.ttf',
+          './assets/fonts/Archivo-ExtraBold.ttf',
+          './assets/fonts/ArchivoCondensed-Bold.ttf',
+          './assets/fonts/ArchivoExpanded-ExtraBold.ttf',
+          './assets/fonts/JetBrainsMono-Bold.ttf',
+        ],
+      },
+    ],
     [
       'expo-splash-screen',
       {
