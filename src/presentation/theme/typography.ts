@@ -1,7 +1,7 @@
 import type { TextStyle } from 'react-native';
 
 /**
- * Font files in assets/fonts (tools/fonts/build_fonts.py). Each one is a single weight and width,
+ * Font files in assets/fonts (tools/fonts/build-fonts.py). Each one is a single weight and width,
  * so styles set fontFamily and never fontWeight (Android would fake the bold).
  */
 export const fonts = {

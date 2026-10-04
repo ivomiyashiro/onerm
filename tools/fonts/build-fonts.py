@@ -8,7 +8,7 @@ Sources (google/fonts, OFL; the licenses are next to the fonts):
 - https://github.com/google/fonts/raw/main/ofl/archivo/Archivo%5Bwdth,wght%5D.ttf
 - https://github.com/google/fonts/raw/main/ofl/jetbrainsmono/JetBrainsMono%5Bwght%5D.ttf
 
-Usage: python3 tools/fonts/build_fonts.py <Archivo[wdth,wght].ttf> <JetBrainsMono[wght].ttf>
+Usage: python3 tools/fonts/build-fonts.py <Archivo[wdth,wght].ttf> <JetBrainsMono[wght].ttf>
 Needs fonttools (pip install fonttools).
 """
 

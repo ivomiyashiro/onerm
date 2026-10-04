@@ -106,7 +106,9 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignSelf: 'flex-start',
   },
+  // flex-start: the underline follows the text, not the 48 dp minimum width of the target.
   actionLabel: {
+    alignSelf: 'flex-start',
     color: colors.textPrimary,
     paddingTop: 4,
     paddingBottom: 3,

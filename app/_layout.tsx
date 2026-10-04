@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { AppProviders } from '@/di/app-providers';
+import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
 import { colors } from '@/presentation/theme';
 
 // S08, S10 and S11 are sheets: the router shows them over the current screen, which stays
@@ -11,6 +12,11 @@ const SHEET = {
   contentStyle: { backgroundColor: 'transparent' },
 } as const;
 
+// The sheets are marked in the screen map, so the list lives in one place ("/choose-day" → "choose-day").
+const SHEET_ROUTES = SCREEN_IDS.filter((id) => screenRoutes[id].sheet).map((id) =>
+  screenRoutes[id].pathname.slice(1),
+);
+
 export default function RootLayout() {
   return (
     <AppProviders>
@@ -18,9 +24,9 @@ export default function RootLayout() {
         screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bgBase } }}
       >
         <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="choose-day" options={SHEET} />
-        <Stack.Screen name="suggestion-reason" options={SHEET} />
-        <Stack.Screen name="substitute-exercise" options={SHEET} />
+        {SHEET_ROUTES.map((name) => (
+          <Stack.Screen key={name} name={name} options={SHEET} />
+        ))}
       </Stack>
     </AppProviders>
   );
