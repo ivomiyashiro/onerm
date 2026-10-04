@@ -7,12 +7,14 @@ import BackSvg from '@/presentation/components/icons/svg/back.svg';
 import ChartSvg from '@/presentation/components/icons/svg/chart.svg';
 import CheckSvg from '@/presentation/components/icons/svg/check.svg';
 import ChevronSvg from '@/presentation/components/icons/svg/chevron.svg';
+import ClockSvg from '@/presentation/components/icons/svg/clock.svg';
 import CloudOffSvg from '@/presentation/components/icons/svg/cloud-off.svg';
 import CloudOkSvg from '@/presentation/components/icons/svg/cloud-ok.svg';
 import DumbbellSvg from '@/presentation/components/icons/svg/dumbbell.svg';
 import HomeSvg from '@/presentation/components/icons/svg/home.svg';
 import InfoSvg from '@/presentation/components/icons/svg/info.svg';
 import ListSvg from '@/presentation/components/icons/svg/list.svg';
+import LockSvg from '@/presentation/components/icons/svg/lock.svg';
 import MinusSvg from '@/presentation/components/icons/svg/minus.svg';
 import PlusSvg from '@/presentation/components/icons/svg/plus.svg';
 import RefreshSvg from '@/presentation/components/icons/svg/refresh.svg';
@@ -30,12 +32,14 @@ const ICONS = {
   chart: ChartSvg,
   check: CheckSvg,
   chevron: ChevronSvg,
+  clock: ClockSvg,
   'cloud-off': CloudOffSvg,
   'cloud-ok': CloudOkSvg,
   dumbbell: DumbbellSvg,
   home: HomeSvg,
   info: InfoSvg,
   list: ListSvg,
+  lock: LockSvg,
   minus: MinusSvg,
   plus: PlusSvg,
   refresh: RefreshSvg,
