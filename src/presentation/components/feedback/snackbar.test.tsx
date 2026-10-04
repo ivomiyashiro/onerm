@@ -21,6 +21,20 @@ describe('Snackbar', () => {
     expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
+  it('dismisses after 5 s even if the parent re-renders with a new callback', async () => {
+    const onDone = jest.fn();
+    const { rerender } = await render(
+      <Snackbar message="Serie eliminada" onDismiss={() => onDone()} />,
+    );
+
+    for (let second = 0; second < 5; second++) {
+      await act(() => jest.advanceTimersByTime(1000));
+      await rerender(<Snackbar message="Serie eliminada" onDismiss={() => onDone()} />);
+    }
+
+    expect(onDone).toHaveBeenCalledTimes(1);
+  });
+
   it('runs the action and dismisses', async () => {
     const user = userEvent.setup();
     const onUndo = jest.fn();

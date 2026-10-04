@@ -16,11 +16,35 @@ const INFRASTRUCTURE_SDKS = [
   'drizzle-orm/**',
 ];
 
-// Props that carry UI text. Literal values are not allowed in them (RNF-21).
+// Props (and object keys inside props, such as `action={{ label }}` or `options={{ title }}`) that
+// carry UI text. Literal values are not allowed in them (RNF-21).
 const TEXT_PROPS =
-  '/^(label|title|subtitle|body|message|note|help|error|placeholder|loadingLabel|closeLabel|decrementLabel|incrementLabel|accessibilityLabel|accessibilityHint|aria-label)$/';
+  '/^(label|title|subtitle|body|message|note|help|error|placeholder|unit|text|loadingLabel|closeLabel|decrementLabel|incrementLabel|accessibilityLabel|accessibilityHint|aria-label)$/';
 const LITERAL_TEXT_MESSAGE =
   'UI texts come from src/presentation/strings (RNF-21), never written in the component.';
+// A string literal with visible text (numbers and whitespace-only strings are fine).
+const STRING = "Literal[raw=/^['\\x22].*\\S/]";
+// The ways an expression can put a literal text on screen: the literal itself, a template with
+// text, or a literal inside a ternary, a && / ?? or a concatenation.
+const TEXT_EXPRESSIONS = [
+  STRING,
+  'TemplateLiteral > TemplateElement[value.raw=/\\S/]',
+  `ConditionalExpression > ${STRING}`,
+  `LogicalExpression > ${STRING}`,
+  `BinaryExpression[operator="+"] > ${STRING}`,
+];
+const TEXT_CONTAINERS = [
+  ':matches(JSXElement, JSXFragment) > JSXExpressionContainer',
+  `JSXAttribute[name.name=${TEXT_PROPS}] > JSXExpressionContainer`,
+  `JSXAttribute > JSXExpressionContainer Property[key.name=${TEXT_PROPS}]`,
+];
+const LITERAL_TEXT_SELECTORS = [
+  'JSXText[value=/\\S/]',
+  `JSXAttribute[name.name=${TEXT_PROPS}] > Literal`,
+  ...TEXT_CONTAINERS.flatMap((container) =>
+    TEXT_EXPRESSIONS.map((expression) => `${container} > ${expression}`),
+  ),
+];
 
 module.exports = defineConfig([
   {
@@ -113,19 +137,7 @@ module.exports = defineConfig([
     rules: {
       'no-restricted-syntax': [
         'error',
-        { selector: 'JSXText[value=/\\S/]', message: LITERAL_TEXT_MESSAGE },
-        {
-          selector: 'JSXElement > JSXExpressionContainer > Literal[value=/\\S/]',
-          message: LITERAL_TEXT_MESSAGE,
-        },
-        {
-          selector: `JSXAttribute[name.name=${TEXT_PROPS}] > Literal`,
-          message: LITERAL_TEXT_MESSAGE,
-        },
-        {
-          selector: `JSXAttribute[name.name=${TEXT_PROPS}] > JSXExpressionContainer > Literal`,
-          message: LITERAL_TEXT_MESSAGE,
-        },
+        ...LITERAL_TEXT_SELECTORS.map((selector) => ({ selector, message: LITERAL_TEXT_MESSAGE })),
       ],
     },
   },

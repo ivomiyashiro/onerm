@@ -30,6 +30,10 @@ describe('TextField', () => {
     );
 
     expect(screen.getByText('Te mandamos un enlace para entrar.')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Correo electrónico')).toHaveProp(
+      'accessibilityHint',
+      'Te mandamos un enlace para entrar.',
+    );
     expect(fieldStyle()).toMatchObject({ minHeight: 52, borderColor: colors.borderControl });
   });
 
@@ -56,6 +60,11 @@ describe('TextField', () => {
     const error = screen.getByText('Revisá el correo: falta el @.');
     expect(error).toHaveStyle({ color: colors.textErr });
     expect(error.props.accessibilityLiveRegion).toBe('polite');
+    // Read again whenever the screen reader focuses the field (RNF-18).
+    expect(screen.getByLabelText('Correo electrónico')).toHaveProp(
+      'accessibilityHint',
+      'Revisá el correo: falta el @.',
+    );
     expect(fieldStyle()).toMatchObject({ borderColor: colors.borderErr });
   });
 

@@ -11,34 +11,36 @@ import { TextField } from '@/presentation/components/input/text-field';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { LoadStepper } from '@/presentation/components/stepper/load-stepper';
+import { strings } from '@/presentation/strings';
 import { devShowcase as t } from '@/presentation/strings/dev-showcase';
 import { colors, typography } from '@/presentation/theme';
 
 const noop = () => {};
 
+const { sync } = strings.profile;
 const SYNC_SAMPLES: { status: SyncStatus; message: string; action?: string }[] = [
   {
     status: { kind: 'synced', lastSyncedAt: new Date(0) },
-    message: t.sync.synced,
-    action: t.sync.backUpNow,
+    message: sync.synced('2 min'),
+    action: sync.backUpNow,
   },
-  { status: { kind: 'syncing' }, message: t.sync.syncing },
-  { status: { kind: 'pending', count: 3, online: false }, message: t.sync.pendingOffline },
+  { status: { kind: 'syncing' }, message: sync.syncing },
+  { status: { kind: 'pending', count: 3, online: false }, message: sync.pendingOffline(3) },
   {
     status: { kind: 'pending', count: 3, online: true },
-    message: t.sync.pendingOnline,
-    action: t.sync.backUpNow,
+    message: sync.pendingOnline(3),
+    action: sync.backUpNow,
   },
-  { status: { kind: 'workoutInProgress' }, message: t.sync.workoutInProgress },
+  { status: { kind: 'workoutInProgress' }, message: sync.workoutInProgress },
   {
     status: { kind: 'sessionExpired' },
-    message: t.sync.sessionExpired,
-    action: t.sync.signInAgain,
+    message: sync.sessionExpired,
+    action: sync.signInAgain,
   },
-  { status: { kind: 'conflict', count: 2 }, message: t.sync.conflict, action: t.sync.see },
-  { status: { kind: 'networkError' }, message: t.sync.networkError, action: t.sync.retry },
-  { status: { kind: 'guest' }, message: t.sync.guest, action: t.sync.createAccount },
-  { status: { kind: 'appOutdated' }, message: t.sync.appOutdated },
+  { status: { kind: 'conflict', count: 2 }, message: sync.conflict(2), action: sync.see },
+  { status: { kind: 'networkError' }, message: sync.networkError, action: sync.retry },
+  { status: { kind: 'guest' }, message: sync.guest, action: sync.createAccount },
+  { status: { kind: 'appOutdated' }, message: sync.appOutdated },
 ];
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -173,8 +175,8 @@ export function ComponentsShowcaseScreen() {
       {snackbarOpen && (
         <View style={styles.snackbar}>
           <Snackbar
-            message={t.overlays.setDeleted}
-            action={{ label: t.overlays.undo, onPress: noop }}
+            message={strings.workout.setDeleted.message}
+            action={{ label: strings.workout.setDeleted.undo, onPress: noop }}
             onDismiss={() => setSnackbarOpen(false)}
           />
         </View>
@@ -187,18 +189,26 @@ export function ComponentsShowcaseScreen() {
         closeLabel={t.overlays.close}
         onClose={closeSheet}
       >
-        <MenuItem icon="swap" label={t.overlays.substitute} onPress={closeSheet} />
-        <MenuItem icon="skip" label={t.overlays.skipExercise} onPress={closeSheet} />
-        <MenuItem icon="plus" label={t.overlays.addSet} onPress={closeSheet} />
+        <MenuItem
+          icon="swap"
+          label={strings.workout.exerciseMenu.substitute}
+          onPress={closeSheet}
+        />
+        <MenuItem icon="skip" label={strings.workout.exerciseMenu.skip} onPress={closeSheet} />
+        <MenuItem icon="plus" label={strings.workout.exerciseMenu.addSet} onPress={closeSheet} />
       </BottomSheet>
 
       <Dialog
         visible={dialogOpen}
-        title={t.overlays.dialogTitle}
-        body={t.overlays.dialogBody}
+        title={strings.dialogs.D09.title}
+        body={strings.dialogs.D09.body(9)}
         actions={[
-          { label: t.overlays.cancel, kind: 'safe', onPress: closeDialog },
-          { label: t.buttons.discard, kind: 'destructive', onPress: closeDialog },
+          { label: strings.dialogs.D09.cancel, kind: 'safe', onPress: closeDialog },
+          {
+            label: strings.dialogs.D09.discardDestructive,
+            kind: 'destructive',
+            onPress: closeDialog,
+          },
         ]}
         onDismiss={closeDialog}
       />

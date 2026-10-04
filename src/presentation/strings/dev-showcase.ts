@@ -1,6 +1,6 @@
 /**
- * Texts of the development-only component showcase (#19). They are real texts from 13-textos,
- * used as samples; the screens get their own string modules in #20.
+ * Texts of the development-only component showcase (#19): section names and sample values. The
+ * real texts it shows come from the catalog (`strings`).
  */
 export const devShowcase = {
   title: 'Componentes',
@@ -43,23 +43,6 @@ export const devShowcase = {
     body: 'Probá con otra palabra o quitá filtros.',
     action: 'Limpiar filtros',
   },
-  sync: {
-    synced: 'Respaldado · hace 2 min',
-    syncing: 'Respaldando…',
-    pendingOffline: '3 cambios sin respaldar · sin conexión',
-    pendingOnline: '3 cambios por respaldar…',
-    workoutInProgress: 'Tu entrenamiento se respalda al finalizarlo.',
-    sessionExpired: 'Tu sesión venció. Tus datos siguen en este teléfono.',
-    conflict: '2 cambios no se pudieron respaldar',
-    networkError: 'No pudimos respaldar. Lo intentamos de nuevo solos.',
-    guest: 'Sin respaldo: tus datos están solo en este teléfono.',
-    appOutdated: 'Actualizá la app para respaldar tus datos.',
-    backUpNow: 'Respaldar ahora',
-    signInAgain: 'Volver a entrar',
-    see: 'Ver',
-    retry: 'Reintentar',
-    createAccount: 'Crear cuenta',
-  },
   overlays: {
     openSheet: 'Abrir la hoja',
     openDialog: 'Abrir el diálogo',
@@ -67,13 +50,5 @@ export const devShowcase = {
     sheetTitle: 'Press de banca con barra',
     sheetSubtitle: 'Ejercicio 2 de 6',
     close: 'Cerrar',
-    substitute: 'Sustituir ejercicio',
-    skipExercise: 'Saltear ejercicio',
-    addSet: 'Agregar serie',
-    dialogTitle: '¿Descartar el entrenamiento?',
-    dialogBody: 'Se borran las 9 series registradas.',
-    cancel: 'Cancelar',
-    setDeleted: 'Serie eliminada',
-    undo: 'Deshacer',
   },
 } as const;

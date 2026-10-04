@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
@@ -21,10 +21,17 @@ export function Snackbar({ message, action, onDismiss }: SnackbarProps) {
   const reduceMotion = useReduceMotion();
   const [drain] = useState(() => new Animated.Value(1));
 
+  // The latest callback, so a parent that re-renders (a running clock, for example) with a new
+  // inline function does not restart the 5 s.
+  const latestOnDismiss = useRef(onDismiss);
   useEffect(() => {
-    const timer = setTimeout(onDismiss, DURATION_MS);
+    latestOnDismiss.current = onDismiss;
+  });
+
+  useEffect(() => {
+    const timer = setTimeout(() => latestOnDismiss.current(), DURATION_MS);
     return () => clearTimeout(timer);
-  }, [onDismiss]);
+  }, []);
 
   useEffect(() => {
     if (reduceMotion) return;

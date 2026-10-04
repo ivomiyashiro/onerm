@@ -1,6 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import { ComponentsShowcaseScreen } from '@/presentation/features/dev/components-showcase-screen';
+import { strings } from '@/presentation/strings';
 import { devShowcase as t } from '@/presentation/strings/dev-showcase';
 
 jest.useFakeTimers();
@@ -32,10 +33,10 @@ describe('ComponentsShowcaseScreen', () => {
     await user.press(screen.getByRole('button', { name: t.overlays.close }));
 
     await user.press(screen.getByRole('button', { name: t.overlays.openDialog }));
-    expect(screen.getByRole('header', { name: t.overlays.dialogTitle })).toBeOnTheScreen();
-    await user.press(screen.getByRole('button', { name: t.overlays.cancel }));
+    expect(screen.getByRole('header', { name: strings.dialogs.D09.title })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: strings.dialogs.D09.cancel }));
 
     await user.press(screen.getByRole('button', { name: t.overlays.showSnackbar }));
-    expect(screen.getByRole('alert')).toHaveAccessibleName(t.overlays.setDeleted);
+    expect(screen.getByRole('alert')).toHaveAccessibleName(strings.workout.setDeleted.message);
   });
 });

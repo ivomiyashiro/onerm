@@ -22,6 +22,10 @@ describe('screen routes (08 §2)', () => {
     expect(routeFile(screenRoutes[id].pathname)).toBeDefined();
   });
 
+  it('the sheets are S08, S10 and S11 (08 §2: «Hoja modal»)', () => {
+    expect(SCREEN_IDS.filter((id) => screenRoutes[id].sheet)).toEqual(['S08', 'S10', 'S11']);
+  });
+
   it.each(['/', '/routines', '/progress', '/profile'])('%s is a tab', (pathname) => {
     expect(routeFile(pathname)).toContain('(tabs)');
   });

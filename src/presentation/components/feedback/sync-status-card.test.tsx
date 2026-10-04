@@ -50,4 +50,19 @@ describe('SyncStatusCard', () => {
     await user.press(screen.getByRole('button', { name: 'Reintentar' }));
     expect(onPress).toHaveBeenCalledTimes(1);
   });
+
+  it('a short action such as «Ver» is still a 48 × 48 dp target (RNF-16)', async () => {
+    await render(
+      <SyncStatusCard
+        status={{ kind: 'conflict', count: 2 }}
+        message="2 cambios no se pudieron respaldar"
+        action={{ label: 'Ver', onPress: jest.fn() }}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Ver' })).toHaveStyle({
+      minHeight: 48,
+      minWidth: 48,
+    });
+  });
 });
