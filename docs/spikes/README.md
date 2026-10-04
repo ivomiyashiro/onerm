@@ -11,6 +11,7 @@ Un spike responde **una pregunta técnica** con código exploratorio y tiempo ac
 | [13-push-pull](13-push-pull.md) | ¿La sync propia de ADR-0002 entra en el tiempo? (plan B) | #13 | Se confirma la sync propia. Plan B descartado. F8 ≈ 6 días |
 | [14-rest-notification](14-rest-notification.md) | ¿La notificación programada avisa con ≤ 5 s de retraso con la pantalla bloqueada? | #14 | Sí con alarmas exactas (0,5 s). Sin el permiso de alarmas exactas no se programa el aviso: se pide al usuario. Medición en un dispositivo físico: limitación conocida |
 | [15-secure-session](15-secure-session.md) | ¿La sesión cifrada (clave en el Keystore) funciona como `storage` de supabase-js? | #15 | Se confirma, con `expo-crypto` AES-GCM, `expo-secure-store` y `expo-sqlite/kv-store` |
+| [16-google-sign-in](16-google-sign-in.md) | ¿Login nativo con Google y `signInWithIdToken` en Supabase? | #16 | Se confirma. Supabase vincula identidades solo: RN-AUTH-03 se impone con un trigger en `auth.identities` |
 
 ## Plantilla
 
