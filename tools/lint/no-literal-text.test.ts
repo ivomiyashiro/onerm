@@ -33,6 +33,31 @@ describe('RNF-21 · no literal UI text', () => {
       'export const A = () => <Button variant="primary" label="Empezar" onPress={() => {}} />;',
     ],
     ['accessibilityLabel prop', "export const A = () => <Text accessibilityLabel={'Cerrar'} />;"],
+    ['template literal child', 'export const A = () => <Text>{`Hola`}</Text>;'],
+    [
+      'conditional child',
+      "export const A = ({ c }: { c: boolean }) => <Text>{c ? 'Sí' : 'No'}</Text>;",
+    ],
+    ['logical child', "export const A = ({ c }: { c: boolean }) => <Text>{c && 'Hola'}</Text>;"],
+    ['concatenated child', "export const A = () => <Text>{'Hola' + '!'}</Text>;"],
+    ['fragment child', "export const A = () => <>{'Hola'}</>;"],
+    [
+      'template literal prop',
+      'export const A = () => <Button variant="primary" label={`Empezar`} onPress={() => {}} />;',
+    ],
+    [
+      'conditional prop',
+      "export const A = ({ c }: { c: boolean }) => <Button variant=\"primary\" label={c ? 'A' : 'B'} onPress={() => {}} />;",
+    ],
+    ['unit prop', 'export const A = () => <Text unit="kg" />;'],
+    [
+      'label inside an object prop',
+      "export const A = () => <Text action={{ label: 'Deshacer', onPress: () => {} }} />;",
+    ],
+    [
+      'title inside screen options',
+      "export const A = () => <Text options={{ title: 'Inicio' }} />;",
+    ],
   ])('a %s fails in presentation', async (_, body) => {
     expect(await literalTextErrors('src/presentation/probe.tsx', body)).not.toHaveLength(0);
   });
