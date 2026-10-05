@@ -64,3 +64,14 @@ describe('RN-RUT-01 · next day (ADR-0006)', () => {
     expect(nextDay('routine-1', ABC, [done('unknown', 3)])).toBe('A');
   });
 });
+
+describe('F3 review · next day is deterministic', () => {
+  it('two workouts finished at the same instant: the higher workout id, whatever the input order', () => {
+    const at = new Date(Date.UTC(2026, 8, 3, 12));
+    const first = aWorkout({ id: 'a', routineDayId: 'B', finishedAt: at });
+    const second = aWorkout({ id: 'b', routineDayId: 'A', finishedAt: at });
+
+    expect(nextDay('routine-1', ABC, [first, second])).toBe('B');
+    expect(nextDay('routine-1', ABC, [second, first])).toBe('B');
+  });
+});

@@ -63,7 +63,7 @@ describe('RN-SUG-06 · after a calibration set', () => {
     ).toEqual({
       loadKg: 30,
       reps: 12,
-      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 31 },
+      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 31, limitingSide: null },
     });
   });
 

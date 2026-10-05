@@ -82,6 +82,8 @@ export type SuggestionReason =
   | {
       readonly code: 'FROM_EXERCISE_HISTORY';
       readonly workingLoadKg: number;
+      /** In a unilateral exercise (RN-SUG-11). */
+      readonly limitingSide: LimitingSide | null;
       readonly withReentry?: Reentry;
     }
   | {
@@ -89,6 +91,8 @@ export type SuggestionReason =
       /** Null when there was no e1RM to estimate from: W with the new floor (RN-SUG-14). */
       readonly e1rm: E1rm | null;
       readonly workingLoadKg: number;
+      /** In a unilateral exercise (RN-SUG-11): the side of the last ERR. */
+      readonly limitingSide: LimitingSide | null;
       readonly withReentry?: Reentry;
     }
   | ({ readonly code: 'REENTRY' } & Reentry & ProgressionParams)

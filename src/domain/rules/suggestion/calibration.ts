@@ -88,5 +88,13 @@ export function suggestAfterCalibrationSet({
       grid,
     );
   // The target RTF is over 15: RN-SUG-08 goes on with the load of this set.
-  return estimated ?? fromWorkingLoad(loadKg, prescription, grid);
+  return (
+    estimated ??
+    fromWorkingLoad(
+      loadKg,
+      prescription,
+      grid,
+      done.side === null ? null : { side: done.side, reps: done.reps },
+    )
+  );
 }

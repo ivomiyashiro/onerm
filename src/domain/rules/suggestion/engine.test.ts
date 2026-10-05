@@ -203,7 +203,7 @@ describe('priority 1 · without ERR (RN-SUG-02)', () => {
     expect(suggestNext([], ctx)).toEqual({
       loadKg: 30,
       reps: 8,
-      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 31 },
+      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 31, limitingSide: null },
     });
   });
 
@@ -216,7 +216,7 @@ describe('priority 1 · without ERR (RN-SUG-02)', () => {
     expect(suggestNext([], ctx)).toEqual({
       loadKg: 50,
       reps: 12,
-      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 50 },
+      reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg: 50, limitingSide: null },
     });
   });
 
@@ -463,7 +463,7 @@ describe('RF-SUG-10 · prescription change', () => {
     expect(suggestNext(history, ctx)).toEqual({
       loadKg: 40,
       reps: 6,
-      reason: { code: 'PRESCRIPTION_CHANGED', e1rm: null, workingLoadKg: 40 },
+      reason: { code: 'PRESCRIPTION_CHANGED', e1rm: null, workingLoadKg: 40, limitingSide: null },
     });
   });
 
@@ -490,5 +490,53 @@ describe('RF-SUG-10 · prescription change', () => {
 
     expect(record.suggestionBefore.reason.code).toBe('PRESCRIPTION_CHANGED');
     expect(record.isReset).toBe(true);
+  });
+});
+
+describe('F3 review · order and resets', () => {
+  it('the fold orders the ERR by finishedAt, whatever order they come in', () => {
+    const a = err(1, [
+      [60, 10, 2],
+      [60, 10, 2],
+      [60, 10, 2],
+    ]);
+    const b = err(3, [
+      [60, 11, 2],
+      [60, 11, 2],
+      [60, 11, 2],
+    ]);
+
+    expect(suggestNext([b, a], context())).toEqual(suggestNext([a, b], context()));
+  });
+
+  it('RN-SUG-04 · a lower W that the engine suggested does not reset (11 kg by hand → 10)', () => {
+    const dumbbell = { unit: 'kg', increment: 2, minLoad: 2 } as const;
+    const typed = err(1, [
+      [11, 10, 2],
+      [11, 10, 2],
+      [11, 10, 2],
+    ]);
+    const followed = err(3, [
+      [10, 11, 2],
+      [10, 11, 2],
+      [10, 11, 2],
+    ]);
+
+    const [, record] = fold([typed, followed], context({ grid: dumbbell })).records;
+
+    expect(record.suggestionBefore.loadKg).toBe(10);
+    expect(record.isReset).toBe(false);
+  });
+
+  it('RN-SUG-11 · FROM_EXERCISE_HISTORY carries the limiting side of a unilateral EE', () => {
+    const ee = {
+      ...anExposure([]),
+      sets: [{ loadKg: 20, reps: 16, rir: 4, side: 'right' as const }],
+    };
+
+    expect(suggestNext([], context({ exerciseExposures: [ee] })).reason).toMatchObject({
+      code: 'FROM_EXERCISE_HISTORY',
+      limitingSide: { side: 'right', reps: 16 },
+    });
   });
 });

@@ -9,7 +9,7 @@ import type {
   SuggestionContext,
 } from '@/domain/rules/suggestion/engine-types';
 import { analyseExposure } from '@/domain/rules/suggestion/exposure-analysis';
-import type { Exposure } from '@/domain/rules/suggestion/exposures';
+import { byExposureOrder, type Exposure } from '@/domain/rules/suggestion/exposures';
 import { byFinishedAt, firstFinishedFrom } from '@/domain/rules/suggestion/history-order';
 import { prescriptionChanged } from '@/domain/rules/suggestion/prescription-change';
 import { belowRange, capReached, withinRange } from '@/domain/rules/suggestion/progression';
@@ -134,6 +134,11 @@ export function orderedContext(context: SuggestionContext): SuggestionContext {
   };
 }
 
+/**
+ * One ERR, in order of `finishedAt`. It recalculates what was suggested right before it, and
+ * whether it resets (RN-SUG-04): after a suggestion of RESET_AFTER, with a W lower than the
+ * previous one that the engine didn't suggest (the user lowered the load), or with a different N.
+ */
 function recordFor(
   state: EngineState,
   exposure: Exposure,
@@ -144,7 +149,14 @@ function recordFor(
   const previous = state.records.at(-1)?.analysis;
   const w = analysis.workingLoadKg;
   const previousW = previous?.workingLoadKg ?? null;
-  const lowerW = w !== null && previousW !== null && w < previousW && !areLoadsEqual(w, previousW);
+  const suggestedW =
+    suggestionBefore.loadKg !== null && w !== null && areLoadsEqual(w, suggestionBefore.loadKg);
+  const lowerW =
+    w !== null &&
+    previousW !== null &&
+    w < previousW &&
+    !areLoadsEqual(w, previousW) &&
+    !suggestedW;
   const isReset =
     previous === undefined ||
     RESET_AFTER.includes(suggestionBefore.reason.code) ||
@@ -165,23 +177,9 @@ const loaded = (record: RoutineExposureRecord) => {
 };
 
 /**
- * One ERR, in order of `finishedAt`. It recalculates what was suggested right before it, and
- * whether it resets (RN-SUG-04): after a suggestion of RESET_AFTER, with a W lower than the
- * previous one (the user lowered the load), or with a different N.
- */
-export function step(
-  state: EngineState,
-  exposure: Exposure,
-  context: SuggestionContext,
-): EngineState {
-  const record = recordFor(state, exposure, context);
-  return { records: [...state.records, record], lastLoaded: loaded(record) };
-}
-
-/**
- * The fold over the ERR of a routine exercise (ADR-0009). Same as reducing with `step`, but one
- * array grows instead of a copy per step (that copy was quadratic, RNF-13). Sharing it is safe:
- * the intermediate states don't outlive the fold.
+ * The fold over the ERR of a routine exercise (ADR-0009), in order of `finishedAt` whatever order
+ * they come in. One array grows instead of a copy per step (that copy was quadratic, RNF-13);
+ * sharing it is safe because the intermediate states don't outlive the fold.
  */
 export function fold(
   routineExposures: readonly Exposure[],
@@ -190,7 +188,7 @@ export function fold(
   const ordered = orderedContext(context);
   const records: RoutineExposureRecord[] = [];
   let state = INITIAL_ENGINE_STATE;
-  for (const exposure of routineExposures) {
+  for (const exposure of [...routineExposures].sort(byExposureOrder)) {
     const record = recordFor(state, exposure, ordered);
     records.push(record);
     state = { records, lastLoaded: loaded(record) };

@@ -27,7 +27,10 @@ export function nextDay(
   for (const workout of workouts) {
     if (workout.routineId !== routineId || workout.status !== 'finished') continue;
     if (workout.finishedAt === null) continue;
-    if (last === null || last.finishedAt === null || workout.finishedAt > last.finishedAt) {
+    // A tie in finishedAt goes to the higher workout id, so the input order doesn't matter.
+    const time = workout.finishedAt.getTime();
+    const lastTime = last?.finishedAt?.getTime() ?? -Infinity;
+    if (last === null || time > lastTime || (time === lastTime && workout.id > last.id)) {
       last = workout;
     }
   }

@@ -24,6 +24,16 @@ function isSame(a: number, b: number, unit: LoadUnit): boolean {
   return areLoadsEqual(fromUnit(a, unit), fromUnit(b, unit));
 }
 
+/**
+ * Which neighbour is closer. A load in lb comes from `kg / 0.45359237`, so an exact half can land
+ * a hair to either side (367.49999999999994): within 1e-9 it counts as a half, and `halfUp` decides.
+ */
+function closer(value: number, lower: number, upper: number, halfUp: boolean): number {
+  const difference = value - lower - (upper - value);
+  if (Math.abs(difference) < 1e-9) return halfUp ? upper : lower;
+  return difference < 0 ? lower : upper;
+}
+
 /** Back to kg, never under the minimum load (RN-PERF-08). */
 function toLoad(value: number, grid: LoadGrid): number {
   return fromUnit(Math.max(value, grid.minLoad), grid.unit);
@@ -42,14 +52,14 @@ export function floorToGrid(kg: number, grid: LoadGrid): number {
 export function nearestOnGrid(kg: number, grid: LoadGrid): number {
   const { value, lower, upper } = neighbours(kg, grid);
   if (isSame(value, upper, grid.unit)) return toLoad(upper, grid);
-  return toLoad(value - lower <= upper - value ? lower : upper, grid);
+  return toLoad(closer(value, lower, upper, false), grid);
 }
 
 /** `redondear` (RN-SUG-09): the closest multiple; half way, up. */
 export function roundOnGrid(kg: number, grid: LoadGrid): number {
   const { value, lower, upper } = neighbours(kg, grid);
   if (isSame(value, upper, grid.unit)) return toLoad(upper, grid);
-  return toLoad(value - lower < upper - value ? lower : upper, grid);
+  return toLoad(closer(value, lower, upper, true), grid);
 }
 
 /**
