@@ -1,3 +1,4 @@
+import type { LocalDate } from '@/domain/models/local-date';
 import { fold, suggest, suggestNext } from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import { routineExposures } from '@/domain/rules/suggestion/exposures';
@@ -11,6 +12,7 @@ import {
 
 const context = (overrides: Partial<SuggestionContext> = {}): SuggestionContext => ({
   today: '2026-10-05',
+  localDate: (instant) => instant.toISOString().slice(0, 10) as LocalDate,
   workoutDates: [],
   prescription: aPrescription({ repRange: { min: 8, max: 12 }, targetRir: 2 }),
   loadType: 'external',
@@ -19,7 +21,7 @@ const context = (overrides: Partial<SuggestionContext> = {}): SuggestionContext 
   ...overrides,
 });
 
-const day = (n: number) => new Date(Date.UTC(2026, 8, n, 12));
+const day = (n: number) => new Date(Date.UTC(2026, 9, n, 12));
 const err = (n: number, sets: [number, number, number | null][], sets_ = 3) =>
   anExposure(sets, {
     workoutId: `w${n}`,
@@ -386,5 +388,107 @@ describe('RN-SUG-12 · bodyweight', () => {
       reps: 10,
       reason: { code: 'BODYWEIGHT_ADD_REP', previousReps: 9, limitingSide: null },
     });
+  });
+});
+
+describe('RF-SUG-06 · reentry', () => {
+  const at = (n: number) => context({ today: day(n).toISOString().slice(0, 10) as LocalDate });
+
+  it('AC4 · has priority over the deload and the increase', () => {
+    const atCap = err(1, [
+      [60, 12, 2],
+      [60, 12, 2],
+      [60, 12, 2],
+    ]);
+
+    expect(suggestNext([atCap], at(30)).reason.code).toBe('REENTRY');
+  });
+
+  it('AC6 · without ERR, the estimate from an e1RM before the pause goes down 20 % too', () => {
+    // e1RM 80 → 60; 45 days later, bajada(60; 20 %) = round(mín(57.5; 48)) = 47.5.
+    const ctx = { ...at(46), exerciseExposures: [err(1, [[60, 8, 2]])] };
+
+    expect(suggestNext([], ctx)).toMatchObject({
+      loadKg: 47.5,
+      reps: 8,
+      reason: { code: 'ESTIMATED_FROM_E1RM', withReentry: { gapDays: 45, decreasePercent: 0.2 } },
+    });
+  });
+
+  it('the last W of the exercise history goes down too', () => {
+    // RTF 19: no e1RM. W 40; 30 days later, −10 %.
+    const ctx = { ...at(31), exerciseExposures: [err(1, [[40, 15, 4]])] };
+
+    expect(suggestNext([], ctx)).toMatchObject({
+      loadKg: 35,
+      reason: { code: 'FROM_EXERCISE_HISTORY', withReentry: { gapDays: 30 } },
+    });
+  });
+
+  it('a calibration has nothing to lower', () => {
+    expect(suggestNext([], at(60)).reason).toEqual({ code: 'CALIBRATION' });
+  });
+});
+
+describe('RF-SUG-10 · prescription change', () => {
+  it('AC2 · only the sets changed: the normal rules (but the mark resets)', () => {
+    const history = [
+      err(1, [
+        [60, 10, 2],
+        [60, 10, 2],
+        [60, 10, 2],
+      ]),
+    ];
+    const ctx = context({
+      prescription: aPrescription({ sets: 4, repRange: { min: 8, max: 12 }, targetRir: 2 }),
+    });
+
+    expect(suggestNext(history, ctx).reason.code).toBe('ADD_REP');
+  });
+
+  it('AC3 · without an e1RM: W with the floor of the new range', () => {
+    // RTF 19: no e1RM.
+    const history = [
+      err(1, [
+        [40, 15, 4],
+        [40, 15, 4],
+        [40, 15, 4],
+      ]),
+    ];
+    const ctx = context({
+      prescription: aPrescription({ repRange: { min: 6, max: 10 }, targetRir: 2 }),
+      exerciseExposures: history,
+    });
+
+    expect(suggestNext(history, ctx)).toEqual({
+      loadKg: 40,
+      reps: 6,
+      reason: { code: 'PRESCRIPTION_CHANGED', e1rm: null, workingLoadKg: 40 },
+    });
+  });
+
+  it('the ERR after a PRESCRIPTION_CHANGED suggestion resets', () => {
+    const strength = aPrescription({ sets: 3, repRange: { min: 4, max: 6 }, targetRir: 2 });
+    const first = {
+      ...err(1, [
+        [100, 6, 2],
+        [100, 6, 2],
+        [100, 6, 2],
+      ]),
+      prescription: strength,
+    };
+    const second = err(4, [
+      [87.5, 8, 3],
+      [87.5, 8, 3],
+      [87.5, 8, 3],
+    ]);
+
+    const [, record] = fold(
+      [first, second],
+      context({ exerciseExposures: [first, second] }),
+    ).records;
+
+    expect(record.suggestionBefore.reason.code).toBe('PRESCRIPTION_CHANGED');
+    expect(record.isReset).toBe(true);
   });
 });

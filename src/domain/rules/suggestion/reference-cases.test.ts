@@ -1,9 +1,11 @@
+import type { LocalDate } from '@/domain/models/local-date';
 import type { Prescription } from '@/domain/models/prescription';
 import type { LoadType } from '@/domain/models/vocabulary';
 import { suggestAfterCalibrationSet } from '@/domain/rules/suggestion/calibration';
-import { suggestNext } from '@/domain/rules/suggestion/engine';
+import { suggestForExercise, suggestNext } from '@/domain/rules/suggestion/engine';
+import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import type { ExposureSet } from '@/domain/rules/suggestion/exposures';
-import { decreaseLoad, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
+import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 import { aBilateralSet, anExposure, aPrescription } from '@/domain/testing/builders';
 
@@ -11,6 +13,8 @@ import { aBilateralSet, anExposure, aPrescription } from '@/domain/testing/build
  * The reference cases of sugerencias.md, literal (RNF-15). Unless a case says otherwise:
  * 3 × 8–12 · target RIR 2 · increment 2.5 kg · last workout less than 14 days ago.
  */
+const DAY_MS = 24 * 60 * 60 * 1000;
+const localDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
 const defaults = aPrescription({ sets: 3, repRange: { min: 8, max: 12 }, targetRir: 2 });
 const barbell: LoadGrid = { unit: 'kg', increment: 2.5, minLoad: 20 };
 
@@ -30,6 +34,7 @@ describe('caso E · calibration (novice)', () => {
     expect(
       suggestNext([], {
         today: '2026-10-05',
+        localDate,
         workoutDates: [],
         prescription,
         loadType: 'external',
@@ -116,9 +121,11 @@ function suggestionsAfter(
     );
     return { ...base, sets: asSets };
   });
-  return history.map((_, i) =>
+  // Today is 3 days after the last exposure: no reentry.
+  return history.map((exposure, i) =>
     suggestNext(history.slice(0, i + 1), {
-      today: '2026-10-05',
+      today: localDate(new Date(exposure.finishedAt.getTime() + 3 * DAY_MS)),
+      localDate,
       workoutDates: history.slice(0, i + 1),
       prescription,
       loadType,
@@ -134,12 +141,16 @@ const rir2 = (load: number, ...reps: number[]): LoggedSet[] => reps.map((r) => [
 const withRir = (load: number, rir: number, ...reps: number[]): LoggedSet[] =>
   reps.map((r) => [load, r, rir]);
 
-describe('caso A · double progression (up to the load increase)', () => {
+describe('caso A · double progression, stagnation and deload', () => {
   const after = suggestionsAfter([
     rir2(60, 10, 9, 9),
     rir2(60, 11, 10, 10),
     rir2(60, 12, 12, 12),
     rir2(62.5, 8, 8, 7),
+    rir2(62.5, 8, 8, 7),
+    rir2(62.5, 8, 8, 7),
+    rir2(62.5, 8, 8, 7),
+    rir2(57.5, 11, 10, 10),
   ]).map(summary);
 
   it('exp. 1 · 60 × 10, 9, 9 → 60 × 10 (ADD_REP)', () => {
@@ -154,8 +165,20 @@ describe('caso A · double progression (up to the load increase)', () => {
     expect(after[2]).toEqual([62.5, 8, 'INCREASE_LOAD']);
   });
 
-  it('exp. 4 · 62.5 × 8, 8, 7 → 62.5 × 8 (REPEAT)', () => {
-    expect(after[3]).toEqual([62.5, 8, 'REPEAT']);
+  it('exp. 4 to 6 · 62.5 × 8, 8, 7 → 62.5 × 8 (REPEAT), the count goes 0, 1, 2', () => {
+    expect(after.slice(3, 6)).toEqual([
+      [62.5, 8, 'REPEAT'],
+      [62.5, 8, 'REPEAT'],
+      [62.5, 8, 'REPEAT'],
+    ]);
+  });
+
+  it('exp. 7 · the count is 3 → 57.5 × 8 (mín(60; 56.25) = 56.25 → 57.5; DELOAD)', () => {
+    expect(after[6]).toEqual([57.5, 8, 'DELOAD']);
+  });
+
+  it('exp. 8 · 57.5 × 11, 10, 10 resets → 57.5 × 11 (ADD_REP)', () => {
+    expect(after[7]).toEqual([57.5, 11, 'ADD_REP']);
   });
 });
 
@@ -285,18 +308,138 @@ describe('caso M · bodyweight', () => {
   });
 });
 
-describe('caso N · minimum load with a barbell', () => {
-  it('W 22.5 kg, 45 days of pause → bajada(22.5; 20 %) = 17.5 → under 20 kg → 20', () => {
-    // The reentry that asks for this decrease arrives with #24; the rounding is checked here.
-    expect(decreaseLoad(22.5, 0.2, barbell)).toBe(20);
-  });
-});
-
 describe('caso Q · fewer sets than prescribed', () => {
   it('60 × 12, 12 (2 sets) → 60 × 12 (COMPLETE_SETS); then 60 × 12, 12, 12 → 62.5 × 8', () => {
     const after = suggestionsAfter([rir2(60, 12, 12), rir2(60, 12, 12, 12)]).map(summary);
 
     expect(after[0]).toEqual([60, 12, 'COMPLETE_SETS']);
     expect(after[1]).toEqual([62.5, 8, 'INCREASE_LOAD']);
+  });
+});
+
+/** One ERR finished on `finishedAt`, with the default prescription unless given. */
+const errOn = (finishedAt: Date, sets: LoggedSet[], prescription = defaults) => ({
+  ...anExposure([], {
+    workoutId: finishedAt.toISOString(),
+    startedAt: finishedAt,
+    finishedAt,
+    prescription,
+  }),
+  sets: sets.map(([loadKg, reps, rir]) => ({ loadKg, reps, rir, side: null })),
+});
+const onDay = (n: number) => new Date(Date.UTC(2026, 0, 10 + n, 18));
+
+function contextOn(
+  todayN: number,
+  history: ReturnType<typeof errOn>[],
+  overrides: Partial<SuggestionContext> = {},
+): SuggestionContext {
+  return {
+    today: localDate(onDay(todayN)),
+    localDate,
+    workoutDates: history,
+    prescription: defaults,
+    loadType: 'external',
+    grid: barbell,
+    exerciseExposures: history,
+    ...overrides,
+  };
+}
+
+describe('caso D · reentry (general inactivity)', () => {
+  // W = 62.5 kg.
+  const history = [errOn(onDay(0), rir2(62.5, 10, 10, 10))];
+  const on = (todayN: number) => summary(suggestNext(history, contextOn(todayN, history)));
+
+  it('last workout 25 days ago → 57.5 × 8 (mín(60; 56.25) → 57.5; REENTRY)', () => {
+    expect(on(25)).toEqual([57.5, 8, 'REENTRY']);
+  });
+
+  it('45 days ago → 50 × 8 (mín(60; 50) = 50)', () => {
+    expect(on(45)).toEqual([50, 8, 'REENTRY']);
+  });
+
+  it('15 days ago → the normal rules (15 ≤ 21)', () => {
+    expect(on(15)).toEqual([62.5, 11, 'ADD_REP']);
+  });
+});
+
+describe('caso H · prescription change', () => {
+  it('100 × 6, 6, 6 RIR 2 in 4–6 → 8–12 RIR 3: e1RM 124.1 → 89.7 → down → 87.5 × 8', () => {
+    const strength = aPrescription({ sets: 3, repRange: { min: 4, max: 6 }, targetRir: 2 });
+    const health = aPrescription({ sets: 3, repRange: { min: 8, max: 12 }, targetRir: 3 });
+    const history = [errOn(onDay(0), rir2(100, 6, 6, 6), strength)];
+
+    const suggestion = suggestNext(history, contextOn(3, history, { prescription: health }));
+
+    expect(summary(suggestion)).toEqual([87.5, 8, 'PRESCRIPTION_CHANGED']);
+    expect(suggestion.reason).toMatchObject({ e1rm: { precision: 'standard' } });
+    expect((suggestion.reason as { e1rm: { value: number } }).e1rm.value).toBeCloseTo(124.14, 2);
+  });
+});
+
+describe('caso K · substitute with history', () => {
+  it('machine row instead of the pulldown: last EE 50 × 10 RIR 2 → e1RM 72 → 54 → 50 × 8', () => {
+    const machine: LoadGrid = { unit: 'kg', increment: 5, minLoad: 5 };
+    const rowHistory = [errOn(onDay(0), [[50, 10, 2]])];
+
+    const suggestion = suggestForExercise(
+      contextOn(3, rowHistory, { grid: machine, prescription: defaults }),
+    );
+
+    expect(summary(suggestion)).toEqual([50, 8, 'ESTIMATED_FROM_E1RM']);
+    expect(suggestion.reason).toMatchObject({ e1rm: { value: 72, precision: 'approximate' } });
+  });
+});
+
+describe('caso N · minimum load with a barbell', () => {
+  it('W 22.5 kg, 45 days of pause → bajada(22.5; 20 %) = 17.5 → under 20 kg → 20 × 8', () => {
+    const history = [errOn(onDay(0), rir2(22.5, 10, 10, 10))];
+
+    expect(summary(suggestNext(history, contextOn(45, history)))).toEqual([20, 8, 'REENTRY']);
+  });
+});
+
+describe('caso O · reentry per exercise in a rotation (PLT-TP4)', () => {
+  const machine: LoadGrid = { unit: 'kg', increment: 5, minLoad: 5 };
+  // The user trains up to day 0 and not again until day 30. Leg press last done on day −2.
+  const legPressBefore = errOn(onDay(-2), rir2(100, 10, 10, 10));
+  const otherWorkouts = [onDay(0), onDay(30)].map((finishedAt) => ({
+    startedAt: finishedAt,
+    finishedAt,
+  }));
+
+  it('day 32, leg A: the last workout was 2 days ago, but since the last ERR there was a 30-day gap → 90 × 8', () => {
+    const history = [legPressBefore];
+    const ctx = contextOn(32, history, {
+      grid: machine,
+      workoutDates: [...history, ...otherWorkouts],
+    });
+
+    expect(summary(suggestNext(history, ctx))).toEqual([90, 8, 'REENTRY']);
+  });
+
+  it('day 39, leg A again: the last ERR is from day 32, no gap since → the normal rules', () => {
+    const history = [legPressBefore, errOn(onDay(32), rir2(90, 10, 10, 10))];
+    const ctx = contextOn(39, history, {
+      grid: machine,
+      workoutDates: [...history, ...otherWorkouts, { startedAt: onDay(35), finishedAt: onDay(35) }],
+    });
+
+    expect(summary(suggestNext(history, ctx))).toEqual([90, 11, 'ADD_REP']);
+  });
+});
+
+describe('caso P · lowering the load on your own resets the mark', () => {
+  it('best mark (62.5; 8), then 57.5 × 9, 9, 9 by choice → reset; adding reps never reaches DELOAD', () => {
+    const after = suggestionsAfter([
+      rir2(62.5, 8, 8, 8),
+      rir2(57.5, 9, 9, 9),
+      rir2(57.5, 10, 10, 10),
+      rir2(57.5, 11, 11, 11),
+    ]).map(summary);
+
+    expect(after.map(([, , code]) => code)).not.toContain('DELOAD');
+    expect(after[3]).toEqual([57.5, 12, 'ADD_REP']);
   });
 });

@@ -42,6 +42,12 @@ interface ProgressionParams {
   readonly limitingSide: LimitingSide | null;
 }
 
+/** RN-SUG-05: the inactivity gap and how much it lowers the load. */
+export interface Reentry {
+  readonly gapDays: number;
+  readonly decreasePercent: number;
+}
+
 /** The set an estimate comes from: «lo que hiciste en {ejercicio} el {fecha}». */
 export interface EstimateBasis {
   readonly exerciseId: Id;
@@ -66,8 +72,31 @@ export type SuggestionReason =
       readonly side: Side;
     }
   | { readonly code: 'CALIBRATION_STEP_DOWN'; readonly side: Side }
-  | { readonly code: 'ESTIMATED_FROM_E1RM'; readonly e1rm: E1rm; readonly basis: EstimateBasis }
-  | { readonly code: 'FROM_EXERCISE_HISTORY'; readonly workingLoadKg: number }
+  | {
+      readonly code: 'ESTIMATED_FROM_E1RM';
+      readonly e1rm: E1rm;
+      readonly basis: EstimateBasis;
+      /** The reentry also lowered this estimate (RN-SUG-05, 13 §4 «Reentrada combinada»). */
+      readonly withReentry?: Reentry;
+    }
+  | {
+      readonly code: 'FROM_EXERCISE_HISTORY';
+      readonly workingLoadKg: number;
+      readonly withReentry?: Reentry;
+    }
+  | {
+      readonly code: 'PRESCRIPTION_CHANGED';
+      /** Null when there was no e1RM to estimate from: W with the new floor (RN-SUG-14). */
+      readonly e1rm: E1rm | null;
+      readonly workingLoadKg: number;
+      readonly withReentry?: Reentry;
+    }
+  | ({ readonly code: 'REENTRY' } & Reentry & ProgressionParams)
+  | ({
+      readonly code: 'DELOAD';
+      readonly stagnantExposures: number;
+      readonly bestMark: { readonly loadKg: number; readonly meanReps: number };
+    } & ProgressionParams)
   | ({
       readonly code: 'INCREASE_LOAD';
       readonly increasePercent: number;

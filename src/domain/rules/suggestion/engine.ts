@@ -9,24 +9,42 @@ import type {
 } from '@/domain/rules/suggestion/engine-types';
 import { analyseExposure } from '@/domain/rules/suggestion/exposure-analysis';
 import type { Exposure } from '@/domain/rules/suggestion/exposures';
+import { prescriptionChanged } from '@/domain/rules/suggestion/prescription-change';
 import { belowRange, capReached, withinRange } from '@/domain/rules/suggestion/progression';
+import { reentry, withReentry } from '@/domain/rules/suggestion/reentry';
+import { deload, nextStagnation } from '@/domain/rules/suggestion/stagnation';
 import type { Suggestion, SuggestionCode } from '@/domain/rules/suggestion/suggestion';
 import { suggestWithoutRoutineHistory } from '@/domain/rules/suggestion/without-routine-history';
 
 export const INITIAL_ENGINE_STATE: EngineState = { records: [] };
 
-/** 1. Without ERR (RN-SUG-02, 06, 08). */
-const withoutRoutineHistory: Priority = (state, context) =>
-  state.records.length > 0
-    ? null
-    : suggestWithoutRoutineHistory(context.exerciseExposures, context.prescription, context.grid);
-
 /**
- * The decision order for external load (RN-SUG, «Orden de decisión»): the first one that
- * applies wins. Priorities 2–4 arrive with #24.
+ * 1. Without ERR (RN-SUG-02, 06, 08), with the reentry as a modifier. Its base is the EE of the
+ * estimate, or the last EE when it keeps its W (RN-SUG-05).
  */
+const withoutRoutineHistory: Priority = (state, context) => {
+  if (state.records.length > 0) return null;
+  const suggestion = suggestWithoutRoutineHistory(
+    context.exerciseExposures,
+    context.prescription,
+    context.grid,
+  );
+  const { reason } = suggestion;
+  if (reason.code === 'ESTIMATED_FROM_E1RM')
+    return withReentry(suggestion, reason.basis.at, context);
+  const lastExercise = context.exerciseExposures.at(-1);
+  if (reason.code === 'FROM_EXERCISE_HISTORY' && lastExercise !== undefined) {
+    return withReentry(suggestion, lastExercise.finishedAt, context);
+  }
+  return suggestion;
+};
+
+/** The decision order for external load (RN-SUG, «Orden de decisión»): the first that applies wins. */
 const PRIORITIES: readonly Priority[] = [
   withoutRoutineHistory,
+  prescriptionChanged,
+  reentry,
+  deload,
   consolidate,
   increaseByEffort,
   capReached,
@@ -57,13 +75,14 @@ const RESET_AFTER: readonly SuggestionCode[] = [
 ];
 
 /**
- * The context right before an ERR (RN-SUG-17): its prescription copy, and only the EE and
- * workouts finished before it started.
+ * The context right before an ERR (RN-SUG-17): its prescription copy, only the EE and workouts
+ * finished before it started, and the local date of its `startedAt` as "today".
  */
 function contextBefore(exposure: Exposure, context: SuggestionContext): SuggestionContext {
   const before = (item: { finishedAt: Date }) => item.finishedAt < exposure.startedAt;
   return {
     ...context,
+    today: context.localDate(exposure.startedAt),
     prescription: exposure.prescription,
     exerciseExposures: context.exerciseExposures.filter(before),
     workoutDates: context.workoutDates.filter(before),
@@ -86,15 +105,17 @@ export function step(
   const w = analysis.workingLoadKg;
   const previousW = previous?.workingLoadKg ?? null;
   const lowerW = w !== null && previousW !== null && w < previousW && !areLoadsEqual(w, previousW);
+  const isReset =
+    previous === undefined ||
+    RESET_AFTER.includes(suggestionBefore.reason.code) ||
+    lowerW ||
+    analysis.setCount !== previous.setCount;
   const record: RoutineExposureRecord = {
     exposure,
     analysis,
     suggestionBefore,
-    isReset:
-      previous === undefined ||
-      RESET_AFTER.includes(suggestionBefore.reason.code) ||
-      lowerW ||
-      analysis.setCount !== previous.setCount,
+    isReset,
+    ...nextStagnation(state.records.at(-1), analysis, isReset),
   };
   return { records: [...state.records, record] };
 }
@@ -116,4 +137,13 @@ export function suggestNext(
   context: SuggestionContext,
 ): Suggestion {
   return suggest(fold(routineExposures, context), context);
+}
+
+/**
+ * A substitute or an unplanned exercise (RN-SUG-15): the «without ERR» rule over the EE of that
+ * exercise. The context carries the prescription copied from the routine exercise of origin, or
+ * the accessory one of the goal for an unplanned exercise.
+ */
+export function suggestForExercise(context: SuggestionContext): Suggestion {
+  return suggest(INITIAL_ENGINE_STATE, context);
 }
