@@ -1,5 +1,6 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Prescription } from '@/domain/models/prescription';
+import type { Exposure } from '@/domain/rules/suggestion/exposures';
 import type { Routine, RoutineDay, RoutineExercise } from '@/domain/models/routine';
 import type {
   BilateralSet,
@@ -138,6 +139,23 @@ export function aWorkout(overrides: Partial<Workout> = {}): Workout {
     finishedAt: new Date('2026-10-05T12:00:00Z'),
     notes: null,
     exercises: [],
+    ...overrides,
+  };
+}
+
+/** An exposure from `[loadKg, reps, rir]` triples (RN-SUG-01), finished on `finishedAt`. */
+export function anExposure(
+  sets: readonly (readonly [number | null, number, number | null])[],
+  overrides: Partial<Exposure> = {},
+): Exposure {
+  const finishedAt = overrides.finishedAt ?? new Date('2026-10-05T12:00:00Z');
+  return {
+    workoutId: 'workout-1',
+    exerciseId: 'barbell-back-squat',
+    startedAt: finishedAt,
+    finishedAt,
+    prescription: aPrescription(),
+    sets: sets.map(([loadKg, reps, rir]) => ({ loadKg, reps, rir, side: null })),
     ...overrides,
   };
 }
