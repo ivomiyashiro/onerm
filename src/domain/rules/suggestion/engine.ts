@@ -134,16 +134,11 @@ export function orderedContext(context: SuggestionContext): SuggestionContext {
   };
 }
 
-/**
- * One ERR, in order of `finishedAt`. It recalculates what was suggested right before it, and
- * whether it resets (RN-SUG-04): after a suggestion of RESET_AFTER, with a W lower than the
- * previous one (the user lowered the load), or with a different N.
- */
-export function step(
+function recordFor(
   state: EngineState,
   exposure: Exposure,
   context: SuggestionContext,
-): EngineState {
+): RoutineExposureRecord {
   const suggestionBefore = suggest(state, contextBefore(state, exposure, context));
   const analysis = analyseExposure(exposure);
   const previous = state.records.at(-1)?.analysis;
@@ -155,30 +150,52 @@ export function step(
     RESET_AFTER.includes(suggestionBefore.reason.code) ||
     lowerW ||
     analysis.setCount !== previous.setCount;
-  const record: RoutineExposureRecord = {
+  return {
     exposure,
     analysis,
     suggestionBefore,
     isReset,
     ...nextStagnation(state.records.at(-1), analysis, isReset),
   };
-  const workingLoadKg = analysis.workingLoadKg;
-  return {
-    records: [...state.records, record],
-    lastLoaded: workingLoadKg === null ? null : { ...record, workingLoadKg },
-  };
 }
 
-/** The fold over the ERR of a routine exercise (ADR-0009). */
+const loaded = (record: RoutineExposureRecord) => {
+  const { workingLoadKg } = record.analysis;
+  return workingLoadKg === null ? null : { ...record, workingLoadKg };
+};
+
+/**
+ * One ERR, in order of `finishedAt`. It recalculates what was suggested right before it, and
+ * whether it resets (RN-SUG-04): after a suggestion of RESET_AFTER, with a W lower than the
+ * previous one (the user lowered the load), or with a different N.
+ */
+export function step(
+  state: EngineState,
+  exposure: Exposure,
+  context: SuggestionContext,
+): EngineState {
+  const record = recordFor(state, exposure, context);
+  return { records: [...state.records, record], lastLoaded: loaded(record) };
+}
+
+/**
+ * The fold over the ERR of a routine exercise (ADR-0009). Same as reducing with `step`, but one
+ * array grows instead of a copy per step (that copy was quadratic, RNF-13). Sharing it is safe:
+ * the intermediate states don't outlive the fold.
+ */
 export function fold(
   routineExposures: readonly Exposure[],
   context: SuggestionContext,
 ): EngineState {
   const ordered = orderedContext(context);
-  return routineExposures.reduce(
-    (state, exposure) => step(state, exposure, ordered),
-    INITIAL_ENGINE_STATE,
-  );
+  const records: RoutineExposureRecord[] = [];
+  let state = INITIAL_ENGINE_STATE;
+  for (const exposure of routineExposures) {
+    const record = recordFor(state, exposure, ordered);
+    records.push(record);
+    state = { records, lastLoaded: loaded(record) };
+  }
+  return state;
 }
 
 /** The suggestion for a routine exercise: `suggest` over the fold of its ERR. */
