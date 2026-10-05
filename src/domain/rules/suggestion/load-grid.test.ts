@@ -134,3 +134,23 @@ describe('RN-SUG-09 · exact halves on the lb grid (lb comes from kg with float 
     }
   });
 });
+
+describe('RN-PERF-08 · a minimum load off the grid', () => {
+  // A 7 kg bar with 2.5 kg increments: the lowest suggestion is the first multiple ≥ 7.
+  const sevenKgBar: LoadGrid = { unit: 'kg', increment: 2.5, minLoad: 7 };
+
+  it('the lowest suggestion is the first multiple at or above it: 7.5', () => {
+    expect(floorToGrid(3, sevenKgBar)).toBe(7.5);
+    expect(nearestOnGrid(5, sevenKgBar)).toBe(7.5);
+    expect(decreaseLoad(10, 0.2, sevenKgBar)).toBe(7.5);
+  });
+
+  it('a minimum load on the grid stays as it is', () => {
+    expect(floorToGrid(10, barbellKg)).toBe(20);
+  });
+
+  it('within the tolerance of a multiple counts as that multiple (RN-GEN-02)', () => {
+    expect(floorToGrid(3, { unit: 'kg', increment: 2.5, minLoad: 7.48 })).toBe(7.5);
+    expect(floorToGrid(3, { unit: 'kg', increment: 2.5, minLoad: 5.04 })).toBe(5);
+  });
+});

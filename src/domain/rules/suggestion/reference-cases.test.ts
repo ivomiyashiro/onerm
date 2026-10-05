@@ -451,6 +451,20 @@ describe('caso Q · fewer sets than prescribed', () => {
     expect(after[0]).toEqual([60, 12, 'COMPLETE_SETS']);
     expect(after[1]).toEqual([62.5, 8, 'INCREASE_LOAD']);
   });
+
+  it('a COMPLETE_SETS exposure does not add to the stagnation count (RN-SUG-04, RF-SUG-03.AC8)', () => {
+    // Repeating 2 of 3 sets at the cap, without a better mark, never ends in a DELOAD.
+    const exposures = [
+      rir2(60, 11, 11, 11),
+      rir2(60, 12, 12),
+      rir2(60, 12, 12),
+      rir2(60, 12, 12),
+      rir2(60, 12, 12),
+    ];
+
+    expect(recordsOf(exposures).map((record) => record.stagnationCount)).toEqual([0, 0, 0, 0, 0]);
+    expect(summary(suggestionsAfter(exposures)[4])).toEqual([60, 12, 'COMPLETE_SETS']);
+  });
 });
 
 /** One ERR finished on `finishedAt`, with the default prescription unless given. */

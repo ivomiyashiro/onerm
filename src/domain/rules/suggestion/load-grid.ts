@@ -34,9 +34,20 @@ function closer(value: number, lower: number, upper: number, halfUp: boolean): n
   return difference < 0 ? lower : upper;
 }
 
-/** Back to kg, never under the minimum load (RN-PERF-08). */
+/**
+ * The lowest load the engine suggests (RN-PERF-08): the minimum load, or the first multiple above
+ * it when it isn't on the grid (a 7 kg bar with 2.5 kg increments → 7.5), so every suggestion stays
+ * on the grid (RN-SUG-09). Within the RN-GEN-02 tolerance it counts as that multiple.
+ */
+function lowestLoad(grid: LoadGrid): number {
+  const lower = Math.floor(grid.minLoad / grid.increment) * grid.increment;
+  if (isSame(grid.minLoad, lower, grid.unit)) return lower;
+  return lower + grid.increment;
+}
+
+/** Back to kg, never under the lowest load (RN-PERF-08). */
 function toLoad(value: number, grid: LoadGrid): number {
-  return fromUnit(Math.max(value, grid.minLoad), grid.unit);
+  return fromUnit(Math.max(value, lowestLoad(grid)), grid.unit);
 }
 
 /** Estimates (RN-SUG-06, RN-SUG-08): the multiple at or below the load. */
