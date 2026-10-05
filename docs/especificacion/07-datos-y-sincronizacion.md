@@ -46,7 +46,7 @@ Nunca se guarda en texto plano (RNF-07).
 
 | Tabla | Columnas propias | Restricciones |
 |---|---|---|
-| `profiles` | **`id = user_id`** (RN-AUTH-06; el invitado usa un id local fijo) · `level`, `goal`, `days_per_week`, `unit`, `effort_mode`, `effort_mode_explicit`, `load_increments_kg` (JSON), `load_increments_lb` (JSON), `active_routine_id?`, `onboarding_completed_at?` | Una por usuario (`user_id` único **en el servidor**; en local, una sola fila viva) · CHECK de enums · `days_per_week` 2–6 · `active_routine_id` **sin FK** (referencia débil, RN-RUT-02) |
+| `profiles` | **`id = user_id`** (RN-AUTH-06; el invitado usa un id local fijo) · `level`, `goal`, `days_per_week`, `unit`, `effort_mode`, `effort_mode_explicit`, `load_increments_kg` (JSON), `load_increments_lb` (JSON), `bar_weight_kg`, `bar_weight_lb`, `active_routine_id?`, `onboarding_completed_at?` | Una por usuario (`user_id` único **en el servidor**; en local, una sola fila viva) · CHECK de enums · `days_per_week` 2–6 · `active_routine_id` **sin FK** (referencia débil, RN-RUT-02) |
 | `routines` | `name`, `source_template_id?` | largo del nombre 1–50 |
 | `routine_days` | `routine_id` FK, `name`, `position` | |
 | `routine_exercises` | `routine_day_id` FK, `exercise_id`, `position`, `role`, `sets`, `rep_min`, `rep_max`, `rest_seconds`, `target_rir`, `notes?` | CHECK RN-RUT-04 |

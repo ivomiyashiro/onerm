@@ -50,6 +50,7 @@ Entre agregados las referencias son **solo por ID**. Por ejemplo, un `WorkoutExe
 | `effortMode` | `simple \| rir` | |
 | `effortModeExplicit` | boolean | Si el usuario lo eligió a mano (RN-PERF-04) |
 | `loadIncrementsKg`, `loadIncrementsLb` | mapa equipamiento → incremento, uno por unidad | RN-PERF-06 |
+| `barWeightKg`, `barWeightLb` | peso de la barra, uno por unidad (20 kg · 45 lb por defecto) | Carga mínima con barra (RN-PERF-08). Como los incrementos, cambiar de unidad no lo convierte |
 | `activeRoutineId` | ID? (referencia débil) | **La rutina activa vive en el perfil**, no como un flag en cada rutina (ver I-01, RN-RUT-02) |
 | `onboardingCompletedAt` | fecha? | |
 

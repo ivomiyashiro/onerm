@@ -24,6 +24,9 @@ export interface Profile {
   /** One map per unit; changing the unit doesn't convert them (RN-PERF-06). */
   readonly loadIncrementsKg: LoadIncrements;
   readonly loadIncrementsLb: LoadIncrements;
+  /** The bar weight, the minimum load with a barbell (RN-PERF-08); one per unit, like the increments. */
+  readonly barWeightKg: number;
+  readonly barWeightLb: number;
   /**
    * I-01: the active routine lives here, so there is at most one. A weak reference: a missing or
    * deleted routine counts as no active routine (RN-RUT-02).
