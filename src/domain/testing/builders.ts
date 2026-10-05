@@ -1,7 +1,13 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Prescription } from '@/domain/models/prescription';
+import type { Exposure } from '@/domain/rules/suggestion/exposures';
 import type { Routine, RoutineDay, RoutineExercise } from '@/domain/models/routine';
-import type { BilateralSet, UnilateralSet, WorkoutExercise } from '@/domain/models/workout';
+import type {
+  BilateralSet,
+  UnilateralSet,
+  Workout,
+  WorkoutExercise,
+} from '@/domain/models/workout';
 
 /**
  * Test builders: a valid default for each model, with only what a test cares about overridden.
@@ -117,6 +123,39 @@ export function aUnilateralSet(overrides: Partial<UnilateralSet> = {}): Unilater
     repsRight: 10,
     rirLeft: 2,
     rirRight: 2,
+    ...overrides,
+  };
+}
+
+export function aWorkout(overrides: Partial<Workout> = {}): Workout {
+  return {
+    id: 'workout-1',
+    routineId: 'routine-1',
+    routineDayId: 'day-1',
+    routineNameSnapshot: 'Mi rutina',
+    dayNameSnapshot: 'Día A',
+    status: 'finished',
+    startedAt: new Date('2026-10-05T11:00:00Z'),
+    finishedAt: new Date('2026-10-05T12:00:00Z'),
+    notes: null,
+    exercises: [],
+    ...overrides,
+  };
+}
+
+/** An exposure from `[loadKg, reps, rir]` triples (RN-SUG-01), finished on `finishedAt`. */
+export function anExposure(
+  sets: readonly (readonly [number | null, number, number | null])[],
+  overrides: Partial<Exposure> = {},
+): Exposure {
+  const finishedAt = overrides.finishedAt ?? new Date('2026-10-05T12:00:00Z');
+  return {
+    workoutId: 'workout-1',
+    exerciseId: 'barbell-back-squat',
+    startedAt: finishedAt,
+    finishedAt,
+    prescription: aPrescription(),
+    sets: sets.map(([loadKg, reps, rir]) => ({ loadKg, reps, rir, side: null })),
     ...overrides,
   };
 }
