@@ -1,8 +1,9 @@
 import { InMemoryExerciseRepository } from '@/data/repositories/in-memory-exercise-repository';
 import type { Exercise } from '@/domain/models/exercise';
+import { anExercise } from '@/domain/testing/builders';
 
-const SQUAT: Exercise = { id: 'squat', name: 'Sentadilla con barra' };
-const BENCH: Exercise = { id: 'bench-press', name: 'Press de banca' };
+const SQUAT: Exercise = anExercise({ id: 'squat', name: 'Sentadilla con barra' });
+const BENCH: Exercise = anExercise({ id: 'bench-press', name: 'Press de banca' });
 
 describe('InMemoryExerciseRepository', () => {
   it('emits the current exercises on subscribe', () => {

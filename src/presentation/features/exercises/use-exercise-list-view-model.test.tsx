@@ -4,11 +4,12 @@ import type { ReactNode } from 'react';
 import type { Exercise } from '@/domain/models/exercise';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer } from '@/domain/repositories/observer';
+import { anExercise } from '@/domain/testing/builders';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { useExerciseListViewModel } from '@/presentation/features/exercises/use-exercise-list-view-model';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
-const SQUAT: Exercise = { id: 'squat', name: 'Sentadilla con barra' };
+const SQUAT: Exercise = anExercise({ id: 'squat', name: 'Sentadilla con barra' });
 
 /** Fake repository: the test decides when and what it emits. */
 function fakeRepository() {
