@@ -1,86 +1,119 @@
-import type { LocalDate } from '@/domain/models/local-date';
-import type { Prescription } from '@/domain/models/prescription';
-import type { LoadType } from '@/domain/models/vocabulary';
-import { workingLoad, type Exposure } from '@/domain/rules/suggestion/exposures';
-import { nearestOnGrid, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
-import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { suggestBodyweight } from '@/domain/rules/suggestion/bodyweight';
+import { consolidate, increaseByEffort } from '@/domain/rules/suggestion/effort';
+import type {
+  EngineState,
+  Priority,
+  RoutineExposureRecord,
+  SuggestionContext,
+} from '@/domain/rules/suggestion/engine-types';
+import { analyseExposure } from '@/domain/rules/suggestion/exposure-analysis';
+import type { Exposure } from '@/domain/rules/suggestion/exposures';
+import { belowRange, capReached, withinRange } from '@/domain/rules/suggestion/progression';
+import type { Suggestion, SuggestionCode } from '@/domain/rules/suggestion/suggestion';
 import { suggestWithoutRoutineHistory } from '@/domain/rules/suggestion/without-routine-history';
 
-/** The inputs of the fold besides the ERR (RN-SUG-17). */
-export interface SuggestionContext {
-  /** The only date the engine sees (RN-SUG-16); the reentry uses it (RN-SUG-05). */
-  readonly today: LocalDate;
-  /** Every finished workout of the user, in any routine (RN-SUG-05). */
-  readonly workoutDates: readonly { readonly startedAt: Date; readonly finishedAt: Date }[];
-  /** The current prescription of the routine exercise. */
-  readonly prescription: Prescription;
-  readonly loadType: LoadType;
-  readonly grid: LoadGrid;
-  /** The EE of the exercise (RN-SUG-01), for the e1RM and as alternative history. */
-  readonly exerciseExposures: readonly Exposure[];
-}
+export const INITIAL_ENGINE_STATE: EngineState = { records: [] };
 
-/** What the fold remembers of the ERR seen so far (ADR-0009). Nothing of it is stored. */
-export interface EngineState {
-  readonly lastExposure: Exposure | null;
-}
-
-export const INITIAL_ENGINE_STATE: EngineState = { lastExposure: null };
-
-/** One ERR, in order of `finishedAt`. */
-export function step(_state: EngineState, exposure: Exposure): EngineState {
-  return { lastExposure: exposure };
-}
-
-/** A priority of the decision order: its suggestion, or null when it doesn't apply. */
-type Priority = (state: EngineState, context: SuggestionContext) => Suggestion | null;
-
-/** 1. Without ERR (RN-SUG-02, 06, 08). Bodyweight with history is RN-SUG-12 (#23). */
-const withoutRoutineHistory: Priority = (state, context) => {
-  if (state.lastExposure !== null) return null;
-  if (context.loadType === 'bodyweight') {
-    if (context.exerciseExposures.length > 0) return null;
-    return {
-      loadKg: null,
-      reps: context.prescription.repRange.min,
-      reason: { code: 'BODYWEIGHT_CALIBRATION' },
-    };
-  }
-  return suggestWithoutRoutineHistory(
-    context.exerciseExposures,
-    context.prescription,
-    context.grid,
-  );
-};
-
-/** The decision order (RN-SUG, «Orden de decisión»): the first one that applies wins. */
-const PRIORITIES: readonly Priority[] = [withoutRoutineHistory];
+/** 1. Without ERR (RN-SUG-02, 06, 08). */
+const withoutRoutineHistory: Priority = (state, context) =>
+  state.records.length > 0
+    ? null
+    : suggestWithoutRoutineHistory(context.exerciseExposures, context.prescription, context.grid);
 
 /**
- * 9. Below the range (RN-SUG-02): W and the floor. The last priority, and for now the answer for
- * every routine exercise with history until priorities 2–8 arrive (#23, #24).
+ * The decision order for external load (RN-SUG, «Orden de decisión»): the first one that
+ * applies wins. Priorities 2–4 arrive with #24.
  */
-function repeat(state: EngineState, context: SuggestionContext): Suggestion {
-  const workingLoadKg = state.lastExposure && workingLoad(state.lastExposure);
-  return {
-    loadKg: workingLoadKg === null ? null : nearestOnGrid(workingLoadKg, context.grid),
-    reps: context.prescription.repRange.min,
-    reason: { code: 'REPEAT', workingLoadKg },
-  };
-}
+const PRIORITIES: readonly Priority[] = [
+  withoutRoutineHistory,
+  consolidate,
+  increaseByEffort,
+  capReached,
+  withinRange,
+  belowRange,
+];
 
 export function suggest(state: EngineState, context: SuggestionContext): Suggestion {
+  if (context.loadType === 'bodyweight') return suggestBodyweight(state, context);
   for (const priority of PRIORITIES) {
     const suggestion = priority(state, context);
     if (suggestion !== null) return suggestion;
   }
-  return repeat(state, context);
+  // Unreachable with I-06: an external-load ERR always has a W, and belowRange takes it.
+  return suggestWithoutRoutineHistory([], context.prescription, context.grid);
 }
 
-/** The suggestion for a routine exercise: the fold over its ERR, then `suggest` (ADR-0009). */
+/** RN-SUG-04: the ERR done after one of these suggestions starts a new best mark and count. */
+const RESET_AFTER: readonly SuggestionCode[] = [
+  'DELOAD',
+  'REENTRY',
+  'PRESCRIPTION_CHANGED',
+  'ESTIMATED_FROM_E1RM',
+  'FROM_EXERCISE_HISTORY',
+  'CALIBRATION',
+  'CALIBRATION_STEP',
+  'CALIBRATION_STEP_DOWN',
+];
+
+/**
+ * The context right before an ERR (RN-SUG-17): its prescription copy, and only the EE and
+ * workouts finished before it started.
+ */
+function contextBefore(exposure: Exposure, context: SuggestionContext): SuggestionContext {
+  const before = (item: { finishedAt: Date }) => item.finishedAt < exposure.startedAt;
+  return {
+    ...context,
+    prescription: exposure.prescription,
+    exerciseExposures: context.exerciseExposures.filter(before),
+    workoutDates: context.workoutDates.filter(before),
+  };
+}
+
+/**
+ * One ERR, in order of `finishedAt`. It recalculates what was suggested right before it, and
+ * whether it resets (RN-SUG-04): after a suggestion of RESET_AFTER, with a W lower than the
+ * previous one (the user lowered the load), or with a different N.
+ */
+export function step(
+  state: EngineState,
+  exposure: Exposure,
+  context: SuggestionContext,
+): EngineState {
+  const suggestionBefore = suggest(state, contextBefore(exposure, context));
+  const analysis = analyseExposure(exposure);
+  const previous = state.records.at(-1)?.analysis;
+  const w = analysis.workingLoadKg;
+  const previousW = previous?.workingLoadKg ?? null;
+  const lowerW = w !== null && previousW !== null && w < previousW && !areLoadsEqual(w, previousW);
+  const record: RoutineExposureRecord = {
+    exposure,
+    analysis,
+    suggestionBefore,
+    isReset:
+      previous === undefined ||
+      RESET_AFTER.includes(suggestionBefore.reason.code) ||
+      lowerW ||
+      analysis.setCount !== previous.setCount,
+  };
+  return { records: [...state.records, record] };
+}
+
+/** The fold over the ERR of a routine exercise (ADR-0009). */
+export function fold(
+  routineExposures: readonly Exposure[],
+  context: SuggestionContext,
+): EngineState {
+  return routineExposures.reduce(
+    (state, exposure) => step(state, exposure, context),
+    INITIAL_ENGINE_STATE,
+  );
+}
+
+/** The suggestion for a routine exercise: `suggest` over the fold of its ERR. */
 export function suggestNext(
   routineExposures: readonly Exposure[],
   context: SuggestionContext,
 ): Suggestion {
-  return suggest(routineExposures.reduce(step, INITIAL_ENGINE_STATE), context);
+  return suggest(fold(routineExposures, context), context);
 }

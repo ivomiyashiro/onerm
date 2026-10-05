@@ -1,0 +1,39 @@
+import type { LocalDate } from '@/domain/models/local-date';
+import type { Prescription } from '@/domain/models/prescription';
+import type { LoadType } from '@/domain/models/vocabulary';
+import type { ExposureAnalysis } from '@/domain/rules/suggestion/exposure-analysis';
+import type { Exposure } from '@/domain/rules/suggestion/exposures';
+import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
+import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+
+/** The inputs of the fold besides the ERR (RN-SUG-17). */
+export interface SuggestionContext {
+  /** The only date the engine sees (RN-SUG-16); the reentry uses it (RN-SUG-05). */
+  readonly today: LocalDate;
+  /** Every finished workout of the user, in any routine (RN-SUG-05). */
+  readonly workoutDates: readonly { readonly startedAt: Date; readonly finishedAt: Date }[];
+  /** The current prescription of the routine exercise. */
+  readonly prescription: Prescription;
+  readonly loadType: LoadType;
+  readonly grid: LoadGrid;
+  /** The EE of the exercise (RN-SUG-01), for the e1RM and as alternative history. */
+  readonly exerciseExposures: readonly Exposure[];
+}
+
+/** What the fold remembers of one ERR. */
+export interface RoutineExposureRecord {
+  readonly exposure: Exposure;
+  readonly analysis: ExposureAnalysis;
+  /** What the engine suggested right before this ERR: recalculated, never stored (RN-SUG-04). */
+  readonly suggestionBefore: Suggestion;
+  /** RN-SUG-04: the best mark and the count start again at this ERR. */
+  readonly isReset: boolean;
+}
+
+/** The fold state (ADR-0009): the ERR seen so far, in order of `finishedAt`. */
+export interface EngineState {
+  readonly records: readonly RoutineExposureRecord[];
+}
+
+/** A priority of the decision order: its suggestion, or null when it doesn't apply. */
+export type Priority = (state: EngineState, context: SuggestionContext) => Suggestion | null;
