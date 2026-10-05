@@ -1,5 +1,6 @@
 import { daysBetween } from '@/domain/rules/calendar';
 import type { Priority, SuggestionContext } from '@/domain/rules/suggestion/engine-types';
+import { firstFinishedFrom } from '@/domain/rules/suggestion/history-order';
 import { decreaseLoad } from '@/domain/rules/suggestion/load-grid';
 import { SUGGESTION_PARAMETERS } from '@/domain/rules/suggestion/parameters';
 import { lastLoadedRecord } from '@/domain/rules/suggestion/progression';
@@ -14,14 +15,12 @@ const { REENTRY_1, REENTRY_2 } = SUGGESTION_PARAMETERS;
  * time it comes back after one.
  */
 export function inactivityGapDays(baseFinishedAt: Date, context: SuggestionContext): number {
+  // workoutDates is ordered by finishedAt (orderedContext): the ones from the base on are a suffix.
+  const from = firstFinishedFrom(context.workoutDates, baseFinishedAt);
   const dates = [
     baseFinishedAt,
-    ...context.workoutDates
-      .map((workout) => workout.finishedAt)
-      .filter((finishedAt) => finishedAt >= baseFinishedAt),
-  ]
-    .map(context.localDate)
-    .sort();
+    ...context.workoutDates.slice(from).map((workout) => workout.finishedAt),
+  ].map(context.localDate);
   dates.push(context.today);
   let gap = 0;
   for (let i = 1; i < dates.length; i++) {

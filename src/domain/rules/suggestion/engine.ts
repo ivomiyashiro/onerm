@@ -9,6 +9,7 @@ import type {
 } from '@/domain/rules/suggestion/engine-types';
 import { analyseExposure } from '@/domain/rules/suggestion/exposure-analysis';
 import type { Exposure } from '@/domain/rules/suggestion/exposures';
+import { byFinishedAt, firstFinishedFrom } from '@/domain/rules/suggestion/history-order';
 import { prescriptionChanged } from '@/domain/rules/suggestion/prescription-change';
 import { belowRange, capReached, withinRange } from '@/domain/rules/suggestion/progression';
 import { reentry, withReentry } from '@/domain/rules/suggestion/reentry';
@@ -79,13 +80,24 @@ const RESET_AFTER: readonly SuggestionCode[] = [
  * finished before it started, and the local date of its `startedAt` as "today".
  */
 function contextBefore(exposure: Exposure, context: SuggestionContext): SuggestionContext {
-  const before = (item: { finishedAt: Date }) => item.finishedAt < exposure.startedAt;
+  // The lists are ordered (orderedContext): what finished before the start is a prefix.
+  const before = <T extends { finishedAt: Date }>(items: readonly T[]) =>
+    items.slice(0, firstFinishedFrom(items, exposure.startedAt));
   return {
     ...context,
     today: context.localDate(exposure.startedAt),
     prescription: exposure.prescription,
-    exerciseExposures: context.exerciseExposures.filter(before),
-    workoutDates: context.workoutDates.filter(before),
+    exerciseExposures: before(context.exerciseExposures),
+    workoutDates: before(context.workoutDates),
+  };
+}
+
+/** The context with its history ordered by `finishedAt`, as the engine reads it. */
+export function orderedContext(context: SuggestionContext): SuggestionContext {
+  return {
+    ...context,
+    workoutDates: byFinishedAt(context.workoutDates),
+    exerciseExposures: byFinishedAt(context.exerciseExposures),
   };
 }
 
@@ -125,8 +137,9 @@ export function fold(
   routineExposures: readonly Exposure[],
   context: SuggestionContext,
 ): EngineState {
+  const ordered = orderedContext(context);
   return routineExposures.reduce(
-    (state, exposure) => step(state, exposure, context),
+    (state, exposure) => step(state, exposure, ordered),
     INITIAL_ENGINE_STATE,
   );
 }
@@ -136,7 +149,7 @@ export function suggestNext(
   routineExposures: readonly Exposure[],
   context: SuggestionContext,
 ): Suggestion {
-  return suggest(fold(routineExposures, context), context);
+  return suggest(fold(routineExposures, context), orderedContext(context));
 }
 
 /**
@@ -145,5 +158,5 @@ export function suggestNext(
  * the accessory one of the goal for an unplanned exercise.
  */
 export function suggestForExercise(context: SuggestionContext): Suggestion {
-  return suggest(INITIAL_ENGINE_STATE, context);
+  return suggest(INITIAL_ENGINE_STATE, orderedContext(context));
 }

@@ -1,13 +1,32 @@
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Prescription } from '@/domain/models/prescription';
 import type { LoadType } from '@/domain/models/vocabulary';
-import { suggestAfterCalibrationSet } from '@/domain/rules/suggestion/calibration';
-import { suggestForExercise, suggestNext } from '@/domain/rules/suggestion/engine';
+import { suggestAfterCalibrationSet as afterCalibrationSet } from '@/domain/rules/suggestion/calibration';
+import {
+  fold,
+  suggestForExercise as forExercise,
+  suggestNext as next,
+} from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import type { ExposureSet } from '@/domain/rules/suggestion/exposures';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
-import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+import {
+  SUGGESTION_CODES,
+  type Suggestion,
+  type SuggestionCode,
+} from '@/domain/rules/suggestion/suggestion';
 import { aBilateralSet, anExposure, aPrescription } from '@/domain/testing/builders';
+
+/** RNF-15: the reason codes the cases below reach. */
+const seenCodes = new Set<SuggestionCode>();
+const track = (suggestion: Suggestion) => {
+  seenCodes.add(suggestion.reason.code);
+  return suggestion;
+};
+const suggestNext = (...args: Parameters<typeof next>) => track(next(...args));
+const suggestForExercise = (...args: Parameters<typeof forExercise>) => track(forExercise(...args));
+const suggestAfterCalibrationSet = (...args: Parameters<typeof afterCalibrationSet>) =>
+  track(afterCalibrationSet(...args));
 
 /**
  * The reference cases of sugerencias.md, literal (RNF-15). Unless a case says otherwise:
@@ -58,6 +77,30 @@ describe('caso E · calibration (novice)', () => {
       reps: 8,
       reason: { code: 'ESTIMATED_FROM_E1RM', e1rm: { value: 52.5, precision: 'approximate' } },
     });
+  });
+
+  it('next workout · W 37.5 (tie in "most used" → the highest), sets with W [9] → 37.5 × 10 (ADD_REP), and the exposure resets the mark', () => {
+    const finishedAt = new Date(Date.UTC(2026, 9, 1, 12));
+    const exposure = {
+      ...anExposure([], { startedAt: finishedAt, finishedAt, prescription }),
+      sets: [
+        { loadKg: 30, reps: 12, rir: 4, side: null },
+        { loadKg: 35, reps: 11, rir: 2, side: null },
+        { loadKg: 37.5, reps: 9, rir: 2, side: null },
+      ],
+    };
+    const ctx = {
+      today: '2026-10-04' as LocalDate,
+      localDate,
+      workoutDates: [exposure],
+      prescription,
+      loadType: 'external' as const,
+      grid: cable,
+      exerciseExposures: [exposure],
+    };
+
+    expect(summary(suggestNext([exposure], ctx))).toEqual([37.5, 10, 'ADD_REP']);
+    expect(fold([exposure], ctx).records[0].isReset).toBe(true);
   });
 });
 
@@ -441,5 +484,39 @@ describe('caso P · lowering the load on your own resets the mark', () => {
 
     expect(after.map(([, , code]) => code)).not.toContain('DELOAD');
     expect(after[3]).toEqual([57.5, 12, 'ADD_REP']);
+  });
+});
+
+describe('caso S · history without an e1RM', () => {
+  it('leg press, no ERR · last EE 42 × 20, 20 with "4 o más" (RTF 24) → W 42 → 40 × 8', () => {
+    const machine: LoadGrid = { unit: 'kg', increment: 5, minLoad: 5 };
+    const history = [
+      errOn(onDay(0), [
+        [42, 20, 4],
+        [42, 20, 4],
+      ]),
+    ];
+
+    expect(summary(suggestForExercise(contextOn(3, history, { grid: machine })))).toEqual([
+      40,
+      8,
+      'FROM_EXERCISE_HISTORY',
+    ]);
+  });
+});
+
+describe('caso T · bodyweight calibration', () => {
+  it('dips · 3 × 8–15 · no EE → no load and the calibration instruction', () => {
+    const dips = aPrescription({ sets: 3, repRange: { min: 8, max: 15 }, targetRir: 2 });
+
+    expect(
+      summary(suggestForExercise(contextOn(0, [], { prescription: dips, loadType: 'bodyweight' }))),
+    ).toEqual([null, 8, 'BODYWEIGHT_CALIBRATION']);
+  });
+});
+
+describe('RNF-15 · every reason code appears in at least one case', () => {
+  it('the cases above reach every code of RN-SUG-11', () => {
+    expect(SUGGESTION_CODES.filter((code) => !seenCodes.has(code))).toEqual([]);
   });
 });
