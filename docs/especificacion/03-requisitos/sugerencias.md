@@ -583,3 +583,11 @@ Mejor marca (62,5; 8). El usuario registra 57,5 × 9, 9, 9 (bajó por su cuenta)
 ### Caso R — Calibración demasiado pesada
 
 Barra · incremento 2,5 kg. Serie 1: 40 kg × 0 → redondeo hacia abajo de 40 × 0,8 = 32 → **30 × 8** (CALIBRATION_STEP_DOWN), sin pedir esfuerzo.
+
+### Caso S — Historial sin e1RM
+
+Prensa en una rutina recién adoptada · máquina con incremento de 5 kg · sin ERR. La única EE es de otra rutina: 42 kg (escrito a mano) × 20, 20 con "4 o más" → RTF 24 > 15, ninguna serie permite calcular el e1RM → W = 42, al múltiplo más cercano de 5 (la mitad va hacia abajo, RN-SUG-09) → **40 × 8** (FROM_EXERCISE_HISTORY, RF-SUG-02 AC2).
+
+### Caso T — Calibración en peso corporal
+
+Fondos · 3 × 8–15 · sin ninguna EE → sin carga, con la instrucción "Hacé las que puedas con buena técnica y frená cuando te queden 1 o 2" (BODYWEIGHT_CALIBRATION, RN-SUG-12).
