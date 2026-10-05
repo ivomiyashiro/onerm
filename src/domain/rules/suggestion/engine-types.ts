@@ -10,6 +10,11 @@ import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 export interface SuggestionContext {
   /** The only date the engine sees (RN-SUG-16); the reentry uses it (RN-SUG-05). */
   readonly today: LocalDate;
+  /**
+   * The local date of an instant in the device zone (RN-GEN-01). Passed in, so the domain never
+   * reads the zone or the clock.
+   */
+  readonly localDate: (instant: Date) => LocalDate;
   /** Every finished workout of the user, in any routine (RN-SUG-05). */
   readonly workoutDates: readonly { readonly startedAt: Date; readonly finishedAt: Date }[];
   /** The current prescription of the routine exercise. */
@@ -28,6 +33,16 @@ export interface RoutineExposureRecord {
   readonly suggestionBefore: Suggestion;
   /** RN-SUG-04: the best mark and the count start again at this ERR. */
   readonly isReset: boolean;
+  /** RN-SUG-04: the best mark since the last reset, this ERR included. */
+  readonly bestMark: PerformanceMark | null;
+  /** RN-SUG-04: the ERR in a row that did not improve the best mark. */
+  readonly stagnationCount: number;
+}
+
+/** RN-SUG-04: W and the mean reps per set with W. */
+export interface PerformanceMark {
+  readonly loadKg: number;
+  readonly meanReps: number;
 }
 
 /** The fold state (ADR-0009): the ERR seen so far, in order of `finishedAt`. */
