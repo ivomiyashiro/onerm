@@ -36,6 +36,9 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **e1RM** | 1RM **estimado** a partir de una serie submáxima (fórmula de Brzycki, RN-SUG-07). | `estimatedOneRepMax` |
 | **Sugerencia** | Carga y repeticiones propuestas por el motor para un ejercicio de rutina en un entrenamiento, con su **motivo**. | `Suggestion { load, reps, reason }` |
 | **Motivo** | Explicación legible de por qué el motor sugirió un valor (qué regla aplicó). | `SuggestionReason` |
+| **Fecha local** | Día de calendario en la zona horaria del dispositivo (RN-GEN-01). Entra al motor como parámetro (RN-SUG-16). | `LocalDate` (`YYYY-MM-DD`) |
+| **Código de motivo** | Uno de los códigos de RN-SUG-11, con sus parámetros. | `SuggestionCode`, `SuggestionReason` |
+| **Grilla de carga** | Los múltiplos del incremento en la unidad del usuario, con la carga mínima (RN-SUG-09). | `LoadGrid` |
 | **Doble progresión** | Regla que primero suma repeticiones dentro del rango y, al llegar al tope, sube la carga y vuelve al piso. | `DoubleProgression` |
 | **Calibración** | Procedimiento para el primer entrenamiento de un ejercicio sin historial, que sirve para encontrar la carga inicial. | `Calibration` |
 | **Descarga** | Reducción temporal de la carga después de estancarse o fallar varias veces seguidas. | `Deload` |
