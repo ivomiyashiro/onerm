@@ -116,3 +116,21 @@ describe('RN-SUG-09 · round, increase and decrease', () => {
     expect(lb(decreaseLoad(fromUnit(100, 'lb'), 0.1, barbellLb))).toBeCloseTo(90, 9);
   });
 });
+
+describe('RN-SUG-09 · exact halves on the lb grid (lb comes from kg with float noise)', () => {
+  it('round goes up: 350 lb + 5 % = 367.5 → 370', () => {
+    expect(lb(increaseLoad(fromUnit(350, 'lb'), 0.05, barbellLb))).toBeCloseTo(370, 9);
+    expect(lb(roundOnGrid(fromUnit(367.5, 'lb'), barbellLb))).toBeCloseTo(370, 9);
+  });
+
+  it('keeping W goes down: 92.5 lb → 90', () => {
+    expect(lb(nearestOnGrid(fromUnit(92.5, 'lb'), barbellLb))).toBeCloseTo(90, 9);
+  });
+
+  it('every half of a 5 lb grid, from 50 to 400 lb', () => {
+    for (let half = 52.5; half <= 400; half += 5) {
+      expect(lb(roundOnGrid(fromUnit(half, 'lb'), barbellLb))).toBeCloseTo(half + 2.5, 9);
+      expect(lb(nearestOnGrid(fromUnit(half, 'lb'), barbellLb))).toBeCloseTo(half - 2.5, 9);
+    }
+  });
+});
