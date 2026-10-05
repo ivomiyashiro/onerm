@@ -1,9 +1,10 @@
-import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native';
+import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { PrimaryPlate } from '@/presentation/components/button/primary-plate';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Spinner } from '@/presentation/components/icons/spinner';
 import { colors, elevation, radius, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 export type ButtonVariant = 'primary' | 'secondary' | 'tertiary' | 'danger' | 'dangerSolid';
 

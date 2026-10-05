@@ -1,4 +1,4 @@
-import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 
 import { Icon } from '@/presentation/components/icons/icon';
 import {
@@ -8,6 +8,7 @@ import {
 } from '@/presentation/features/dev/screen-routes';
 import { dev } from '@/presentation/strings/dev';
 import { colors, size, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 interface DevMenuScreenProps {
   onOpen: (route: ScreenRoute) => void;

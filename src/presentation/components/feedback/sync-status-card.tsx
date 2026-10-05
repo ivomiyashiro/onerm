@@ -1,8 +1,9 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import type { SyncStatus } from '@/domain/models/sync-status';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, radius, size, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 type Tone = 'neutral' | 'ok' | 'warn' | 'err';
 

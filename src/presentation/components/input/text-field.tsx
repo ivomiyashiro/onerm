@@ -1,8 +1,9 @@
 import { useState } from 'react';
-import { StyleSheet, Text, TextInput, View, type TextInputProps } from 'react-native';
+import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { Icon } from '@/presentation/components/icons/icon';
 import { colors, elevation, radius, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 interface TextFieldProps extends Pick<
   TextInputProps,

@@ -1,5 +1,5 @@
 import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import { ScrollView, StyleSheet, View } from 'react-native';
 
 import type { SyncStatus } from '@/domain/models/sync-status';
 import { Button } from '@/presentation/components/button/button';
@@ -14,6 +14,7 @@ import { LoadStepper } from '@/presentation/components/stepper/load-stepper';
 import { strings } from '@/presentation/strings';
 import { devShowcase as t } from '@/presentation/strings/dev-showcase';
 import { colors, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 const noop = () => {};
 

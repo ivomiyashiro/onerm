@@ -1,7 +1,8 @@
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, size, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 export interface TabItem {
   key: string;

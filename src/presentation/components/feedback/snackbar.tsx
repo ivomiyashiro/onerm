@@ -1,8 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { colors, elevation, radius, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 /** Figma «Toast»: 5 s with a drain bar. */
 const DURATION_MS = 5000;
