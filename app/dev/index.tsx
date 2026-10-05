@@ -10,6 +10,7 @@ export default function DevMenuRoute() {
     <DevMenuScreen
       onOpen={({ pathname, params }) => router.push({ pathname, params } as Href)}
       onOpenComponents={() => router.push('/dev/components')}
+      onOpenBenchmark={() => router.push('/dev/benchmark')}
     />
   );
 }

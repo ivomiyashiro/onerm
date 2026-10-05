@@ -51,7 +51,12 @@ export interface PerformanceMark {
 /** The fold state (ADR-0009): the ERR seen so far, in order of `finishedAt`. */
 export interface EngineState {
   readonly records: readonly RoutineExposureRecord[];
+  /** The last record when it has a W: what priorities 2–9 work on. Built once per step. */
+  readonly lastLoaded: LoadedRecord | null;
 }
+
+/** A record with its W at hand (external load). */
+export type LoadedRecord = RoutineExposureRecord & { readonly workingLoadKg: number };
 
 /** A priority of the decision order: its suggestion, or null when it doesn't apply. */
 export type Priority = (state: EngineState, context: SuggestionContext) => Suggestion | null;

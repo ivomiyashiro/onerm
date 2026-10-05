@@ -27,22 +27,22 @@ const mean = (values: readonly number[]) =>
 function sustainedMeanRirs(
   state: EngineState,
 ): { record: RoutineExposureRecord; meanRir: number }[] | null {
-  const window = state.records.slice(-SUSTAINED_SIGNAL);
-  if (window.length < SUSTAINED_SIGNAL) return null;
-  const [first, ...rest] = window;
-  const w = first.analysis.workingLoadKg;
+  const { records } = state;
+  if (records.length < SUSTAINED_SIGNAL) return null;
+  const first = records.length - SUSTAINED_SIGNAL;
+  const w = records[first].analysis.workingLoadKg;
   if (w === null) return null;
-  // The first one may be a reset: the signal starts there.
-  if (rest.some((record) => record.isReset)) return null;
-  if (
-    window.some(
-      (record) =>
-        record.analysis.workingLoadKg === null || !areLoadsEqual(record.analysis.workingLoadKg, w),
-    )
-  )
-    return null;
-  if (window.some((record) => record.analysis.rirsWithW.length === 0)) return null;
-  return window.map((record) => ({ record, meanRir: mean(record.analysis.rirsWithW) }));
+  const signal: { record: RoutineExposureRecord; meanRir: number }[] = [];
+  for (let i = first; i < records.length; i++) {
+    const record = records[i];
+    const { workingLoadKg, rirsWithW } = record.analysis;
+    // The first one may be a reset: the signal starts there.
+    if (i > first && record.isReset) return null;
+    if (workingLoadKg === null || !areLoadsEqual(workingLoadKg, w)) return null;
+    if (rirsWithW.length === 0) return null;
+    signal.push({ record, meanRir: mean(rirsWithW) });
+  }
+  return signal;
 }
 
 /** The consecutive CONSOLIDATE suggestions right before the last ERR. */

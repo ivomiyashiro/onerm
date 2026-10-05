@@ -1,3 +1,4 @@
+import type { LocalDate } from '@/domain/models/local-date';
 import { areLoadsEqual } from '@/domain/rules/load-equality';
 import { suggestBodyweight } from '@/domain/rules/suggestion/bodyweight';
 import { consolidate, increaseByEffort } from '@/domain/rules/suggestion/effort';
@@ -17,7 +18,7 @@ import { deload, nextStagnation } from '@/domain/rules/suggestion/stagnation';
 import type { Suggestion, SuggestionCode } from '@/domain/rules/suggestion/suggestion';
 import { suggestWithoutRoutineHistory } from '@/domain/rules/suggestion/without-routine-history';
 
-export const INITIAL_ENGINE_STATE: EngineState = { records: [] };
+export const INITIAL_ENGINE_STATE: EngineState = { records: [], lastLoaded: null };
 
 /**
  * 1. Without ERR (RN-SUG-02, 06, 08), with the reentry as a modifier. Its base is the EE of the
@@ -77,25 +78,57 @@ const RESET_AFTER: readonly SuggestionCode[] = [
 
 /**
  * The context right before an ERR (RN-SUG-17): its prescription copy, only the EE and workouts
- * finished before it started, and the local date of its `startedAt` as "today".
+ * finished before it started, and the local date of its `startedAt` as "today". The lists are
+ * ordered (orderedContext), so "before" is a prefix found by binary search. Copying that prefix
+ * at every step made the fold quadratic (RNF-13), so:
+ * - the EE are cut only when a priority reads them (priority 1, and 2 when the range changed);
+ * - with an earlier ERR, the workouts start at its `finishedAt`: the base of the reentry is that
+ *   ERR (RN-SUG-05), so nothing older is ever read.
  */
-function contextBefore(exposure: Exposure, context: SuggestionContext): SuggestionContext {
-  // The lists are ordered (orderedContext): what finished before the start is a prefix.
-  const before = <T extends { finishedAt: Date }>(items: readonly T[]) =>
-    items.slice(0, firstFinishedFrom(items, exposure.startedAt));
+function contextBefore(
+  state: EngineState,
+  exposure: Exposure,
+  context: SuggestionContext,
+): SuggestionContext {
+  const { workoutDates, exerciseExposures } = context;
+  const lastErr = state.records.at(-1)?.exposure.finishedAt;
+  const from = lastErr === undefined ? 0 : firstFinishedFrom(workoutDates, lastErr);
+  let exercise: readonly Exposure[] | undefined;
   return {
-    ...context,
     today: context.localDate(exposure.startedAt),
+    localDate: context.localDate,
     prescription: exposure.prescription,
-    exerciseExposures: before(context.exerciseExposures),
-    workoutDates: before(context.workoutDates),
+    loadType: context.loadType,
+    grid: context.grid,
+    workoutDates: workoutDates.slice(from, firstFinishedFrom(workoutDates, exposure.startedAt)),
+    get exerciseExposures() {
+      exercise ??= exerciseExposures.slice(
+        0,
+        firstFinishedFrom(exerciseExposures, exposure.startedAt),
+      );
+      return exercise;
+    },
   };
 }
 
-/** The context with its history ordered by `finishedAt`, as the engine reads it. */
+/**
+ * The context with its history ordered by `finishedAt`, as the engine reads it. `localDate` is
+ * remembered per instant: the fold asks for the same workout dates at every step, and on Hermes
+ * the conversion is one of the most expensive calls (RNF-13).
+ */
 export function orderedContext(context: SuggestionContext): SuggestionContext {
+  const localDates = new Map<number, LocalDate>();
   return {
     ...context,
+    localDate: (instant) => {
+      const time = instant.getTime();
+      let date = localDates.get(time);
+      if (date === undefined) {
+        date = context.localDate(instant);
+        localDates.set(time, date);
+      }
+      return date;
+    },
     workoutDates: byFinishedAt(context.workoutDates),
     exerciseExposures: byFinishedAt(context.exerciseExposures),
   };
@@ -111,7 +144,7 @@ export function step(
   exposure: Exposure,
   context: SuggestionContext,
 ): EngineState {
-  const suggestionBefore = suggest(state, contextBefore(exposure, context));
+  const suggestionBefore = suggest(state, contextBefore(state, exposure, context));
   const analysis = analyseExposure(exposure);
   const previous = state.records.at(-1)?.analysis;
   const w = analysis.workingLoadKg;
@@ -129,7 +162,11 @@ export function step(
     isReset,
     ...nextStagnation(state.records.at(-1), analysis, isReset),
   };
-  return { records: [...state.records, record] };
+  const workingLoadKg = analysis.workingLoadKg;
+  return {
+    records: [...state.records, record],
+    lastLoaded: workingLoadKg === null ? null : { ...record, workingLoadKg },
+  };
 }
 
 /** The fold over the ERR of a routine exercise (ADR-0009). */

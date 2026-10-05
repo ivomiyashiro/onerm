@@ -13,6 +13,7 @@ import { Text } from '@/presentation/components/text';
 interface DevMenuScreenProps {
   onOpen: (route: ScreenRoute) => void;
   onOpenComponents: () => void;
+  onOpenBenchmark: () => void;
 }
 
 function Row({ label, id, onPress }: { label: string; id?: string; onPress: () => void }) {
@@ -30,8 +31,8 @@ function Row({ label, id, onPress }: { label: string; id?: string; onPress: () =
   );
 }
 
-/** Development only (#20): reaches every screen of 08 §2 and the component showcase. */
-export function DevMenuScreen({ onOpen, onOpenComponents }: DevMenuScreenProps) {
+/** Development only (#20): reaches every screen of 08 §2, the component showcase and the engine benchmark. */
+export function DevMenuScreen({ onOpen, onOpenComponents, onOpenBenchmark }: DevMenuScreenProps) {
   return (
     <ScrollView style={styles.screen} contentContainerStyle={styles.content}>
       <Text style={[typography.displayM, { color: colors.textPrimary }]} accessibilityRole="header">
@@ -39,6 +40,7 @@ export function DevMenuScreen({ onOpen, onOpenComponents }: DevMenuScreenProps) 
       </Text>
       <View>
         <Row label={dev.components} onPress={onOpenComponents} />
+        <Row label={dev.benchmark.entry} onPress={onOpenBenchmark} />
         {SCREEN_IDS.map((id) => (
           <Row key={id} id={id} label={dev.screens[id]} onPress={() => onOpen(screenRoutes[id])} />
         ))}
