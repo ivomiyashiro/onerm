@@ -1,11 +1,13 @@
+import { fold, suggest, suggestNext } from '@/domain/rules/suggestion/engine';
+import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
+import { routineExposures } from '@/domain/rules/suggestion/exposures';
 import {
-  INITIAL_ENGINE_STATE,
-  step,
-  suggest,
-  suggestNext,
-  type SuggestionContext,
-} from '@/domain/rules/suggestion/engine';
-import { anExposure, aPrescription } from '@/domain/testing/builders';
+  aBilateralSet,
+  anExposure,
+  aPrescription,
+  aWorkout,
+  aWorkoutExercise,
+} from '@/domain/testing/builders';
 
 const context = (overrides: Partial<SuggestionContext> = {}): SuggestionContext => ({
   today: '2026-10-05',
@@ -17,20 +19,78 @@ const context = (overrides: Partial<SuggestionContext> = {}): SuggestionContext 
   ...overrides,
 });
 
-describe('engine · fold over the routine exercise exposures (ADR-0009)', () => {
-  it('step keeps the last ERR', () => {
-    const first = anExposure([[60, 10, 2]], { workoutId: 'w1' });
-    const second = anExposure([[60, 11, 2]], { workoutId: 'w2' });
-
-    expect([first, second].reduce(step, INITIAL_ENGINE_STATE).lastExposure).toBe(second);
+const day = (n: number) => new Date(Date.UTC(2026, 8, n, 12));
+const err = (n: number, sets: [number, number, number | null][], sets_ = 3) =>
+  anExposure(sets, {
+    workoutId: `w${n}`,
+    startedAt: day(n),
+    finishedAt: day(n),
+    prescription: aPrescription({ sets: sets_, repRange: { min: 8, max: 12 }, targetRir: 2 }),
   });
 
-  it('suggestNext is the fold followed by suggest', () => {
-    const exposures = [anExposure([[60, 10, 2]])];
+describe('engine · fold over the routine exercise exposures (ADR-0009)', () => {
+  it('keeps a record per ERR with its analysis', () => {
+    const state = fold([err(1, [[60, 10, 2]]), err(2, [[60, 11, 2]])], context());
+
+    expect(state.records.map((record) => record.analysis.repsWithW)).toEqual([[10], [11]]);
+  });
+
+  it('RN-SUG-17 · recalculates the suggestion made before each ERR, with the history up to then', () => {
+    const first = err(1, [
+      [60, 10, 2],
+      [60, 9, 2],
+      [60, 9, 2],
+    ]);
+    const second = err(3, [
+      [60, 10, 2],
+      [60, 10, 2],
+      [60, 10, 2],
+    ]);
+    // An EE with an e1RM finished after the first ERR: it must not count before it.
+    const later = anExposure([[50, 10, 2]], { workoutId: 'other', finishedAt: day(2) });
+    const ctx = context({ exerciseExposures: [first, later, second] });
+
+    const [before1, before2] = fold([first, second], ctx).records.map(
+      (record) => record.suggestionBefore,
+    );
+
+    expect(before1.reason.code).toBe('CALIBRATION');
+    expect(before2).toMatchObject({ loadKg: 60, reps: 10, reason: { code: 'ADD_REP' } });
+  });
+
+  it('suggestNext is suggest over the fold', () => {
+    const exposures = [err(1, [[60, 10, 2]])];
 
     expect(suggestNext(exposures, context())).toEqual(
-      suggest(exposures.reduce(step, INITIAL_ENGINE_STATE), context()),
+      suggest(fold(exposures, context()), context()),
     );
+  });
+
+  describe('RN-SUG-04 · resets', () => {
+    const resets = (...exposures: ReturnType<typeof err>[]) =>
+      fold(exposures, context()).records.map((record) => record.isReset);
+
+    it('the first ERR comes after a priority 1 suggestion: it resets', () => {
+      expect(resets(err(1, [[60, 10, 2]]))).toEqual([true]);
+    });
+
+    it('an ERR after a normal progression does not reset', () => {
+      expect(resets(err(1, [[60, 10, 2]]), err(2, [[60, 11, 2]]))).toEqual([true, false]);
+    });
+
+    it('a W lower than the previous one, chosen by the user, resets (caso P)', () => {
+      expect(resets(err(1, [[62.5, 8, 2]]), err(2, [[57.5, 9, 2]]))).toEqual([true, true]);
+      // A higher W does not.
+      expect(resets(err(1, [[60, 12, 2]]), err(2, [[62.5, 8, 2]]))).toEqual([true, false]);
+    });
+
+    it('a W that differs by less than 0.05 kg is the same W (RN-GEN-02)', () => {
+      expect(resets(err(1, [[60, 10, 2]]), err(2, [[59.97, 11, 2]]))).toEqual([true, false]);
+    });
+
+    it('an N different from the previous one resets', () => {
+      expect(resets(err(1, [[60, 10, 2]], 3), err(2, [[60, 10, 2]], 4))).toEqual([true, true]);
+    });
   });
 
   it('RN-SUG-16 · the same history and local date give the same suggestion, whatever the clock', () => {
@@ -172,5 +232,159 @@ describe('priority 1 · without ERR (RN-SUG-02)', () => {
         ctx,
       ).reason.code,
     ).not.toBe('ESTIMATED_FROM_E1RM');
+  });
+});
+
+describe('RF-SUG-04 · effort needs a sustained signal', () => {
+  const codeAfter = (...exposures: ReturnType<typeof err>[]) =>
+    suggestNext(exposures, context()).reason.code;
+
+  it('AC6 · a single signal is not enough: normal double progression', () => {
+    expect(
+      codeAfter(
+        err(1, [
+          [60, 11, 2],
+          [60, 11, 2],
+          [60, 11, 2],
+        ]),
+        err(2, [
+          [60, 12, 0],
+          [60, 12, 0],
+          [60, 12, 0],
+        ]),
+      ),
+    ).toBe('INCREASE_LOAD');
+  });
+
+  it('AC7 · an ERR without reported effort does not qualify', () => {
+    expect(
+      codeAfter(
+        err(1, [
+          [60, 11, null],
+          [60, 11, null],
+          [60, 11, null],
+        ]),
+        err(2, [
+          [60, 12, 0],
+          [60, 12, 0],
+          [60, 12, 0],
+        ]),
+      ),
+    ).toBe('INCREASE_LOAD');
+  });
+
+  it('the signal needs the same W', () => {
+    expect(
+      codeAfter(
+        err(1, [
+          [57.5, 12, 0],
+          [57.5, 12, 0],
+          [57.5, 12, 0],
+        ]),
+        err(2, [
+          [60, 12, 0],
+          [60, 12, 0],
+          [60, 12, 0],
+        ]),
+      ),
+    ).toBe('INCREASE_LOAD');
+  });
+
+  it('the signal does not cross a reset (a different N)', () => {
+    expect(
+      codeAfter(
+        err(
+          1,
+          [
+            [60, 11, 0],
+            [60, 11, 0],
+            [60, 11, 0],
+          ],
+          3,
+        ),
+        err(
+          2,
+          [
+            [60, 12, 0],
+            [60, 12, 0],
+            [60, 12, 0],
+            [60, 12, 0],
+          ],
+          4,
+        ),
+      ),
+    ).toBe('INCREASE_LOAD');
+  });
+});
+
+describe('RF-SUG-08 · the engine uses what was done, not what was suggested', () => {
+  it('AC2 · after 62.5 × 8 was suggested, 60 × 10 was logged: the next one builds on 60 × 10', () => {
+    const suggestion = suggestNext(
+      [
+        err(1, [
+          [60, 12, 2],
+          [60, 12, 2],
+          [60, 12, 2],
+        ]),
+        err(2, [
+          [60, 10, 2],
+          [60, 10, 2],
+          [60, 10, 2],
+        ]),
+      ],
+      context(),
+    );
+
+    expect(suggestion).toMatchObject({ loadKg: 60, reps: 11, reason: { code: 'ADD_REP' } });
+  });
+});
+
+describe('RF-SUG-03 · from logged workouts', () => {
+  it('AC7 · warm-up sets are ignored (RN-ENT-12)', () => {
+    const routineExercise = { id: 're-1', exerciseId: 'barbell-bench-press' };
+    const workout = aWorkout({
+      exercises: [
+        aWorkoutExercise({
+          routineExerciseId: 're-1',
+          exerciseId: 'barbell-bench-press',
+          sets: [
+            aBilateralSet({ id: 'w1', position: 0, loadKg: 20, reps: 10, isWarmup: true }),
+            aBilateralSet({ id: 'w2', position: 1, loadKg: 40, reps: 5, isWarmup: true }),
+            aBilateralSet({ id: 's1', position: 2, loadKg: 60, reps: 12 }),
+            aBilateralSet({ id: 's2', position: 3, loadKg: 60, reps: 12 }),
+            aBilateralSet({ id: 's3', position: 4, loadKg: 60, reps: 12 }),
+          ],
+        }),
+      ],
+    });
+    const exposures = routineExposures(routineExercise, [workout]);
+
+    expect(suggestNext(exposures, context())).toMatchObject({
+      loadKg: 62.5,
+      reps: 8,
+      reason: { code: 'INCREASE_LOAD' },
+    });
+  });
+});
+
+describe('RN-SUG-12 · bodyweight', () => {
+  it('without ERR but with EE (a substitute), progresses from the last EE with the current range', () => {
+    const ctx = context({
+      loadType: 'bodyweight',
+      prescription: aPrescription({ sets: 3, repRange: { min: 8, max: 15 } }),
+      exerciseExposures: [
+        anExposure([
+          [null, 10, null],
+          [null, 9, null],
+          [null, 9, null],
+        ]),
+      ],
+    });
+
+    expect(suggestNext([], ctx)).toEqual({
+      loadKg: null,
+      reps: 10,
+      reason: { code: 'BODYWEIGHT_ADD_REP', previousReps: 9, limitingSide: null },
+    });
   });
 });

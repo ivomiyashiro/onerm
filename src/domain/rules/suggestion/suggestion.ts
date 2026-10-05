@@ -28,6 +28,20 @@ export type SuggestionCode = (typeof SUGGESTION_CODES)[number];
 /** The limiting side of a unilateral set (RN-SUG-11); null for a bilateral one. */
 export type Side = 'left' | 'right' | null;
 
+/** «Tomamos tu lado {lado}, que hizo {reps}» (13 §4). */
+export interface LimitingSide {
+  readonly side: 'left' | 'right';
+  readonly reps: number;
+}
+
+/** What the reasons of double progression and effort share: the last ERR. */
+interface ProgressionParams {
+  /** W of the last ERR. */
+  readonly workingLoadKg: number;
+  /** In a unilateral exercise (RN-SUG-11). */
+  readonly limitingSide: LimitingSide | null;
+}
+
 /** The set an estimate comes from: «lo que hiciste en {ejercicio} el {fecha}». */
 export interface EstimateBasis {
   readonly exerciseId: Id;
@@ -54,7 +68,29 @@ export type SuggestionReason =
   | { readonly code: 'CALIBRATION_STEP_DOWN'; readonly side: Side }
   | { readonly code: 'ESTIMATED_FROM_E1RM'; readonly e1rm: E1rm; readonly basis: EstimateBasis }
   | { readonly code: 'FROM_EXERCISE_HISTORY'; readonly workingLoadKg: number }
-  | { readonly code: 'REPEAT'; readonly workingLoadKg: number | null };
+  | ({
+      readonly code: 'INCREASE_LOAD';
+      readonly increasePercent: number;
+      /** The jump was over 10 %: the reps went over the cap first (13 §4). */
+      readonly afterOvershoot: boolean;
+    } & ProgressionParams)
+  | ({
+      readonly code: 'EXTEND_REPS';
+      readonly nextLoadKg: number;
+      readonly increasePercent: number;
+    } & ProgressionParams)
+  | ({ readonly code: 'ADD_REP'; readonly previousReps: number } & ProgressionParams)
+  | ({ readonly code: 'COMPLETE_SETS' } & ProgressionParams)
+  | ({ readonly code: 'REPEAT' } & ProgressionParams)
+  | ({ readonly code: 'CONSOLIDATE'; readonly meanRir: number } & ProgressionParams)
+  | ({ readonly code: 'EARLY_INCREASE'; readonly meanRir: number } & ProgressionParams)
+  | ({ readonly code: 'HIGH_INCREASE'; readonly meanRir: number } & ProgressionParams)
+  | {
+      readonly code: 'BODYWEIGHT_ADD_REP';
+      readonly previousReps: number;
+      readonly limitingSide: LimitingSide | null;
+    }
+  | { readonly code: 'BODYWEIGHT_READY'; readonly limitingSide: LimitingSide | null };
 
 /**
  * What the engine proposes for a routine exercise (glossary). The load is in kg and on the grid

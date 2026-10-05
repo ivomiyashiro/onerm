@@ -1,7 +1,11 @@
-import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
+import type { Prescription } from '@/domain/models/prescription';
+import type { LoadType } from '@/domain/models/vocabulary';
 import { suggestAfterCalibrationSet } from '@/domain/rules/suggestion/calibration';
 import { suggestNext } from '@/domain/rules/suggestion/engine';
-import { aBilateralSet, aPrescription } from '@/domain/testing/builders';
+import type { ExposureSet } from '@/domain/rules/suggestion/exposures';
+import { decreaseLoad, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
+import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+import { aBilateralSet, anExposure, aPrescription } from '@/domain/testing/builders';
 
 /**
  * The reference cases of sugerencias.md, literal (RNF-15). Unless a case says otherwise:
@@ -77,5 +81,222 @@ describe('caso R · calibration too heavy', () => {
         grid: barbell,
       }),
     ).toEqual({ loadKg: 30, reps: 8, reason: { code: 'CALIBRATION_STEP_DOWN', side: null } });
+  });
+});
+
+/** A set as `[loadKg, reps, rir]`, or with sides for a unilateral one. */
+type LoggedSet = readonly [number | null, number, number | null];
+
+interface HistoryOptions {
+  prescription?: Prescription;
+  grid?: LoadGrid;
+  loadType?: LoadType;
+}
+
+/**
+ * The suggestion after each exposure of a routine exercise, in order: `result[i]` is what the
+ * engine suggests once exposures 0..i are done. Exposures are 3 days apart (no reentry).
+ */
+function suggestionsAfter(
+  exposures: readonly (readonly LoggedSet[] | readonly ExposureSet[])[],
+  { prescription = defaults, grid = barbell, loadType = 'external' }: HistoryOptions = {},
+): Suggestion[] {
+  const history = exposures.map((sets, i) => {
+    const finishedAt = new Date(Date.UTC(2026, 8, 1 + 3 * i, 12));
+    const base = anExposure([], {
+      workoutId: `w${i}`,
+      startedAt: finishedAt,
+      finishedAt,
+      prescription,
+    });
+    const asSets = sets.map((set) =>
+      Array.isArray(set)
+        ? { loadKg: set[0], reps: set[1], rir: set[2], side: null }
+        : (set as ExposureSet),
+    );
+    return { ...base, sets: asSets };
+  });
+  return history.map((_, i) =>
+    suggestNext(history.slice(0, i + 1), {
+      today: '2026-10-05',
+      workoutDates: history.slice(0, i + 1),
+      prescription,
+      loadType,
+      grid,
+      exerciseExposures: history.slice(0, i + 1),
+    }),
+  );
+}
+
+const summary = (suggestion: Suggestion) =>
+  [suggestion.loadKg, suggestion.reps, suggestion.reason.code] as const;
+const rir2 = (load: number, ...reps: number[]): LoggedSet[] => reps.map((r) => [load, r, 2]);
+const withRir = (load: number, rir: number, ...reps: number[]): LoggedSet[] =>
+  reps.map((r) => [load, r, rir]);
+
+describe('caso A · double progression (up to the load increase)', () => {
+  const after = suggestionsAfter([
+    rir2(60, 10, 9, 9),
+    rir2(60, 11, 10, 10),
+    rir2(60, 12, 12, 12),
+    rir2(62.5, 8, 8, 7),
+  ]).map(summary);
+
+  it('exp. 1 · 60 × 10, 9, 9 → 60 × 10 (ADD_REP)', () => {
+    expect(after[0]).toEqual([60, 10, 'ADD_REP']);
+  });
+
+  it('exp. 2 · 60 × 11, 10, 10 → 60 × 11 (ADD_REP)', () => {
+    expect(after[1]).toEqual([60, 11, 'ADD_REP']);
+  });
+
+  it('exp. 3 · 60 × 12, 12, 12 → 62.5 × 8 (máx(62.5; 63) = 63 → 62.5; INCREASE_LOAD)', () => {
+    expect(after[2]).toEqual([62.5, 8, 'INCREASE_LOAD']);
+  });
+
+  it('exp. 4 · 62.5 × 8, 8, 7 → 62.5 × 8 (REPEAT)', () => {
+    expect(after[3]).toEqual([62.5, 8, 'REPEAT']);
+  });
+});
+
+describe('caso B · consolidate once, then go up', () => {
+  const after = suggestionsAfter([
+    withRir(60, 0, 11, 11, 10),
+    withRir(60, 0, 12, 12, 12),
+    withRir(60, 0, 12, 12, 12),
+  ]).map(summary);
+
+  it('exp. 1 → 60 × 11 (ADD_REP: a single signal)', () => {
+    expect(after[0]).toEqual([60, 11, 'ADD_REP']);
+  });
+
+  it('exp. 2 → 60 × 12 (CONSOLIDATE: 2 signals and the cap)', () => {
+    expect(after[1]).toEqual([60, 12, 'CONSOLIDATE']);
+  });
+
+  it('exp. 3 → 62.5 × 8 (INCREASE_LOAD: already consolidated once)', () => {
+    expect(after[2]).toEqual([62.5, 8, 'INCREASE_LOAD']);
+  });
+});
+
+describe('caso C · early and high increase', () => {
+  it('60 × 10 RIR 4, then 60 × 11 RIR 4: inside the range → 62.5 × 8 (EARLY_INCREASE)', () => {
+    const after = suggestionsAfter([withRir(60, 4, 10, 10, 10), withRir(60, 4, 11, 11, 11)]);
+
+    expect(summary(after[1])).toEqual([62.5, 8, 'EARLY_INCREASE']);
+  });
+
+  it('variant: then 60 × 12 RIR 4 → 65 × 8 (máx(62.5; 66) = 66 → 65; HIGH_INCREASE)', () => {
+    const after = suggestionsAfter([withRir(60, 4, 10, 10, 10), withRir(60, 4, 12, 12, 12)]);
+
+    expect(summary(after[1])).toEqual([65, 8, 'HIGH_INCREASE']);
+  });
+});
+
+describe('caso F · unilateral', () => {
+  it('20 kg × (R 12 / L 10), (R 12 / L 10), (R 12 / L 11) → limiting 10, 10, 11 → 20 × 11', () => {
+    const dumbbell: LoadGrid = { unit: 'kg', increment: 2, minLoad: 2 };
+    const left = (reps: number): ExposureSet => ({ loadKg: 20, reps, rir: 2, side: 'left' });
+    const [after] = suggestionsAfter([[left(10), left(10), left(11)]], { grid: dumbbell });
+
+    expect(summary(after)).toEqual([20, 11, 'ADD_REP']);
+    expect(after.reason).toMatchObject({ limitingSide: { side: 'left', reps: 10 } });
+  });
+});
+
+describe('caso G · minimum jump over 10 %: reps first', () => {
+  // Dumbbell curl · 12 kg · increment 2 kg: subida(12) = 14, +16.7 %.
+  const dumbbell: LoadGrid = { unit: 'kg', increment: 2, minLoad: 2 };
+  const after = suggestionsAfter(
+    [rir2(12, 12, 12, 12), rir2(12, 13, 13, 13), rir2(12, 14, 14, 14)],
+    { grid: dumbbell },
+  ).map(summary);
+
+  it('exp. 1 · 12 × 12, 12, 12 → 12 × 13 (mín(14, 12 + 1); EXTEND_REPS)', () => {
+    expect(after[0]).toEqual([12, 13, 'EXTEND_REPS']);
+  });
+
+  it('exp. 2 · 12 × 13, 13, 13 → 12 × 14 (EXTEND_REPS)', () => {
+    expect(after[1]).toEqual([12, 14, 'EXTEND_REPS']);
+  });
+
+  it('exp. 3 · 12 × 14, 14, 14 → 14 × 8 (INCREASE_LOAD)', () => {
+    expect(after[2]).toEqual([14, 8, 'INCREASE_LOAD']);
+  });
+});
+
+describe('caso I · W is the most used load', () => {
+  it('60 × 10, 60 × 9, 55 × 10 → W 60, sets with W [10, 9] → 60 × 10 (ADD_REP)', () => {
+    const [after] = suggestionsAfter([
+      [
+        [60, 10, 2],
+        [60, 9, 2],
+        [55, 10, 2],
+      ],
+    ]);
+
+    expect(summary(after)).toEqual([60, 10, 'ADD_REP']);
+  });
+});
+
+describe('caso J · novice with the simple scale (target RIR 3)', () => {
+  const novice = aPrescription({ sets: 3, repRange: { min: 8, max: 12 }, targetRir: 3 });
+
+  it('J1 · "1" twice with the cap → 40 × 12 (CONSOLIDATE); then "Ninguna" → 42.5 × 8', () => {
+    const after = suggestionsAfter(
+      [withRir(40, 1, 11, 11, 11), withRir(40, 1, 12, 12, 12), withRir(40, 0, 12, 12, 12)],
+      { prescription: novice },
+    ).map(summary);
+
+    expect(after[1]).toEqual([40, 12, 'CONSOLIDATE']);
+    expect(after[2]).toEqual([42.5, 8, 'INCREASE_LOAD']);
+  });
+
+  it('J2 · "4 o más" twice inside the range → 42.5 × 8 (EARLY_INCREASE)', () => {
+    const after = suggestionsAfter([withRir(40, 4, 10, 10, 10), withRir(40, 4, 11, 11, 11)], {
+      prescription: novice,
+    });
+
+    expect(summary(after[1])).toEqual([42.5, 8, 'EARLY_INCREASE']);
+  });
+});
+
+describe('caso M · bodyweight', () => {
+  // Push-ups · 3 × 8–15.
+  const pushUps = aPrescription({ sets: 3, repRange: { min: 8, max: 15 }, targetRir: 2 });
+  const reps = (...values: number[]): LoggedSet[] => values.map((r) => [null, r, null]);
+  const after = (sets: LoggedSet[]) =>
+    summary(suggestionsAfter([sets], { prescription: pushUps, loadType: 'bodyweight' })[0]);
+
+  it('15, 14, 13 → 14 (BODYWEIGHT_ADD_REP)', () => {
+    expect(after(reps(15, 14, 13))).toEqual([null, 14, 'BODYWEIGHT_ADD_REP']);
+  });
+
+  it('15, 15, 15 → 15 (BODYWEIGHT_READY)', () => {
+    expect(after(reps(15, 15, 15))).toEqual([null, 15, 'BODYWEIGHT_READY']);
+  });
+
+  it('5, 5, 4 → 8 (máx(floor, mín(15, 4 + 1)))', () => {
+    expect(after(reps(5, 5, 4))).toEqual([null, 8, 'BODYWEIGHT_ADD_REP']);
+  });
+
+  it('15, 15 (only 2 sets) → 15, but BODYWEIGHT_ADD_REP: sets missing to be "ready"', () => {
+    expect(after(reps(15, 15))).toEqual([null, 15, 'BODYWEIGHT_ADD_REP']);
+  });
+});
+
+describe('caso N · minimum load with a barbell', () => {
+  it('W 22.5 kg, 45 days of pause → bajada(22.5; 20 %) = 17.5 → under 20 kg → 20', () => {
+    // The reentry that asks for this decrease arrives with #24; the rounding is checked here.
+    expect(decreaseLoad(22.5, 0.2, barbell)).toBe(20);
+  });
+});
+
+describe('caso Q · fewer sets than prescribed', () => {
+  it('60 × 12, 12 (2 sets) → 60 × 12 (COMPLETE_SETS); then 60 × 12, 12, 12 → 62.5 × 8', () => {
+    const after = suggestionsAfter([rir2(60, 12, 12), rir2(60, 12, 12, 12)]).map(summary);
+
+    expect(after[0]).toEqual([60, 12, 'COMPLETE_SETS']);
+    expect(after[1]).toEqual([62.5, 8, 'INCREASE_LOAD']);
   });
 });

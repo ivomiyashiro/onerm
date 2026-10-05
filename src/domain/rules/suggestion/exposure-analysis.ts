@@ -1,6 +1,7 @@
 import type { RepRange } from '@/domain/models/prescription';
 import { areLoadsEqual } from '@/domain/rules/load-equality';
 import { workingLoad, type Exposure, type ExposureSet } from '@/domain/rules/suggestion/exposures';
+import type { LimitingSide } from '@/domain/rules/suggestion/suggestion';
 
 /** Where the sets with W fall against the reference range (RN-SUG-01, RN-SUG-02). */
 export type RangePosition = 'capReached' | 'within' | 'below';
@@ -18,7 +19,7 @@ export interface ExposureAnalysis {
   readonly targetRir: number;
   readonly range: RangePosition;
   /** In a unilateral ERR, the side of the set with W with the fewest reps (RN-SUG-11). */
-  readonly limitingSide: { readonly side: 'left' | 'right'; readonly reps: number } | null;
+  readonly limitingSide: LimitingSide | null;
 }
 
 /**
