@@ -62,11 +62,14 @@ function exposures(
       sets,
     });
   }
-  // RN-SUG-01: by finishedAt; the workout id breaks a tie so the order is deterministic.
-  return result.sort(
-    (a, b) =>
-      a.finishedAt.getTime() - b.finishedAt.getTime() ||
-      (a.workoutId < b.workoutId ? -1 : a.workoutId > b.workoutId ? 1 : 0),
+  return result.sort(byExposureOrder);
+}
+
+/** RN-SUG-01: by finishedAt; the workout id breaks a tie so the order is deterministic. */
+export function byExposureOrder(a: Exposure, b: Exposure): number {
+  return (
+    a.finishedAt.getTime() - b.finishedAt.getTime() ||
+    (a.workoutId < b.workoutId ? -1 : a.workoutId > b.workoutId ? 1 : 0)
   );
 }
 

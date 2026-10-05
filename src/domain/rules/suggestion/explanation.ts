@@ -26,8 +26,9 @@ export function explainSuggestion(
   routineExposures: readonly Exposure[],
   context: SuggestionContext,
 ): SuggestionExplanation {
-  const state = fold(routineExposures, context);
-  const suggestion = suggest(state, orderedContext(context));
+  const ordered = orderedContext(context);
+  const state = fold(routineExposures, ordered);
+  const suggestion = suggest(state, ordered);
   const last = state.records.at(-1);
   const rirs = last?.analysis.rirsWithW ?? [];
 
@@ -36,9 +37,13 @@ export function explainSuggestion(
     const { reason } = suggestion;
     lastTime =
       reason.code === 'ESTIMATED_FROM_E1RM'
-        ? asLastTime(context.exerciseExposures.find((ee) => ee.finishedAt === reason.basis.at))
+        ? asLastTime(
+            ordered.exerciseExposures.find(
+              (ee) => ee.finishedAt.getTime() === reason.basis.at.getTime(),
+            ),
+          )
         : reason.code === 'FROM_EXERCISE_HISTORY' || reason.code.startsWith('BODYWEIGHT_')
-          ? asLastTime(context.exerciseExposures.at(-1))
+          ? asLastTime(ordered.exerciseExposures.at(-1))
           : null;
   }
 

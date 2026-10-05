@@ -70,3 +70,15 @@ describe('RF-SUG-07 · explain a suggestion', () => {
     expect(explainSuggestion(history, context())).toEqual(explainSuggestion(history, context()));
   });
 });
+
+describe('F3 review · the explanation matches the suggestion', () => {
+  it('with the EE unordered, «La última vez» is the exposure the suggestion used', () => {
+    const late = anExposure([[70, 16, 4]], { workoutId: 'late', finishedAt: day(5) });
+    const early = anExposure([[50, 16, 4]], { workoutId: 'early', finishedAt: day(1) });
+
+    const explanation = explainSuggestion([], context({ exerciseExposures: [late, early] }));
+
+    expect(explanation.suggestion.reason).toMatchObject({ workingLoadKg: 70 });
+    expect(explanation.lastTime?.at).toEqual(day(5));
+  });
+});
