@@ -29,6 +29,10 @@ export function inactivityGapDays(baseFinishedAt: Date, context: SuggestionConte
 
 /** RN-SUG-05: more than 42 days → −20 %; more than 21 → −10 %; otherwise none. */
 export function reentryFor(baseFinishedAt: Date, context: SuggestionContext): Reentry | null {
+  // No gap is longer than the whole span from the base to today: most of the time that settles
+  // it without walking the workouts (RNF-13).
+  const span = daysBetween(context.localDate(baseFinishedAt), context.today);
+  if (span <= REENTRY_1.gapDays) return null;
   const gapDays = inactivityGapDays(baseFinishedAt, context);
   if (gapDays > REENTRY_2.gapDays) return { gapDays, decreasePercent: REENTRY_2.decrease };
   if (gapDays > REENTRY_1.gapDays) return { gapDays, decreasePercent: REENTRY_1.decrease };

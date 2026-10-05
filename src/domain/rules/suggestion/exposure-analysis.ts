@@ -27,34 +27,39 @@ export interface ExposureAnalysis {
  * cap. Within the range: every set with W at or over the floor. Otherwise, below.
  */
 export function analyseExposure(exposure: Exposure): ExposureAnalysis {
-  const { prescription } = exposure;
-  const workingLoadKg = workingLoad(exposure);
-  const withW: ExposureSet[] =
-    workingLoadKg === null
-      ? [...exposure.sets]
-      : exposure.sets.filter(
-          (set) => set.loadKg !== null && areLoadsEqual(set.loadKg, workingLoadKg),
-        );
-  const repsWithW = withW.map((set) => set.reps);
+  const { prescription, sets } = exposure;
   const { min, max } = prescription.repRange;
-
-  const allAtCap = repsWithW.every((reps) => reps >= max);
-  const range: RangePosition =
-    withW.length >= prescription.sets && allAtCap
-      ? 'capReached'
-      : repsWithW.every((reps) => reps >= min)
-        ? 'within'
-        : 'below';
-
+  const workingLoadKg = workingLoad(exposure);
+  // One pass over the sets with W (every set for bodyweight); it runs once per ERR (RNF-13).
+  const repsWithW: number[] = [];
+  const rirsWithW: number[] = [];
+  let allAtCap = true;
+  let allAtFloor = true;
   let limiting: ExposureSet | null = null;
-  for (const set of withW) {
+  for (const set of sets) {
+    if (
+      workingLoadKg !== null &&
+      (set.loadKg === null || !areLoadsEqual(set.loadKg, workingLoadKg))
+    ) {
+      continue;
+    }
+    repsWithW.push(set.reps);
+    if (set.rir !== null) rirsWithW.push(set.rir);
+    if (set.reps < max) allAtCap = false;
+    if (set.reps < min) allAtFloor = false;
     if (set.side !== null && (limiting === null || set.reps < limiting.reps)) limiting = set;
   }
+  const range: RangePosition =
+    repsWithW.length >= prescription.sets && allAtCap
+      ? 'capReached'
+      : allAtFloor
+        ? 'within'
+        : 'below';
 
   return {
     workingLoadKg,
     repsWithW,
-    rirsWithW: withW.flatMap((set) => (set.rir === null ? [] : [set.rir])),
+    rirsWithW,
     setCount: prescription.sets,
     repRange: prescription.repRange,
     targetRir: prescription.targetRir,

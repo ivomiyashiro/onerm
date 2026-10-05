@@ -97,6 +97,11 @@ export function routineExposures(
  */
 export function workingLoad(exposure: Exposure): number | null {
   const { sets } = exposure;
+  // The usual case: every set with the same load. One pass instead of comparing every pair.
+  const first = sets[0]?.loadKg ?? null;
+  if (first !== null && sets.every((set) => set.loadKg !== null && set.loadKg === first)) {
+    return first;
+  }
   let bestLoad: number | null = null;
   let bestUses = 0;
   for (const { loadKg } of sets) {
