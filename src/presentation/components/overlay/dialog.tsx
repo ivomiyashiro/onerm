@@ -1,8 +1,9 @@
-import { Modal, StyleSheet, Text, View } from 'react-native';
+import { Modal, StyleSheet, View } from 'react-native';
 
 import { Button, type ButtonVariant } from '@/presentation/components/button/button';
 import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 /**
  * 13-textos §8 and marca §11: the highlighted action goes first and filled (`advance` in lime,

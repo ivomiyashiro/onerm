@@ -1,7 +1,8 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Plate } from '@/presentation/components/stepper/plate';
 import { colors, radius, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 interface LoadStepperProps {
   label: string;

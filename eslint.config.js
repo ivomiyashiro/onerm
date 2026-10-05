@@ -141,6 +141,27 @@ module.exports = defineConfig([
       ],
     },
   },
+  // Screens and components use the app's Text, which works around the Android 15+ text clipping
+  // (see src/presentation/components/text.tsx).
+  {
+    files: ['src/presentation/**/*.tsx', 'app/**/*.tsx'],
+    ignores: ['**/*.test.tsx', 'src/presentation/components/text.tsx'],
+    rules: {
+      'no-restricted-imports': [
+        'error',
+        {
+          paths: [
+            {
+              name: 'react-native',
+              importNames: ['Text'],
+              message:
+                "Use Text from '@/presentation/components/text' (Android 15+ text clipping).",
+            },
+          ],
+        },
+      ],
+    },
+  },
   // Last: turns off the formatting rules that conflict with Prettier.
   prettierConfig,
 ]);

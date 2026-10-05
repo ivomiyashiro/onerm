@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, radius, size, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 interface SheetContentProps {
   title: string;

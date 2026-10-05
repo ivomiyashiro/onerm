@@ -1,9 +1,10 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/presentation/components/button/button';
 import { Card } from '@/presentation/components/card/card';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, radius, typography } from '@/presentation/theme';
+import { Text } from '@/presentation/components/text';
 
 interface EmptyStateProps {
   icon: IconName;
