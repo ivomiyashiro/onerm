@@ -15,7 +15,10 @@ export interface SuggestionContext {
    * reads the zone or the clock.
    */
   readonly localDate: (instant: Date) => LocalDate;
-  /** Every finished workout of the user, in any routine (RN-SUG-05). */
+  /**
+   * Every finished workout of the user, in any routine (RN-SUG-05). Like `exerciseExposures`, the
+   * engine orders it by `finishedAt` on entry (`orderedContext`).
+   */
   readonly workoutDates: readonly { readonly startedAt: Date; readonly finishedAt: Date }[];
   /** The current prescription of the routine exercise. */
   readonly prescription: Prescription;

@@ -1,5 +1,5 @@
 import type { Prescription } from '@/domain/models/prescription';
-import { fold, suggest } from '@/domain/rules/suggestion/engine';
+import { fold, orderedContext, suggest } from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import type { Exposure, ExposureSet } from '@/domain/rules/suggestion/exposures';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
@@ -27,7 +27,7 @@ export function explainSuggestion(
   context: SuggestionContext,
 ): SuggestionExplanation {
   const state = fold(routineExposures, context);
-  const suggestion = suggest(state, context);
+  const suggestion = suggest(state, orderedContext(context));
   const last = state.records.at(-1);
   const rirs = last?.analysis.rirsWithW ?? [];
 
