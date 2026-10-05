@@ -8,14 +8,25 @@ import {
   suggestNext as next,
 } from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
-import type { ExposureSet } from '@/domain/rules/suggestion/exposures';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import {
   SUGGESTION_CODES,
   type Suggestion,
   type SuggestionCode,
 } from '@/domain/rules/suggestion/suggestion';
-import { aBilateralSet, anExposure, aPrescription } from '@/domain/testing/builders';
+import {
+  routineExposures,
+  type Exposure,
+  type ExposureSet,
+} from '@/domain/rules/suggestion/exposures';
+import {
+  aBilateralSet,
+  anExposure,
+  aPrescription,
+  aUnilateralSet,
+  aWorkout,
+  aWorkoutExercise,
+} from '@/domain/testing/builders';
 
 /** RNF-15: the reason codes the cases below reach. */
 const seenCodes = new Set<SuggestionCode>();
@@ -100,7 +111,10 @@ describe('caso E · calibration (novice)', () => {
     };
 
     expect(summary(suggestNext([exposure], ctx))).toEqual([37.5, 10, 'ADD_REP']);
-    expect(fold([exposure], ctx).records[0].isReset).toBe(true);
+    const [record] = fold([exposure], ctx).records;
+    // It comes after a calibration suggestion (RN-SUG-04).
+    expect(record.suggestionBefore.reason.code).toBe('CALIBRATION');
+    expect(record.isReset).toBe(true);
   });
 });
 
@@ -141,15 +155,11 @@ interface HistoryOptions {
   loadType?: LoadType;
 }
 
-/**
- * The suggestion after each exposure of a routine exercise, in order: `result[i]` is what the
- * engine suggests once exposures 0..i are done. Exposures are 3 days apart (no reentry).
- */
-function suggestionsAfter(
+function buildHistory(
   exposures: readonly (readonly LoggedSet[] | readonly ExposureSet[])[],
-  { prescription = defaults, grid = barbell, loadType = 'external' }: HistoryOptions = {},
-): Suggestion[] {
-  const history = exposures.map((sets, i) => {
+  prescription: Prescription,
+) {
+  return exposures.map((sets, i) => {
     const finishedAt = new Date(Date.UTC(2026, 8, 1 + 3 * i, 12));
     const base = anExposure([], {
       workoutId: `w${i}`,
@@ -164,18 +174,47 @@ function suggestionsAfter(
     );
     return { ...base, sets: asSets };
   });
-  // Today is 3 days after the last exposure: no reentry.
-  return history.map((exposure, i) =>
-    suggestNext(history.slice(0, i + 1), {
-      today: localDate(new Date(exposure.finishedAt.getTime() + 3 * DAY_MS)),
-      localDate,
-      workoutDates: history.slice(0, i + 1),
-      prescription,
-      loadType,
-      grid,
-      exerciseExposures: history.slice(0, i + 1),
-    }),
+}
+
+/** The context once exposures 0..i are done; today is 3 days after the last one: no reentry. */
+function contextAfter(
+  history: ReturnType<typeof buildHistory>,
+  i: number,
+  { prescription = defaults, grid = barbell, loadType = 'external' }: HistoryOptions,
+): SuggestionContext {
+  const done = history.slice(0, i + 1);
+  return {
+    today: localDate(new Date(history[i].finishedAt.getTime() + 3 * DAY_MS)),
+    localDate,
+    workoutDates: done,
+    prescription,
+    loadType,
+    grid,
+    exerciseExposures: done,
+  };
+}
+
+/**
+ * The suggestion after each exposure of a routine exercise, in order: `result[i]` is what the
+ * engine suggests once exposures 0..i are done. Exposures are 3 days apart (no reentry).
+ */
+function suggestionsAfter(
+  exposures: readonly (readonly LoggedSet[] | readonly ExposureSet[])[],
+  options: HistoryOptions = {},
+): Suggestion[] {
+  const history = buildHistory(exposures, options.prescription ?? defaults);
+  return history.map((_, i) =>
+    suggestNext(history.slice(0, i + 1), contextAfter(history, i, options)),
   );
+}
+
+/** The fold records of the whole history: the stagnation count and resets (RN-SUG-04). */
+function recordsOf(
+  exposures: readonly (readonly LoggedSet[] | readonly ExposureSet[])[],
+  options: HistoryOptions = {},
+) {
+  const history = buildHistory(exposures, options.prescription ?? defaults);
+  return fold(history, contextAfter(history, history.length - 1, options)).records;
 }
 
 const summary = (suggestion: Suggestion) =>
@@ -223,6 +262,23 @@ describe('caso A · double progression, stagnation and deload', () => {
   it('exp. 8 · 57.5 × 11, 10, 10 resets → 57.5 × 11 (ADD_REP)', () => {
     expect(after[7]).toEqual([57.5, 11, 'ADD_REP']);
   });
+
+  it('the count column: 0, 0, 0, 0, 1, 2, 3, then the reset after DELOAD', () => {
+    const records = recordsOf([
+      rir2(60, 10, 9, 9),
+      rir2(60, 11, 10, 10),
+      rir2(60, 12, 12, 12),
+      rir2(62.5, 8, 8, 7),
+      rir2(62.5, 8, 8, 7),
+      rir2(62.5, 8, 8, 7),
+      rir2(62.5, 8, 8, 7),
+      rir2(57.5, 11, 10, 10),
+    ]);
+
+    expect(records.map((record) => record.stagnationCount)).toEqual([0, 0, 0, 0, 1, 2, 3, 0]);
+    expect(records[7].suggestionBefore.reason.code).toBe('DELOAD');
+    expect(records[7].isReset).toBe(true);
+  });
 });
 
 describe('caso B · consolidate once, then go up', () => {
@@ -242,6 +298,16 @@ describe('caso B · consolidate once, then go up', () => {
 
   it('exp. 3 → 62.5 × 8 (INCREASE_LOAD: already consolidated once)', () => {
     expect(after[2]).toEqual([62.5, 8, 'INCREASE_LOAD']);
+  });
+
+  it('exp. 3 reaches the cap without a better mark and does not add to the count (RF-SUG-04.AC2)', () => {
+    const records = recordsOf([
+      withRir(60, 0, 11, 11, 10),
+      withRir(60, 0, 12, 12, 12),
+      withRir(60, 0, 12, 12, 12),
+    ]);
+
+    expect(records.map((record) => record.stagnationCount)).toEqual([0, 0, 0]);
   });
 });
 
@@ -267,6 +333,33 @@ describe('caso F · unilateral', () => {
 
     expect(summary(after)).toEqual([20, 11, 'ADD_REP']);
     expect(after.reason).toMatchObject({ limitingSide: { side: 'left', reps: 10 } });
+  });
+
+  it('from the logged sets: each set reads its limiting side (RN-ENT-06)', () => {
+    const dumbbell: LoadGrid = { unit: 'kg', increment: 2, minLoad: 2 };
+    const workout = aWorkout({
+      exercises: [
+        aWorkoutExercise({
+          routineExerciseId: 're-1',
+          exerciseId: 'one-arm-row',
+          isUnilateral: true,
+          sets: [
+            [12, 10],
+            [12, 10],
+            [12, 11],
+          ].map(([repsRight, repsLeft], i) =>
+            aUnilateralSet({ id: `s${i}`, position: i, loadKg: 20, repsRight, repsLeft }),
+          ),
+        }),
+      ],
+    });
+    const exposures = routineExposures({ id: 're-1', exerciseId: 'one-arm-row' }, [workout]);
+
+    expect(summary(suggestNext(exposures, contextOn(3, exposures, { grid: dumbbell })))).toEqual([
+      20,
+      11,
+      'ADD_REP',
+    ]);
   });
 });
 
@@ -374,7 +467,7 @@ const onDay = (n: number) => new Date(Date.UTC(2026, 0, 10 + n, 18));
 
 function contextOn(
   todayN: number,
-  history: ReturnType<typeof errOn>[],
+  history: readonly Exposure[],
   overrides: Partial<SuggestionContext> = {},
 ): SuggestionContext {
   return {
@@ -451,6 +544,13 @@ describe('caso O · reentry per exercise in a rotation (PLT-TP4)', () => {
     startedAt: finishedAt,
     finishedAt,
   }));
+
+  it('day 30, torso A: its last ERR is from before day 0, a 30-day gap → −10 % (REENTRY)', () => {
+    const torso = [errOn(onDay(-3), rir2(60, 10, 10, 10))];
+    const ctx = contextOn(30, torso, { workoutDates: [...torso, ...otherWorkouts.slice(0, 1)] });
+
+    expect(summary(suggestNext(torso, ctx))).toEqual([55, 8, 'REENTRY']);
+  });
 
   it('day 32, leg A: the last workout was 2 days ago, but since the last ERR there was a 30-day gap → 90 × 8', () => {
     const history = [legPressBefore];

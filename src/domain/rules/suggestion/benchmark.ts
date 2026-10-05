@@ -11,9 +11,10 @@ const DAY_MS = 24 * 60 * 60 * 1000;
 const toLocalDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
 
 /**
- * A synthetic history of `count` exposures, 3 days apart, through every phase of double
- * progression (adding reps, increases, stalls and deloads). The user also trains another day
- * in between, so the context carries 2 workouts per exposure.
+ * A synthetic history of `count` exposures, 3 days apart, of steady double progression: one rep
+ * more per exposure up to the cap, then 2.5 kg more (ADD_REP and INCREASE_LOAD; no stalls, pauses
+ * or deloads). The user also trains another day in between, so the context carries 2 workouts
+ * per exposure. Every step of the fold still runs the whole decision order.
  */
 export function syntheticHistory(count = BENCHMARK_EXPOSURES): {
   exposures: Exposure[];

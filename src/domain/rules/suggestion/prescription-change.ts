@@ -31,12 +31,22 @@ export const prescriptionChanged: Priority = (state, context) => {
   const suggestion: Suggestion = estimated
     ? {
         ...estimated,
-        reason: { code: 'PRESCRIPTION_CHANGED', e1rm: estimate.e1rm, workingLoadKg },
+        reason: {
+          code: 'PRESCRIPTION_CHANGED',
+          e1rm: estimate.e1rm,
+          workingLoadKg,
+          limitingSide: last.analysis.limitingSide,
+        },
       }
     : {
         loadKg: nearestOnGrid(workingLoadKg, context.grid),
         reps: context.prescription.repRange.min,
-        reason: { code: 'PRESCRIPTION_CHANGED', e1rm: null, workingLoadKg },
+        reason: {
+          code: 'PRESCRIPTION_CHANGED',
+          e1rm: null,
+          workingLoadKg,
+          limitingSide: last.analysis.limitingSide,
+        },
       };
   // The base of the reentry is the last ERR (RN-SUG-05).
   return withReentry(suggestion, last.exposure.finishedAt, context);

@@ -2,7 +2,8 @@ import type { Prescription } from '@/domain/models/prescription';
 import { estimatedOneRepMax, loadForTarget, type E1rm } from '@/domain/rules/suggestion/e1rm';
 import { workingLoad, type Exposure } from '@/domain/rules/suggestion/exposures';
 import { floorToGrid, nearestOnGrid, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
-import type { EstimateBasis, Suggestion } from '@/domain/rules/suggestion/suggestion';
+import { analyseExposure } from '@/domain/rules/suggestion/exposure-analysis';
+import type { EstimateBasis, LimitingSide, Suggestion } from '@/domain/rules/suggestion/suggestion';
 
 /** The highest e1RM among the sets of an exposure, with the set it comes from (RN-SUG-07). */
 export function exposureE1rm(exposure: Exposure): { e1rm: E1rm; basis: EstimateBasis } | null {
@@ -60,11 +61,12 @@ export function fromWorkingLoad(
   workingLoadKg: number,
   prescription: Prescription,
   grid: LoadGrid,
+  limitingSide: LimitingSide | null,
 ): Suggestion {
   return {
     loadKg: nearestOnGrid(workingLoadKg, grid),
     reps: prescription.repRange.min,
-    reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg },
+    reason: { code: 'FROM_EXERCISE_HISTORY', workingLoadKg, limitingSide },
   };
 }
 
@@ -83,8 +85,9 @@ export function suggestWithoutRoutineHistory(
   const last = exerciseExposures.at(-1);
   // An external-load set always has a load (I-06): no W means no exposure.
   const workingLoadKg = last === undefined ? null : workingLoad(last);
-  if (workingLoadKg === null) {
+  if (last === undefined || workingLoadKg === null) {
     return { loadKg: null, reps: prescription.repRange.min, reason: { code: 'CALIBRATION' } };
   }
-  return fromWorkingLoad(workingLoadKg, prescription, grid);
+  const { limitingSide } = analyseExposure(last);
+  return fromWorkingLoad(workingLoadKg, prescription, grid, limitingSide);
 }
