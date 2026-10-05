@@ -1,7 +1,12 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Prescription } from '@/domain/models/prescription';
 import type { Routine, RoutineDay, RoutineExercise } from '@/domain/models/routine';
-import type { BilateralSet, UnilateralSet, WorkoutExercise } from '@/domain/models/workout';
+import type {
+  BilateralSet,
+  UnilateralSet,
+  Workout,
+  WorkoutExercise,
+} from '@/domain/models/workout';
 
 /**
  * Test builders: a valid default for each model, with only what a test cares about overridden.
@@ -117,6 +122,22 @@ export function aUnilateralSet(overrides: Partial<UnilateralSet> = {}): Unilater
     repsRight: 10,
     rirLeft: 2,
     rirRight: 2,
+    ...overrides,
+  };
+}
+
+export function aWorkout(overrides: Partial<Workout> = {}): Workout {
+  return {
+    id: 'workout-1',
+    routineId: 'routine-1',
+    routineDayId: 'day-1',
+    routineNameSnapshot: 'Mi rutina',
+    dayNameSnapshot: 'Día A',
+    status: 'finished',
+    startedAt: new Date('2026-10-05T11:00:00Z'),
+    finishedAt: new Date('2026-10-05T12:00:00Z'),
+    notes: null,
+    exercises: [],
     ...overrides,
   };
 }
