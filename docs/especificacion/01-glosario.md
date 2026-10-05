@@ -8,10 +8,15 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 |---|---|---|
 | **Ejercicio** | Movimiento concreto del catálogo (ej.: sentadilla con barra). Tiene un tipo de carga, músculos, un equipamiento principal y una lista de equipamiento. | `Exercise` |
 | **Equipamiento principal** | El equipamiento que define el incremento de carga de un ejercicio (RN-CAT-03). | `primaryEquipment` |
+| **Equipamiento** | Vocabulario controlado de RN-CAT-03: barra, mancuerna, máquina, polea, peso corporal, kettlebell. | `Equipment` (`barbell`, `dumbbell`, `machine`, `cable`, `bodyweight`, `kettlebell`) |
+| **Músculo** | Vocabulario controlado de RN-CAT-03 (pecho, espalda, hombros…). | `Muscle` |
+| **Mecánica** | Si un ejercicio es multiarticular o de aislamiento. Define el rol al agregarlo a una rutina (RN-PERF-03). | `Mechanic` (`compound`, `isolation`) |
+| **Atribución** | Fuente y licencia de un ejercicio del catálogo, que se muestran en su detalle (RF-CAT-02). | `ExerciseAttribution` |
 | **Catálogo** | Conjunto de ejercicios disponibles. Lo mantiene el equipo y es de solo lectura para el usuario. | `ExerciseCatalog` |
 | **Tipo de carga** | Cómo se mide la dificultad de un ejercicio. En el MVP: `externa` (barra, mancuerna, máquina) o `peso corporal`. Ver ADR-0005. | `LoadType` (`external`, `bodyweight`) |
 | **Rutina** | Plan de entrenamiento del usuario: una lista ordenada de días. | `Routine` |
 | **Plantilla** | Rutina predefinida por el equipo, con un nivel sugerido (PLT-FB2 y PLT-FB3 para novatos, PLT-TP4 para intermedios). Al adoptarla, se **copia** como rutina del usuario. | `RoutineTemplate` |
+| **Día y ejercicio de plantilla** | La estructura de una plantilla: días, ejercicios, orden, rol y series, sin prescripción (RN-PERF-03). | `TemplateDay`, `TemplateExercise` |
 | **Día (de rutina)** | Parte de la rutina que se hace en un entrenamiento (ej.: "Día A — Tren superior"). | `RoutineDay` |
 | **Ejercicio de rutina** | Un ejercicio dentro de un día, con su prescripción. Un mismo ejercicio puede aparecer en varios días con prescripciones distintas. | `RoutineExercise` |
 | **Prescripción** | Lo que se pide hacer en un ejercicio de rutina: cantidad de series, rango de repeticiones y esfuerzo objetivo. | `Prescription` |
@@ -23,6 +28,7 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **Serie** | Una ejecución registrada: carga × repeticiones, más el esfuerzo opcional. | `WorkoutSet` (no `Set`, que choca con el `Set` de JS) |
 | **Repeticiones** | Cantidad de veces que se completó el movimiento en una serie. | `reps` |
 | **Carga / peso** | Peso externo usado en la serie, guardado en la unidad canónica (Q-07). | `loadKg` (columna `load_kg`) |
+| **Unidad** | Unidad en la que se muestran e ingresan las cargas. Siempre se guardan en kg (RN-PERF-05). | `LoadUnit` (`kg`, `lb`) |
 | **RIR** | *Reps In Reserve*: cuántas repeticiones más se podrían haber hecho. 0 = al fallo. | `rir` |
 | **RPE** | *Rate of Perceived Exertion*, escala 1–10. Equivale a RPE = 10 − RIR. Solo se usa como equivalencia. | — |
 | **Escala de esfuerzo simple** | Versión de RIR para novatos. Pregunta "¿Cuántas más podías hacer?" con las opciones "Ninguna", "1", "2 o 3" y "4 o más", que se traducen a RIR (RN-ENT-03). | `EffortLevel` |
@@ -39,10 +45,12 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **Objetivo** | Meta de entrenamiento del perfil: salud general, músculo o fuerza. Define la prescripción por defecto. | `TrainingGoal` (`health`, `hypertrophy`, `strength`) |
 | **Modo de esfuerzo** | Cómo se informa el esfuerzo: escala simple o RIR numérico. | `EffortMode` |
 | **Rol (de ejercicio)** | *Principal* (multiarticular, va primero y descansa más) o *accesorio*. Junto con el objetivo, define la prescripción. | `ExerciseRole` (`main`, `accessory`) |
-| **Unilateral** | Ejercicio que se hace de un lado por vez. Sus series guardan repeticiones y esfuerzo por lado. | `isUnilateral` |
+| **Unilateral** | Ejercicio que se hace de un lado por vez. Sus series guardan repeticiones y esfuerzo por lado. | `isUnilateral`; sus series son `UnilateralSet` y las demás `BilateralSet` |
 | **Lado limitante** | En una serie unilateral, el lado con peor rendimiento. Es el que usa el motor (RN-ENT-06). | `limitingSide` |
 | **Copia de la prescripción** | La prescripción del día copiada al iniciar un entrenamiento. Así el historial no cambia cuando se edita la rutina. | `WorkoutExercise.prescription` |
 | **Ejercicio salteado** | Ejercicio de un entrenamiento que no se hizo. No cuenta ni como fallo ni como realización. | `skipped` |
+| **Estado de un ejercicio de entrenamiento** | Pendiente, hecho o salteado. | `WorkoutExerciseStatus` (`pending`, `done`, `skipped`) |
+| **Violación** | Un invariante que no se cumple, con un código y la ruta a la parte del agregado que lo rompe. El texto para el usuario sale de `strings`. | `Violation { code, path }` |
 | **Sustitución** | Reemplazo de un ejercicio solo para el entrenamiento en curso. Crea un ejercicio de entrenamiento nuevo con `exerciseId ≠ plannedExerciseId` (RN-ENT-10). | — |
 | **Ejercicio planificado** | El ejercicio que indicaba la rutina al iniciar el entrenamiento (copia). | `plannedExerciseId` |
 | **Entrenamiento abandonado** | Entrenamiento en curso iniciado hace más de 12 h (RN-ENT-11). | — |
