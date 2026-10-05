@@ -15,18 +15,16 @@ const { REENTRY_1, REENTRY_2 } = SUGGESTION_PARAMETERS;
  * time it comes back after one.
  */
 export function inactivityGapDays(baseFinishedAt: Date, context: SuggestionContext): number {
+  const { workoutDates, localDate } = context;
   // workoutDates is ordered by finishedAt (orderedContext): the ones from the base on are a suffix.
-  const from = firstFinishedFrom(context.workoutDates, baseFinishedAt);
-  const dates = [
-    baseFinishedAt,
-    ...context.workoutDates.slice(from).map((workout) => workout.finishedAt),
-  ].map(context.localDate);
-  dates.push(context.today);
+  let previous = localDate(baseFinishedAt);
   let gap = 0;
-  for (let i = 1; i < dates.length; i++) {
-    gap = Math.max(gap, daysBetween(dates[i - 1], dates[i]));
+  for (let i = firstFinishedFrom(workoutDates, baseFinishedAt); i < workoutDates.length; i++) {
+    const date = localDate(workoutDates[i].finishedAt);
+    gap = Math.max(gap, daysBetween(previous, date));
+    previous = date;
   }
-  return gap;
+  return Math.max(gap, daysBetween(previous, context.today));
 }
 
 /** RN-SUG-05: more than 42 days → −20 %; more than 21 → −10 %; otherwise none. */

@@ -96,13 +96,19 @@ export function routineExposures(
  * a tie, the highest. Null without load (bodyweight).
  */
 export function workingLoad(exposure: Exposure): number | null {
-  const loads = exposure.sets.flatMap((set) => (set.loadKg === null ? [] : [set.loadKg]));
-  let best: { load: number; uses: number } | null = null;
-  for (const load of loads) {
-    const uses = loads.filter((other) => areLoadsEqual(load, other)).length;
-    if (best === null || uses > best.uses || (uses === best.uses && load > best.load)) {
-      best = { load, uses };
+  const { sets } = exposure;
+  let bestLoad: number | null = null;
+  let bestUses = 0;
+  for (const { loadKg } of sets) {
+    if (loadKg === null) continue;
+    let uses = 0;
+    for (const other of sets) {
+      if (other.loadKg !== null && areLoadsEqual(loadKg, other.loadKg)) uses++;
+    }
+    if (bestLoad === null || uses > bestUses || (uses === bestUses && loadKg > bestLoad)) {
+      bestLoad = loadKg;
+      bestUses = uses;
     }
   }
-  return best?.load ?? null;
+  return bestLoad;
 }

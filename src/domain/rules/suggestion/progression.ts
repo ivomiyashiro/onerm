@@ -1,21 +1,13 @@
 import { areLoadsEqual } from '@/domain/rules/load-equality';
-import type {
-  EngineState,
-  Priority,
-  RoutineExposureRecord,
-} from '@/domain/rules/suggestion/engine-types';
+import type { EngineState, Priority, LoadedRecord } from '@/domain/rules/suggestion/engine-types';
 import { increaseLoad, nearestOnGrid } from '@/domain/rules/suggestion/load-grid';
 import { SUGGESTION_PARAMETERS } from '@/domain/rules/suggestion/parameters';
 
 const { LOAD_INCREASE, MAX_JUMP_WITHOUT_OVERSHOOT, REP_OVERSHOOT } = SUGGESTION_PARAMETERS;
 
 /** The last ERR with a W: double progression and effort work on it (RN-SUG-02, RN-SUG-03). */
-export function lastLoadedRecord(
-  state: EngineState,
-): (RoutineExposureRecord & { workingLoadKg: number }) | null {
-  const last = state.records.at(-1);
-  const workingLoadKg = last?.analysis.workingLoadKg ?? null;
-  return last === undefined || workingLoadKg === null ? null : { ...last, workingLoadKg };
+export function lastLoadedRecord(state: EngineState): LoadedRecord | null {
+  return state.lastLoaded;
 }
 
 /** The share a new load adds over W, for the reasons (13 §4: «+{p} %»). */
