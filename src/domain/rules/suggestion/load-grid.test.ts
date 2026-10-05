@@ -1,4 +1,11 @@
-import { floorToGrid, nearestOnGrid, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
+import {
+  decreaseLoad,
+  floorToGrid,
+  increaseLoad,
+  nearestOnGrid,
+  roundOnGrid,
+  type LoadGrid,
+} from '@/domain/rules/suggestion/load-grid';
 import { fromUnit, toUnit } from '@/domain/rules/units';
 
 const barbellKg: LoadGrid = { unit: 'kg', increment: 2.5, minLoad: 20 };
@@ -58,5 +65,54 @@ describe('RN-SUG-09 · load grid', () => {
       expect(lb(nearestOnGrid(fromUnit(52.5, 'lb'), barbellLb))).toBeCloseTo(50, 9);
       expect(lb(nearestOnGrid(fromUnit(53, 'lb'), barbellLb))).toBeCloseTo(55, 9);
     });
+  });
+});
+
+describe('RN-SUG-09 · round, increase and decrease', () => {
+  it('roundOnGrid goes to the closest multiple; half way, up', () => {
+    expect(roundOnGrid(63, barbellKg)).toBe(62.5);
+    expect(roundOnGrid(66, barbellKg)).toBe(65);
+    expect(roundOnGrid(56.25, barbellKg)).toBe(57.5);
+  });
+
+  it('increaseLoad · round(máx(W + inc, W × (1 + p)))', () => {
+    // caso A: máx(62.5; 63) = 63 → 62.5.
+    expect(increaseLoad(60, 0.05, barbellKg)).toBe(62.5);
+    // caso C: máx(62.5; 66) = 66 → 65.
+    expect(increaseLoad(60, 0.1, barbellKg)).toBe(65);
+    // caso G: máx(14; 12.6) → 14.
+    expect(increaseLoad(12, 0.05, dumbbellKg)).toBe(14);
+  });
+
+  it('increaseLoad · always ends above W, also with W off the grid', () => {
+    // W = 60.9 (by hand): máx(63.4; 63.945) = 63.945 → 65.
+    expect(increaseLoad(60.9, 0.05, barbellKg)).toBe(65);
+    // round(máx(2.04 + 2; 2.142)) = 4.
+    expect(increaseLoad(2.04, 0.05, dumbbellKg)).toBe(4);
+  });
+
+  it('decreaseLoad · round(mín(W − inc, W × (1 − p)))', () => {
+    // caso A: mín(60; 56.25) = 56.25 → 57.5.
+    expect(decreaseLoad(62.5, 0.1, barbellKg)).toBe(57.5);
+    // caso D: mín(60; 50) = 50.
+    expect(decreaseLoad(62.5, 0.2, barbellKg)).toBe(50);
+  });
+
+  it('decreaseLoad · always ends below W, also with W off the grid', () => {
+    // W = 21 (by hand): mín(18.5; 18.9) = 18.5 → 17.5 → bar 20, which is below 21.
+    expect(decreaseLoad(21, 0.1, { ...barbellKg, minLoad: 2.5 })).toBe(17.5);
+    // W = 63.6 with a 5 kg machine: mín(58.6; 57.24) = 57.24 → 55.
+    expect(decreaseLoad(63.6, 0.1, { unit: 'kg', increment: 5, minLoad: 5 })).toBe(55);
+  });
+
+  it('caso N · decreaseLoad never goes under the minimum load (RN-PERF-08)', () => {
+    // bajada(22.5; 20 %) = round(mín(20; 18)) = 17.5 → under 20 kg → 20.
+    expect(decreaseLoad(22.5, 0.2, barbellKg)).toBe(20);
+  });
+
+  it('works on the grid of the user unit', () => {
+    // 100 lb + 5 % = 105 → 105 lb.
+    expect(lb(increaseLoad(fromUnit(100, 'lb'), 0.05, barbellLb))).toBeCloseTo(105, 9);
+    expect(lb(decreaseLoad(fromUnit(100, 'lb'), 0.1, barbellLb))).toBeCloseTo(90, 9);
   });
 });

@@ -44,3 +44,40 @@ export function nearestOnGrid(kg: number, grid: LoadGrid): number {
   if (isSame(value, upper, grid.unit)) return toLoad(upper, grid);
   return toLoad(value - lower <= upper - value ? lower : upper, grid);
 }
+
+/** `redondear` (RN-SUG-09): the closest multiple; half way, up. */
+export function roundOnGrid(kg: number, grid: LoadGrid): number {
+  const { value, lower, upper } = neighbours(kg, grid);
+  if (isSame(value, upper, grid.unit)) return toLoad(upper, grid);
+  return toLoad(value - lower < upper - value ? lower : upper, grid);
+}
+
+/**
+ * subida(W, p) = round(máx(W + inc, W × (1 + p))) (RN-SUG-09). If that doesn't go over W, the
+ * next multiple above W. With `máx(W + inc, …)` it always does; the guard keeps the rule literal.
+ */
+export function increaseLoad(workingLoadKg: number, percent: number, grid: LoadGrid): number {
+  const increment = fromUnit(grid.increment, grid.unit);
+  const result = roundOnGrid(
+    Math.max(workingLoadKg + increment, workingLoadKg * (1 + percent)),
+    grid,
+  );
+  if (result > workingLoadKg && !areLoadsEqual(result, workingLoadKg)) return result;
+  const { value, upper } = neighbours(workingLoadKg, grid);
+  return toLoad(isSame(value, upper, grid.unit) ? upper + grid.increment : upper, grid);
+}
+
+/**
+ * bajada(W, p) = round(mín(W − inc, W × (1 − p))) (RN-SUG-09). If that isn't below W, the
+ * multiple before W. Never under the minimum load (RN-PERF-08), which wins over going down.
+ */
+export function decreaseLoad(workingLoadKg: number, percent: number, grid: LoadGrid): number {
+  const increment = fromUnit(grid.increment, grid.unit);
+  const result = roundOnGrid(
+    Math.min(workingLoadKg - increment, workingLoadKg * (1 - percent)),
+    grid,
+  );
+  if (result < workingLoadKg && !areLoadsEqual(result, workingLoadKg)) return result;
+  const { value, lower } = neighbours(workingLoadKg, grid);
+  return toLoad(isSame(value, lower, grid.unit) ? lower - grid.increment : lower, grid);
+}
