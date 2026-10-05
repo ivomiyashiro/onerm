@@ -10,6 +10,20 @@ export const dev = {
   components: 'Componentes',
   placeholder: 'Esqueleto: se construye en F5–F8.',
   close: 'Cerrar',
+  /** RNF-13 on a physical device (#25). */
+  benchmark: {
+    entry: 'Medir motor (RNF-13)',
+    title: 'Medir motor',
+    description: (exposures: number, budget: number) =>
+      `Calcula la sugerencia de un ejercicio con ${exposures} exposiciones. Tiene que tardar menos de ${budget} ms.`,
+    run: 'Medir',
+    running: 'Midiendo…',
+    median: (ms: string) => `Mediana: ${ms} ms`,
+    range: (min: string, max: string, runs: number) =>
+      `Mín. ${min} ms · máx. ${max} ms · ${runs} corridas`,
+    pass: 'Cumple RNF-13',
+    fail: 'No cumple RNF-13',
+  },
   screens: {
     S01: 'Bienvenida',
     S02: 'Iniciar sesión',
