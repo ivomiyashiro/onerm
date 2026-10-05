@@ -5,15 +5,13 @@ import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 /**
  * RN-SUG-12 (ADR-0005): progression by reps only, with no deload, reentry or e1RM. Without any
  * exposure, calibration. Then: at least N sets all at the cap → «ready for a harder variant»;
- * otherwise máx(floor, mín(cap, fewest + 1)). Without ERR, the last EE with the current
- * prescription (a substitute, RN-SUG-15).
+ * otherwise máx(floor, mín(cap, fewest + 1)). Floor, cap and N are always the current
+ * prescription's, also after a range change. Without ERR, the last EE (a substitute, RN-SUG-15).
  */
 export function suggestBodyweight(state: EngineState, context: SuggestionContext): Suggestion {
   const lastExposure = state.records.at(-1)?.analysis;
   const lastExercise = context.exerciseExposures.at(-1);
-  const analysis =
-    lastExposure ??
-    (lastExercise && analyseExposure({ ...lastExercise, prescription: context.prescription }));
+  const analysis = lastExposure ?? (lastExercise && analyseExposure(lastExercise));
   if (analysis === undefined) {
     return {
       loadKg: null,
@@ -22,9 +20,11 @@ export function suggestBodyweight(state: EngineState, context: SuggestionContext
     };
   }
 
-  const { min, max } = analysis.repRange;
+  // Always the current prescription: after a range change the suggestion stays inside it.
+  const { sets, repRange } = context.prescription;
+  const { min, max } = repRange;
   const { repsWithW: reps, limitingSide } = analysis;
-  if (reps.length >= analysis.setCount && reps.every((value) => value >= max)) {
+  if (reps.length >= sets && reps.every((value) => value >= max)) {
     return { loadKg: null, reps: max, reason: { code: 'BODYWEIGHT_READY', limitingSide } };
   }
   const previousReps = Math.min(...reps);

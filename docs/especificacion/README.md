@@ -173,6 +173,7 @@ El TPO pide **entre 3 y 4 RF** en la preentrega. Esta especificación tiene más
 | 2026-10-03 | Spikes de F1: ADR-0010 (PRAGMA de WAL y `foreign_keys` al abrir), ADR-0002 (punto de control del plan B superado), 07 §2.4 (cursor de `sync_state` como TEXT; `rest_timer_notification_id` reemplazado por un identificador fijo), RN-ENT-07 y RNF-23 (el aviso con la pantalla bloqueada requiere alarmas exactas; sin el permiso no se programa), RF-ENT-06 AC5, AC9 y AC10, D17 y su aviso en S09 y S21, ADR-0001 R10 (trigger contra la vinculación automática de identidades), RN-GEN-02 (0,1 lb cuenta como igual, aceptado). |
 | 2026-10-04 | 13-textos: regla de plurales (singular con {n} = 1 y los casos de {n} = 0), «Se respalda al finalizar» en S09 y «tus datos solo están» en el estado de invitado y D13, como en RF-SYNC-06 y RF-AUTH. |
 | 2026-10-05 | Peso de la barra en el perfil, uno por unidad (`barWeightKg`, `barWeightLb`; 06 §3, 07 §2.2, RN-PERF-08), decidido por el usuario: RN-PERF-08 lo hacía configurable sin campo donde guardarlo. |
+| 2026-10-05 | Revisión de F3, decididas por el usuario: RN-SUG-04 (una ERR con todas las series con W en el tope, aunque sean menos de N, no suma al estancamiento; resuelve la contradicción con RF-SUG-03 AC8 y el caso Q), RN-SUG-12 (el peso corporal usa la prescripción actual) y RN-PERF-08 (con una carga mínima fuera de la grilla, el primer múltiplo igual o mayor). |
 
 ### Preguntas resueltas
 

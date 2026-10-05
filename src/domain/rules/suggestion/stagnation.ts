@@ -26,7 +26,8 @@ export function isBetterMark(mark: PerformanceMark, than: PerformanceMark): bool
 
 /**
  * RN-SUG-04, one ERR: a reset starts the best mark and the count again; a better mark sets the
- * count to 0; an ERR with the cap reached never adds to it; otherwise it adds 1.
+ * count to 0; an ERR with every set with W at the cap never adds to it, with N sets or fewer
+ * (caso Q); otherwise it adds 1.
  */
 export function nextStagnation(
   previous: { bestMark: PerformanceMark | null; stagnationCount: number } | undefined,
@@ -39,7 +40,9 @@ export function nextStagnation(
   }
   if (isBetterMark(mark, previous.bestMark)) return { bestMark: mark, stagnationCount: 0 };
   const { bestMark, stagnationCount } = previous;
-  if (analysis.range === 'capReached') return { bestMark, stagnationCount };
+  // At the cap (or every set with W at the cap but fewer than N: COMPLETE_SETS) it never adds.
+  const allWAtCap = analysis.repsWithW.every((reps) => reps >= analysis.repRange.max);
+  if (analysis.range === 'capReached' || allWAtCap) return { bestMark, stagnationCount };
   return { bestMark, stagnationCount: stagnationCount + 1 };
 }
 

@@ -540,3 +540,29 @@ describe('F3 review · order and resets', () => {
     });
   });
 });
+
+describe('RN-SUG-12 · bodyweight uses the current prescription', () => {
+  const pushUps = (sets: number[]) => ({
+    ...err(1, []),
+    prescription: aPrescription({ sets: 3, repRange: { min: 8, max: 15 } }),
+    sets: sets.map((reps) => ({ loadKg: null, reps, rir: null, side: null })),
+  });
+  const newRange = context({
+    loadType: 'bodyweight',
+    prescription: aPrescription({ sets: 3, repRange: { min: 5, max: 10 } }),
+  });
+
+  it('at the old cap, over the new cap: ready, with the new cap (15, 15, 15 in 5–10 → 10)', () => {
+    expect(suggestNext([pushUps([15, 15, 15])], newRange)).toMatchObject({
+      reps: 10,
+      reason: { code: 'BODYWEIGHT_READY' },
+    });
+  });
+
+  it('inside the new range: one more rep, inside it (6, 6, 6 in 5–10 → 7)', () => {
+    expect(suggestNext([pushUps([6, 6, 6])], newRange)).toMatchObject({
+      reps: 7,
+      reason: { code: 'BODYWEIGHT_ADD_REP' },
+    });
+  });
+});
