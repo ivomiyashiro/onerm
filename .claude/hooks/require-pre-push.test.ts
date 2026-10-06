@@ -68,6 +68,8 @@ describe('require-pre-push hook', () => {
     `git ${PUSH} -u origin ${BRANCH}`,
     `git ${PUSH} origin HEAD`,
     `git ${PUSH} origin +${BRANCH}:${BRANCH}`,
+    `git ${PUSH} -q -u origin ${BRANCH} 2>&1 | tail -2`,
+    `git ${PUSH} > out.log`,
   ])('allows a push of the reviewed HEAD to its branch: %j', (command) => {
     approve();
     expect(decision(command, repo)).toBe('allow');

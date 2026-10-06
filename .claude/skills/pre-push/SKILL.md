@@ -71,7 +71,7 @@ With no open blockers:
 
 1. Record the approval of the current HEAD (the fixes and applied suggestions of §3 are covered by their tests and the checks):
    `git rev-parse HEAD > "$(git rev-parse --git-dir)/claude-pre-push-approved"`
-2. `git push` (with `-u origin <branch>` if the branch has no upstream).
+2. `git push` (with `-u origin <branch>` if the branch has no upstream). Run it as a **separate** Bash call: the hook checks the command before it runs, so a marker written in the same command isn't seen yet.
 
 - **Inside `/card`** the push goes ahead without asking, like the auto-merge (`/card` §5).
 - **Invoked by the user** outside `/card`, show the report and push only after an explicit yes.

@@ -13,6 +13,8 @@ const GIT_PUSH =
   /(?:^|[\s;&|(])git((?:\s+-[Cc]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*)\s+push\b([^;&|\n]*)/g;
 // The payload of `bash -c '…'`, which would otherwise be stripped as a literal.
 const SHELL_PAYLOAD = /\b(?:bash|sh|zsh)\s+-\w*c\s+(?:'([^']*)'|"((?:\\.|[^"\\])*)")/g;
+// Shell redirections (`2>&1`, `> out.log`), which aren't push arguments.
+const REDIRECTION = /\d*[<>]+&?\s*\S*/g;
 // Options that push more than the current branch.
 const WIDE_OPTIONS = /(^|\s)(--all|--mirror|--tags|--delete|-d)(\s|=|$)/;
 
@@ -68,7 +70,10 @@ function pushArguments(command) {
  */
 function pushesOnlyHead(args, branch) {
   if (WIDE_OPTIONS.test(args)) return false;
-  const positional = args.split(/\s+/).filter((a) => a && !a.startsWith('-'));
+  const positional = args
+    .replace(REDIRECTION, ' ')
+    .split(/\s+/)
+    .filter((a) => a && !a.startsWith('-'));
   const refspecs = positional.slice(1);
   return refspecs.every((refspec) => {
     const [source, destination] = refspec.replace(/^\+/, '').split(':');
