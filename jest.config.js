@@ -5,6 +5,7 @@ module.exports = {
     '\\.svg$': '<rootDir>/tools/jest/svg-mock.js',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
-  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
+  // Integration tests (*.int.test.ts) run with `bun run test:int` (jest.int.config.js).
+  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '\\.int\\.test\\.ts$'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}', '!**/*.test.{ts,tsx}'],
 };
