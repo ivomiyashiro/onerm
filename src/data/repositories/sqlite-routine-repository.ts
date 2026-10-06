@@ -40,32 +40,26 @@ export class SqliteRoutineRepository implements RoutineRepository {
     const rows = fromRoutine(routine);
     this.db().transaction((tx) => {
       const context = { now: this.now(), userId: currentUserId(tx) };
-      writeSyncRow(tx, routines, rows.routine, context);
+      // A deleted routine never comes back, and neither do children under it (RN-SYNC-15).
+      if (writeSyncRow(tx, routines, rows.routine, context) === 'deleted') return;
       for (const day of rows.days) writeSyncRow(tx, routineDays, day, context);
       for (const exercise of rows.exercises) writeSyncRow(tx, routineExercises, exercise, context);
 
       const keptDays = rows.days.map((day) => day.id);
-      const removedDays = and(
-        eq(routineDays.routineId, routine.id),
-        notInArray(routineDays.id, keptDays),
-      );
-      const dayIds = tx
-        .select({ id: routineDays.id })
-        .from(routineDays)
-        .where(eq(routineDays.routineId, routine.id))
-        .all()
-        .map((day) => day.id);
-      softDelete(tx, routineDays, removedDays, context.now);
+      const keptExercises = rows.exercises.map((exercise) => exercise.id);
       softDelete(
         tx,
         routineExercises,
         and(
-          inArray(routineExercises.routineDayId, dayIds),
-          notInArray(
-            routineExercises.id,
-            rows.exercises.map((exercise) => exercise.id),
-          ),
+          inArray(routineExercises.routineDayId, dayIdsOf(tx, routine.id)),
+          notInArray(routineExercises.id, keptExercises),
         ),
+        context.now,
+      );
+      softDelete(
+        tx,
+        routineDays,
+        and(eq(routineDays.routineId, routine.id), notInArray(routineDays.id, keptDays)),
         context.now,
       );
     });
@@ -75,13 +69,12 @@ export class SqliteRoutineRepository implements RoutineRepository {
   async delete(id: Id): Promise<void> {
     this.db().transaction((tx) => {
       const now = this.now();
-      const dayIds = tx
-        .select({ id: routineDays.id })
-        .from(routineDays)
-        .where(eq(routineDays.routineId, id))
-        .all()
-        .map((day) => day.id);
-      softDelete(tx, routineExercises, inArray(routineExercises.routineDayId, dayIds), now);
+      softDelete(
+        tx,
+        routineExercises,
+        inArray(routineExercises.routineDayId, dayIdsOf(tx, id)),
+        now,
+      );
       softDelete(tx, routineDays, eq(routineDays.routineId, id), now);
       softDelete(tx, routines, eq(routines.id, id), now);
     });
@@ -117,4 +110,14 @@ export class SqliteRoutineRepository implements RoutineRepository {
       .all();
     return toRoutines(routineRows, dayRows, exerciseRows);
   }
+}
+
+/** Every day of the routine, deleted ones included. */
+function dayIdsOf(db: AppDatabase, routineId: Id): string[] {
+  return db
+    .select({ id: routineDays.id })
+    .from(routineDays)
+    .where(eq(routineDays.routineId, routineId))
+    .all()
+    .map((day) => day.id);
 }
