@@ -203,3 +203,21 @@ Cada ajuste de Perfil abre una hoja con el componente `SheetBody/Ajuste de perfi
 - **Notificaciones del descanso:** no lleva hoja, es un interruptor en la fila. `Switch` es un componente interactivo en el prototipo.
 - **Selección única (2026-10-02):** `OptionCard` y `DayOption` se eligen de a uno (onboarding, elegir día y hojas de Perfil). En el prototipo cada opción lleva a una copia de la pantalla con esa opción marcada, porque los componentes interactivos permitían marcar varias a la vez.
 - **Plantillas sin "+":** crear una rutina solo se ofrece en "Mis rutinas"; en "Plantillas" no hay nada que crear.
+
+## 15. Inicio: botón central en la barra de pestañas (2026-10-06)
+
+La barra fija "Empezar" sobre las pestañas ocupaba unos 87 px (≈ 10 % de la pantalla) y dejaba ver solo dos ejercicios y medio de "Lo de hoy". La acción principal pasa a un **botón circular en el centro de la barra de pestañas**: Inicio · Rutinas · ● · Progreso · Perfil.
+
+| Regla | Valor |
+|---|---|
+| Forma | Círculo de 64 px (un disco), sobresale 24 px por encima de la barra. Aro de 5 px del color de la barra (`bg/tabbar`) para separarlo del contenido y sombra suave |
+| Color | Degradado `accent-top` → `accent-bottom`: es el único bloque lima sólido de la pantalla. Deshabilitado: `bg/raised` con el ícono y la etiqueta en `text/tertiary`, sin sombra |
+| Ícono | `Icon/dumbbell` en `on-accent`: 30 px con trazo de 2,75 en Empezar; 22 px sobre el tiempo (13 px, negrita) en Continuar |
+| Etiqueta | Debajo, alineada con las de las pestañas, en negrita y `text/primary`: "Empezar" o "Continuar" |
+| Estados (`TabBar` → propiedad `Acción`) | **Empezar** (próximo día) · **Continuar** (entrenamiento en curso, con el tiempo) · **Deshabilitado** (Inicio cargando, error de lectura o sin rutina activa) |
+| Alcance | Visible en las cuatro pestañas. Reemplaza a la barra de acción de S07 y a `ActiveWorkoutBar`, que se quitó del archivo |
+| Sin rutina activa | El botón queda deshabilitado y "Elegir una rutina" pasa al estado vacío de S07, como botón principal debajo de la tarjeta |
+| Blanco táctil | 64 px, por encima de los 56 dp de los controles principales (UX-02) |
+
+Con el espacio liberado, "Lo de hoy" muestra cuatro ejercicios en lugar de dos y medio. La placa cortada sigue siendo el botón principal dentro de las pantallas (S09, hojas, estados vacíos); el círculo es solo la acción global de la barra.
+

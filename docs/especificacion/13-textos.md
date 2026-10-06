@@ -198,7 +198,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: unilateral dividido | Reps izq. · Reps der. · Izq · Der · Distinto por lado · Repeticiones en reserva (RIR) · 0 = no podías hacer ni una más. |
 | S09: peso corporal y cierre | Sin carga: peso corporal · Completo (ejercicio terminado) |
 | S09: editar serie y carga | Editar serie {n} · Carga · Serie {n} · {ejercicio} · Cancelar · La carga tiene que estar entre 0 y 1000 kg. |
-| Barra de entrenamiento en curso | Entrenamiento en curso · {día} · {tiempo} · Continuar |
+| Botón central de la barra de pestañas | Empezar · Continuar · {tiempo} (dentro del botón). Nombre accesible: "Empezar {día}" · "Continuar entrenamiento, {tiempo}" · "Empezar, no disponible" (deshabilitado) |
 | S07 | Hoy toca · {n} ejercicios · {n} series · ~{min} min · Esta semana · {hechos} de {meta} · Hoy · Lo de hoy · Sube en {n} · suma reps en {n} · Calibrar · En curso · {tiempo} · Arrancá hoy |
 | S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) · Se respalda al finalizar (solo con cuenta, 08 §5) |
 | S08 | Elegir día (título de la hoja) · {rutina} · {n} días · Elegir {día} · Recomendado · Hecho hace {n} días · Nunca hecho |

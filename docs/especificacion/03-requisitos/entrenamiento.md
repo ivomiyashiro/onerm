@@ -42,7 +42,7 @@ Escenario: AC1 — Próximo día
   Dado que tengo una rutina activa
   Cuando abro la app
   Entonces el inicio muestra el próximo día (RN-RUT-01) con sus ejercicios y la carga sugerida de cada uno
-  Y la acción principal es "Empezar"
+  Y la acción principal es "Empezar" (botón central de la barra de pestañas, 08 §2)
 
 Escenario: AC2 — Empezar
   Dado que veo el próximo día
@@ -60,7 +60,7 @@ Escenario: AC3 — Elegir otro día
 Escenario: AC4 — Ya hay uno en curso
   Dado que tengo un entrenamiento en curso
   Cuando abro la app
-  Entonces la acción principal es "Continuar entrenamiento" (RN-ENT-01)
+  Entonces la acción principal es "Continuar" con el tiempo del entrenamiento (RN-ENT-01)
 
 Escenario: AC5 — Sin rutina activa
   Dado que no tengo rutina activa
@@ -71,6 +71,12 @@ Escenario: AC6 — Sin conexión
   Dado que no tengo conexión
   Cuando inicio un entrenamiento
   Entonces todo funciona igual
+
+Escenario: AC7 — Desde cualquier pestaña
+  Dado que estoy en Rutinas, Progreso o Perfil
+  Cuando toco el botón central de la barra de pestañas
+  Entonces empiezo el próximo día, o vuelvo al entrenamiento en curso si hay uno
+  Y sin rutina activa el botón está deshabilitado
 ```
 
 ---
