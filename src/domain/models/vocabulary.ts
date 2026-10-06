@@ -44,14 +44,18 @@ export const EXERCISE_ROLES = ['main', 'accessory'] as const;
 export type ExerciseRole = (typeof EXERCISE_ROLES)[number];
 
 /** RN-PERF-07: intermediate and advanced behave the same in the MVP. */
-export type ExperienceLevel = 'novice' | 'intermediate' | 'advanced';
+export const EXPERIENCE_LEVELS = ['novice', 'intermediate', 'advanced'] as const;
+export type ExperienceLevel = (typeof EXPERIENCE_LEVELS)[number];
 
-export type TrainingGoal = 'health' | 'hypertrophy' | 'strength';
+export const TRAINING_GOALS = ['health', 'hypertrophy', 'strength'] as const;
+export type TrainingGoal = (typeof TRAINING_GOALS)[number];
 
 /** Only affects display and input: loads are always stored in kg (RN-PERF-05). */
-export type LoadUnit = 'kg' | 'lb';
+export const LOAD_UNITS = ['kg', 'lb'] as const;
+export type LoadUnit = (typeof LOAD_UNITS)[number];
 
-export type EffortMode = 'simple' | 'rir';
+export const EFFORT_MODES = ['simple', 'rir'] as const;
+export type EffortMode = (typeof EFFORT_MODES)[number];
 
 /** Entity identifier, generated on the client (RN-SYNC-02). */
 export type Id = string;
