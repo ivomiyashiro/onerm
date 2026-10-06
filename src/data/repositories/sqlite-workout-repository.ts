@@ -101,16 +101,27 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
     });
   }
 
-  /** Discarding: logical delete of the workout, its exercises and their sets (06 §3, I-07). */
+  /**
+   * A workout in progress never left the device (RN-SYNC-13), so discarding it deletes it
+   * physically with its exercises and sets (RF-ENT-12). A finished one is deleted logically, with
+   * its children, so the delete reaches the server (I-07, RN-SYNC-15).
+   */
   async delete(id: Id): Promise<void> {
     this.db().transaction((tx) => {
+      const exerciseIds = exerciseIdsOf(tx, id);
+      const workout = tx
+        .select({ status: workouts.status })
+        .from(workouts)
+        .where(eq(workouts.id, id))
+        .get();
+      if (workout?.status === 'in_progress') {
+        tx.delete(workoutSets).where(inArray(workoutSets.workoutExerciseId, exerciseIds)).run();
+        tx.delete(workoutExercises).where(eq(workoutExercises.workoutId, id)).run();
+        tx.delete(workouts).where(eq(workouts.id, id)).run();
+        return;
+      }
       const now = this.now();
-      softDelete(
-        tx,
-        workoutSets,
-        inArray(workoutSets.workoutExerciseId, exerciseIdsOf(tx, id)),
-        now,
-      );
+      softDelete(tx, workoutSets, inArray(workoutSets.workoutExerciseId, exerciseIds), now);
       softDelete(tx, workoutExercises, eq(workoutExercises.workoutId, id), now);
       softDelete(tx, workouts, eq(workouts.id, id), now);
     });

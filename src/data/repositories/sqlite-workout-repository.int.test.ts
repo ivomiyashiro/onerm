@@ -267,6 +267,22 @@ describe('SqliteWorkoutRepository: observation', () => {
 });
 
 describe('SqliteWorkoutRepository: delete (06 §3, I-07)', () => {
+  it('RF-ENT-12.AC1 · discarding a workout in progress deletes it physically, with its exercises and sets (RN-SYNC-13)', async () => {
+    const [exercise] = IN_PROGRESS.exercises;
+    await repository.save({
+      ...IN_PROGRESS,
+      exercises: [
+        { ...exercise, sets: [aBilateralSet({ id: 's9', workoutExerciseId: 'we3', position: 1 })] },
+      ],
+    });
+    await repository.save(FINISHED);
+
+    await repository.delete('w2');
+
+    expect(t.db.select({ id: workouts.id }).from(workouts).all()).toEqual([{ id: 'w1' }]);
+    expect(idsWhere(() => true)).toEqual(['s1', 's2', 's3', 'w1', 'we1', 'we2']);
+  });
+
   it('a new set under a deleted exercise is not written (RN-SYNC-12, RN-SYNC-15)', async () => {
     await repository.save(FINISHED);
     t.db
