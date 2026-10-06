@@ -118,7 +118,7 @@ try {
 if (approved !== head) {
   deny(
     `Push blocked: commit ${head.slice(0, 7)} didn't pass the pre-push review. ` +
-      'Run the /pre-push skill (checks + standards, correctness and security reviewers) first.',
+      'Run the /pre-push skill (checks + code and security reviewers) first.',
   );
 }
 

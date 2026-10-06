@@ -1,20 +1,24 @@
 ---
 name: pre-push
-description: Review before every push in OneRM. Runs typecheck, lint and tests, then three read-only Sonnet reviewers (standards, security, correctness) on the commits to push, and pushes only without blockers. Use whenever Claude is about to push, when the user says "pusheá", "subí los cambios" or asks for a review before a push. A hook blocks any `git push` by Claude whose HEAD didn't pass here.
+description: Review before every push in OneRM. Runs typecheck, lint and tests, then the read-only Sonnet reviewers (code-reviewer always, security-reviewer for sensitive paths) on the commits not reviewed yet, and pushes only without blockers. Use whenever Claude is about to push, when the user says "pusheá", "subí los cambios" or asks for a review before a push. A hook blocks any `git push` by Claude whose HEAD didn't pass here.
 ---
 
 # Pre-push review
 
 `.claude/hooks/require-pre-push.mjs` blocks every `git push` that Claude runs if `HEAD` wasn't approved by this skill. Pushes made by hand in a terminal aren't affected.
 
+**Token budget:** at most one `code-reviewer` per push, plus `security-reviewer` only when it applies, and only on commits nobody has reviewed yet.
+
 ## 0. Prepare
 
 1. `git status --porcelain`. Uncommitted changes aren't pushed: inside `/card`, commit them if they belong to the current TDD step; otherwise ask the user.
-2. The range to push:
-   - `git fetch origin` (if the network fails, continue with what is local and say so);
-   - base = `@{u}` if the branch has an upstream, else `origin/main`;
-   - `git log --oneline <base>..HEAD`. If it is empty, there is nothing to push: say so and stop.
-3. `git diff --stat <base>...HEAD` to see which areas changed.
+2. `git fetch origin` (if the network fails, continue with what is local and say so).
+3. **The range to review:**
+   - `approved` = the content of `$(git rev-parse --git-dir)/claude-pre-push-approved`, if it exists.
+   - If `approved` is an ancestor of `HEAD` and not on `origin/main` (`git merge-base --is-ancestor $approved HEAD` and not `git merge-base --is-ancestor $approved origin/main`), the range is **incremental**: `$approved..HEAD`.
+   - Otherwise the range is the whole branch: `origin/main...HEAD`.
+   - `git log --oneline <range>`. If it is empty, there is nothing new: go to §5.
+4. `git diff --stat <range>` to see which areas changed.
 
 ## 1. Automatic checks
 
@@ -22,38 +26,38 @@ description: Review before every push in OneRM. Runs typecheck, lint and tests, 
 
 ## 2. Reviewers
 
-Launch them **in parallel, in one message**, with the `Agent` tool and these `subagent_type`s (all run on Sonnet and are read-only):
+Launch the ones that apply **in parallel, in one message**, with the `Agent` tool:
 
 | Agent | When |
 |---|---|
-| `standards-reviewer` | Always. |
-| `correctness-reviewer` | When the diff touches `src/`, `app/`, `supabase/` or `tools/`. |
-| `security-reviewer` | When the diff touches `src/data/`, `src/di/`, `app/`, `app.config.ts`, `supabase/`, `.github/`, `.claude/`, `package.json`, `bun.lock`, any `.env*` file, or adds a URL, key or token anywhere. Otherwise write "not applicable". |
+| `code-reviewer` | When the range touches anything other than `docs/`, `CHANGELOG.md` and `*.md` files outside `.claude/`. Standards, architecture and React, and correctness in one pass. |
+| `security-reviewer` | When the range touches `src/data/`, `src/di/`, `app.config.ts`, `supabase/`, `.github/`, `.claude/`, `package.json`, `bun.lock` or any `.env*` file, or adds a URL, key or token anywhere. |
 
-The prompt of each one: the range (`<base>...HEAD`), the card number if there is one, and "Follow your instructions and return the report."
+If neither applies (a docs-only range), the checks of §1 are enough.
+
+The prompt of each one: the range, the card number if there is one, and "Follow your instructions and return the report."
 
 Agent types load when a session starts. If they aren't available yet (the session predates `.claude/agents/`), launch `general-purpose` with `model: sonnet` and ask it to read `.claude/agents/<name>.md` and follow its body.
 
-## 3. Triage
+## 3. Triage (one round)
 
 1. **Reproduce each blocker** before acting on it (run the command or read the cited line). Discard the ones that don't hold up, and say why in the report.
-2. Fix the confirmed blockers on the same branch, with their test first when they are bugs. Commit in Conventional Commits.
-3. Then run this skill again from step 0. After two rounds with blockers still open, stop and tell the user.
+2. Fix the confirmed blockers on the same branch, with a test first when they are bugs, and commit.
+3. **No second round of `code-reviewer`:** the fix is verified by its test and the checks of §1. Only a security blocker is re-checked, by `security-reviewer` on the range of the fix commits.
 4. **A specification gap** or a decision that is the user's (a new dependency, a security trade-off) is never fixed unilaterally: stop and ask.
-5. Suggestions are optional: apply the cheap ones that clearly improve the code, and list the rest in the PR body under "Not done".
+5. Suggestions are optional: apply the cheap ones that clearly improve the code, without another review, and list the rest in the PR body under "Not done".
 
 ## 4. Report
 
 In Spanish, to the user:
 
 ```
-# Pre-push: <N> commits → origin/<branch>
+# Pre-push: <N> commits → origin/<branch> (rango completo / incremental desde <sha>)
 
 | Revisión | Resultado |
 |---|---|
 | Typecheck, lint, tests | ✅ / ❌ |
-| Estándares | N bloqueantes, M sugerencias |
-| Correctitud | N bloqueantes, M sugerencias / no aplica |
+| Código (estándares, arquitectura, correctitud) | N bloqueantes, M sugerencias / no aplica |
 | Seguridad | N bloqueantes, M sugerencias / no aplica |
 
 Bloqueantes corregidos: …
@@ -65,10 +69,10 @@ Veredicto: LISTO PARA PUSHEAR / CORREGIR ANTES
 
 With no open blockers:
 
-1. Record the approval of the reviewed HEAD:
+1. Record the approval of the current HEAD (the fixes and applied suggestions of §3 are covered by their tests and the checks):
    `git rev-parse HEAD > "$(git rev-parse --git-dir)/claude-pre-push-approved"`
 2. `git push` (with `-u origin <branch>` if the branch has no upstream).
 
 - **Inside `/card`** the push goes ahead without asking, like the auto-merge (`/card` §5).
 - **Invoked by the user** outside `/card`, show the report and push only after an explicit yes.
-- Never write the approval file without completing steps 1 to 4. Any new commit changes `HEAD` and needs a new review.
+- Never write the approval file without completing steps 1 to 4. Any later commit changes `HEAD` and goes through this skill again, reviewing only the new commits.

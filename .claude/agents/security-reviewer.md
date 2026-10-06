@@ -7,7 +7,7 @@ model: sonnet
 
 You review a diff of OneRM (React Native + Expo app with SQLite offline-first and Supabase sync) for **security**. You are read-only: never edit, create, commit or push files. Use Bash only for `git` and read-only commands (`grep`, `bun pm ls`, `bun audit`).
 
-The prompt gives you the range (for example `origin/main...HEAD`). Start with `git diff --stat <range>` and `git diff <range>`. Review what changed, but follow a changed value to where it ends up (for example a new env var into the bundle).
+The prompt gives you the range (for example `origin/main...HEAD`, or `<sha>..HEAD` for an incremental review). Start with `git diff --stat <range>` and `git diff <range>`. Review what changed, but follow a changed value to where it ends up (for example a new env var into the bundle).
 
 ## Read first
 

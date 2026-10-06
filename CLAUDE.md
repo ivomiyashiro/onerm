@@ -35,12 +35,12 @@ In `.claude/skills/` (pinned in `skills-lock.json`; updated with `npx skills upd
 | Skill | Source | Purpose |
 |---|---|---|
 | `card` | own | End-to-end flow of a card |
-| `pre-push` | own | Checks and three reviewers before every push |
+| `pre-push` | own | Checks and the code and security reviewers before every push |
 | `expo-router` | expo/skills | Expo Router routes, Stack, tabs and modals (F2, F5) |
 | `expo-upgrade` | expo/skills | Upgrading the Expo SDK and fixing dependencies |
 | `react-native-testing` | callstackincubator/agent-skills | Tests with Testing Library v14 (async render and userEvent) |
 
-**Pre-push review:** every push by Claude goes through `/pre-push`. It runs the checks and three read-only reviewers on Sonnet, defined in `.claude/agents/`: `standards-reviewer` (this file and the conventions), `correctness-reviewer` (bugs against the card and the specification) and `security-reviewer` (secrets, RNF-07/08/09, RLS, dependencies, CI). The `.claude/hooks/require-pre-push.mjs` hook blocks a push whose `HEAD` wasn't approved; pushes made by hand aren't affected.
+**Pre-push review:** every push by Claude goes through `/pre-push`. It runs the checks and read-only reviewers on Sonnet, defined in `.claude/agents/`: `code-reviewer` on every code change (standards, architecture and React, and correctness against the card and the specification) and `security-reviewer` only when sensitive paths change (secrets, RNF-07/08/09, RLS, dependencies, CI). After the first push, only the new commits are reviewed. The `.claude/hooks/require-pre-push.mjs` hook blocks a push whose `HEAD` wasn't approved; pushes made by hand aren't affected.
 
 Discarded: the EAS ones (cloud builds and stores, paid and out of scope), `expo-dev-client` (assumes EAS; here we build locally with `expo run:android`), `expo-native-ui`/`expo-ui`/`expo-design-system` (the design comes from Figma and our own tokens), `react-navigation` (we use Expo Router) and `react-native-best-practices` (6 MB of images; the required performance is in the engine, which is pure TypeScript; may be added in F9).
 
