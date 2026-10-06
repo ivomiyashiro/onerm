@@ -45,9 +45,17 @@ function between(column: AnySQLiteColumn | SQL, limits: { min: number; max: numb
   return sql`${column} between ${sql.raw(String(limits.min))} and ${sql.raw(String(limits.max))}`;
 }
 
-/** Null, or within the limits. */
-function nullOrBetween(column: AnySQLiteColumn, limits: { min: number; max: number }): SQL {
-  return sql`${column} is null or ${between(column, limits)}`;
+/**
+ * A whole number within the limits, like the domain's `isWholeBetween`: SQLite stores 2.5 in an
+ * INTEGER column as a REAL, so `between` alone would accept it.
+ */
+function wholeBetween(column: AnySQLiteColumn, limits: { min: number; max: number }): SQL {
+  return sql`typeof(${column}) = 'integer' and ${between(column, limits)}`;
+}
+
+/** Null, or a whole number within the limits. */
+function nullOrWholeBetween(column: AnySQLiteColumn, limits: { min: number; max: number }): SQL {
+  return sql`${column} is null or (${wholeBetween(column, limits)})`;
 }
 
 // ── Common columns of every syncable table (07 §2.1). ──
@@ -87,17 +95,17 @@ function prescriptionChecks(name: string, t: PrescriptionTable) {
   const { sets, reps, restSeconds, targetRir } = PRESCRIPTION_LIMITS;
   return [
     check(`${name}_role_check`, oneOf(t.role, EXERCISE_ROLES)),
-    check(`${name}_sets_check`, between(t.sets, sets)),
-    check(`${name}_rep_min_check`, between(t.repMin, reps)),
+    check(`${name}_sets_check`, wholeBetween(t.sets, sets)),
+    check(`${name}_rep_min_check`, wholeBetween(t.repMin, reps)),
     check(
       `${name}_rep_max_check`,
-      sql`${t.repMax} between ${t.repMin} and ${sql.raw(String(reps.max))}`,
+      sql`typeof(${t.repMax}) = 'integer' and ${t.repMax} between ${t.repMin} and ${sql.raw(String(reps.max))}`,
     ),
     check(
       `${name}_rest_seconds_check`,
-      sql`${between(t.restSeconds, restSeconds)} and ${t.restSeconds} % ${sql.raw(String(restSeconds.step))} = 0`,
+      sql`${wholeBetween(t.restSeconds, restSeconds)} and ${t.restSeconds} % ${sql.raw(String(restSeconds.step))} = 0`,
     ),
-    check(`${name}_target_rir_check`, between(t.targetRir, targetRir)),
+    check(`${name}_target_rir_check`, wholeBetween(t.targetRir, targetRir)),
   ];
 }
 
@@ -131,7 +139,7 @@ export const profiles = sqliteTable(
     check('profiles_goal_check', oneOf(t.goal, TRAINING_GOALS)),
     check('profiles_unit_check', oneOf(t.unit, LOAD_UNITS)),
     check('profiles_effort_mode_check', oneOf(t.effortMode, EFFORT_MODES)),
-    check('profiles_days_per_week_check', between(t.daysPerWeek, { min: 2, max: 6 })),
+    check('profiles_days_per_week_check', wholeBetween(t.daysPerWeek, { min: 2, max: 6 })),
     // One live profile on the device (07 §2.2): the constant expression makes every live row collide.
     uniqueIndex('profiles_one_live_idx')
       .on(sql`(1)`)
@@ -260,13 +268,16 @@ export const workoutSets = sqliteTable(
       sql`(${t.reps} is not null and ${t.repsLeft} is null and ${t.repsRight} is null and ${t.rirLeft} is null and ${t.rirRight} is null)
         or (${t.reps} is null and ${t.rir} is null and ${t.repsLeft} is not null and ${t.repsRight} is not null)`,
     ),
-    check('workout_sets_load_kg_check', nullOrBetween(t.loadKg, SET_LIMITS.loadKg)),
-    check('workout_sets_reps_check', nullOrBetween(t.reps, SET_LIMITS.reps)),
-    check('workout_sets_reps_left_check', nullOrBetween(t.repsLeft, SET_LIMITS.reps)),
-    check('workout_sets_reps_right_check', nullOrBetween(t.repsRight, SET_LIMITS.reps)),
-    check('workout_sets_rir_check', nullOrBetween(t.rir, SET_LIMITS.rir)),
-    check('workout_sets_rir_left_check', nullOrBetween(t.rirLeft, SET_LIMITS.rir)),
-    check('workout_sets_rir_right_check', nullOrBetween(t.rirRight, SET_LIMITS.rir)),
+    check(
+      'workout_sets_load_kg_check',
+      sql`${t.loadKg} is null or ${between(t.loadKg, SET_LIMITS.loadKg)}`,
+    ),
+    check('workout_sets_reps_check', nullOrWholeBetween(t.reps, SET_LIMITS.reps)),
+    check('workout_sets_reps_left_check', nullOrWholeBetween(t.repsLeft, SET_LIMITS.reps)),
+    check('workout_sets_reps_right_check', nullOrWholeBetween(t.repsRight, SET_LIMITS.reps)),
+    check('workout_sets_rir_check', nullOrWholeBetween(t.rir, SET_LIMITS.rir)),
+    check('workout_sets_rir_left_check', nullOrWholeBetween(t.rirLeft, SET_LIMITS.rir)),
+    check('workout_sets_rir_right_check', nullOrWholeBetween(t.rirRight, SET_LIMITS.rir)),
   ],
 );
 
@@ -343,7 +354,7 @@ export const templateExercises = sqliteTable(
   (t) => [
     index('template_exercises_day_idx').on(t.templateDayId),
     check('template_exercises_role_check', oneOf(t.role, EXERCISE_ROLES)),
-    check('template_exercises_sets_check', between(t.sets, PRESCRIPTION_LIMITS.sets)),
+    check('template_exercises_sets_check', wholeBetween(t.sets, PRESCRIPTION_LIMITS.sets)),
   ],
 );
 

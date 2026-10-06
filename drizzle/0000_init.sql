@@ -56,7 +56,7 @@ CREATE TABLE `profiles` (
 	CONSTRAINT "profiles_goal_check" CHECK("profiles"."goal" in ('health', 'hypertrophy', 'strength')),
 	CONSTRAINT "profiles_unit_check" CHECK("profiles"."unit" in ('kg', 'lb')),
 	CONSTRAINT "profiles_effort_mode_check" CHECK("profiles"."effort_mode" in ('simple', 'rir')),
-	CONSTRAINT "profiles_days_per_week_check" CHECK("profiles"."days_per_week" between 2 and 6)
+	CONSTRAINT "profiles_days_per_week_check" CHECK(typeof("profiles"."days_per_week") = 'integer' and "profiles"."days_per_week" between 2 and 6)
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `profiles_one_live_idx` ON `profiles` ((1)) WHERE "profiles"."deleted_at" is null;--> statement-breakpoint
@@ -97,11 +97,11 @@ CREATE TABLE `routine_exercises` (
 	`notes` text,
 	FOREIGN KEY (`routine_day_id`) REFERENCES `routine_days`(`id`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "routine_exercises_role_check" CHECK("routine_exercises"."role" in ('main', 'accessory')),
-	CONSTRAINT "routine_exercises_sets_check" CHECK("routine_exercises"."sets" between 1 and 10),
-	CONSTRAINT "routine_exercises_rep_min_check" CHECK("routine_exercises"."rep_min" between 1 and 30),
-	CONSTRAINT "routine_exercises_rep_max_check" CHECK("routine_exercises"."rep_max" between "routine_exercises"."rep_min" and 30),
-	CONSTRAINT "routine_exercises_rest_seconds_check" CHECK("routine_exercises"."rest_seconds" between 30 and 600 and "routine_exercises"."rest_seconds" % 15 = 0),
-	CONSTRAINT "routine_exercises_target_rir_check" CHECK("routine_exercises"."target_rir" between 0 and 5)
+	CONSTRAINT "routine_exercises_sets_check" CHECK(typeof("routine_exercises"."sets") = 'integer' and "routine_exercises"."sets" between 1 and 10),
+	CONSTRAINT "routine_exercises_rep_min_check" CHECK(typeof("routine_exercises"."rep_min") = 'integer' and "routine_exercises"."rep_min" between 1 and 30),
+	CONSTRAINT "routine_exercises_rep_max_check" CHECK(typeof("routine_exercises"."rep_max") = 'integer' and "routine_exercises"."rep_max" between "routine_exercises"."rep_min" and 30),
+	CONSTRAINT "routine_exercises_rest_seconds_check" CHECK(typeof("routine_exercises"."rest_seconds") = 'integer' and "routine_exercises"."rest_seconds" between 30 and 600 and "routine_exercises"."rest_seconds" % 15 = 0),
+	CONSTRAINT "routine_exercises_target_rir_check" CHECK(typeof("routine_exercises"."target_rir") = 'integer' and "routine_exercises"."target_rir" between 0 and 5)
 );
 --> statement-breakpoint
 CREATE INDEX `routine_exercises_day_idx` ON `routine_exercises` (`routine_day_id`);--> statement-breakpoint
@@ -154,7 +154,7 @@ CREATE TABLE `template_exercises` (
 	`sets` integer NOT NULL,
 	FOREIGN KEY (`template_day_id`) REFERENCES `template_days`(`id`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "template_exercises_role_check" CHECK("template_exercises"."role" in ('main', 'accessory')),
-	CONSTRAINT "template_exercises_sets_check" CHECK("template_exercises"."sets" between 1 and 10)
+	CONSTRAINT "template_exercises_sets_check" CHECK(typeof("template_exercises"."sets") = 'integer' and "template_exercises"."sets" between 1 and 10)
 );
 --> statement-breakpoint
 CREATE INDEX `template_exercises_day_idx` ON `template_exercises` (`template_day_id`);--> statement-breakpoint
@@ -185,11 +185,11 @@ CREATE TABLE `workout_exercises` (
 	CONSTRAINT "workout_exercises_status_check" CHECK("workout_exercises"."status" in ('pending', 'done', 'skipped')),
 	CONSTRAINT "workout_exercises_load_type_check" CHECK("workout_exercises"."load_type" in ('external', 'bodyweight')),
 	CONSTRAINT "workout_exercises_role_check" CHECK("workout_exercises"."role" in ('main', 'accessory')),
-	CONSTRAINT "workout_exercises_sets_check" CHECK("workout_exercises"."sets" between 1 and 10),
-	CONSTRAINT "workout_exercises_rep_min_check" CHECK("workout_exercises"."rep_min" between 1 and 30),
-	CONSTRAINT "workout_exercises_rep_max_check" CHECK("workout_exercises"."rep_max" between "workout_exercises"."rep_min" and 30),
-	CONSTRAINT "workout_exercises_rest_seconds_check" CHECK("workout_exercises"."rest_seconds" between 30 and 600 and "workout_exercises"."rest_seconds" % 15 = 0),
-	CONSTRAINT "workout_exercises_target_rir_check" CHECK("workout_exercises"."target_rir" between 0 and 5)
+	CONSTRAINT "workout_exercises_sets_check" CHECK(typeof("workout_exercises"."sets") = 'integer' and "workout_exercises"."sets" between 1 and 10),
+	CONSTRAINT "workout_exercises_rep_min_check" CHECK(typeof("workout_exercises"."rep_min") = 'integer' and "workout_exercises"."rep_min" between 1 and 30),
+	CONSTRAINT "workout_exercises_rep_max_check" CHECK(typeof("workout_exercises"."rep_max") = 'integer' and "workout_exercises"."rep_max" between "workout_exercises"."rep_min" and 30),
+	CONSTRAINT "workout_exercises_rest_seconds_check" CHECK(typeof("workout_exercises"."rest_seconds") = 'integer' and "workout_exercises"."rest_seconds" between 30 and 600 and "workout_exercises"."rest_seconds" % 15 = 0),
+	CONSTRAINT "workout_exercises_target_rir_check" CHECK(typeof("workout_exercises"."target_rir") = 'integer' and "workout_exercises"."target_rir" between 0 and 5)
 );
 --> statement-breakpoint
 CREATE INDEX `workout_exercises_workout_idx` ON `workout_exercises` (`workout_id`);--> statement-breakpoint
@@ -218,12 +218,12 @@ CREATE TABLE `workout_sets` (
 	CONSTRAINT "workout_sets_laterality_check" CHECK(("workout_sets"."reps" is not null and "workout_sets"."reps_left" is null and "workout_sets"."reps_right" is null and "workout_sets"."rir_left" is null and "workout_sets"."rir_right" is null)
         or ("workout_sets"."reps" is null and "workout_sets"."rir" is null and "workout_sets"."reps_left" is not null and "workout_sets"."reps_right" is not null)),
 	CONSTRAINT "workout_sets_load_kg_check" CHECK("workout_sets"."load_kg" is null or "workout_sets"."load_kg" between 0 and 1000),
-	CONSTRAINT "workout_sets_reps_check" CHECK("workout_sets"."reps" is null or "workout_sets"."reps" between 0 and 100),
-	CONSTRAINT "workout_sets_reps_left_check" CHECK("workout_sets"."reps_left" is null or "workout_sets"."reps_left" between 0 and 100),
-	CONSTRAINT "workout_sets_reps_right_check" CHECK("workout_sets"."reps_right" is null or "workout_sets"."reps_right" between 0 and 100),
-	CONSTRAINT "workout_sets_rir_check" CHECK("workout_sets"."rir" is null or "workout_sets"."rir" between 0 and 5),
-	CONSTRAINT "workout_sets_rir_left_check" CHECK("workout_sets"."rir_left" is null or "workout_sets"."rir_left" between 0 and 5),
-	CONSTRAINT "workout_sets_rir_right_check" CHECK("workout_sets"."rir_right" is null or "workout_sets"."rir_right" between 0 and 5)
+	CONSTRAINT "workout_sets_reps_check" CHECK("workout_sets"."reps" is null or (typeof("workout_sets"."reps") = 'integer' and "workout_sets"."reps" between 0 and 100)),
+	CONSTRAINT "workout_sets_reps_left_check" CHECK("workout_sets"."reps_left" is null or (typeof("workout_sets"."reps_left") = 'integer' and "workout_sets"."reps_left" between 0 and 100)),
+	CONSTRAINT "workout_sets_reps_right_check" CHECK("workout_sets"."reps_right" is null or (typeof("workout_sets"."reps_right") = 'integer' and "workout_sets"."reps_right" between 0 and 100)),
+	CONSTRAINT "workout_sets_rir_check" CHECK("workout_sets"."rir" is null or (typeof("workout_sets"."rir") = 'integer' and "workout_sets"."rir" between 0 and 5)),
+	CONSTRAINT "workout_sets_rir_left_check" CHECK("workout_sets"."rir_left" is null or (typeof("workout_sets"."rir_left") = 'integer' and "workout_sets"."rir_left" between 0 and 5)),
+	CONSTRAINT "workout_sets_rir_right_check" CHECK("workout_sets"."rir_right" is null or (typeof("workout_sets"."rir_right") = 'integer' and "workout_sets"."rir_right" between 0 and 5))
 );
 --> statement-breakpoint
 CREATE INDEX `workout_sets_workout_exercise_idx` ON `workout_sets` (`workout_exercise_id`);--> statement-breakpoint

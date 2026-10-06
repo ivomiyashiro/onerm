@@ -322,6 +322,9 @@ const INVALID_PRESCRIPTIONS = [
   ['a target RIR of -1', { targetRir: -1 }],
   ['a target RIR of 6', { targetRir: 6 }],
   ['an unknown role', { role: 'warmup' }],
+  ['fractional sets', { sets: 2.5 }],
+  ['a fractional rep floor', { repMin: 6.5 }],
+  ['a fractional target RIR', { targetRir: 1.5 }],
 ] as const;
 
 const LIMIT_PRESCRIPTIONS = [
@@ -452,6 +455,9 @@ describe('workout_sets', () => {
     ['a RIR of 6', bilateralSet({ rir: 6 })],
     ['101 reps on the left', unilateralSet({ repsLeft: 101 })],
     ['a RIR of 6 on the right', unilateralSet({ rirRight: 6 })],
+    ['fractional reps', bilateralSet({ reps: 7.5 })],
+    ['a fractional RIR', bilateralSet({ rir: 1.5 })],
+    ['fractional reps on the left', unilateralSet({ repsLeft: 7.5 })],
   ])('rejects %s', (_, set) => {
     expect(() => t.db.insert(workoutSets).values(set).run()).toThrow(CHECK_FAILED);
   });

@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9631f1e9-55db-424e-8bda-ec196e59e660",
+  "id": "0ce67516-3dc4-4f86-aec9-0b31e5c4b2f9",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "app_state": {
@@ -384,7 +384,7 @@
         },
         "profiles_days_per_week_check": {
           "name": "profiles_days_per_week_check",
-          "value": "\"profiles\".\"days_per_week\" between 2 and 6"
+          "value": "typeof(\"profiles\".\"days_per_week\") = 'integer' and \"profiles\".\"days_per_week\" between 2 and 6"
         }
       }
     },
@@ -662,23 +662,23 @@
         },
         "routine_exercises_sets_check": {
           "name": "routine_exercises_sets_check",
-          "value": "\"routine_exercises\".\"sets\" between 1 and 10"
+          "value": "typeof(\"routine_exercises\".\"sets\") = 'integer' and \"routine_exercises\".\"sets\" between 1 and 10"
         },
         "routine_exercises_rep_min_check": {
           "name": "routine_exercises_rep_min_check",
-          "value": "\"routine_exercises\".\"rep_min\" between 1 and 30"
+          "value": "typeof(\"routine_exercises\".\"rep_min\") = 'integer' and \"routine_exercises\".\"rep_min\" between 1 and 30"
         },
         "routine_exercises_rep_max_check": {
           "name": "routine_exercises_rep_max_check",
-          "value": "\"routine_exercises\".\"rep_max\" between \"routine_exercises\".\"rep_min\" and 30"
+          "value": "typeof(\"routine_exercises\".\"rep_max\") = 'integer' and \"routine_exercises\".\"rep_max\" between \"routine_exercises\".\"rep_min\" and 30"
         },
         "routine_exercises_rest_seconds_check": {
           "name": "routine_exercises_rest_seconds_check",
-          "value": "\"routine_exercises\".\"rest_seconds\" between 30 and 600 and \"routine_exercises\".\"rest_seconds\" % 15 = 0"
+          "value": "typeof(\"routine_exercises\".\"rest_seconds\") = 'integer' and \"routine_exercises\".\"rest_seconds\" between 30 and 600 and \"routine_exercises\".\"rest_seconds\" % 15 = 0"
         },
         "routine_exercises_target_rir_check": {
           "name": "routine_exercises_target_rir_check",
-          "value": "\"routine_exercises\".\"target_rir\" between 0 and 5"
+          "value": "typeof(\"routine_exercises\".\"target_rir\") = 'integer' and \"routine_exercises\".\"target_rir\" between 0 and 5"
         }
       }
     },
@@ -1003,7 +1003,7 @@
         },
         "template_exercises_sets_check": {
           "name": "template_exercises_sets_check",
-          "value": "\"template_exercises\".\"sets\" between 1 and 10"
+          "value": "typeof(\"template_exercises\".\"sets\") = 'integer' and \"template_exercises\".\"sets\" between 1 and 10"
         }
       }
     },
@@ -1214,23 +1214,23 @@
         },
         "workout_exercises_sets_check": {
           "name": "workout_exercises_sets_check",
-          "value": "\"workout_exercises\".\"sets\" between 1 and 10"
+          "value": "typeof(\"workout_exercises\".\"sets\") = 'integer' and \"workout_exercises\".\"sets\" between 1 and 10"
         },
         "workout_exercises_rep_min_check": {
           "name": "workout_exercises_rep_min_check",
-          "value": "\"workout_exercises\".\"rep_min\" between 1 and 30"
+          "value": "typeof(\"workout_exercises\".\"rep_min\") = 'integer' and \"workout_exercises\".\"rep_min\" between 1 and 30"
         },
         "workout_exercises_rep_max_check": {
           "name": "workout_exercises_rep_max_check",
-          "value": "\"workout_exercises\".\"rep_max\" between \"workout_exercises\".\"rep_min\" and 30"
+          "value": "typeof(\"workout_exercises\".\"rep_max\") = 'integer' and \"workout_exercises\".\"rep_max\" between \"workout_exercises\".\"rep_min\" and 30"
         },
         "workout_exercises_rest_seconds_check": {
           "name": "workout_exercises_rest_seconds_check",
-          "value": "\"workout_exercises\".\"rest_seconds\" between 30 and 600 and \"workout_exercises\".\"rest_seconds\" % 15 = 0"
+          "value": "typeof(\"workout_exercises\".\"rest_seconds\") = 'integer' and \"workout_exercises\".\"rest_seconds\" between 30 and 600 and \"workout_exercises\".\"rest_seconds\" % 15 = 0"
         },
         "workout_exercises_target_rir_check": {
           "name": "workout_exercises_target_rir_check",
-          "value": "\"workout_exercises\".\"target_rir\" between 0 and 5"
+          "value": "typeof(\"workout_exercises\".\"target_rir\") = 'integer' and \"workout_exercises\".\"target_rir\" between 0 and 5"
         }
       }
     },
@@ -1409,27 +1409,27 @@
         },
         "workout_sets_reps_check": {
           "name": "workout_sets_reps_check",
-          "value": "\"workout_sets\".\"reps\" is null or \"workout_sets\".\"reps\" between 0 and 100"
+          "value": "\"workout_sets\".\"reps\" is null or (typeof(\"workout_sets\".\"reps\") = 'integer' and \"workout_sets\".\"reps\" between 0 and 100)"
         },
         "workout_sets_reps_left_check": {
           "name": "workout_sets_reps_left_check",
-          "value": "\"workout_sets\".\"reps_left\" is null or \"workout_sets\".\"reps_left\" between 0 and 100"
+          "value": "\"workout_sets\".\"reps_left\" is null or (typeof(\"workout_sets\".\"reps_left\") = 'integer' and \"workout_sets\".\"reps_left\" between 0 and 100)"
         },
         "workout_sets_reps_right_check": {
           "name": "workout_sets_reps_right_check",
-          "value": "\"workout_sets\".\"reps_right\" is null or \"workout_sets\".\"reps_right\" between 0 and 100"
+          "value": "\"workout_sets\".\"reps_right\" is null or (typeof(\"workout_sets\".\"reps_right\") = 'integer' and \"workout_sets\".\"reps_right\" between 0 and 100)"
         },
         "workout_sets_rir_check": {
           "name": "workout_sets_rir_check",
-          "value": "\"workout_sets\".\"rir\" is null or \"workout_sets\".\"rir\" between 0 and 5"
+          "value": "\"workout_sets\".\"rir\" is null or (typeof(\"workout_sets\".\"rir\") = 'integer' and \"workout_sets\".\"rir\" between 0 and 5)"
         },
         "workout_sets_rir_left_check": {
           "name": "workout_sets_rir_left_check",
-          "value": "\"workout_sets\".\"rir_left\" is null or \"workout_sets\".\"rir_left\" between 0 and 5"
+          "value": "\"workout_sets\".\"rir_left\" is null or (typeof(\"workout_sets\".\"rir_left\") = 'integer' and \"workout_sets\".\"rir_left\" between 0 and 5)"
         },
         "workout_sets_rir_right_check": {
           "name": "workout_sets_rir_right_check",
-          "value": "\"workout_sets\".\"rir_right\" is null or \"workout_sets\".\"rir_right\" between 0 and 5"
+          "value": "\"workout_sets\".\"rir_right\" is null or (typeof(\"workout_sets\".\"rir_right\") = 'integer' and \"workout_sets\".\"rir_right\" between 0 and 5)"
         }
       }
     },
