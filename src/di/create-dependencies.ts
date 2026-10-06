@@ -1,10 +1,9 @@
 import { CATALOG_SNAPSHOT } from '@/data/catalog/catalog-snapshot';
 import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
-import { expoSqliteDriver } from '@/data/db/expo-sqlite-driver';
-import { SqliteLocalDatabase } from '@/data/db/sqlite-local-database';
-import { InMemoryExerciseRepository } from '@/data/repositories/in-memory-exercise-repository';
-import type { Exercise } from '@/domain/models/exercise';
-import type { LocalDatabase } from '@/domain/repositories/local-database';
+import { expoSqliteDriver, expoTableChanges } from '@/data/db/expo-sqlite-driver';
+import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlite-local-database';
+import type { TableChanges } from '@/data/db/table-changes';
+import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
@@ -15,52 +14,32 @@ export interface Dependencies {
   appStore: AppStore;
 }
 
-// Example data until the bundled catalog (#28) and the SQLite repository (#29).
-const EXAMPLE_EXERCISES: Exercise[] = [
-  {
-    id: 'barbell-back-squat',
-    slug: 'sentadilla-barra',
-    name: 'Sentadilla con barra',
-    aliases: [],
-    loadType: 'external',
-    primaryMuscles: ['quads'],
-    secondaryMuscles: ['glutes'],
-    primaryEquipment: 'barbell',
-    equipment: ['barbell'],
-    mechanic: 'compound',
-    isUnilateral: false,
-    description: null,
-    attributions: [],
-    deprecatedAt: null,
-  },
-  {
-    id: 'barbell-bench-press',
-    slug: 'press-banca-barra',
-    name: 'Press de banca con barra',
-    aliases: [],
-    loadType: 'external',
-    primaryMuscles: ['chest'],
-    secondaryMuscles: ['triceps', 'shoulders'],
-    primaryEquipment: 'barbell',
-    equipment: ['barbell'],
-    mechanic: 'compound',
-    isUnilateral: false,
-    description: null,
-    attributions: [],
-    deprecatedAt: null,
-  },
-];
+/** What the repositories run on: the app's expo-sqlite database, or a test one. */
+export interface Storage {
+  localDatabase: PreparedLocalDatabase;
+  changes: TableChanges;
+}
+
+/** The app's storage: `onerm.db`, with the bundled catalog loaded on the first run (RF-CAT-03). */
+export function appStorage(): Storage {
+  return {
+    localDatabase: new SqliteLocalDatabase(expoSqliteDriver, (db) =>
+      loadCatalogSnapshot(db, CATALOG_SNAPSHOT),
+    ),
+    changes: expoTableChanges,
+  };
+}
 
 /**
  * Composition root (ADR-0011 §4): the only place that creates implementations from `data` and
- * hands them to the use cases. Swapping a repository only touches this file.
+ * hands them to the use cases. Swapping a repository only touches this file. The repositories
+ * get the database lazily: it opens in `prepareLocalData`, before any screen mounts (StartupGate).
  */
 export function createDependencies(
-  localDatabase: LocalDatabase = new SqliteLocalDatabase(expoSqliteDriver, (db) =>
-    loadCatalogSnapshot(db, CATALOG_SNAPSHOT),
-  ),
+  { localDatabase, changes }: Storage = appStorage(),
 ): Dependencies {
-  const exerciseRepository = new InMemoryExerciseRepository(EXAMPLE_EXERCISES);
+  const db = () => localDatabase.database;
+  const exerciseRepository = new SqliteExerciseRepository(db, changes);
 
   return {
     useCases: {

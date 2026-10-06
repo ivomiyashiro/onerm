@@ -3,6 +3,12 @@ import type { LocalDatabase } from '@/domain/repositories/local-database';
 import type { AppDatabase } from './app-database';
 import { connectionPragmas } from './connection-pragmas';
 
+/** A local database the repositories can read once it is prepared. */
+export interface PreparedLocalDatabase extends LocalDatabase {
+  /** Throws until `prepare()` resolved. */
+  readonly database: AppDatabase;
+}
+
 /** How to open and migrate one SQLite driver: expo-sqlite in the app, better-sqlite3 in tests. */
 export interface SqliteDriver<TDatabase extends AppDatabase = AppDatabase> {
   /** In memory, WAL doesn't apply (spike #11). */

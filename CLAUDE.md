@@ -75,7 +75,8 @@ src/di/              composition root: creates the implementations and provides 
   - repositories take `AppDatabase` (`BaseSQLiteDatabase<'sync', unknown>`), so the same code runs on `expo-sqlite` and `better-sqlite3`;
   - the change notifications behind `observe…()` don't exist in Jest: test the query and the re-run on a manual change event, and check the live wiring on the emulator;
   - Jest's SQLite (3.53) is newer than the device's (3.50): don't rely on newer SQL features;
-  - `bun run test` runs the unit tests and `bun run test:int` the integration tests (`jest.int.config.js`, plain Node), both in CI;
+  - `bun run test` runs the unit tests and `bun run test:int` the integration tests (`jest.int.config.js`, plain Node; also `*.int.test.tsx` for wiring tests such as `AppProviders`), both in CI;
+  - repositories observe through `observeQuery` and `TableChanges`: `ManualTableChanges.emit('<table>')` plays a write in the tests;
   - a schema change in `src/data/db/schema.ts` needs `bunx drizzle-kit generate`, and a merged migration is never edited (07 §6: additive). Metro caches the `.sql` inlined in `drizzle/migrations.js`: after regenerating an unmerged migration, restart it with `--clear`.
 - Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job (they land in #40):
   - **pgTAP** in `supabase/tests/*.sql` for the trigger and RLS rules, one transaction with `rollback` per file;
