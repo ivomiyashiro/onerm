@@ -1,3 +1,5 @@
+import { CATALOG_SNAPSHOT } from '@/data/catalog/catalog-snapshot';
+import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { expoSqliteDriver } from '@/data/db/expo-sqlite-driver';
 import { SqliteLocalDatabase } from '@/data/db/sqlite-local-database';
 import { InMemoryExerciseRepository } from '@/data/repositories/in-memory-exercise-repository';
@@ -54,7 +56,9 @@ const EXAMPLE_EXERCISES: Exercise[] = [
  * hands them to the use cases. Swapping a repository only touches this file.
  */
 export function createDependencies(
-  localDatabase: LocalDatabase = new SqliteLocalDatabase(expoSqliteDriver),
+  localDatabase: LocalDatabase = new SqliteLocalDatabase(expoSqliteDriver, (db) =>
+    loadCatalogSnapshot(db, CATALOG_SNAPSHOT),
+  ),
 ): Dependencies {
   const exerciseRepository = new InMemoryExerciseRepository(EXAMPLE_EXERCISES);
 
