@@ -68,13 +68,13 @@ Move the card: `tools/board.sh move <N> progress`.
 ## 5. Close
 
 1. Tick the scope items met in the issue body (`gh issue edit <N> --body-file …`).
-2. Push and open the PR with the template: title in Conventional Commits, `Closes #N`, how it was tested and what manual testing remains.
+2. Push through the `/pre-push` skill (checks plus the standards, correctness and security reviewers; a hook blocks any push that skips it). Then open the PR with the template: title in Conventional Commits, `Closes #N`, how it was tested and what manual testing remains.
 3. Tell the user what was done, which tests were added, what remains to be tested by hand and whether a specification gap was found.
 4. When the PR is merged: `tools/board.sh move <N> done`, unless the Project workflow already moved it.
 
 ### Auto-merge (project rule, 2026-10-02)
 
-If **all** of the card's verifications are complete and were done by the agent (typecheck, lint, tests, green CI when it exists, and the manual emulator test), the agent **merges the PR itself** with squash and deletes the branch (`gh pr merge <N> --squash --delete-branch`), moves the card to Done and continues with the next one without waiting.
+If **all** of the card's verifications are complete and were done by the agent (typecheck, lint, tests, the `/pre-push` review without open blockers, green CI when it exists, and the manual emulator test), the agent **merges the PR itself** with squash and deletes the branch (`gh pr merge <N> --squash --delete-branch`), moves the card to Done and continues with the next one without waiting.
 
 Don't auto-merge if:
 - a verification remains that only a person can do (physical device, external account, decision);
