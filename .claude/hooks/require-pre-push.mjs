@@ -1,19 +1,26 @@
 // Claude Code PreToolUse hook: blocks every `git push` that Claude runs when the current
 // commit (HEAD) didn't pass the /pre-push skill. The skill writes the approved SHA to
 // <git-dir>/claude-pre-push-approved. Pushes made by hand in a terminal aren't affected.
+// It guards against mistakes, not evasion: Claude could still write the marker itself.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
 import path from 'node:path';
 
 const MARKER = 'claude-pre-push-approved';
-// Also matches `rtk git push`, `cd x && git push` and `git -C dir push`.
-const GIT_PUSH = /(^|[\s;&|(])git(\s+-[Cc]\s+\S+)*\s+push(\s|$)/;
+// `git`, its global options (`-C dir`, `-c k=v`, `--no-pager`) and `push`, with what follows
+// up to the end of that command. Also matches `rtk git push` and `cd x && git push`.
+const GIT_PUSH =
+  /(?:^|[\s;&|(])git((?:\s+-[Cc]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*)\s+push\b([^;&|\n]*)/g;
+// The payload of `bash -c '…'`, which would otherwise be stripped as a literal.
+const SHELL_PAYLOAD = /\b(?:bash|sh|zsh)\s+-\w*c\s+(?:'([^']*)'|"((?:\\.|[^"\\])*)")/g;
+// Options that push more than the current branch.
+const WIDE_OPTIONS = /(^|\s)(--all|--mirror|--tags|--delete|-d)(\s|=|$)/;
 
 function readStdin() {
   try {
-    return JSON.parse(readFileSync(0, 'utf8'));
+    return { ok: true, input: JSON.parse(readFileSync(0, 'utf8')) };
   } catch {
-    return {};
+    return { ok: false, input: {} };
   }
 }
 
@@ -40,29 +47,59 @@ function deny(reason) {
 
 /**
  * The command without heredoc bodies and quoted strings, so a commit message or a PR body
- * that mentions a push doesn't count as one. It guards against mistakes, not evasion.
+ * that mentions a push doesn't count as one. Shell payloads (`bash -c '…'`) are kept.
  */
 function withoutLiterals(command) {
-  return command
+  const payloads = [...command.matchAll(SHELL_PAYLOAD)].map((m) => m[1] ?? m[2]);
+  const stripped = command
     .replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n\s*\2(?=\s|$)/g, ' ')
     .replace(/'[^']*'|"(?:\\.|[^"\\])*"/g, ' ');
+  return [stripped, ...payloads].join('\n');
 }
 
-const input = readStdin();
-const command = input.tool_input?.command ?? '';
+/** The arguments of each push in the command (`origin feature` for `git push origin feature`). */
+function pushArguments(command) {
+  return [...withoutLiterals(command).matchAll(GIT_PUSH)].map((m) => m[2].trim());
+}
 
-if (!GIT_PUSH.test(withoutLiterals(command))) process.exit(0);
+/** Whether a push only sends HEAD: no refspec, or one whose source is HEAD or the branch. */
+function pushesOnlyHead(args, branch) {
+  if (WIDE_OPTIONS.test(args)) return false;
+  const positional = args.split(/\s+/).filter((a) => a && !a.startsWith('-'));
+  const refspecs = positional.slice(1);
+  return refspecs.every((refspec) => {
+    const source = refspec.replace(/^\+/, '').split(':')[0];
+    return source === 'HEAD' || source === branch;
+  });
+}
+
+const { ok, input } = readStdin();
+if (!ok) deny('Push check failed: the hook got no valid input.');
+
+const command = input.tool_input?.command ?? '';
+const pushes = pushArguments(command);
+if (pushes.length === 0) process.exit(0);
 
 const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
 
+let inRepository = true;
+try {
+  git(['rev-parse', '--is-inside-work-tree'], cwd);
+} catch {
+  inRepository = false;
+}
+// Outside a git repository: nothing to check.
+if (!inRepository) process.exit(0);
+
 let head;
 let gitDir;
+let branch;
 try {
   head = git(['rev-parse', 'HEAD'], cwd);
   gitDir = path.resolve(cwd, git(['rev-parse', '--git-dir'], cwd));
+  branch = git(['branch', '--show-current'], cwd);
 } catch {
-  // Outside a git repository: nothing to check.
-  process.exit(0);
+  deny('Push check failed: git could not read HEAD.');
 }
 
 let approved = '';
@@ -76,6 +113,13 @@ if (approved !== head) {
   deny(
     `Push blocked: commit ${head.slice(0, 7)} didn't pass the pre-push review. ` +
       'Run the /pre-push skill (checks + standards, correctness and security reviewers) first.',
+  );
+}
+
+if (!pushes.every((args) => pushesOnlyHead(args, branch))) {
+  deny(
+    'Push blocked: the review approved HEAD only. Push the current branch ' +
+      '(`git push` or `git push -u origin <branch>`), not other refs, tags or deletions.',
   );
 }
 

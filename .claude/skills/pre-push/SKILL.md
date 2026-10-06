@@ -32,6 +32,8 @@ Launch them **in parallel, in one message**, with the `Agent` tool and these `su
 
 The prompt of each one: the range (`<base>...HEAD`), the card number if there is one, and "Follow your instructions and return the report."
 
+Agent types load when a session starts. If they aren't available yet (the session predates `.claude/agents/`), launch `general-purpose` with `model: sonnet` and ask it to read `.claude/agents/<name>.md` and follow its body.
+
 ## 3. Triage
 
 1. **Reproduce each blocker** before acting on it (run the command or read the cited line). Discard the ones that don't hold up, and say why in the report.
