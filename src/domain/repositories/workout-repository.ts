@@ -10,6 +10,9 @@ export interface WorkoutRepository {
   observeFinished(observer: Observer<Workout[]>): Unsubscribe;
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe;
   save(workout: Workout): Promise<void>;
-  /** Discarding is a logical delete of the aggregate (06 §3, I-07). */
+  /**
+   * Discarding a workout in progress deletes it physically: it never left the device (RN-SYNC-13).
+   * Deleting a finished one is logical, with its children (06 §3, I-07).
+   */
   delete(id: Id): Promise<void>;
 }

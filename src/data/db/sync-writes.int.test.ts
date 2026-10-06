@@ -70,6 +70,24 @@ describe('writeSyncRow (RN-GEN-03, RN-SYNC-15)', () => {
     });
   });
 
+  it('RN-SYNC-11 · editing a rejected row clears its conflict, so the next push retries it', () => {
+    writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0, userId: null });
+    t.db.update(routines).set({ conflict: 'name too long', dirty: true }).run();
+
+    writeSyncRow(t.db, routines, { id: 'r1', name: 'Torso' }, { now: T0 + 1, userId: null });
+
+    expect(routine()).toMatchObject({ conflict: null, dirty: true });
+  });
+
+  it('RN-SYNC-11 · an unchanged save keeps the conflict', () => {
+    writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0, userId: null });
+    t.db.update(routines).set({ conflict: 'name too long' }).run();
+
+    writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0 + 1, userId: null });
+
+    expect(routine()?.conflict).toBe('name too long');
+  });
+
   it('RN-GEN-03 · keeps updated_at monotonic when the clock went back', () => {
     writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0, userId: null });
 

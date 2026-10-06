@@ -70,7 +70,7 @@ Entre agregados las referencias son **solo por ID**. Por ejemplo, un `WorkoutExe
 | `WorkoutExercise` | `workoutId`, `routineExerciseId?`, `plannedExerciseId?` (el ejercicio que estaba planificado), `exerciseId` (el realizado), `position`, `status` (`pending \| done \| skipped`), **copia de la prescripción**: `role`, `sets`, `repMin`, `repMax`, `restSeconds`, `targetRir`; **copia de atributos**: `loadType`, `isUnilateral` (RN-ENT-08) |
 | `WorkoutSet` | `workoutExerciseId`, `position`, `loadKg?`, `isWarmup`, `completedAt`, y **según lateralidad**:<br>• Bilateral: `reps`, `rir?`<br>• Unilateral: `repsLeft`, `repsRight`, `rirLeft?`, `rirRight?` (ADR-0008) |
 
-- Descartar un entrenamiento = **borrado lógico** del agregado. No existe un estado `discarded`.
+- Descartar un entrenamiento **en curso** lo borra **físicamente**, con sus ejercicios y series: nunca se subió (RN-SYNC-13, RF-ENT-12). Borrar un entrenamiento **finalizado** es un borrado lógico del agregado (I-07). No existe un estado `discarded`.
 - Una **sustitución** se reconoce cuando `exerciseId ≠ plannedExerciseId` (RN-ENT-10). Se compara contra la copia, no contra la rutina actual, para que cambiar el ejercicio de la rutina no reescriba el historial (RN-RUT-08).
 - Sustituir **crea un nuevo** `WorkoutExercise`. El original conserva sus series (RN-ENT-10).
 - Un **ejercicio no planificado** (Could) es un `WorkoutExercise` sin `routineExerciseId` ni `plannedExerciseId`.
@@ -81,7 +81,7 @@ El modelo canónico de ADR-0004: `slug`, `name`, `aliases`, `loadType`, `primary
 
 ### RoutineTemplate · TemplateDay · TemplateExercise (catálogo)
 
-Solo **estructura**: días, ejercicios, orden, `role` y `sets`. **No tienen prescripción:** se calcula al adoptar la plantilla (RN-PERF-03). Metadatos: `level`, `daysPerWeek`, `estimatedMinutes`, `rationale` (el texto de "¿Por qué esta rutina?", con referencias a `P-NN`).
+Solo **estructura**: días, ejercicios, orden, `role` y `sets`. **No tienen prescripción:** se calcula al adoptar la plantilla (RN-PERF-03). Metadatos: `level`, `daysPerWeek`, `estimatedMinutes` (la duración de la sesión más larga con el objetivo por defecto, salud general; S06 y S14 la calculan para el objetivo del perfil con la fórmula de C-06, 40 s por serie más el descanso), `rationale` (el texto de "¿Por qué esta rutina?", con referencias a `P-NN`).
 
 ## 4. Datos derivados (no son entidades)
 

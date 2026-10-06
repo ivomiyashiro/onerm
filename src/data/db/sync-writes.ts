@@ -47,7 +47,8 @@ export function currentUserId(db: AppDatabase): string | null {
 /**
  * Writes one row of an aggregate with the rules the sync relies on (07 §2.1, §4):
  * - a new row is inserted pending push (`_dirty`), with the owner;
- * - a changed row gets a monotonic `updated_at` (RN-GEN-03) and is pending push again;
+ * - a changed row gets a monotonic `updated_at` (RN-GEN-03), is pending push again and loses
+ *   its conflict, so the next push retries it (RN-SYNC-11);
  * - an unchanged row is not touched, so the sync doesn't push it again;
  * - a deleted row never comes back (RN-SYNC-15), and keeps its owner.
  * Run it inside the transaction of the domain operation.
@@ -83,6 +84,8 @@ export function writeSyncRow<T extends SyncTable>(
       ...(values as SyncValues<typeof routines>),
       updatedAt: nextUpdatedAt(now, existing.updatedAt),
       dirty: true,
+      // An edit of a rejected row is a new attempt: the next push retries it (RN-SYNC-11).
+      conflict: null,
     })
     .where(eq(anyTable.id, values.id))
     .run();
@@ -92,7 +95,7 @@ export function writeSyncRow<T extends SyncTable>(
 /**
  * Logical delete of the live rows that match `where` (RN-SYNC-15): `deleted_at`, a monotonic
  * `updated_at` per row (RN-GEN-03, in SQL) and pending push. Rows already deleted are left as
- * they are. The client never deletes physically.
+ * they are. Only rows that never reach the server are deleted physically (RN-SYNC-15).
  */
 export function softDelete(db: AppDatabase, table: SyncTable, where: SQL | undefined, now: number) {
   const anyTable = table as typeof routines;
