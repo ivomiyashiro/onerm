@@ -1,6 +1,7 @@
 import { Stack } from 'expo-router';
 
 import { AppProviders } from '@/di/app-providers';
+import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
 import { colors } from '@/presentation/theme';
 
@@ -20,14 +21,17 @@ const SHEET_ROUTES = SCREEN_IDS.filter((id) => screenRoutes[id].sheet).map((id) 
 export default function RootLayout() {
   return (
     <AppProviders>
-      <Stack
-        screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bgBase } }}
-      >
-        <Stack.Screen name="(tabs)" />
-        {SHEET_ROUTES.map((name) => (
-          <Stack.Screen key={name} name={name} options={SHEET} />
-        ))}
-      </Stack>
+      {/* The screens mount once the local database is migrated (07 §6). */}
+      <StartupGate>
+        <Stack
+          screenOptions={{ headerShown: false, contentStyle: { backgroundColor: colors.bgBase } }}
+        >
+          <Stack.Screen name="(tabs)" />
+          {SHEET_ROUTES.map((name) => (
+            <Stack.Screen key={name} name={name} options={SHEET} />
+          ))}
+        </Stack>
+      </StartupGate>
     </AppProviders>
   );
 }

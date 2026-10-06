@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
 import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 
 /**
  * The use cases ViewModels can call (ADR-0011 §4). The composition root (`src/di`) creates them
@@ -8,6 +9,7 @@ import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
  */
 export interface UseCases {
   observeExercises: ObserveExercises;
+  prepareLocalData: PrepareLocalData;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);
