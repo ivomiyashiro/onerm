@@ -1,6 +1,10 @@
+import { expoSqliteDriver } from '@/data/db/expo-sqlite-driver';
+import { SqliteLocalDatabase } from '@/data/db/sqlite-local-database';
 import { InMemoryExerciseRepository } from '@/data/repositories/in-memory-exercise-repository';
 import type { Exercise } from '@/domain/models/exercise';
+import type { LocalDatabase } from '@/domain/repositories/local-database';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -49,11 +53,16 @@ const EXAMPLE_EXERCISES: Exercise[] = [
  * Composition root (ADR-0011 §4): the only place that creates implementations from `data` and
  * hands them to the use cases. Swapping a repository only touches this file.
  */
-export function createDependencies(): Dependencies {
+export function createDependencies(
+  localDatabase: LocalDatabase = new SqliteLocalDatabase(expoSqliteDriver),
+): Dependencies {
   const exerciseRepository = new InMemoryExerciseRepository(EXAMPLE_EXERCISES);
 
   return {
-    useCases: { observeExercises: new ObserveExercises(exerciseRepository) },
+    useCases: {
+      observeExercises: new ObserveExercises(exerciseRepository),
+      prepareLocalData: new PrepareLocalData(localDatabase),
+    },
     appStore: createAppStore(),
   };
 }

@@ -6,6 +6,7 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { Observer } from '@/domain/repositories/observer';
 import { anExercise } from '@/domain/testing/builders';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { useExerciseListViewModel } from '@/presentation/features/exercises/use-exercise-list-view-model';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -33,7 +34,10 @@ function fakeRepository() {
 }
 
 async function renderViewModel(repository: ExerciseRepository) {
-  const useCases = { observeExercises: new ObserveExercises(repository) };
+  const useCases = {
+    observeExercises: new ObserveExercises(repository),
+    prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
+  };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
   );

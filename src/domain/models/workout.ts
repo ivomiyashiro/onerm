@@ -2,9 +2,11 @@ import type { Prescription } from '@/domain/models/prescription';
 import type { Id, LoadType } from '@/domain/models/vocabulary';
 
 /** A discarded workout is logically deleted: there is no `discarded` status (06 §3). */
-export type WorkoutStatus = 'in_progress' | 'finished';
+export const WORKOUT_STATUSES = ['in_progress', 'finished'] as const;
+export type WorkoutStatus = (typeof WORKOUT_STATUSES)[number];
 
-export type WorkoutExerciseStatus = 'pending' | 'done' | 'skipped';
+export const WORKOUT_EXERCISE_STATUSES = ['pending', 'done', 'skipped'] as const;
+export type WorkoutExerciseStatus = (typeof WORKOUT_EXERCISE_STATUSES)[number];
 
 interface WorkoutSetBase {
   readonly id: Id;

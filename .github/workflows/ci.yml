@@ -36,3 +36,5 @@ jobs:
       - uses: actions/checkout@v4
       - uses: ./.github/actions/setup
       - run: bun run test --ci
+      - name: Integration tests (real SQLite, the app's migrations)
+        run: bun run test:int --ci

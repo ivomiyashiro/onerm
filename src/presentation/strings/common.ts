@@ -2,6 +2,8 @@ import { count } from '@/presentation/strings/plural';
 
 /** Actions and words repeated across screens (13-textos). */
 export const common = {
+  /** The text of the logo (Figma «Logo/Marca»). */
+  brandMark: '1RM',
   cancel: 'Cancelar',
   retry: 'Reintentar',
   continue: 'Continuar',
