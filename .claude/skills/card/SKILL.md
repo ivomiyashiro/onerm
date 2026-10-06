@@ -85,11 +85,11 @@ In those cases, stop and tell the user.
 
 ## 6. Phase review
 
-After closing the last card of a phase, run **two independent judges**: two `general-purpose` subagents launched in parallel with the same brief, without seeing each other's work.
+After closing the last card of a phase, launch the **`phase-judge`** agent (`.claude/agents/phase-judge.md`, on Opus, read-only), with the phase, its cards and the range `<first commit of the phase>^..main`. It checks the cards together against the specification, `CLAUDE.md` and `docs/convenciones.md`, and returns findings with evidence plus, for every specification gap or decision, options with a recommendation.
 
-**Judge brief:** review the whole phase diff (`git diff <first commit of the phase>^..main`) against the phase's cards, the specification, `CLAUDE.md` and `docs/convenciones.md`. The judge is read-only: it may run the verification scripts and create temporary files to probe gaps, as long as it deletes them. Each finding has a severity, `file:line`, evidence (command and output) and a suggested fix, and is marked CONFIRMED if it was executed or PLAUSIBLE if only inferred.
+If the agent type isn't available yet (it loads when a session starts), launch `general-purpose` with `model: opus` and ask it to read `.claude/agents/phase-judge.md` and follow its body.
 
 Then:
-1. Synthesize both reports and **reproduce each finding** before fixing it. Findings that don't reproduce are discarded.
-2. Make the fixes in **a separate PR** (`fix/F<n>-judge-fixes`), with `Refs` to the affected cards and a table of what isn't fixed and why. That PR follows the auto-merge rule.
-3. Specification gaps aren't fixed unilaterally: raise them with the user.
+1. **Reproduce each finding** before fixing it, with a test first when it is a bug. Findings that don't reproduce are discarded.
+2. Make the fixes in **a separate PR** (`fix/F<n>-judge-fixes`), through `/pre-push`, with `Refs` to the affected cards and a table of what isn't fixed and why. That PR follows the auto-merge rule.
+3. Specification gaps and decisions aren't resolved unilaterally: show the user the judge's options and recommendation for each one, and stop until they decide.

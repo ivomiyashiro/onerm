@@ -82,7 +82,7 @@ Sin sprints, sin story points y sin fechas intermedias. El único entregable es 
 
 ### Trabajo con agentes
 
-El flujo de una card está en la skill del proyecto [`/card`](../.claude/skills/card/SKILL.md) y las reglas para el agente en [`CLAUDE.md`](../CLAUDE.md). Uso: `/card 22` implementa esa card; `/card F3` toma la próxima card abierta de la fase. El agente lee la card y la especificación, publica el plan en el issue, trabaja con TDD en una rama y abre el PR. Si el agente completó todas las verificaciones (incluida la prueba en el emulador) y la CI está en verde, mergea él mismo con squash; si queda algo que solo puede verificar una persona, frena y avisa. Al cerrar cada fase, dos jueces revisan todo lo hecho y las correcciones entran en un PR aparte.
+El flujo de una card está en la skill del proyecto [`/card`](../.claude/skills/card/SKILL.md) y las reglas para el agente en [`CLAUDE.md`](../CLAUDE.md). Uso: `/card 22` implementa esa card; `/card F3` toma la próxima card abierta de la fase. El agente lee la card y la especificación, publica el plan en el issue, trabaja con TDD en una rama y abre el PR. Si el agente completó todas las verificaciones (incluida la prueba en el emulador) y la CI está en verde, mergea él mismo con squash; si queda algo que solo puede verificar una persona, frena y avisa. Al cerrar cada fase, el agente juez de fase (`phase-judge`, en Opus) revisa todas sus cards juntas; las correcciones entran en un PR aparte y cada hueco de especificación llega con opciones y una recomendación para decidir.
 
 ### Plantillas de issue
 

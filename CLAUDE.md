@@ -26,7 +26,7 @@ If the code contradicts the specification, **don't invent**: flag the gap and fi
 
 Use the `/card <number>` skill (or `/card F3` to take the next open card of a phase). Summary: read the card and the specification → post the plan on the issue → branch → TDD task by task → verify → PR with `Closes #N`. The board is updated with `tools/board.sh`.
 
-**Auto-merge:** if the agent completed every verification (including the emulator test) and CI is green, the agent squash-merges the PR and moves on to the next card without stopping. When a phase ends, two judges review everything done and the fixes go in a separate PR. Details in the `/card` skill §5–§6.
+**Auto-merge:** if the agent completed every verification (including the emulator test) and CI is green, the agent squash-merges the PR and moves on to the next card without stopping. When a phase ends, the `phase-judge` agent (Opus) reviews all its cards together and the fixes go in a separate PR; each specification gap comes with options and a recommendation for the user. Details in the `/card` skill §5–§6.
 
 ## Project skills
 
