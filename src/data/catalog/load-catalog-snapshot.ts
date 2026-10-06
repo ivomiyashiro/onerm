@@ -9,13 +9,19 @@ import {
 } from '@/data/db/schema';
 
 /**
- * Writes the bundled catalog into the local database on the first run (RF-CAT-03, RN-CAT-04), in
- * one transaction: all of it or nothing. Once `app_state.catalog_version` is set it does nothing;
- * later catalog changes arrive through sync (RF-CAT-04, F6).
+ * Writes the bundled catalog into the local database (RF-CAT-03, RN-CAT-04), in one transaction:
+ * all of it or nothing.
+ * - First run (no `catalog_version`): the whole snapshot.
+ * - A newer snapshot (an app update): only the exercises and templates that are missing. The
+ *   existing rows are kept: their ids and key attributes never change (RN-CAT-05), and the ones
+ *   pulled from the server may be newer than the bundle (RF-CAT-04).
+ * - The same or an older snapshot: nothing.
+ * Versions are increasing whole numbers.
  */
 export function loadCatalogSnapshot(db: AppDatabase, snapshot: CatalogSnapshot): void {
   db.transaction((tx) => {
-    if (tx.select().from(appState).get()?.catalogVersion != null) return;
+    const stored = tx.select().from(appState).get()?.catalogVersion ?? null;
+    if (stored !== null && Number(stored) >= Number(snapshot.version)) return;
 
     tx.insert(exercises)
       .values(
@@ -29,16 +35,19 @@ export function loadCatalogSnapshot(db: AppDatabase, snapshot: CatalogSnapshot):
           deprecatedAt: exercise.deprecatedAt?.getTime() ?? null,
         })),
       )
+      .onConflictDoNothing()
       .run();
 
     for (const { days, ...template } of snapshot.templates) {
-      tx.insert(routineTemplates).values(template).run();
+      tx.insert(routineTemplates).values(template).onConflictDoNothing().run();
       for (const { exercises: dayExercises, ...day } of days) {
         tx.insert(templateDays)
           .values({ ...day, templateId: template.id })
+          .onConflictDoNothing()
           .run();
         tx.insert(templateExercises)
           .values(dayExercises.map((exercise) => ({ ...exercise, templateDayId: day.id })))
+          .onConflictDoNothing()
           .run();
       }
     }
