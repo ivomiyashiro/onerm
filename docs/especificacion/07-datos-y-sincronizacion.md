@@ -46,7 +46,7 @@ Nunca se guarda en texto plano (RNF-07).
 
 | Tabla | Columnas propias | Restricciones |
 |---|---|---|
-| `profiles` | **`id = user_id`** (RN-AUTH-06; el invitado usa un id local fijo) · `level`, `goal`, `days_per_week`, `unit`, `effort_mode`, `effort_mode_explicit`, `load_increments_kg` (JSON), `load_increments_lb` (JSON), `bar_weight_kg`, `bar_weight_lb`, `active_routine_id?`, `onboarding_completed_at?` | Una por usuario (`user_id` único **en el servidor**; en local, una sola fila viva) · CHECK de enums · `days_per_week` 2–6 · `active_routine_id` **sin FK** (referencia débil, RN-RUT-02) |
+| `profiles` | **`id = user_id`** (RN-AUTH-06; el invitado usa el id local fijo `guest`) · `level`, `goal`, `days_per_week`, `unit`, `effort_mode`, `effort_mode_explicit`, `load_increments_kg` (JSON), `load_increments_lb` (JSON), `bar_weight_kg`, `bar_weight_lb`, `active_routine_id?`, `onboarding_completed_at?` | Una por usuario (`user_id` único **en el servidor**; en local, una sola fila viva) · CHECK de enums · `days_per_week` 2–6 · `active_routine_id` **sin FK** (referencia débil, RN-RUT-02) |
 | `routines` | `name`, `source_template_id?` | largo del nombre 1–50 |
 | `routine_days` | `routine_id` FK, `name`, `position` | |
 | `routine_exercises` | `routine_day_id` FK, `exercise_id`, `position`, `role`, `sets`, `rep_min`, `rep_max`, `rest_seconds`, `target_rir`, `notes?` | CHECK RN-RUT-04 |
@@ -166,11 +166,13 @@ al autenticarse con owner = guest:
        si la cuenta tiene perfil → se usa ese; el del invitado se descarta (si la cuenta no tiene
                                     rutina activa y el invitado sí, se copia la del invitado)
        si no → el perfil del invitado pasa a id = uid, user_id = uid, _dirty = 1
+       en los dos casos: primero se borra físicamente la fila `guest` y después se inserta
+       la de id = uid, para que nunca haya dos perfiles vivos (RN-AUTH-06, RN-SYNC-15)
   3. si el invitado no tiene datos (RN-AUTH-05) → ir a 6
-  4. si la cuenta no tiene datos → reasignar todo el resto → user_id = uid, _dirty = 1; ir a 6
+  4. si la cuenta no tiene datos → reasignar todo el resto → user_id = uid, updated_at monótono (RN-GEN-03), _dirty = 1; ir a 6
   5. preguntar D01 "¿Sumamos tus datos a la cuenta?"
-       Sumar    → reasignar el resto de las filas del invitado → user_id = uid, _dirty = 1
-       Descartar → D01b; si confirma → borrar físicamente las filas del invitado (incluido un
+       Sumar    → reasignar el resto de las filas del invitado → user_id = uid, updated_at monótono, _dirty = 1
+       Descartar → D01b; si confirma → borrar físicamente las filas del invitado (excepción de RN-SYNC-15: nunca se subieron; incluido un
                    entrenamiento en curso, que D01b menciona); si cancela → volver a D01
        Cancelar → cerrar la sesión de autenticación, owner sigue = guest, pending_migration_uid = null; fin
   6. owner = uid; pending_migration_uid = null; restauración (§4.2) y después sync normal
