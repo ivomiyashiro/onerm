@@ -174,6 +174,7 @@ El TPO pide **entre 3 y 4 RF** en la preentrega. Esta especificación tiene más
 | 2026-10-04 | 13-textos: regla de plurales (singular con {n} = 1 y los casos de {n} = 0), «Se respalda al finalizar» en S09 y «tus datos solo están» en el estado de invitado y D13, como en RF-SYNC-06 y RF-AUTH. |
 | 2026-10-05 | Peso de la barra en el perfil, uno por unidad (`barWeightKg`, `barWeightLb`; 06 §3, 07 §2.2, RN-PERF-08), decidido por el usuario: RN-PERF-08 lo hacía configurable sin campo donde guardarlo. |
 | 2026-10-05 | Revisión de F3, decididas por el usuario: RN-SUG-04 (una ERR con todas las series con W en el tope, aunque sean menos de N, no suma al estancamiento; resuelve la contradicción con RF-SUG-03 AC8 y el caso Q), RN-SUG-12 (el peso corporal usa la prescripción actual) y RN-PERF-08 (con una carga mínima fuera de la grilla, el primer múltiplo igual o mayor). |
+| 2026-10-06 | Inicio: la acción principal pasa al botón central de la barra de pestañas (Empezar · Continuar con el tiempo · deshabilitado) y reemplaza a la barra de acción de S07 y a la barra "Entrenamiento en curso" (08 §2 y §5, RF-ENT-01 AC1, AC4 y AC7 nuevo, 13-textos §10, diseno/marca.md §15). |
 
 ### Preguntas resueltas
 
