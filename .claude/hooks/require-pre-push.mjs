@@ -62,14 +62,20 @@ function pushArguments(command) {
   return [...withoutLiterals(command).matchAll(GIT_PUSH)].map((m) => m[2].trim());
 }
 
-/** Whether a push only sends HEAD: no refspec, or one whose source is HEAD or the branch. */
+/**
+ * Whether a push only sends HEAD to the branch of the same name: no refspec, or one whose
+ * source is HEAD or the branch and whose destination, if any, is that branch.
+ */
 function pushesOnlyHead(args, branch) {
   if (WIDE_OPTIONS.test(args)) return false;
   const positional = args.split(/\s+/).filter((a) => a && !a.startsWith('-'));
   const refspecs = positional.slice(1);
   return refspecs.every((refspec) => {
-    const source = refspec.replace(/^\+/, '').split(':')[0];
-    return source === 'HEAD' || source === branch;
+    const [source, destination] = refspec.replace(/^\+/, '').split(':');
+    const sendsHead = source === 'HEAD' || source === branch;
+    const toBranch =
+      destination === undefined || destination === branch || destination === `refs/heads/${branch}`;
+    return sendsHead && toBranch;
   });
 }
 
