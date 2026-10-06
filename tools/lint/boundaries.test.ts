@@ -69,6 +69,12 @@ describe('RNF-11 · layer rules', () => {
       expect(await boundaryErrors('src/data/probe.ts', code)).not.toHaveLength(0);
     });
 
+    it('data → the bundled migrations passes; presentation → them fails (ADR-0010)', async () => {
+      const code = "import migrations from '../../drizzle/migrations';";
+      expect(await boundaryErrors('src/data/probe.ts', code)).toEqual([]);
+      expect(await boundaryErrors('src/presentation/probe.tsx', code)).not.toHaveLength(0);
+    });
+
     it('data → domain and SDKs passes', async () => {
       const code = `${DOMAIN}\nimport * as SQLite from 'expo-sqlite';`;
       expect(await boundaryErrors('src/data/probe.ts', code)).toEqual([]);
