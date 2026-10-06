@@ -60,6 +60,7 @@ Ejemplo: `feat(sug): apply double progression when the top of the range is reach
 - Todo cambio entra por PR, aunque el equipo sea una persona: deja registro y corre la CI.
 - El título sigue Conventional Commits, porque se usa como mensaje del squash.
 - La descripción usa la plantilla y enlaza la card con `Closes #N`.
+- Antes de cada push, Claude corre la skill `/pre-push`: los checks y un revisor de código de solo lectura (estándares, arquitectura y correctitud), más uno de seguridad cuando el cambio toca datos, configuración o dependencias. Solo se revisan los commits que nadie revisó todavía. Un hook bloquea el push si el `HEAD` no pasó por esa revisión.
 - **Squash and merge.** Se borra la rama después del merge.
 - PR chicos (idealmente menos de 400 líneas sin contar las generadas).
 
