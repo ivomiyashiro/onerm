@@ -67,11 +67,14 @@ function toWorkoutSet(row: SetRow): WorkoutSet {
     completedAt: new Date(row.completedAt),
   };
   if (row.reps !== null) return { ...base, isUnilateral: false, reps: row.reps, rir: row.rir };
+  if (row.repsLeft === null || row.repsRight === null) {
+    throw new Error(`Set ${row.id} has neither total nor per-side reps (I-05).`);
+  }
   return {
     ...base,
     isUnilateral: true,
-    repsLeft: row.repsLeft ?? 0,
-    repsRight: row.repsRight ?? 0,
+    repsLeft: row.repsLeft,
+    repsRight: row.repsRight,
     rirLeft: row.rirLeft,
     rirRight: row.rirRight,
   };

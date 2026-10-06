@@ -226,6 +226,18 @@ describe('SqliteWorkoutRepository: observation', () => {
     expect(inProgress()?.id).toBe('w2');
   });
 
+  it('observeInProgress keeps the latest if a sync ever left two (I-04)', async () => {
+    await repository.save(IN_PROGRESS);
+    await repository.save({
+      ...IN_PROGRESS,
+      id: 'w3',
+      startedAt: new Date('2026-10-08T11:00:00Z'),
+      exercises: [],
+    });
+
+    expect(last<Workout | null>((o) => repository.observeInProgress(o))()?.id).toBe('w3');
+  });
+
   it('observeFinished emits only finished workouts, by finishedAt (RN-SUG-01)', async () => {
     const earlier = aWorkout({
       id: 'w0',
