@@ -17,7 +17,7 @@ description: Review before every push in OneRM. Runs typecheck, lint and tests, 
    - `approved` = the content of `$(git rev-parse --git-dir)/claude-pre-push-approved`, if it exists.
    - If `approved` is an ancestor of `HEAD` and not on `origin/main` (`git merge-base --is-ancestor $approved HEAD` and not `git merge-base --is-ancestor $approved origin/main`), the range is **incremental**: `$approved..HEAD`.
    - Otherwise the range is the whole branch: `origin/main...HEAD`.
-   - `git log --oneline <range>`. If it is empty, there is nothing new: go to §5.
+   - `git log --oneline <range>`. If it is empty, `HEAD` is already approved: push (§5) without reviewing again.
 4. `git diff --stat <range>` to see which areas changed.
 
 ## 1. Automatic checks
@@ -30,10 +30,10 @@ Launch the ones that apply **in parallel, in one message**, with the `Agent` too
 
 | Agent | When |
 |---|---|
-| `code-reviewer` | When the range touches anything other than `docs/`, `CHANGELOG.md` and `*.md` files outside `.claude/`. Standards, architecture and React, and correctness in one pass. |
-| `security-reviewer` | When the range touches `src/data/`, `src/di/`, `app.config.ts`, `supabase/`, `.github/`, `.claude/`, `package.json`, `bun.lock` or any `.env*` file, or adds a URL, key or token anywhere. |
+| `code-reviewer` | When the range touches code: `src/`, `app/`, `tools/`, `supabase/` or the root config (`package.json`, `app.config.ts`, `eslint.config.js`…). Standards, architecture and React, and correctness in one pass. |
+| `security-reviewer` | When the range touches `src/data/`, `src/di/`, adds or renames a route in `app/` (a new deep link), `app.config.ts`, `supabase/`, `.github/`, `.claude/`, `package.json`, `bun.lock` or any `.env*` file, or adds a URL, key or token anywhere. |
 
-If neither applies (a docs-only range), the checks of §1 are enough.
+If neither applies (a range of `docs/`, `CHANGELOG.md` or other Markdown only), the checks of §1 are enough.
 
 The prompt of each one: the range, the card number if there is one, and "Follow your instructions and return the report."
 
@@ -43,7 +43,7 @@ Agent types load when a session starts. If they aren't available yet (the sessio
 
 1. **Reproduce each blocker** before acting on it (run the command or read the cited line). Discard the ones that don't hold up, and say why in the report.
 2. Fix the confirmed blockers on the same branch, with a test first when they are bugs, and commit.
-3. **No second round of `code-reviewer`:** the fix is verified by its test and the checks of §1. Only a security blocker is re-checked, by `security-reviewer` on the range of the fix commits.
+3. **No second round of `code-reviewer`:** the fix is verified by its test and the checks of §1. `security-reviewer` re-checks, on the range of the fix commits, a security blocker and any fix or applied suggestion that touches its paths.
 4. **A specification gap** or a decision that is the user's (a new dependency, a security trade-off) is never fixed unilaterally: stop and ask.
 5. Suggestions are optional: apply the cheap ones that clearly improve the code, without another review, and list the rest in the PR body under "Not done".
 
