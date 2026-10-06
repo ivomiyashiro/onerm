@@ -14,3 +14,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Kinetic dark theme from the design, with the Archivo and JetBrains Mono fonts and the base components (buttons, load and reps steppers, fields, sheet, dialog, snackbar, empty states, loading skeletons and the backup status).
 - Every UI text of the specification, in Spanish, centralized in one place.
 - Local database on the phone, created on first launch and upgraded on every start; if preparing it fails, a screen offers to retry without losing data.
+- Exercise catalog and the three routine templates (full body 2 and 3 days, upper/lower 4 days) bundled with the app, available offline from the first launch.
