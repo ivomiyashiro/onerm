@@ -4,6 +4,7 @@ import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 
 import type { AppDatabase } from './app-database';
 import { connectionPragmas } from './connection-pragmas';
+import { SqliteLocalDatabase, type PreparedLocalDatabase } from './sqlite-local-database';
 
 // The same migrations the app bundles (drizzle/migrations.js reads the same .sql files).
 const MIGRATIONS_FOLDER = `${__dirname}/../../../drizzle`;
@@ -24,4 +25,24 @@ export function openTestDatabase(): TestDatabase {
   const db = drizzle(sqlite);
   migrate(db, { migrationsFolder: MIGRATIONS_FOLDER });
   return { db, sqlite };
+}
+
+/**
+ * The app's `SqliteLocalDatabase` on an in-memory better-sqlite3 database, for tests that wire the
+ * whole app (the composition root). `prepare()` migrates it and runs `afterMigrate`.
+ */
+export function openTestLocalDatabase(
+  afterMigrate?: (db: AppDatabase) => void,
+): PreparedLocalDatabase {
+  return new SqliteLocalDatabase(
+    {
+      inMemory: true,
+      open() {
+        const sqlite = new Database(':memory:');
+        return { db: drizzle(sqlite), execute: (statements: string) => sqlite.exec(statements) };
+      },
+      migrate: (db) => migrate(db, { migrationsFolder: MIGRATIONS_FOLDER }),
+    },
+    afterMigrate,
+  );
 }

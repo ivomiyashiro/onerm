@@ -8,6 +8,6 @@ const base = require('./jest.config');
 module.exports = {
   ...base,
   testEnvironment: 'node',
-  testMatch: ['**/*.int.test.ts'],
+  testMatch: ['**/*.int.test.{ts,tsx}'],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],
 };

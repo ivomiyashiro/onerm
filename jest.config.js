@@ -6,6 +6,6 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   // Integration tests (*.int.test.ts) run with `bun run test:int` (jest.int.config.js).
-  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '\\.int\\.test\\.ts$'],
+  testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '\\.int\\.test\\.tsx?$'],
   collectCoverageFrom: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}', '!**/*.test.{ts,tsx}'],
 };
