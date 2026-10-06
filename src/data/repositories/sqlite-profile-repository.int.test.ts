@@ -101,9 +101,13 @@ describe('SqliteProfileRepository', () => {
   });
 
   it('rejects an invalid profile without writing it (CHECK)', async () => {
-    await expect(repository.save({ ...PROFILE, daysPerWeek: 9 })).rejects.toThrow(
-      /CHECK constraint failed/,
+    // The native SqliteError doesn't always pass Jest's error check in `.rejects.toThrow`.
+    const error = await repository.save({ ...PROFILE, daysPerWeek: 9 }).then(
+      () => null,
+      (reason: unknown) => reason,
     );
+
+    expect(String(error)).toMatch(/CHECK constraint failed/);
     expect(t.db.select().from(profiles).all()).toEqual([]);
   });
 });
