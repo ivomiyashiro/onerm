@@ -267,6 +267,31 @@ describe('SqliteWorkoutRepository: observation', () => {
 });
 
 describe('SqliteWorkoutRepository: delete (06 §3, I-07)', () => {
+  it('a new set under a deleted exercise is not written (RN-SYNC-12, RN-SYNC-15)', async () => {
+    await repository.save(FINISHED);
+    t.db
+      .update(workoutExercises)
+      .set({ deletedAt: T0 })
+      .where(eq(workoutExercises.id, 'we1'))
+      .run();
+    markPushed();
+    const [squat, row] = FINISHED.exercises;
+
+    await repository.save({
+      ...FINISHED,
+      exercises: [
+        {
+          ...squat,
+          sets: [...squat.sets, aBilateralSet({ id: 's9', workoutExerciseId: 'we1', position: 3 })],
+        },
+        row,
+      ],
+    });
+
+    expect(t.db.select().from(workoutSets).where(eq(workoutSets.id, 's9')).get()).toBeUndefined();
+    expect(idsWhere((r) => r.dirty)).toEqual([]);
+  });
+
   it('discarding deletes the workout, its exercises and their sets logically, pending push', async () => {
     await repository.save(FINISHED);
     markPushed();

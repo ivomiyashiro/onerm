@@ -239,6 +239,33 @@ describe('SqliteRoutineRepository: save and read', () => {
 });
 
 describe('SqliteRoutineRepository: delete (I-07, RN-SYNC-15)', () => {
+  it('a new exercise under a deleted day is not written (RN-SYNC-12, RN-SYNC-15)', async () => {
+    await repository.save(ROUTINE);
+    // A tombstone pulled for day A (F6).
+    t.db.update(routineDays).set({ deletedAt: T0 }).where(eq(routineDays.id, 'd1')).run();
+    markPushed();
+    const [dayA, dayB] = ROUTINE.days;
+
+    await repository.save({
+      ...ROUTINE,
+      days: [
+        {
+          ...dayA,
+          exercises: [
+            ...dayA.exercises,
+            aRoutineExercise({ id: 'e9', routineDayId: 'd1', position: 3 }),
+          ],
+        },
+        dayB,
+      ],
+    });
+
+    expect(
+      t.db.select().from(routineExercises).where(eq(routineExercises.id, 'e9')).get(),
+    ).toBeUndefined();
+    expect(dirtyIds()).toEqual([]);
+  });
+
   it('saving a deleted routine writes nothing, not even new days or exercises', async () => {
     await repository.save(ROUTINE);
     await repository.delete('r1');

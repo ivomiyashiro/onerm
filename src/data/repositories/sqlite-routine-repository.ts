@@ -42,8 +42,16 @@ export class SqliteRoutineRepository implements RoutineRepository {
       const context = { now: this.now(), userId: currentUserId(tx) };
       // A deleted routine never comes back, and neither do children under it (RN-SYNC-15).
       if (writeSyncRow(tx, routines, rows.routine, context) === 'deleted') return;
-      for (const day of rows.days) writeSyncRow(tx, routineDays, day, context);
-      for (const exercise of rows.exercises) writeSyncRow(tx, routineExercises, exercise, context);
+      const deletedDays = new Set<string>();
+      for (const day of rows.days) {
+        if (writeSyncRow(tx, routineDays, day, context) === 'deleted') deletedDays.add(day.id);
+      }
+      for (const exercise of rows.exercises) {
+        // Nothing is written under a deleted day: the push would send live rows under a tombstone.
+        if (!deletedDays.has(exercise.routineDayId)) {
+          writeSyncRow(tx, routineExercises, exercise, context);
+        }
+      }
 
       const keptDays = rows.days.map((day) => day.id);
       const keptExercises = rows.exercises.map((exercise) => exercise.id);

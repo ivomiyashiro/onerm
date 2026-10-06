@@ -62,8 +62,17 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
       const context = { now: this.now(), userId: currentUserId(tx) };
       // A deleted workout never comes back, and neither do children under it (RN-SYNC-15).
       if (writeSyncRow(tx, workouts, rows.workout, context) === 'deleted') return;
-      for (const exercise of rows.exercises) writeSyncRow(tx, workoutExercises, exercise, context);
-      for (const set of rows.sets) writeSyncRow(tx, workoutSets, set, context);
+      const deletedExercises = new Set<string>();
+      for (const exercise of rows.exercises) {
+        if (writeSyncRow(tx, workoutExercises, exercise, context) === 'deleted') {
+          deletedExercises.add(exercise.id);
+        }
+      }
+      for (const set of rows.sets) {
+        // Nothing is written under a deleted exercise: the push would send live rows under a tombstone.
+        if (!deletedExercises.has(set.workoutExerciseId))
+          writeSyncRow(tx, workoutSets, set, context);
+      }
 
       softDelete(
         tx,
