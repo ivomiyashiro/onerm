@@ -13,8 +13,8 @@ export interface SqliteDriver<TDatabase extends AppDatabase = AppDatabase> {
 
 /**
  * The local database (ADR-0010): opened once, with the connection PRAGMAs, and migrated before
- * the UI mounts (07 §6). A failed migration leaves the database as it was and can be retried;
- * the database is never deleted.
+ * the UI mounts (07 §6), then given the bundled catalog. A failed step leaves the database as
+ * it was and can be retried; the database is never deleted.
  */
 export class SqliteLocalDatabase<
   TDatabase extends AppDatabase = AppDatabase,
@@ -22,7 +22,14 @@ export class SqliteLocalDatabase<
   private connection: TDatabase | null = null;
   private prepared = false;
 
-  constructor(private readonly driver: SqliteDriver<TDatabase>) {}
+  /**
+   * @param afterMigrate runs once the schema is up to date, before the database is ready: the
+   * bundled catalog (RF-CAT-03). It has to be idempotent, because a retry runs it again.
+   */
+  constructor(
+    private readonly driver: SqliteDriver<TDatabase>,
+    private readonly afterMigrate: (db: TDatabase) => void = () => {},
+  ) {}
 
   async prepare(): Promise<void> {
     if (this.connection === null) {
@@ -31,6 +38,7 @@ export class SqliteLocalDatabase<
       this.connection = db;
     }
     await this.driver.migrate(this.connection);
+    this.afterMigrate(this.connection);
     this.prepared = true;
   }
 

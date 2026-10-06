@@ -2,6 +2,9 @@ import Database from 'better-sqlite3';
 import { drizzle, type BetterSQLite3Database } from 'drizzle-orm/better-sqlite3';
 import { migrate } from 'drizzle-orm/better-sqlite3/migrator';
 
+import { CATALOG_SNAPSHOT } from '@/data/catalog/catalog-snapshot';
+import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
+
 import { SqliteLocalDatabase, type SqliteDriver } from './sqlite-local-database';
 
 const MIGRATIONS_FOLDER = `${__dirname}/../../../drizzle`;
@@ -57,5 +60,23 @@ describe('SqliteLocalDatabase (07 §6)', () => {
     await local.prepare();
     expect(connections).toHaveLength(1);
     expect(local.database).toBeDefined();
+  });
+
+  it('runs the after-migration step (the bundled catalog) before it is ready, and retries it', async () => {
+    const afterMigrate = jest
+      .fn<void, [BetterSQLite3Database]>()
+      .mockImplementationOnce(() => {
+        throw new Error('catalog failed');
+      })
+      .mockImplementationOnce((db) => loadCatalogSnapshot(db, CATALOG_SNAPSHOT));
+    const { driver, connections } = testDriver();
+    const local = new SqliteLocalDatabase(driver, afterMigrate);
+
+    await expect(local.prepare()).rejects.toThrow('catalog failed');
+    expect(() => local.database).toThrow(/not prepared/);
+
+    await local.prepare();
+    const [sqlite] = connections;
+    expect(sqlite.prepare('select count(*) as n from exercises').get()).toEqual({ n: 22 });
   });
 });
