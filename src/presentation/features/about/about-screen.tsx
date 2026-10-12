@@ -7,7 +7,7 @@ import { Text } from '@/presentation/components/text';
 import { CREDITS, type Credit } from '@/presentation/features/about/credits';
 import { common } from '@/presentation/strings/common';
 import { profile } from '@/presentation/strings/profile';
-import { colors, radius, space, typography } from '@/presentation/theme';
+import { colors, fonts, radius, space, typography } from '@/presentation/theme';
 
 interface AboutScreenProps {
   /** The app version, from the native build. */
@@ -29,7 +29,7 @@ export function AboutScreen({ version, onBack, onOpenLink }: AboutScreenProps) {
         <View style={styles.brand}>
           <Logo />
           <View style={styles.brandTexts}>
-            <Text style={[typography.displayS, { color: colors.textPrimary }]}>
+            <Text style={styles.brandName}>
               {about.appName.one}
               <Text style={{ color: colors.textAccent }}>{about.appName.rm}</Text>
             </Text>
@@ -86,6 +86,14 @@ const styles = StyleSheet.create({
   content: { gap: 18, paddingTop: 8, paddingHorizontal: space.s16 },
   brand: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingLeft: 4 },
   brandTexts: { gap: 2 },
+  // Figma S22: the wordmark in mixed case, not a text style (the display styles are uppercase).
+  brandName: {
+    fontFamily: fonts.display,
+    fontSize: 24,
+    lineHeight: 24,
+    letterSpacing: -0.24,
+    color: colors.textPrimary,
+  },
   section: { gap: 8 },
   sectionLabel: { color: colors.textSecondary, paddingLeft: 4 },
   list: {
