@@ -34,6 +34,7 @@ async function renderScreen({
   routines = [FULL_BODY, LEGS] as Routine[],
   inProgress = null as Workout | null,
   useCases = undefined as UseCases | undefined,
+  initialSection = undefined as 'mine' | 'templates' | undefined,
 } = {}) {
   const repositories = {
     routines: new InMemoryRoutineRepository(routines),
@@ -52,7 +53,7 @@ async function renderScreen({
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider useCases={useCases ?? someUseCases(routineUseCasesOver(repositories))}>
-        <RoutinesScreen {...callbacks} />
+        <RoutinesScreen initialSection={initialSection} {...callbacks} />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
@@ -101,6 +102,12 @@ describe('RoutinesScreen (S13)', () => {
 
     await user.press(screen.getByRole('button', { name: /Cuerpo completo A\/B/ }));
     expect(onOpenTemplate).toHaveBeenCalledWith('PLT-FB3');
+  });
+
+  it('«Elegir una rutina» from Inicio opens on Plantillas', async () => {
+    await renderScreen({ initialSection: 'templates' });
+
+    expect(screen.getByRole('tab', { name: text.list.templates })).toBeSelected();
   });
 
   it('error: shows the read error and retries', async () => {
