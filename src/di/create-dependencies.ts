@@ -3,10 +3,22 @@ import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { expoSqliteDriver, expoTableChanges } from '@/data/db/expo-sqlite-driver';
 import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlite-local-database';
 import type { TableChanges } from '@/data/db/table-changes';
+import { randomUUID } from 'expo-crypto';
+
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
+import { SqliteProfileRepository } from '@/data/repositories/sqlite-profile-repository';
+import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
+import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
+import type { Id } from '@/domain/models/vocabulary';
+import { ActivateRoutine } from '@/domain/usecases/activate-routine';
+import { AdoptTemplate } from '@/domain/usecases/adopt-template';
+import { DeleteRoutine } from '@/domain/usecases/delete-routine';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveRoutines } from '@/domain/usecases/observe-routines';
+import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
@@ -39,15 +51,48 @@ export function appStorage(): Storage {
  */
 export function createDependencies(
   { localDatabase, changes }: Storage = appStorage(),
+  // Client-side UUIDs, so records are created offline (RN-SYNC-02).
+  newId: () => Id = randomUUID,
 ): Dependencies {
   const db = () => localDatabase.database;
   const exerciseRepository = new SqliteExerciseRepository(db, changes);
   const workoutRepository = new SqliteWorkoutRepository(db, changes, Date.now);
+  const routineRepository = new SqliteRoutineRepository(db, changes, Date.now);
+  const templateRepository = new SqliteRoutineTemplateRepository(db, changes);
+  const profileRepository = new SqliteProfileRepository(db, changes, Date.now);
 
   return {
     useCases: {
       observeExercises: new ObserveExercises(exerciseRepository),
       observeExerciseDetail: new ObserveExerciseDetail(exerciseRepository, workoutRepository),
+      observeRoutines: new ObserveRoutines(
+        routineRepository,
+        templateRepository,
+        profileRepository,
+        workoutRepository,
+      ),
+      observeTemplate: new ObserveTemplate(
+        templateRepository,
+        profileRepository,
+        routineRepository,
+        workoutRepository,
+        exerciseRepository,
+      ),
+      observeNextDay: new ObserveNextDay(
+        profileRepository,
+        routineRepository,
+        workoutRepository,
+        exerciseRepository,
+      ),
+      adoptTemplate: new AdoptTemplate(
+        templateRepository,
+        routineRepository,
+        profileRepository,
+        workoutRepository,
+        newId,
+      ),
+      activateRoutine: new ActivateRoutine(profileRepository, workoutRepository),
+      deleteRoutine: new DeleteRoutine(routineRepository, profileRepository, workoutRepository),
       prepareLocalData: new PrepareLocalData(localDatabase),
     },
     appStore: createAppStore(),
