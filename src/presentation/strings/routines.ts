@@ -30,7 +30,6 @@ export const routines = {
     why: '¿Por qué esta rutina?',
     prescription: (goal: string, range: string, rir: number) =>
       `Prescripción calculada para tu objetivo: ${goal} (${range} repeticiones, dejando ${rir} en reserva).`,
-    day: (day: string) => `Día ${day}`,
     exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
     setsByRange: (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`,
     main: 'Principal',

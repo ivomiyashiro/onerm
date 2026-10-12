@@ -4,7 +4,7 @@ import { openTestDatabase, type TestDatabase } from '@/data/db/open-test-databas
 import { appState, routineDays, routineExercises, routines } from '@/data/db/schema';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
-import type { Routine } from '@/domain/models/routine';
+import type { RotationDay, Routine } from '@/domain/models/routine';
 import { aPrescription, aRoutine, aRoutineDay, aRoutineExercise } from '@/domain/testing/builders';
 
 const T0 = 1_780_000_000_000;
@@ -335,5 +335,17 @@ describe('SqliteRoutineRepository: observation', () => {
 
   it('observeById emits null for a routine that never existed', () => {
     expect(observeById('missing')()).toBeNull();
+  });
+
+  it('observeRotationDays includes the deleted days with their position (RN-RUT-01)', async () => {
+    await repository.save(ROUTINE);
+    await repository.save({ ...ROUTINE, days: [ROUTINE.days[1]] });
+    const values: RotationDay[][] = [];
+    repository.observeRotationDays({ next: (days) => values.push(days), error: jest.fn() });
+
+    expect(values[0]).toEqual([
+      { id: 'd1', routineId: 'r1', position: 1, isDeleted: true },
+      { id: 'd2', routineId: 'r1', position: 2, isDeleted: false },
+    ]);
   });
 });

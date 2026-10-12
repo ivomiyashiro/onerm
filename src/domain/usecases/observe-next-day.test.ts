@@ -1,0 +1,116 @@
+import type { Profile } from '@/domain/models/profile';
+import type { Routine } from '@/domain/models/routine';
+import type { Workout } from '@/domain/models/workout';
+import { defaultProfile } from '@/domain/rules/routine/default-profile';
+import {
+  aPrescription,
+  aRoutine,
+  aRoutineDay,
+  aRoutineExercise,
+  aWorkout,
+  anExercise,
+} from '@/domain/testing/builders';
+import {
+  InMemoryProfileRepository,
+  InMemoryRoutineRepository,
+  InMemoryWorkoutRepository,
+} from '@/domain/testing/in-memory-repositories';
+import { ObserveNextDay, type NextDayOverview } from '@/domain/usecases/observe-next-day';
+
+const day = (id: string, position: number) =>
+  aRoutineDay({
+    id,
+    routineId: 'r1',
+    name: `Día ${id}`,
+    position,
+    exercises: [
+      aRoutineExercise({
+        id: `${id}1`,
+        routineDayId: id,
+        exerciseId: 'leg-press',
+        prescription: aPrescription({ sets: 3, restSeconds: 120 }),
+      }),
+      aRoutineExercise({
+        id: `${id}2`,
+        routineDayId: id,
+        exerciseId: 'curl',
+        position: 1,
+        prescription: aPrescription({ role: 'accessory', sets: 2, restSeconds: 90 }),
+      }),
+    ],
+  });
+
+const ROUTINE = aRoutine({ id: 'r1', name: 'Cuerpo completo', days: [day('A', 0), day('B', 1)] });
+const ACTIVE: Profile = { ...defaultProfile(), activeRoutineId: 'r1' };
+const doneOn = (routineDayId: string) => aWorkout({ routineId: 'r1', routineDayId });
+
+function observe({
+  profile = ACTIVE as Profile | null,
+  routines = [ROUTINE] as Routine[],
+  finished = [] as Workout[],
+} = {}) {
+  const routineRepository = new InMemoryRoutineRepository(routines);
+  const values: NextDayOverview[] = [];
+  new ObserveNextDay(
+    new InMemoryProfileRepository(profile),
+    routineRepository,
+    new InMemoryWorkoutRepository(null, finished),
+    { observeAll: (o) => (o.next([anExercise({ id: 'leg-press', name: 'Prensa' })]), () => {}) },
+  ).execute({ next: (value) => values.push(value), error: jest.fn() });
+  return { last: () => values[values.length - 1], routines: routineRepository };
+}
+
+describe('ObserveNextDay', () => {
+  it('RF-RUT-08.AC2: without a profile or an active routine there is no next day', () => {
+    expect(observe({ profile: null }).last()).toEqual({ kind: 'noActiveRoutine' });
+    expect(observe({ profile: defaultProfile() }).last()).toEqual({ kind: 'noActiveRoutine' });
+  });
+
+  it('RN-RUT-02: an active routine that was deleted counts as none', () => {
+    expect(observe({ routines: [] }).last()).toEqual({ kind: 'noActiveRoutine' });
+  });
+
+  it('RF-RUT-02.AC1: never trained, the first day with its exercises and totals (C-06)', () => {
+    expect(observe().last()).toEqual({
+      kind: 'nextDay',
+      routine: { id: 'r1', name: 'Cuerpo completo', dayCount: 2 },
+      day: {
+        id: 'A',
+        name: 'Día A',
+        exercises: [
+          {
+            id: 'A1',
+            exerciseId: 'leg-press',
+            name: 'Prensa',
+            prescription: aPrescription({ sets: 3, restSeconds: 120 }),
+          },
+          {
+            id: 'A2',
+            exerciseId: 'curl',
+            name: null,
+            prescription: aPrescription({ role: 'accessory', sets: 2, restSeconds: 90 }),
+          },
+        ],
+      },
+      sets: 5,
+      // 3 × (40 + 120) + 2 × (40 + 90) = 740 s.
+      minutes: 12,
+    });
+  });
+
+  it('RN-RUT-01: after day A comes day B', () => {
+    const next = observe({ finished: [doneOn('A')] }).last();
+
+    expect(next.kind === 'nextDay' && next.day.id).toBe('B');
+  });
+
+  it('RN-RUT-01: the last day done counts by its position after it was deleted', async () => {
+    const three = { ...ROUTINE, days: [day('A', 0), day('B', 1), day('C', 2)] };
+    const { last, routines } = observe({ routines: [three], finished: [doneOn('B')] });
+
+    await routines.save({ ...three, days: [day('A', 0), day('C', 2)] });
+
+    const next = last();
+    expect(next.kind === 'nextDay' && next.day.id).toBe('C');
+  });
+});

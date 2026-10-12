@@ -2,6 +2,7 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { Prescription } from '@/domain/models/prescription';
 import type { Exposure } from '@/domain/rules/suggestion/exposures';
 import type { Routine, RoutineDay, RoutineExercise } from '@/domain/models/routine';
+import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type {
   BilateralSet,
   UnilateralSet,
@@ -74,6 +75,29 @@ export function aRoutine(overrides: Partial<Routine> = {}): Routine {
     name: 'Mi rutina',
     sourceTemplateId: null,
     days: [aRoutineDay()],
+    ...overrides,
+  };
+}
+
+/** A one-day template with one main exercise. */
+export function aRoutineTemplate(overrides: Partial<RoutineTemplate> = {}): RoutineTemplate {
+  return {
+    id: 'PLT-FB3',
+    name: 'Cuerpo completo A/B',
+    level: 'novice',
+    daysPerWeek: 3,
+    estimatedMinutes: 43,
+    rationale: '',
+    days: [
+      {
+        id: 'PLT-FB3-A',
+        name: 'Día A',
+        position: 0,
+        exercises: [
+          { id: 'PLT-FB3-A1', exerciseId: 'leg-press', position: 0, role: 'main', sets: 3 },
+        ],
+      },
+    ],
     ...overrides,
   };
 }
