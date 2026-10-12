@@ -18,3 +18,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Exercise search by name or alias, ignoring accents and case, with muscle and equipment filters; works offline.
 - Exercise detail with its muscles, equipment, description when there is one and a link to your progress once you trained it; and an About screen with the version and the credits.
 - Routines tab: your routines with the active one highlighted, and the templates with the one recommended for you. A template shows its days, exercises and the prescription for your goal, explains why it is built that way, and can be adopted as your routine with one tap; a routine can be activated or deleted, never while a workout is in progress. Works offline.
+- Home shows the next day of your active routine, with its exercises, sets and estimated time; without an active routine it offers to choose one of the templates or create your own.
