@@ -36,6 +36,7 @@ In `.claude/skills/` (pinned in `skills-lock.json`; updated with `npx skills upd
 |---|---|---|
 | `card` | own | End-to-end flow of a card |
 | `pre-push` | own | Checks and the code and security reviewers before every push |
+| `tdd` | own | Red-green-refactor and which tests are worth having (one behaviour, one layer; no style or constant tests) |
 | `expo-router` | expo/skills | Expo Router routes, Stack, tabs and modals (F2, F5) |
 | `expo-upgrade` | expo/skills | Upgrading the Expo SDK and fixing dependencies |
 | `react-native-testing` | callstackincubator/agent-skills | Tests with Testing Library v14 (async render and userEvent) |
@@ -64,6 +65,8 @@ src/di/              composition root: creates the implementations and provides 
 - UI texts come from `src/presentation/strings` (RNF-21). Never hard-coded in the component.
 
 ## TDD
+
+The `tdd` skill has the detail: what each layer's tests own, the tests not to write and how to prune.
 
 1. **Red:** first write the failing test, derived from the AC or the reference case in the specification. Name the test with the ID (`RF-SUG-03.AC1`, `caso A`).
 2. **Green:** the minimum code to make it pass.

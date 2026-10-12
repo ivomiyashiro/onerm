@@ -36,7 +36,7 @@ Skip anything ESLint, Prettier or `tsc` already enforce (including the layer imp
 1. **Spec mismatches:** behaviour that differs from an RF, RN, AC or reference case of `sugerencias.md`, or a rule the card asks for that is missing.
 2. **Logic bugs:** off-by-one, wrong comparisons, kg/lb mix-ups (loads are stored in kg, RN-PERF-05), rounding, empty arrays, `null` paths, local dates vs instants.
 3. **Data and sync:** writes that don't go to SQLite first, missing transactions, migrations that lose data, ids not generated on the client (RN-SYNC-02).
-4. **Tests that don't test:** assertions that always pass, expected values copied from the output instead of computed from the specification, ViewModel states without a test.
+4. **Tests that don't test:** assertions that always pass, expected values copied from the output instead of computed from the specification, ViewModel states without a test. Also the low-value tests of `.claude/skills/tdd/SKILL.md` §4 (style or constant asserts, the same cases of an AC at several layers, mocks of our own modules), as suggestions. Never flag the invariants it protects (RNF-15/16/17/18, ViewModel states).
 
 Prove what you can with `bun run test <path>` or a temporary test.
 
