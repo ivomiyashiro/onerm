@@ -1,7 +1,28 @@
+import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import { count } from '@/presentation/strings/plural';
+
+/** «{nivel}» in S13 and S14. */
+const levels: Record<ExperienceLevel, string> = {
+  novice: 'Novato',
+  intermediate: 'Intermedio',
+  advanced: 'Avanzado',
+};
+
+/** «{objetivo}» in S14 (and D06). */
+const goals: Record<TrainingGoal, string> = {
+  health: 'salud general',
+  hypertrophy: 'ganar músculo',
+  strength: 'ganar fuerza',
+};
+
+/** A rep range, «8–12». */
+const repRange = ({ min, max }: { min: number; max: number }) => `${min}–${max}`;
 
 /** S13 Rutinas, S14 Plantilla, S15 Editor (13 §5, §7, §9, §10). */
 export const routines = {
+  levels,
+  goals,
+  repRange,
   list: {
     title: 'Rutinas',
     mine: 'Mis rutinas',
@@ -11,6 +32,13 @@ export const routines = {
     create: 'Crear rutina',
     days: (n: number) => count(n, 'día', 'días'),
     minutes: (n: number) => `~${n} min`,
+    /** The card line: «3 días · Novato · ~49 min», without the level for an own routine. */
+    summary: (days: number, level: ExperienceLevel | null, minutes: number) =>
+      [count(days, 'día', 'días'), level && levels[level], `~${minutes} min`]
+        .filter(Boolean)
+        .join(' · '),
+    /** Accessible name of the «⋯» of a card. */
+    options: (routine: string) => `Opciones de ${routine}`,
     templatesHelp:
       'Las plantillas se copian a Mis rutinas cuando las usás: después podés cambiarlas sin afectar el original.',
     menu: { edit: 'Editar', activate: 'Activar', duplicate: 'Duplicar', delete: 'Eliminar rutina' },

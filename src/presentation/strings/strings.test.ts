@@ -72,6 +72,8 @@ describe('strings (13-textos, RNF-21)', () => {
   describe('texts with parameters build the 13-textos sentence', () => {
     it.each([
       [strings.onboarding.stepOf(2), 'Paso 2 de 3'],
+      [strings.routines.list.summary(3, 'novice', 49), '3 días · Novato · ~49 min'],
+      [strings.routines.list.summary(1, null, 55), '1 día · ~55 min'],
       [strings.home.chooseDay.doneDaysAgo(3), 'Hecho hace 3 días'],
       [strings.workout.set.setOf(2, 3), 'Serie 2 de 3'],
       [strings.workout.rest.nextSet(2, 3, '62,5 kg', 8), 'Siguiente: serie 2 de 3 · 62,5 kg × 8'],

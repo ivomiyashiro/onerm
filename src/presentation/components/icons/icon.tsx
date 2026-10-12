@@ -12,6 +12,7 @@ import CloudOffSvg from '@/presentation/components/icons/svg/cloud-off.svg';
 import CloudOkSvg from '@/presentation/components/icons/svg/cloud-ok.svg';
 import DotsSvg from '@/presentation/components/icons/svg/dots.svg';
 import DumbbellSvg from '@/presentation/components/icons/svg/dumbbell.svg';
+import EditSvg from '@/presentation/components/icons/svg/edit.svg';
 import HomeSvg from '@/presentation/components/icons/svg/home.svg';
 import InfoSvg from '@/presentation/components/icons/svg/info.svg';
 import ListSvg from '@/presentation/components/icons/svg/list.svg';
@@ -23,6 +24,7 @@ import SearchSvg from '@/presentation/components/icons/svg/search.svg';
 import SkipSvg from '@/presentation/components/icons/svg/skip.svg';
 import SpinnerSvg from '@/presentation/components/icons/svg/spinner.svg';
 import SwapSvg from '@/presentation/components/icons/svg/swap.svg';
+import TrashSvg from '@/presentation/components/icons/svg/trash.svg';
 import UserSvg from '@/presentation/components/icons/svg/user.svg';
 import WifiOffSvg from '@/presentation/components/icons/svg/wifi-off.svg';
 import XSvg from '@/presentation/components/icons/svg/x.svg';
@@ -40,6 +42,7 @@ const ICONS = {
   'cloud-ok': CloudOkSvg,
   dots: DotsSvg,
   dumbbell: DumbbellSvg,
+  edit: EditSvg,
   home: HomeSvg,
   info: InfoSvg,
   list: ListSvg,
@@ -51,6 +54,7 @@ const ICONS = {
   skip: SkipSvg,
   spinner: SpinnerSvg,
   swap: SwapSvg,
+  trash: TrashSvg,
   user: UserSvg,
   'wifi-off': WifiOffSvg,
   x: XSvg,
