@@ -18,7 +18,7 @@ import {
 } from '@/presentation/features/exercises/use-exercise-search-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
-import { colors, typography } from '@/presentation/theme';
+import { colors, space, typography } from '@/presentation/theme';
 
 interface ExerciseSearchScreenProps {
   onBack: () => void;
@@ -185,10 +185,10 @@ function Results({
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
-  search: { gap: 12, paddingTop: 4, paddingHorizontal: 16 },
+  search: { gap: 12, paddingTop: 4, paddingHorizontal: space.s16 },
   // Edge to edge: chips scroll under the screen edge instead of being cut at the gutter.
-  chipRow: { marginHorizontal: -16 },
-  chips: { gap: 8, paddingHorizontal: 16 },
+  chipRow: { marginHorizontal: -space.s16 },
+  chips: { gap: 8, paddingHorizontal: space.s16 },
   results: { flex: 1, paddingTop: 12, paddingHorizontal: 4 },
   message: { paddingHorizontal: 16 },
   count: { color: colors.textSecondary, paddingLeft: 12, paddingBottom: 4 },
