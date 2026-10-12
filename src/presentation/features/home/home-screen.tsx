@@ -21,6 +21,9 @@ interface HomeScreenProps {
 
 const SKELETON_ROWS = 4;
 
+/** Figma HeroCard: a day name up to this length goes at 72 (Short), longer ones at 46 (Long). */
+const SHORT_DAY_NAME = 6;
+
 /**
  * S07 · Inicio: the next day of the active routine (RN-RUT-01). The suggestions per exercise, the
  * week strip and «Cambiar día» come with the workout (#34, #35).
@@ -78,7 +81,7 @@ type NextDayContent = Extract<HomeState, { status: 'content' }>['nextDay'];
 /** Figma HeroCard «Hoy toca» (without the photo for now) and «Lo de hoy». */
 function NextDay({ nextDay }: { nextDay: NextDayContent }) {
   const { routine, day, sets, minutes } = nextDay;
-  // «Día A»: the last word in lime. Names up to 6 characters at 72, longer ones at 46.
+  // «Día A»: the last word in lime.
   const split = day.name.lastIndexOf(' ');
   const head = split === -1 ? '' : day.name.slice(0, split + 1);
   const tail = day.name.slice(split + 1);
@@ -88,7 +91,7 @@ function NextDay({ nextDay }: { nextDay: NextDayContent }) {
         <Text style={[typography.label, { color: colors.textPrimary }]}>{home.todayIs}</Text>
         <Text
           style={[
-            day.name.length <= 6 ? typography.displayXl : typography.displayL,
+            day.name.length <= SHORT_DAY_NAME ? typography.displayXl : typography.displayL,
             styles.dayName,
           ]}
           numberOfLines={2}

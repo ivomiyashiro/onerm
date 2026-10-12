@@ -7,7 +7,10 @@ export default function S07Route() {
   return (
     <HomeScreen
       onChooseRoutine={() =>
-        router.navigate({ pathname: '/routines', params: { section: 'templates' } })
+        router.navigate({
+          pathname: '/routines',
+          params: { section: 'templates', at: String(Date.now()) },
+        })
       }
       onCreateRoutine={() =>
         router.push({ pathname: '/routine-editor/[id]', params: { id: 'new' } })

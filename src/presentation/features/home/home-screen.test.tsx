@@ -97,6 +97,33 @@ describe('HomeScreen (S07)', () => {
     expect(screen.getByText(routineText.template.setsByRange(3, '8–12'))).toBeOnTheScreen();
   });
 
+  it('a one-word day name is shown whole', async () => {
+    const routines = new InMemoryRoutineRepository([
+      { ...FULL_BODY, days: [{ ...FULL_BODY.days[0], name: 'Pierna' }] },
+    ]);
+    await render(
+      <SafeAreaProvider initialMetrics={METRICS}>
+        <UseCasesProvider
+          useCases={someUseCases(
+            routineUseCasesOver({
+              routines,
+              templates: new InMemoryRoutineTemplateRepository(),
+              profiles: new InMemoryProfileRepository({
+                ...defaultProfile(),
+                activeRoutineId: 'routine-1',
+              }),
+              workouts: new InMemoryWorkoutRepository(),
+            }),
+          )}
+        >
+          <HomeScreen onChooseRoutine={jest.fn()} onCreateRoutine={jest.fn()} />
+        </UseCasesProvider>
+      </SafeAreaProvider>,
+    );
+
+    expect(screen.getByRole('header', { name: 'Pierna' })).toBeOnTheScreen();
+  });
+
   it('RF-RUT-08.AC2: without an active routine offers «Elegir una rutina» and «Crear rutina»', async () => {
     const { user, onChooseRoutine, onCreateRoutine } = await renderScreen({
       profile: defaultProfile(),

@@ -4,9 +4,12 @@ import { RoutinesScreen } from '@/presentation/features/routines/routines-screen
 
 export default function S13Route() {
   const router = useRouter();
-  const { section } = useLocalSearchParams<{ section?: string }>();
+  // `at` changes on every «Elegir una rutina»: the tab stays mounted, so the key remounts it on
+  // Plantillas even when `section` was already set.
+  const { section, at } = useLocalSearchParams<{ section?: string; at?: string }>();
   return (
     <RoutinesScreen
+      key={at}
       initialSection={section === 'templates' ? 'templates' : 'mine'}
       onOpenTemplate={(id) => router.push({ pathname: '/template/[id]', params: { id } })}
       onCreateRoutine={() =>

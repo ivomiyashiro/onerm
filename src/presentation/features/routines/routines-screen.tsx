@@ -47,13 +47,6 @@ export function RoutinesScreen({
 }: RoutinesScreenProps) {
   const { state, dialog, actions } = useRoutinesViewModel();
   const [section, setSection] = useState<Section>(initialSection);
-  // The tab stays mounted: a later «Elegir una rutina» changes the param, not the mount, so the
-  // section follows the param when it changes (React: adjusting state when a prop changes).
-  const [shownInitial, setShownInitial] = useState(initialSection);
-  if (shownInitial !== initialSection) {
-    setShownInitial(initialSection);
-    setSection(initialSection);
-  }
   const insets = useSafeAreaInsets();
 
   return (
