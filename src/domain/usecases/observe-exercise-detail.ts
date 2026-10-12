@@ -5,6 +5,7 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { exerciseExposures } from '@/domain/rules/suggestion/exposures';
+import { observeTogether } from '@/domain/usecases/observe-together';
 
 /** What S17 shows: the catalog exercise and whether it has progress to open (RF-CAT-02). */
 export interface ExerciseDetail {
@@ -14,9 +15,8 @@ export interface ExerciseDetail {
 }
 
 /**
- * Observes one exercise of the catalog and the finished workouts together. Emits once both have
- * a value, and again after a change in either; null when the exercise is not in the local
- * catalog (RN-CAT-04). An error in either ends both (Observer contract).
+ * Observes one exercise of the catalog and the finished workouts together, and again after a
+ * change in either; null when the exercise is not in the local catalog (RN-CAT-04).
  */
 export class ObserveExerciseDetail {
   constructor(
@@ -25,56 +25,18 @@ export class ObserveExerciseDetail {
   ) {}
 
   execute(id: Id, observer: Observer<ExerciseDetail | null>): Unsubscribe {
-    let exercise: Exercise | null | undefined;
-    let finished: Workout[] | undefined;
-    let active = true;
-
-    const emit = () => {
-      if (!active || exercise === undefined || finished === undefined) return;
-      observer.next(
-        exercise && {
-          exercise,
-          hasProgress: exerciseExposures(exercise.id, finished).length > 0,
-        },
-      );
-    };
-    const fail = (error: unknown) => {
-      if (!active) return;
-      stop();
-      observer.error(error);
-    };
-
-    // The first query runs while subscribing (observeQuery), so an error can come before both
-    // subscriptions exist: `stop` only cancels the ones already made.
-    const subscriptions: Unsubscribe[] = [];
-    const stop = () => {
-      active = false;
-      subscriptions.forEach((unsubscribe) => unsubscribe());
-    };
-
-    subscriptions.push(
-      this.exercises.observeById(id, {
-        next: (value) => {
-          exercise = value;
-          emit();
-        },
-        error: fail,
-      }),
+    return observeTogether<[Exercise | null, Workout[]]>(
+      [(o) => this.exercises.observeById(id, o), (o) => this.workouts.observeFinished(o)],
+      {
+        next: ([exercise, finished]) =>
+          observer.next(
+            exercise && {
+              exercise,
+              hasProgress: exerciseExposures(exercise.id, finished).length > 0,
+            },
+          ),
+        error: (error) => observer.error(error),
+      },
     );
-    if (!active) {
-      stop();
-      return stop;
-    }
-    subscriptions.push(
-      this.workouts.observeFinished({
-        next: (value) => {
-          finished = value;
-          emit();
-        },
-        error: fail,
-      }),
-    );
-    if (!active) stop();
-    return stop;
   }
 }

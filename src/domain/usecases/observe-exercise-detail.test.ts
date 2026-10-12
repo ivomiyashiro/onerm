@@ -35,31 +35,19 @@ function fakes() {
     },
     emitExercise: (e: Exercise | null) => exerciseObservers.forEach((o) => o.next(e)),
     emitWorkouts: (w: Workout[]) => workoutObservers.forEach((o) => o.next(w)),
-    failWorkouts: () => workoutObservers.forEach((o) => o.error(new Error('disk'))),
-    count: () => exerciseObservers.size + workoutObservers.size,
   };
 }
 
 function observe(f: ReturnType<typeof fakes>) {
   const values: (ExerciseDetail | null)[] = [];
-  const error = jest.fn();
-  const unsubscribe = new ObserveExerciseDetail(f.exercises, f.workouts).execute('squat', {
+  new ObserveExerciseDetail(f.exercises, f.workouts).execute('squat', {
     next: (value) => values.push(value),
-    error,
+    error: jest.fn(),
   });
-  return { values, error, unsubscribe, last: () => values[values.length - 1] };
+  return { last: () => values[values.length - 1] };
 }
 
 describe('ObserveExerciseDetail', () => {
-  it('waits for both observations before emitting', () => {
-    const f = fakes();
-    const { values } = observe(f);
-
-    f.emitExercise(SQUAT);
-
-    expect(values).toEqual([]);
-  });
-
   it('RF-CAT-02.AC2: has progress when a finished workout logged effective sets of it', () => {
     const f = fakes();
     const { last } = observe(f);
@@ -98,54 +86,5 @@ describe('ObserveExerciseDetail', () => {
     f.emitWorkouts([]);
 
     expect(last()).toBeNull();
-  });
-
-  it('follows later changes of either source', () => {
-    const f = fakes();
-    const { last } = observe(f);
-    f.emitExercise(SQUAT);
-    f.emitWorkouts([]);
-
-    f.emitWorkouts([finishedWith('squat')]);
-
-    expect(last()).toEqual({ exercise: SQUAT, hasProgress: true });
-  });
-
-  it('an error in one source ends both observations', () => {
-    const f = fakes();
-    const { error } = observe(f);
-
-    f.failWorkouts();
-
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(f.count()).toBe(0);
-  });
-
-  it('an error while subscribing (the first query runs at once) never subscribes the rest', () => {
-    const observeFinished = jest.fn();
-    const error = jest.fn();
-    const failing = {
-      observeById: (_id: string, observer: Observer<Exercise | null>) => {
-        observer.error(new Error('disk'));
-        return () => {};
-      },
-    };
-
-    new ObserveExerciseDetail(failing, { observeFinished }).execute('squat', {
-      next: jest.fn(),
-      error,
-    });
-
-    expect(error).toHaveBeenCalledTimes(1);
-    expect(observeFinished).not.toHaveBeenCalled();
-  });
-
-  it('unsubscribing stops both observations', () => {
-    const f = fakes();
-    const { unsubscribe } = observe(f);
-
-    unsubscribe();
-
-    expect(f.count()).toBe(0);
   });
 });
