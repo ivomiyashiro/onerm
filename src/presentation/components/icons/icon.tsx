@@ -10,6 +10,7 @@ import ChevronSvg from '@/presentation/components/icons/svg/chevron.svg';
 import ClockSvg from '@/presentation/components/icons/svg/clock.svg';
 import CloudOffSvg from '@/presentation/components/icons/svg/cloud-off.svg';
 import CloudOkSvg from '@/presentation/components/icons/svg/cloud-ok.svg';
+import DotsSvg from '@/presentation/components/icons/svg/dots.svg';
 import DumbbellSvg from '@/presentation/components/icons/svg/dumbbell.svg';
 import HomeSvg from '@/presentation/components/icons/svg/home.svg';
 import InfoSvg from '@/presentation/components/icons/svg/info.svg';
@@ -37,6 +38,7 @@ const ICONS = {
   clock: ClockSvg,
   'cloud-off': CloudOffSvg,
   'cloud-ok': CloudOkSvg,
+  dots: DotsSvg,
   dumbbell: DumbbellSvg,
   home: HomeSvg,
   info: InfoSvg,
