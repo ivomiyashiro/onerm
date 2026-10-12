@@ -59,7 +59,14 @@ export function routineUseCasesOver(repositories: {
   exercises?: readonly Exercise[];
   newId?: () => Id;
 }): Partial<UseCases> {
-  const { routines, templates, profiles, workouts, exercises = [], newId = neverIds } = repositories;
+  const {
+    routines,
+    templates,
+    profiles,
+    workouts,
+    exercises = [],
+    newId = neverIds,
+  } = repositories;
   const catalog = {
     observeAll: (observer: { next(value: Exercise[]): void }) => {
       observer.next([...exercises]);

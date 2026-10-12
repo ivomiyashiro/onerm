@@ -1,4 +1,4 @@
-import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
+import type { ExerciseRole, ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import { count } from '@/presentation/strings/plural';
 
 /** «{nivel}» in S13 and S14. */
@@ -14,6 +14,10 @@ const goals: Record<TrainingGoal, string> = {
   hypertrophy: 'ganar músculo',
   strength: 'ganar fuerza',
 };
+
+const roles: Record<ExerciseRole, string> = { main: 'Principal', accessory: 'Accesorio' };
+
+const setsByRange = (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`;
 
 /** A rep range, «8–12». */
 const repRange = ({ min, max }: { min: number; max: number }) => `${min}–${max}`;
@@ -59,9 +63,15 @@ export const routines = {
     prescription: (goal: string, range: string, rir: number) =>
       `Prescripción calculada para tu objetivo: ${goal} (${range} repeticiones, dejando ${rir} en reserva).`,
     exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
-    setsByRange: (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`,
-    main: 'Principal',
-    accessory: 'Accesorio',
+    /** «Día A · 6 ejercicios». */
+    dayTitle: (day: string, exercises: number) =>
+      `${day} · ${count(exercises, 'ejercicio', 'ejercicios')}`,
+    /** «3 series × 8–12 · Principal». */
+    exerciseLine: (sets: number, range: string, role: ExerciseRole) =>
+      `${setsByRange(sets, range)} · ${roles[role]}`,
+    setsByRange,
+    main: roles.main,
+    accessory: roles.accessory,
     use: 'Usar esta rutina',
     sources: 'Ver las fuentes completas',
     /** «¿Por qué esta rutina?» (13 §5). */
