@@ -10,7 +10,8 @@ export default function S22Route() {
     <AboutScreen
       version={Constants.expoConfig?.version ?? ''}
       onBack={() => router.back()}
-      onOpenLink={(url) => void Linking.openURL(url)}
+      // No browser to open the link: nothing to do, the credit is still on screen.
+      onOpenLink={(url) => Linking.openURL(url).catch(() => {})}
     />
   );
 }
