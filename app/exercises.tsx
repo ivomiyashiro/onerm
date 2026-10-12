@@ -1,5 +1,13 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { useRouter } from 'expo-router';
+
+import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
 
 export default function S16Route() {
-  return <ScreenPlaceholder id="S16" />;
+  const router = useRouter();
+  return (
+    <ExerciseSearchScreen
+      onBack={() => router.back()}
+      onOpenExercise={({ id }) => router.push({ pathname: '/exercise/[id]', params: { id } })}
+    />
+  );
 }

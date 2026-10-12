@@ -23,11 +23,7 @@ export function TopBar({ title, backLabel, onBack }: TopBarProps) {
       >
         <Icon name="back" size={20} color={colors.textPrimary} />
       </Pressable>
-      <Text
-        style={[typography.titleL, styles.title]}
-        accessibilityRole="header"
-        numberOfLines={1}
-      >
+      <Text style={[typography.titleL, styles.title]} accessibilityRole="header" numberOfLines={1}>
         {title}
       </Text>
     </View>
