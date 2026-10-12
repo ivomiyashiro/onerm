@@ -1,6 +1,11 @@
 import { Dialog } from '@/presentation/components/overlay/dialog';
-import type { RoutinesDialog } from '@/presentation/features/routines/use-routines-view-model';
 import { dialogs } from '@/presentation/strings/dialogs';
+
+/** The confirmation S13 and S14 show: D07, D11 or D14 (RN-RUT-09). */
+export type RoutinesDialog =
+  | { kind: 'replaceActive'; routineName: string; activeName: string }
+  | { kind: 'delete'; routineName: string }
+  | { kind: 'workoutInProgress'; action: 'changeRoutine' | 'deleteRoutine' };
 
 interface RoutineChangeDialogProps {
   dialog: RoutinesDialog | null;

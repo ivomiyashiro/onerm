@@ -243,5 +243,10 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgField,
   },
   tabs: { paddingHorizontal: space.s16 },
-  list: { gap: space.s10, paddingTop: space.s16, paddingHorizontal: space.s16, paddingBottom: 24 },
+  list: {
+    gap: space.s10,
+    paddingTop: space.s16,
+    paddingHorizontal: space.s16,
+    paddingBottom: space.s24,
+  },
 });

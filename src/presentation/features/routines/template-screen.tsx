@@ -16,7 +16,7 @@ import { useTemplateViewModel } from '@/presentation/features/routines/use-templ
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { routines as text } from '@/presentation/strings/routines';
-import { colors, radius, space, typography } from '@/presentation/theme';
+import { colors, radius, size, space, typography } from '@/presentation/theme';
 
 interface TemplateScreenProps {
   templateId: Id;
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
     gap: space.s16,
     paddingTop: space.s4,
     paddingHorizontal: space.s16,
-    paddingBottom: 24,
+    paddingBottom: space.s24,
   },
   header: { gap: space.s10, paddingLeft: space.s4 },
   name: { color: colors.textPrimary, textTransform: 'uppercase' },
@@ -166,7 +166,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
   },
   row: {
-    minHeight: 56,
+    minHeight: size.targetMain,
     justifyContent: 'center',
     gap: 2,
     paddingHorizontal: 16,

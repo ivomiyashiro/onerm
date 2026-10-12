@@ -3,16 +3,11 @@ import { useEffect, useState } from 'react';
 import type { Id } from '@/domain/models/vocabulary';
 import type { RoutineChange } from '@/domain/usecases/routine-change';
 import type { RoutinesOverview } from '@/domain/usecases/observe-routines';
+import type { RoutinesDialog } from '@/presentation/features/routines/routine-change-dialog';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RoutinesState =
   { status: 'loading' } | { status: 'content'; overview: RoutinesOverview } | { status: 'error' };
-
-/** The confirmation S13 shows: D07, D11 or D14 (RN-RUT-09). */
-export type RoutinesDialog =
-  | { kind: 'replaceActive'; routineName: string; activeName: string }
-  | { kind: 'delete'; routineName: string }
-  | { kind: 'workoutInProgress'; action: 'changeRoutine' | 'deleteRoutine' };
 
 export interface RoutinesViewModel {
   state: RoutinesState;
