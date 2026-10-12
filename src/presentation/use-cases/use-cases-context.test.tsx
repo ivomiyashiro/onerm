@@ -8,7 +8,7 @@ import { UseCasesProvider, useUseCases } from '@/presentation/use-cases/use-case
 
 describe('useUseCases', () => {
   it('returns the use cases of the nearest provider', async () => {
-    const repository: ExerciseRepository = { observeAll: () => () => {} };
+    const repository: Pick<ExerciseRepository, 'observeAll'> = { observeAll: () => () => {} };
     const useCases = {
       observeExercises: new ObserveExercises(repository),
       prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),

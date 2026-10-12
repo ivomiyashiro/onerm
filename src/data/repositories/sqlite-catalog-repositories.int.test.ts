@@ -65,6 +65,41 @@ describe('SqliteExerciseRepository', () => {
   });
 });
 
+describe('SqliteExerciseRepository.observeById', () => {
+  it('emits the exercise with that id (RF-CAT-02)', () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+    const [first] = CATALOG_SNAPSHOT.exercises;
+
+    const { last } = lastValue<Exercise | null>((o) => repository.observeById(first.id, o));
+
+    expect(last()).toEqual(first);
+  });
+
+  it('emits null for an id that is not in the catalog (RN-CAT-04)', () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+
+    const { last } = lastValue<Exercise | null>((o) => repository.observeById('missing', o));
+
+    expect(last()).toBeNull();
+  });
+
+  it('runs again when the catalog changes', async () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+    const [first] = CATALOG_SNAPSHOT.exercises;
+    const { last } = lastValue<Exercise | null>((o) => repository.observeById(first.id, o));
+
+    t.db
+      .update(exercises)
+      .set({ deprecatedAt: 1_780_000_000_000 })
+      .where(eq(exercises.id, first.id))
+      .run();
+    changes.emit('exercises');
+    await flush();
+
+    expect(last()?.deprecatedAt).toEqual(new Date(1_780_000_000_000));
+  });
+});
+
 describe('SqliteRoutineTemplateRepository', () => {
   it('emits the templates with their days and exercises, as the snapshot has them', () => {
     const repository = new SqliteRoutineTemplateRepository(() => t.db, changes);

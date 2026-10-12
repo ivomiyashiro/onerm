@@ -26,7 +26,7 @@ const ROW: Exercise = anExercise({
 /** Fake repository: the test decides when and what it emits. */
 function fakeRepository() {
   const observers = new Set<Observer<Exercise[]>>();
-  const repository: ExerciseRepository = {
+  const repository: Pick<ExerciseRepository, 'observeAll'> = {
     observeAll(observer) {
       observers.add(observer);
       return () => observers.delete(observer);
@@ -44,7 +44,7 @@ function fakeRepository() {
   };
 }
 
-async function renderViewModel(repository: ExerciseRepository) {
+async function renderViewModel(repository: Pick<ExerciseRepository, 'observeAll'>) {
   const useCases = {
     observeExercises: new ObserveExercises(repository),
     prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),

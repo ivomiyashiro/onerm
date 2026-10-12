@@ -8,7 +8,7 @@ const SQUAT: Exercise = anExercise({ id: 'squat', name: 'Sentadilla con barra' }
 
 function fakeRepository() {
   const observers = new Set<Observer<Exercise[]>>();
-  const repository: ExerciseRepository = {
+  const repository: Pick<ExerciseRepository, 'observeAll'> = {
     observeAll(observer) {
       observers.add(observer);
       return () => observers.delete(observer);
