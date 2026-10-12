@@ -107,7 +107,7 @@ export function MenuItem({ icon, label, onPress, destructive = false }: MenuItem
       onPress={onPress}
       style={({ pressed }) => [styles.item, pressed && { backgroundColor: colors.bgSheetItem }]}
     >
-      <View style={styles.itemTile}>
+      <View style={[styles.itemTile, destructive && { backgroundColor: colors.bgErrSoftStrong }]}>
         <Icon name={icon} size={20} color={color} />
       </View>
       <Text style={[typography.bodyLStrong, styles.itemLabel, { color }]}>{label}</Text>
