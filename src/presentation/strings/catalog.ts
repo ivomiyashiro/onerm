@@ -1,9 +1,45 @@
+import type { Equipment, Muscle } from '@/domain/models/vocabulary';
 import { count } from '@/presentation/strings/plural';
+
+/** RN-CAT-03, the controlled vocabularies. */
+const muscles: Record<Muscle, string> = {
+  chest: 'Pecho',
+  back: 'Espalda',
+  shoulders: 'Hombros',
+  biceps: 'Bíceps',
+  triceps: 'Tríceps',
+  forearms: 'Antebrazos',
+  abs: 'Abdominales',
+  quads: 'Cuádriceps',
+  hamstrings: 'Isquios',
+  glutes: 'Glúteos',
+  calves: 'Gemelos',
+  adductors: 'Aductores',
+};
+
+const equipment: Record<Equipment, string> = {
+  barbell: 'Barra',
+  dumbbell: 'Mancuerna',
+  machine: 'Máquina',
+  cable: 'Polea',
+  bodyweight: 'Peso corporal',
+  kettlebell: 'Kettlebell',
+};
 
 /** S16 Buscador and S17 Detalle de ejercicio (13 §7, §9, §10). */
 export const catalog = {
+  muscles,
+  equipment,
   search: {
+    title: 'Ejercicios',
     placeholder: 'Buscar ejercicio',
+    clear: 'Borrar',
+    muscleFilter: 'Músculo',
+    equipmentFilter: 'Equipamiento',
+    readError: {
+      title: 'No pudimos cargar los ejercicios',
+      body: 'Tus datos siguen guardados en este teléfono. Probá de nuevo.',
+    },
     sameMuscle: 'Mismo músculo',
     addTo: (day: string) => `Agregar al ${day}`,
     count: (n: number) => count(n, 'ejercicio', 'ejercicios'),
@@ -15,6 +51,8 @@ export const catalog = {
     },
   },
   detail: {
+    title: 'Ejercicio',
+    unilateral: 'Unilateral',
     howTo: 'Cómo se hace',
     primary: 'Principales',
     secondary: 'Secundarios',

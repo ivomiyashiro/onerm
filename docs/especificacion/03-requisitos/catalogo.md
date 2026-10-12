@@ -44,6 +44,9 @@ Escenario: AC3 — Filtros
   Cuando filtro por músculo "espalda" y equipamiento "polea"
   Entonces solo veo ejercicios que cumplen ambos filtros
   Y puedo combinar los filtros con la búsqueda por texto
+  # El músculo se compara con los músculos principales, igual que "Mismo músculo" (S11),
+  # y el equipamiento con la lista de equipamiento (RN-CAT-03). Varios valores del mismo
+  # filtro se suman: "pecho" o "tríceps". Decidido el 2026-10-12 (#31).
 
 Escenario: AC4 — Sin resultados
   Dado que mi búsqueda no coincide con ningún ejercicio
