@@ -16,3 +16,4 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Local database on the phone, created on first launch and upgraded on every start; if preparing it fails, a screen offers to retry without losing data.
 - Exercise catalog and the three routine templates (full body 2 and 3 days, upper/lower 4 days) bundled with the app, available offline from the first launch.
 - Exercise search by name or alias, ignoring accents and case, with muscle and equipment filters; works offline.
+- Exercise detail with its muscles, equipment, description when there is one and a link to your progress once you trained it; and an About screen with the version and the credits.
