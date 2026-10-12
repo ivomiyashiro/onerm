@@ -47,7 +47,7 @@ Move the card: `tools/board.sh move <N> progress`.
 
 1. Branch from an up-to-date `main`: `<type>/<N>-<short-description>`, in English (see `docs/convenciones.md` §2).
 2. For each task in the plan:
-   - **Red:** write the test and watch it fail for the right reason.
+   - **Red:** write the test and watch it fail for the right reason. Follow the `tdd` skill: test each behaviour once, at the lowest layer that can see it.
    - **Green:** the minimum code to make it pass.
    - **Refactor** with everything green.
    - Commit in Conventional Commits, in English, with `Refs #N`.
