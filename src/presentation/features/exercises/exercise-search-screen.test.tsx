@@ -5,11 +5,11 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { Observer } from '@/domain/repositories/observer';
 import { anExercise } from '@/domain/testing/builders';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
-import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
+import { someUseCases } from '@/presentation/use-cases/testing';
 
 jest.useFakeTimers();
 
@@ -35,15 +35,14 @@ const METRICS = {
 
 async function renderScreen() {
   const observers = new Set<Observer<Exercise[]>>();
-  const useCases = {
+  const useCases = someUseCases({
     observeExercises: new ObserveExercises({
       observeAll(observer) {
         observers.add(observer);
         return () => observers.delete(observer);
       },
     }),
-    prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
-  };
+  });
   const onBack = jest.fn();
   const onOpenExercise = jest.fn();
   await render(

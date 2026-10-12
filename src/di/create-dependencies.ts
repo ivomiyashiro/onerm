@@ -4,6 +4,8 @@ import { expoSqliteDriver, expoTableChanges } from '@/data/db/expo-sqlite-driver
 import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlite-local-database';
 import type { TableChanges } from '@/data/db/table-changes';
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
+import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
+import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
@@ -40,10 +42,12 @@ export function createDependencies(
 ): Dependencies {
   const db = () => localDatabase.database;
   const exerciseRepository = new SqliteExerciseRepository(db, changes);
+  const workoutRepository = new SqliteWorkoutRepository(db, changes, Date.now);
 
   return {
     useCases: {
       observeExercises: new ObserveExercises(exerciseRepository),
+      observeExerciseDetail: new ObserveExerciseDetail(exerciseRepository, workoutRepository),
       prepareLocalData: new PrepareLocalData(localDatabase),
     },
     appStore: createAppStore(),

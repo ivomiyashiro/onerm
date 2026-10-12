@@ -2,11 +2,11 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { strings } from '@/presentation/strings';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
+import { someUseCases } from '@/presentation/use-cases/testing';
 
 const { dataError } = strings.startup;
 // Expo Router provides the safe area in the app.
@@ -16,10 +16,7 @@ const METRICS = {
 };
 
 async function renderGate(prepare: () => Promise<void>) {
-  const useCases = {
-    observeExercises: new ObserveExercises({ observeAll: () => () => {} }),
-    prepareLocalData: new PrepareLocalData({ prepare }),
-  };
+  const useCases = someUseCases({ prepareLocalData: new PrepareLocalData({ prepare }) });
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider useCases={useCases}>

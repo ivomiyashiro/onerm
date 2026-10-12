@@ -1,5 +1,6 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
+import type { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 
@@ -9,6 +10,7 @@ import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
  */
 export interface UseCases {
   observeExercises: ObserveExercises;
+  observeExerciseDetail: ObserveExerciseDetail;
   prepareLocalData: PrepareLocalData;
 }
 
