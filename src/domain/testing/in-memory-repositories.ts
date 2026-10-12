@@ -1,5 +1,5 @@
 import type { Profile } from '@/domain/models/profile';
-import type { RotationDay, Routine } from '@/domain/models/routine';
+import type { RotationDay, Routine, RoutineDay } from '@/domain/models/routine';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
@@ -55,8 +55,8 @@ export class InMemoryProfileRepository implements ProfileRepository {
 }
 
 export class InMemoryRoutineRepository implements RoutineRepository {
-  /** Deleted routines stay here, so their days still count for the rotation (RN-RUT-01). */
-  private readonly deleted = new Map<Id, Routine>();
+  /** Deleted days stay here, so they still count for the rotation (RN-RUT-01). */
+  private readonly deletedDays: RotationDay[] = [];
   private readonly all$ = new Observable(() => [...this.routines]);
 
   constructor(public routines: Routine[] = []) {}
@@ -75,24 +75,25 @@ export class InMemoryRoutineRepository implements RoutineRepository {
   observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe {
     return this.all$.observe({
       next: (routines) =>
-        observer.next([
-          ...routines.flatMap((r) => rotationDays(r, false)),
-          ...[...this.deleted.values()].flatMap((r) => rotationDays(r, true)),
-        ]),
+        observer.next([...routines.flatMap((r) => rotationDays(r, false)), ...this.deletedDays]),
       error: (error) => observer.error(error),
     });
   }
 
   async save(routine: Routine): Promise<void> {
     const index = this.routines.findIndex((r) => r.id === routine.id);
-    if (index === -1) this.routines.push(routine);
-    else this.routines[index] = routine;
+    if (index === -1) {
+      this.routines.push(routine);
+    } else {
+      const kept = new Set(routine.days.map((day) => day.id));
+      this.deleteDays(this.routines[index].days.filter((day) => !kept.has(day.id)));
+      this.routines[index] = routine;
+    }
     this.all$.changed();
   }
 
   async delete(id: Id): Promise<void> {
-    const routine = this.routines.find((r) => r.id === id);
-    if (routine) this.deleted.set(id, routine);
+    this.deleteDays(this.routines.find((r) => r.id === id)?.days ?? []);
     this.routines = this.routines.filter((r) => r.id !== id);
     this.all$.changed();
   }
@@ -100,15 +101,18 @@ export class InMemoryRoutineRepository implements RoutineRepository {
   fail(error: unknown = new Error('disk')) {
     this.all$.fail(error);
   }
+
+  private deleteDays(days: readonly RoutineDay[]) {
+    this.deletedDays.push(...days.map((day) => rotationDay(day, true)));
+  }
 }
 
 function rotationDays(routine: Routine, isDeleted: boolean): RotationDay[] {
-  return routine.days.map(({ id, routineId, position }) => ({
-    id,
-    routineId,
-    position,
-    isDeleted,
-  }));
+  return routine.days.map((day) => rotationDay(day, isDeleted));
+}
+
+function rotationDay({ id, routineId, position }: RoutineDay, isDeleted: boolean): RotationDay {
+  return { id, routineId, position, isDeleted };
 }
 
 export class InMemoryRoutineTemplateRepository implements RoutineTemplateRepository {
