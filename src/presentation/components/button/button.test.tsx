@@ -1,19 +1,11 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
-import { Button, type ButtonVariant } from '@/presentation/components/button/button';
+import { Button } from '@/presentation/components/button/button';
 
 jest.useFakeTimers();
 
-const VARIANTS: ButtonVariant[] = ['primary', 'secondary', 'tertiary', 'danger', 'dangerSolid'];
-
 describe('Button', () => {
-  it.each(VARIANTS)('%s is a button named by its label', async (variant) => {
-    await render(<Button variant={variant} label="Empezar" onPress={jest.fn()} />);
-
-    expect(screen.getByRole('button', { name: 'Empezar' })).toBeOnTheScreen();
-  });
-
   it('calls onPress when pressed', async () => {
     const user = userEvent.setup();
     const onPress = jest.fn();

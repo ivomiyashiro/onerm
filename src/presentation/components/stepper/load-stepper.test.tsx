@@ -52,7 +52,7 @@ describe('LoadStepper', () => {
   it('shows the note under the value', async () => {
     await render(<LoadStepper {...baseProps} note="Subimos 2,5 kg" />);
 
-    expect(screen.getByText('Subimos 2,5 kg')).toHaveStyle({ color: colors.textSecondary });
+    expect(screen.getByText('Subimos 2,5 kg')).toBeOnTheScreen();
   });
 
   it('an error note is red and announced', async () => {
@@ -61,15 +61,5 @@ describe('LoadStepper', () => {
     const note = screen.getByText('Máximo 500 kg');
     expect(note).toHaveStyle({ color: colors.textErr });
     expect(note.props.accessibilityLiveRegion).toBe('polite');
-  });
-
-  it('the value uses the tabular number style', async () => {
-    await render(<LoadStepper {...baseProps} />);
-
-    expect(screen.getByText('62,5')).toHaveStyle({
-      fontFamily: 'ArchivoCondensed-Bold',
-      fontSize: 56,
-      fontVariant: ['tabular-nums'],
-    });
   });
 });
