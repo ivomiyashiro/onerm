@@ -1,4 +1,5 @@
-import { nextDay, type RotationDay } from '@/domain/rules/routine/next-day';
+import type { RotationDay } from '@/domain/models/routine';
+import { nextDay } from '@/domain/rules/routine/next-day';
 import { aWorkout } from '@/domain/testing/builders';
 
 const day = (id: string, position: number, isDeleted = false): RotationDay => ({

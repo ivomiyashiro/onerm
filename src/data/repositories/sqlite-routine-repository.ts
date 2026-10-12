@@ -6,7 +6,7 @@ import { routineDays, routineExercises, routines } from '@/data/db/schema';
 import { currentUserId, softDelete, writeSyncRow } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
 import { fromRoutine, toRoutines } from '@/data/mappers/routine-mapper';
-import type { Routine } from '@/domain/models/routine';
+import type { RotationDay, Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -30,6 +30,26 @@ export class SqliteRoutineRepository implements RoutineRepository {
 
   observeById(id: Id, observer: Observer<Routine | null>): Unsubscribe {
     return observeQuery(this.changes, TABLES, () => this.read(id)[0] ?? null, observer);
+  }
+
+  observeRotationDays(routineId: Id, observer: Observer<RotationDay[]>): Unsubscribe {
+    return observeQuery(
+      this.changes,
+      [routineDays],
+      () =>
+        this.db()
+          .select({
+            id: routineDays.id,
+            position: routineDays.position,
+            deletedAt: routineDays.deletedAt,
+          })
+          .from(routineDays)
+          .where(eq(routineDays.routineId, routineId))
+          .orderBy(routineDays.position, routineDays.id)
+          .all()
+          .map(({ id, position, deletedAt }) => ({ id, position, isDeleted: deletedAt !== null })),
+      observer,
+    );
   }
 
   /**

@@ -1,13 +1,7 @@
+import type { RotationDay } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/position-order';
-
-/** A routine day for the rotation, deleted ones included: their position still counts. */
-export interface RotationDay {
-  readonly id: Id;
-  readonly position: number;
-  readonly isDeleted: boolean;
-}
 
 /**
  * RN-RUT-01 (ADR-0006): the first live day after the day of the last finished workout of the
