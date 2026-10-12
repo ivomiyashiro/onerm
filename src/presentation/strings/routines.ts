@@ -1,7 +1,32 @@
+import type { ExerciseRole, ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import { count } from '@/presentation/strings/plural';
+
+/** «{nivel}» in S13 and S14. */
+const levels: Record<ExperienceLevel, string> = {
+  novice: 'Novato',
+  intermediate: 'Intermedio',
+  advanced: 'Avanzado',
+};
+
+/** «{objetivo}» in S14 (and D06). */
+const goals: Record<TrainingGoal, string> = {
+  health: 'salud general',
+  hypertrophy: 'ganar músculo',
+  strength: 'ganar fuerza',
+};
+
+const roles: Record<ExerciseRole, string> = { main: 'Principal', accessory: 'Accesorio' };
+
+const setsByRange = (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`;
+
+/** A rep range, «8–12». */
+const repRange = ({ min, max }: { min: number; max: number }) => `${min}–${max}`;
 
 /** S13 Rutinas, S14 Plantilla, S15 Editor (13 §5, §7, §9, §10). */
 export const routines = {
+  levels,
+  goals,
+  repRange,
   list: {
     title: 'Rutinas',
     mine: 'Mis rutinas',
@@ -11,6 +36,13 @@ export const routines = {
     create: 'Crear rutina',
     days: (n: number) => count(n, 'día', 'días'),
     minutes: (n: number) => `~${n} min`,
+    /** The card line: «3 días · Novato · ~49 min», without the level for an own routine. */
+    summary: (days: number, level: ExperienceLevel | null, minutes: number) =>
+      [count(days, 'día', 'días'), level && levels[level], `~${minutes} min`]
+        .filter(Boolean)
+        .join(' · '),
+    /** Accessible name of the «⋯» of a card. */
+    options: (routine: string) => `Opciones de ${routine}`,
     templatesHelp:
       'Las plantillas se copian a Mis rutinas cuando las usás: después podés cambiarlas sin afectar el original.',
     menu: { edit: 'Editar', activate: 'Activar', duplicate: 'Duplicar', delete: 'Eliminar rutina' },
@@ -31,9 +63,15 @@ export const routines = {
     prescription: (goal: string, range: string, rir: number) =>
       `Prescripción calculada para tu objetivo: ${goal} (${range} repeticiones, dejando ${rir} en reserva).`,
     exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
-    setsByRange: (sets: number, range: string) => `${count(sets, 'serie', 'series')} × ${range}`,
-    main: 'Principal',
-    accessory: 'Accesorio',
+    /** «Día A · 6 ejercicios». */
+    dayTitle: (day: string, exercises: number) =>
+      `${day} · ${count(exercises, 'ejercicio', 'ejercicios')}`,
+    /** «3 series × 8–12 · Principal». */
+    exerciseLine: (sets: number, range: string, role: ExerciseRole) =>
+      `${setsByRange(sets, range)} · ${roles[role]}`,
+    setsByRange,
+    main: roles.main,
+    accessory: roles.accessory,
     use: 'Usar esta rutina',
     sources: 'Ver las fuentes completas',
     /** «¿Por qué esta rutina?» (13 §5). */
