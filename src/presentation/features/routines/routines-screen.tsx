@@ -24,6 +24,8 @@ import { colors, size, space, typography } from '@/presentation/theme';
 type Section = 'mine' | 'templates';
 
 interface RoutinesScreenProps {
+  /** «Elegir una rutina» from Inicio opens the templates. */
+  initialSection?: Section;
   onOpenTemplate: (templateId: Id) => void;
   onCreateRoutine: () => void;
   onEditRoutine: (routineId: Id) => void;
@@ -37,13 +39,14 @@ const summaryOf = (item: RoutineSummary) =>
 
 /** S13 · Rutinas (RF-RUT-01, 07, 08): Mis rutinas and Plantillas, from the local database. */
 export function RoutinesScreen({
+  initialSection = 'mine',
   onOpenTemplate,
   onCreateRoutine,
   onEditRoutine,
   onGoToWorkout,
 }: RoutinesScreenProps) {
   const { state, dialog, actions } = useRoutinesViewModel();
-  const [section, setSection] = useState<Section>('mine');
+  const [section, setSection] = useState<Section>(initialSection);
   const insets = useSafeAreaInsets();
 
   return (

@@ -6,6 +6,13 @@ export const home = {
   exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
   sets: (n: number) => count(n, 'serie', 'series'),
   minutes: (n: number) => `~${n} min`,
+  /** The hero numbers: the figure big, the word under it («6 / ejercicios», «~49 / min»). */
+  stats: {
+    exercises: (n: number) => (n === 1 ? 'ejercicio' : 'ejercicios'),
+    sets: (n: number) => (n === 1 ? 'serie' : 'series'),
+    approxMinutes: (n: number) => `~${n}`,
+    minutes: 'min',
+  },
   thisWeek: 'Esta semana',
   weekProgress: (done: number, goal: number) => `${done} de ${goal}`,
   today: 'Hoy',
