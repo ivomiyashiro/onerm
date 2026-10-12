@@ -450,7 +450,10 @@ const TEMPLATES: readonly RoutineTemplate[] = [
     estimatedMinutes: 51,
     rationale:
       'Si tenés poco tiempo, 2 días bien hechos ya generan mejoras importantes. Cada músculo trabaja 2 veces por semana. Hacemos alguna serie más por ejercicio para compensar.',
-    days: [day('PLT-FB2', 'A', 'A', 1, fullBodyA(4, 2)), day('PLT-FB2', 'B', 'B', 2, fullBodyB(4))],
+    days: [
+      day('PLT-FB2', 'A', 'Día A', 1, fullBodyA(4, 2)),
+      day('PLT-FB2', 'B', 'Día B', 2, fullBodyB(4)),
+    ],
   },
   {
     id: 'PLT-FB3',
@@ -460,7 +463,10 @@ const TEMPLATES: readonly RoutineTemplate[] = [
     estimatedMinutes: 43,
     rationale:
       'Trabajás todo el cuerpo en cada sesión y cada músculo unas 3 veces por semana, lo que te da mucha práctica de cada movimiento. Usamos máquinas, poleas y mancuernas porque son más fáciles de aprender y dan resultados parecidos a la barra. Las sesiones duran alrededor de una hora o menos.',
-    days: [day('PLT-FB3', 'A', 'A', 1, fullBodyA(3, 3)), day('PLT-FB3', 'B', 'B', 2, fullBodyB(3))],
+    days: [
+      day('PLT-FB3', 'A', 'Día A', 1, fullBodyA(3, 3)),
+      day('PLT-FB3', 'B', 'Día B', 2, fullBodyB(3)),
+    ],
   },
   {
     id: 'PLT-TP4',
