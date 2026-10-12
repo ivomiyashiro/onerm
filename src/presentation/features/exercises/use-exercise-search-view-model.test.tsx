@@ -6,9 +6,9 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { Observer } from '@/domain/repositories/observer';
 import { anExercise } from '@/domain/testing/builders';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
-import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { useExerciseSearchViewModel } from '@/presentation/features/exercises/use-exercise-search-view-model';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
+import { someUseCases } from '@/presentation/use-cases/testing';
 
 const SQUAT: Exercise = anExercise({
   id: 'squat',
@@ -26,7 +26,7 @@ const ROW: Exercise = anExercise({
 /** Fake repository: the test decides when and what it emits. */
 function fakeRepository() {
   const observers = new Set<Observer<Exercise[]>>();
-  const repository: ExerciseRepository = {
+  const repository: Pick<ExerciseRepository, 'observeAll'> = {
     observeAll(observer) {
       observers.add(observer);
       return () => observers.delete(observer);
@@ -44,11 +44,8 @@ function fakeRepository() {
   };
 }
 
-async function renderViewModel(repository: ExerciseRepository) {
-  const useCases = {
-    observeExercises: new ObserveExercises(repository),
-    prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
-  };
+async function renderViewModel(repository: Pick<ExerciseRepository, 'observeAll'>) {
+  const useCases = someUseCases({ observeExercises: new ObserveExercises(repository) });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
   );

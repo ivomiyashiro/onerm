@@ -1,10 +1,10 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { useStartupViewModel } from '@/presentation/features/startup/use-startup-view-model';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
+import { someUseCases } from '@/presentation/use-cases/testing';
 
 /** Fake database: the test decides when the preparation ends and how. */
 function fakeDatabase() {
@@ -21,10 +21,7 @@ function fakeDatabase() {
 }
 
 async function renderViewModel(database: { prepare(): Promise<void> }) {
-  const useCases = {
-    observeExercises: new ObserveExercises({ observeAll: () => () => {} }),
-    prepareLocalData: new PrepareLocalData(database),
-  };
+  const useCases = someUseCases({ prepareLocalData: new PrepareLocalData(database) });
   const wrapper = ({ children }: { children: ReactNode }) => (
     <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
   );

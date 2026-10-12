@@ -82,6 +82,9 @@ export const profile = {
     exerciseCatalog: 'Catálogo de ejercicios',
     photos: 'Fotos',
     fonts: 'Tipografías',
+    /** The brand name, split to color «RM» like the logo (Figma S22). */
+    appName: { one: 'One', rm: 'RM' },
+    fontsCredit: 'Archivo y JetBrains Mono · SIL Open Font License',
     basedOn: 'En qué nos basamos',
     principlesCount: (n: number) => count(n, 'principio', 'principios'),
     principlesHelp: 'Los principios detrás de las sugerencias y sus fuentes científicas.',
