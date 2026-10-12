@@ -341,11 +341,11 @@ describe('SqliteRoutineRepository: observation', () => {
     await repository.save(ROUTINE);
     await repository.save({ ...ROUTINE, days: [ROUTINE.days[1]] });
     const values: RotationDay[][] = [];
-    repository.observeRotationDays('r1', { next: (days) => values.push(days), error: jest.fn() });
+    repository.observeRotationDays({ next: (days) => values.push(days), error: jest.fn() });
 
     expect(values[0]).toEqual([
-      { id: 'd1', position: 1, isDeleted: true },
-      { id: 'd2', position: 2, isDeleted: false },
+      { id: 'd1', routineId: 'r1', position: 1, isDeleted: true },
+      { id: 'd2', routineId: 'r1', position: 2, isDeleted: false },
     ]);
   });
 });

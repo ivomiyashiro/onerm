@@ -32,7 +32,7 @@ export class SqliteRoutineRepository implements RoutineRepository {
     return observeQuery(this.changes, TABLES, () => this.read(id)[0] ?? null, observer);
   }
 
-  observeRotationDays(routineId: Id, observer: Observer<RotationDay[]>): Unsubscribe {
+  observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe {
     return observeQuery(
       this.changes,
       [routineDays],
@@ -40,14 +40,14 @@ export class SqliteRoutineRepository implements RoutineRepository {
         this.db()
           .select({
             id: routineDays.id,
+            routineId: routineDays.routineId,
             position: routineDays.position,
             deletedAt: routineDays.deletedAt,
           })
           .from(routineDays)
-          .where(eq(routineDays.routineId, routineId))
           .orderBy(routineDays.position, routineDays.id)
           .all()
-          .map(({ id, position, deletedAt }) => ({ id, position, isDeleted: deletedAt !== null })),
+          .map(({ deletedAt, ...day }) => ({ ...day, isDeleted: deletedAt !== null })),
       observer,
     );
   }

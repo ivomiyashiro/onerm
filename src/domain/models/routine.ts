@@ -32,6 +32,7 @@ export interface Routine {
 /** A routine day for the rotation, deleted ones included: their position still counts (RN-RUT-01). */
 export interface RotationDay {
   readonly id: Id;
+  readonly routineId: Id;
   readonly position: number;
   readonly isDeleted: boolean;
 }

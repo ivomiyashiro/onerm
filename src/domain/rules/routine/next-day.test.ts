@@ -4,6 +4,7 @@ import { aWorkout } from '@/domain/testing/builders';
 
 const day = (id: string, position: number, isDeleted = false): RotationDay => ({
   id,
+  routineId: 'routine-1',
   position,
   isDeleted,
 });
