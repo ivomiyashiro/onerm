@@ -48,5 +48,10 @@ function matchesWords(exercise: Exercise, words: readonly string[]): boolean {
 
 /** Lower case, without accents and with single spaces: "Jalón  al" → "jalon al". */
 function normalize(text: string): string {
-  return text.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/\s+/g, ' ').trim();
+  return text
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
 }
