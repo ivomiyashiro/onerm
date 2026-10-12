@@ -51,6 +51,7 @@ export function ExerciseSearchScreen({ onBack, onOpenExercise }: ExerciseSearchS
           horizontal
           showsHorizontalScrollIndicator={false}
           keyboardShouldPersistTaps="handled"
+          style={styles.chipRow}
           contentContainerStyle={styles.chips}
         >
           <FilterChips viewModel={viewModel} inline />
@@ -185,7 +186,9 @@ function Results({
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   search: { gap: 12, paddingTop: 4, paddingHorizontal: 16 },
-  chips: { gap: 8 },
+  // Edge to edge: chips scroll under the screen edge instead of being cut at the gutter.
+  chipRow: { marginHorizontal: -16 },
+  chips: { gap: 8, paddingHorizontal: 16 },
   results: { flex: 1, paddingTop: 12, paddingHorizontal: 4 },
   message: { paddingHorizontal: 16 },
   count: { color: colors.textSecondary, paddingLeft: 12, paddingBottom: 4 },
