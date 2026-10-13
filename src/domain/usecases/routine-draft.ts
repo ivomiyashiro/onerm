@@ -8,12 +8,7 @@ import type { ProfileRepository } from '@/domain/repositories/profile-repository
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import {
-  addDay,
-  addExercise,
-  nextDayName,
-  withPositions,
-} from '@/domain/rules/routine/routine-edits';
+import { addDay, addExercise, withPositions } from '@/domain/rules/routine/routine-edits';
 import { validateRoutine, type RoutineViolationCode } from '@/domain/rules/routine-rules';
 import type { Violation } from '@/domain/rules/violation';
 import { firstValue } from '@/domain/usecases/observe-together';
@@ -64,13 +59,7 @@ export class LoadRoutineDraft {
   private newRoutine(): Routine {
     const id = this.newId();
     const empty: Routine = { id, name: '', sourceTemplateId: null, days: [] };
-    return addDay(empty, {
-      id: this.newId(),
-      routineId: id,
-      name: nextDayName(empty),
-      position: 0,
-      exercises: [],
-    });
+    return addDay(empty, this.newId());
   }
 }
 
@@ -79,13 +68,7 @@ export class EditRoutineDraft {
   constructor(private readonly newId: () => Id) {}
 
   addDay(routine: Routine): Routine {
-    return addDay(routine, {
-      id: this.newId(),
-      routineId: routine.id,
-      name: nextDayName(routine),
-      position: 0,
-      exercises: [],
-    });
+    return addDay(routine, this.newId());
   }
 
   addExercise(

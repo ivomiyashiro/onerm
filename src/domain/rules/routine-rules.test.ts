@@ -62,4 +62,13 @@ describe('I-02 · RN-RUT-05 · a valid routine', () => {
       { code: 'prescription.sets', path: ['days', 1, 'exercises', 1, 'prescription', 'sets'] },
     ]);
   });
+
+  it('RF-RUT-06.AC1: the notes of an exercise go up to 280 characters', () => {
+    const withNotes = (notes: string) =>
+      aRoutine({ days: [aRoutineDay({ exercises: [aRoutineExercise({ notes })] })] });
+    expect(codes(withNotes('a'.repeat(280)))).toEqual([]);
+    expect(validateRoutine(withNotes('a'.repeat(281)))).toEqual([
+      { code: 'exercise.notes', path: ['days', 0, 'exercises', 0, 'notes'] },
+    ]);
+  });
 });

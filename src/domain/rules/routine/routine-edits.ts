@@ -31,7 +31,15 @@ function moved<T>(items: readonly T[], from: number, to: number): readonly T[] {
   return result;
 }
 
-export function addDay(routine: Routine, day: RoutineDay): Routine {
+/** A day without exercises at the end, named with the next free letter. */
+export function addDay(routine: Routine, id: Id): Routine {
+  const day: RoutineDay = {
+    id,
+    routineId: routine.id,
+    name: nextDayName(routine),
+    position: 0,
+    exercises: [],
+  };
   return { ...routine, days: [...routine.days, day] };
 }
 
