@@ -9,6 +9,7 @@ import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
+import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import { sessionMinutes } from '@/domain/rules/routine/session-duration';
 import { observeTogether } from '@/domain/usecases/observe-together';
@@ -35,6 +36,8 @@ export type NextDayOverview =
       readonly sets: number;
       /** C-06. */
       readonly minutes: number;
+      /** Picks the photo of Inicio (marca §9). */
+      readonly dayKind: DayKind;
     };
 
 const NO_ACTIVE_ROUTINE: NextDayOverview = { kind: 'noActiveRoutine' };
@@ -73,7 +76,7 @@ export class ObserveNextDay {
           const day = routine.days.find((d) => d.id === dayId);
           if (day === undefined) return observer.next(NO_ACTIVE_ROUTINE);
 
-          const names = new Map(exercises.map((exercise) => [exercise.id, exercise.name]));
+          const catalog = new Map(exercises.map((exercise) => [exercise.id, exercise]));
           const prescriptions = day.exercises.map((exercise) => exercise.prescription);
           observer.next({
             kind: 'nextDay',
@@ -84,12 +87,15 @@ export class ObserveNextDay {
               exercises: day.exercises.map(({ id, exerciseId, prescription }) => ({
                 id,
                 exerciseId,
-                name: names.get(exerciseId) ?? null,
+                name: catalog.get(exerciseId)?.name ?? null,
                 prescription,
               })),
             },
             sets: prescriptions.reduce((total, { sets }) => total + sets, 0),
             minutes: sessionMinutes(prescriptions),
+            dayKind: dayKind(
+              day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
+            ),
           });
         },
         error: (error) => observer.error(error),
