@@ -105,8 +105,9 @@ export class AskRestPermission {
 
   /** «Permitir»: the system prompt; 'exactAlarms' when D17 comes next. */
   async allow(): Promise<'exactAlarms' | 'done'> {
-    await this.timers.markNotificationPermissionAsked();
+    // Marked once the system answered: a prompt cut halfway asks again next time.
     const granted = await this.permissions.requestNotifications();
+    await this.timers.markNotificationPermissionAsked();
     return granted && !(await this.permissions.canScheduleExactAlarms()) ? 'exactAlarms' : 'done';
   }
 

@@ -108,6 +108,15 @@ describe('rest timer (RN-ENT-07)', () => {
 
     expect(notifier.scheduled?.at).toEqual(at(120));
   });
+
+  it('a rest that already ended is not scheduled again', async () => {
+    const { timers, reschedule, notifier } = setup();
+    await timers.saveEndsAt(at(-5));
+
+    await reschedule.execute(MESSAGE);
+
+    expect(notifier.scheduled).toBeNull();
+  });
 });
 
 describe('rest permissions (RF-ENT-06.AC9, AC10)', () => {
