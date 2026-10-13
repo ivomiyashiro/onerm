@@ -22,18 +22,19 @@ class ExactAlarmModule : Module() {
 
     Function("canScheduleExactAlarms") {
       // Before Android 12 exact alarms need no permission.
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return@Function true
-      val alarms = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-      alarms.canScheduleExactAlarms()
+      Build.VERSION.SDK_INT < Build.VERSION_CODES.S ||
+        (context.getSystemService(Context.ALARM_SERVICE) as AlarmManager).canScheduleExactAlarms()
     }
 
     // «Alarmas y recordatorios» for this app (D17).
     Function("openSettings") {
-      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) return@Function
-      val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
-        .setData(Uri.parse("package:${context.packageName}"))
-        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-      context.startActivity(intent)
+      // Before Android 12 there is nothing to allow.
+      if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+        val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
+          .setData(Uri.parse("package:${context.packageName}"))
+          .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        context.startActivity(intent)
+      }
     }
   }
 }
