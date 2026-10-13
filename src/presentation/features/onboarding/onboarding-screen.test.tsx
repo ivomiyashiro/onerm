@@ -1,4 +1,5 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { BackHandler } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { OnboardingStep } from '@/domain/models/onboarding';
@@ -78,5 +79,17 @@ describe('OnboardingScreen (S05)', () => {
 
     await userEvent.press(screen.getByRole('button', { name: strings.skip }));
     expect(onboarding.step).toBe('recommendation');
+  });
+
+  it("Android's back goes to the previous question", async () => {
+    const add = jest.spyOn(BackHandler, 'addEventListener');
+    await renderScreen('days');
+
+    const handler = add.mock.calls[add.mock.calls.length - 1][1];
+    await act(async () => {
+      expect(handler({} as Parameters<typeof handler>[0])).toBe(true);
+    });
+
+    expect(screen.getByRole('header', { name: strings.goal.question })).toBeOnTheScreen();
   });
 });

@@ -1,4 +1,5 @@
-import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect } from 'react';
+import { BackHandler, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
@@ -25,11 +26,22 @@ const DAYS = [2, 3, 4, 5, 6];
 export function OnboardingScreen() {
   const { state, actions } = useOnboardingViewModel();
   const insets = useSafeAreaInsets();
+  const step = state.status === 'content' ? state.step : null;
+
+  // Android's back goes to the previous question, like «Atrás»; on the first one it leaves the app.
+  useEffect(() => {
+    if (step === null || step === QUESTIONS[0]) return;
+    const subscription = BackHandler.addEventListener('hardwareBackPress', () => {
+      actions.back();
+      return true;
+    });
+    return () => subscription.remove();
+  }, [step, actions]);
 
   if (state.status === 'loading') return <View style={styles.screen} />;
 
-  const { step, answers } = state;
-  const number = QUESTIONS.indexOf(step) + 1;
+  const { answers } = state;
+  const number = QUESTIONS.indexOf(state.step) + 1;
   const isLast = number === QUESTIONS.length;
 
   return (
@@ -59,10 +71,10 @@ export function OnboardingScreen() {
             style={[typography.titleXl, { color: colors.textPrimary }]}
             accessibilityRole="header"
           >
-            {onboarding[step].question}
+            {onboarding[state.step].question}
           </Text>
         </View>
-        <Answers step={step} answers={answers} select={actions.select} />
+        <Answers step={state.step} answers={answers} select={actions.select} />
       </ScrollView>
       <View style={styles.action}>
         <Button
