@@ -54,8 +54,11 @@ export function currentSuggestion(
   if (working.length === 0) return unchanged;
 
   if (base.reason.code === 'BODYWEIGHT_CALIBRATION') {
+    // A failed set (0 reps) says nothing about where to start.
+    const first = working.find((set) => repsOf(set) > 0);
+    if (first === undefined) return unchanged;
     return {
-      suggestion: { ...base, reps: repsOf(working[0]) },
+      suggestion: { ...base, reps: repsOf(first) },
       recalculated: true,
       awaitingEffort: null,
     };

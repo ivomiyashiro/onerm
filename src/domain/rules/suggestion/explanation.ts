@@ -68,3 +68,20 @@ export function explainSuggestion(
     estimatedMax: lastTime === null ? null : bestE1rm(lastTime.sets),
   };
 }
+
+/**
+ * A suggestion recalculated by a calibration set of today (RN-SUG-06): its reason is the whole
+ * explanation, there is no «last time» yet.
+ */
+export function explainCalibrationStep(
+  base: SuggestionExplanation,
+  suggestion: Suggestion,
+): SuggestionExplanation {
+  return {
+    suggestion,
+    lastTime: null,
+    prescription: base.prescription,
+    meanRir: null,
+    estimatedMax: null,
+  };
+}

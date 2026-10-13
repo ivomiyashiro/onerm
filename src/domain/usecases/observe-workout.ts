@@ -12,7 +12,10 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { loadGridFor } from '@/domain/rules/suggestion/load-grid-for';
-import type { SuggestionExplanation } from '@/domain/rules/suggestion/explanation';
+import {
+  explainCalibrationStep,
+  type SuggestionExplanation,
+} from '@/domain/rules/suggestion/explanation';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 import { currentSuggestion } from '@/domain/rules/workout/current-suggestion';
 import { explanationFor } from '@/domain/rules/workout/suggestion-for';
@@ -151,11 +154,8 @@ export class ObserveWorkout {
                     ? null
                     : (notes.get(exercise.routineExerciseId) ?? null),
                 ...current,
-                // A calibration step comes from a set of today: there is no «last time» yet.
                 explanation:
-                  suggestion === base.suggestion
-                    ? base
-                    : { ...base, suggestion, lastTime: null, meanRir: null, estimatedMax: null },
+                  suggestion === base.suggestion ? base : explainCalibrationStep(base, suggestion),
                 grid,
               };
             }),

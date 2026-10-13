@@ -93,4 +93,17 @@ describe('currentSuggestion (RN-SUG-06, RN-SUG-13)', () => {
       awaitingEffort: null,
     });
   });
+
+  it('RF-SUG-09.AC4: a first bodyweight set with 0 reps gives no reps to copy', () => {
+    const bodyweight: Suggestion = {
+      loadKg: null,
+      reps: 8,
+      reason: { code: 'BODYWEIGHT_CALIBRATION' },
+    };
+    const failed = aBilateralSet({ loadKg: null, reps: 0, rir: null });
+
+    expect(currentSuggestion(bodyweight, [failed], { ...input, grid: null }).suggestion).toBe(
+      bodyweight,
+    );
+  });
 });

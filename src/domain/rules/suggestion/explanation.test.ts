@@ -1,7 +1,7 @@
 import type { LocalDate } from '@/domain/models/local-date';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import { suggestNext } from '@/domain/rules/suggestion/engine';
-import { explainSuggestion } from '@/domain/rules/suggestion/explanation';
+import { explainCalibrationStep, explainSuggestion } from '@/domain/rules/suggestion/explanation';
 import { anExposure, aPrescription } from '@/domain/testing/builders';
 
 const day = (n: number) => new Date(Date.UTC(2026, 9, n, 12));
@@ -94,5 +94,24 @@ describe('F3 review · the explanation matches the suggestion', () => {
 
     expect(explanation.suggestion.reason).toMatchObject({ workingLoadKg: 70 });
     expect(explanation.lastTime?.at).toEqual(day(5));
+  });
+});
+
+describe('RF-SUG-07 · a calibration step of today', () => {
+  it('explains the step, with no last time', () => {
+    const base = explainSuggestion([], context());
+    const step = {
+      loadKg: 35,
+      reps: 8,
+      reason: { code: 'CALIBRATION_STEP_DOWN', side: null },
+    } as const;
+
+    expect(explainCalibrationStep(base, step)).toEqual({
+      suggestion: step,
+      lastTime: null,
+      prescription: base.prescription,
+      meanRir: null,
+      estimatedMax: null,
+    });
   });
 });
