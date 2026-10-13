@@ -31,7 +31,7 @@ describe('AnswerOnboarding', () => {
     await answer.execute({ level: 'intermediate' }, 'goal');
 
     expect(profiles.profile).toMatchObject({ level: 'intermediate', effortMode: 'rir' });
-    expect(entry()).toEqual({ kind: 'onboarding', step: 'goal' });
+    expect(entry()).toMatchObject({ kind: 'onboarding', step: 'goal' });
   });
 
   it('RF-PERF-01.AC4: skipping keeps what was answered and goes to the recommendation', async () => {
@@ -41,6 +41,6 @@ describe('AnswerOnboarding', () => {
     await answer.execute({}, 'recommendation');
 
     expect(profiles.profile).toEqual(answered);
-    expect(entry()).toEqual({ kind: 'onboarding', step: 'recommendation' });
+    expect(entry()).toMatchObject({ kind: 'onboarding', step: 'recommendation' });
   });
 });

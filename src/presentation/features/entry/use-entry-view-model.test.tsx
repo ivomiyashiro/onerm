@@ -34,7 +34,7 @@ describe('useEntryViewModel', () => {
   it('ready: where the app opens', async () => {
     const { result } = await renderViewModel(over(new InMemoryProfileRepository(defaultProfile())));
 
-    expect(result.current.state).toEqual({
+    expect(result.current.state).toMatchObject({
       status: 'ready',
       entry: { kind: 'onboarding', step: 'goal' },
     });

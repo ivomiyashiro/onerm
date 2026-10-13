@@ -32,11 +32,22 @@ describe('ObserveEntry (08 §3)', () => {
   });
 
   it('RF-PERF-01.AC6: with the onboarding pending, its saved step', () => {
-    expect(setUp(defaultProfile(), 'days').entry()).toEqual({ kind: 'onboarding', step: 'days' });
+    expect(setUp(defaultProfile(), 'days').entry()).toMatchObject({
+      kind: 'onboarding',
+      step: 'days',
+    });
+  });
+
+  it('RF-PERF-01.AC3: with the onboarding pending, the answers so far', () => {
+    const answered = { ...defaultProfile(), level: 'advanced' as const, goal: 'strength' as const };
+
+    expect(setUp(answered, 'days').entry()).toMatchObject({
+      answers: { level: 'advanced', goal: 'strength', daysPerWeek: 3 },
+    });
   });
 
   it('with the onboarding pending and no step saved: the first question', () => {
-    expect(setUp(defaultProfile()).entry()).toEqual({ kind: 'onboarding', step: 'level' });
+    expect(setUp(defaultProfile()).entry()).toMatchObject({ kind: 'onboarding', step: 'level' });
   });
 
   it('with the onboarding done: the app, whatever step is left', () => {

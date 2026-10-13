@@ -33,5 +33,6 @@ export class ObserveEntry {
 function entryOf(profile: Profile | null, step: OnboardingStep | null): Entry {
   if (profile === null) return { kind: 'welcome' };
   if (profile.onboardingCompletedAt !== null) return { kind: 'app' };
-  return { kind: 'onboarding', step: step ?? 'level' };
+  const { level, goal, daysPerWeek } = profile;
+  return { kind: 'onboarding', step: step ?? 'level', answers: { level, goal, daysPerWeek } };
 }

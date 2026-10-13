@@ -31,7 +31,7 @@ describe('StartAsGuest (RF-AUTH-01.AC1)', () => {
     await startAsGuest.execute();
 
     expect(profiles.profile).toEqual(defaultProfile());
-    expect(entry()).toEqual({ kind: 'onboarding', step: 'level' });
+    expect(entry()).toMatchObject({ kind: 'onboarding', step: 'level' });
   });
 
   it('keeps a profile that already exists', async () => {
