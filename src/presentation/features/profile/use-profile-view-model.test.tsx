@@ -80,6 +80,16 @@ describe('useProfileViewModel', () => {
     expect(result.current.dialog).toBeNull();
   });
 
+  it('RN-PERF-03: a new level asks with D06 too', async () => {
+    const { result } = await renderViewModel();
+
+    await act(() => result.current.actions.open('level'));
+    await act(() => result.current.actions.choose({ level: 'advanced' }));
+    await act(() => result.current.actions.save());
+
+    expect(result.current.dialog).toEqual({ kind: 'adjust', level: 'advanced' });
+  });
+
   it('RF-PERF-03.AC2: «Dejar como está» leaves the routine as it was', async () => {
     const { result, routines } = await renderViewModel();
     const before = routines.routines[0];

@@ -147,7 +147,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | D03 Cerrar sesión con pendientes | Tenés {n} cambios sin respaldar | Si cerrás sesión ahora, se pierden. Conectate para respaldarlos antes. | **Cancelar** · Cerrar sesión igual (destructivo) |
 | D14 Terminá tu entrenamiento primero | Terminá tu entrenamiento primero | Tenés un entrenamiento en curso. Finalizalo o descartalo para {acción: cerrar sesión / cambiar de rutina / eliminar esta rutina}. | **Ir al entrenamiento** · Cancelar |
 | D05 Permiso de notificaciones | Te avisamos cuando termine el descanso | Así podés guardar el teléfono y te avisamos aunque la pantalla esté bloqueada. | **Permitir** · Ahora no |
-| D06 Ajustar la rutina al objetivo | ¿Ajustamos tu rutina? | Cambiaste tu objetivo a {objetivo}. Podemos actualizar repeticiones, esfuerzo y descansos. Tus ejercicios y su orden no cambian. | **Ajustar** · Dejar como está |
+| D06 Ajustar la rutina al objetivo | ¿Ajustamos tu rutina? | Cambiaste tu objetivo a {objetivo}. Podemos actualizar repeticiones, esfuerzo y descansos. Tus ejercicios y su orden no cambian. *Al cambiar el nivel (RN-PERF-03):* Cambiaste tu nivel a {nivel}. Podemos actualizar repeticiones, esfuerzo y descansos. Tus ejercicios y su orden no cambian. | **Ajustar** · Dejar como está |
 | D07 Reemplazar la rutina activa | ¿Usar {rutina} como tu rutina? | {rutina_actual} queda guardada en Mis rutinas con todo su historial. | **Usar esta rutina** · Cancelar |
 | D08 Cambios sin guardar | ¿Salir sin guardar? | Vas a perder los cambios en esta rutina. | **Seguir editando** · Salir sin guardar |
 | D09 Descartar el entrenamiento | ¿Descartar el entrenamiento? | Se borran las {n} series registradas. | **Cancelar** · Descartar (destructivo) |

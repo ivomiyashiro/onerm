@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { Profile } from '@/domain/models/profile';
-import type { TrainingGoal } from '@/domain/models/vocabulary';
+import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -21,7 +21,7 @@ export interface ProfileViewModel {
   state: ProfileState;
   sheet: SettingSheet | null;
   /** D06 after a new goal or level (RF-PERF-03.AC2). */
-  dialog: { kind: 'adjust'; goal: TrainingGoal } | null;
+  dialog: AdjustDialog | null;
   actions: {
     open(setting: Setting): void;
     choose(draft: ProfileChanges): void;
@@ -34,6 +34,10 @@ export interface ProfileViewModel {
     retry(): void;
   };
 }
+
+/** D06 names what changed: the goal or the level. */
+export type AdjustDialog =
+  { kind: 'adjust'; goal: TrainingGoal } | { kind: 'adjust'; level: ExperienceLevel };
 
 /** What each sheet edits, from the stored profile. */
 const CURRENT: Record<Setting, (profile: Profile) => ProfileChanges> = {
@@ -81,7 +85,9 @@ export function useProfileViewModel(): ProfileViewModel {
     try {
       const { offerAdjust } = await updateProfile.execute(sheet.draft);
       setSheet(null);
-      if (offerAdjust) setDialog({ kind: 'adjust', goal: sheet.draft.goal ?? state.profile.goal });
+      const { goal, level } = sheet.draft;
+      if (offerAdjust && goal !== undefined) setDialog({ kind: 'adjust', goal });
+      else if (offerAdjust && level !== undefined) setDialog({ kind: 'adjust', level });
     } catch {
       // A failed local write: the sheet stays open, and «Guardar» tries again.
     } finally {
