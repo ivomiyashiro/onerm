@@ -8,6 +8,7 @@ import {
   aRoutineDay,
   aRoutineExercise,
   aWorkout,
+  aPrescription,
   aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
@@ -40,11 +41,14 @@ const LAST_TIME = aWorkout({
   ],
 });
 
-function observe(inProgress: Workout | null = RUNNING) {
-  const workouts = new InMemoryWorkoutRepository(inProgress, [LAST_TIME]);
+function observe(
+  inProgress: Workout | null = RUNNING,
+  { profile = defaultProfile(), finished = [LAST_TIME] } = {},
+) {
+  const workouts = new InMemoryWorkoutRepository(inProgress, finished);
   const values: (WorkoutOverview | null)[] = [];
   new ObserveWorkout(
-    new InMemoryProfileRepository(defaultProfile()),
+    new InMemoryProfileRepository(profile),
     new InMemoryRoutineRepository([ROUTINE]),
     workouts,
     { observeAll: (o) => (o.next([SQUAT]), () => {}) },
@@ -87,5 +91,43 @@ describe('ObserveWorkout', () => {
 
     expect(last()!.workout.exercises[0].sets).toHaveLength(1);
     expect(last()!.exercises[0].suggestion).toBe(first);
+  });
+
+  it('RF-SUG-07.AC2: the explanation of each suggestion and the level of the user', () => {
+    const view = observe(RUNNING, { profile: { ...defaultProfile(), level: 'advanced' } }).last()!;
+
+    expect(view.level).toBe('advanced');
+    expect(view.exercises[0].explanation).toMatchObject({
+      suggestion: view.exercises[0].suggestion,
+      lastTime: { at: LAST_TIME.finishedAt },
+    });
+  });
+
+  it('RF-SUG-02.AC6: in calibration the next set comes from the last one (RN-SUG-06)', () => {
+    const calibrating = aWorkout({
+      ...RUNNING,
+      exercises: [
+        aWorkoutExercise({
+          id: 'we-1',
+          routineExerciseId: 're-new',
+          exerciseId: SQUAT.id,
+          plannedExerciseId: SQUAT.id,
+          prescription: aPrescription({ repRange: { min: 8, max: 12 }, targetRir: 3 }),
+          sets: [aBilateralSet({ workoutExerciseId: 'we-1', loadKg: 60, reps: 12, rir: 4 })],
+        }),
+      ],
+    });
+    const exercise = observe(calibrating, { finished: [] }).last()!.exercises[0];
+
+    // RTF 16: máx(60 + 2,5; 60 × 1,2 = 72), down to the grid → 70.
+    expect(exercise.suggestion.loadKg).toBe(70);
+    expect(exercise.suggestion).toMatchObject({ reason: { code: 'CALIBRATION_STEP' } });
+    expect(exercise.recalculated).toBe(true);
+    expect(exercise.awaitingEffort).toBeNull();
+    // S10 explains the step, not the calibration it came from.
+    expect(exercise.explanation).toMatchObject({
+      suggestion: exercise.suggestion,
+      lastTime: null,
+    });
   });
 });

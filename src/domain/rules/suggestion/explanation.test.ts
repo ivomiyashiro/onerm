@@ -1,7 +1,7 @@
 import type { LocalDate } from '@/domain/models/local-date';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import { suggestNext } from '@/domain/rules/suggestion/engine';
-import { explainSuggestion } from '@/domain/rules/suggestion/explanation';
+import { explainCalibrationStep, explainSuggestion } from '@/domain/rules/suggestion/explanation';
 import { anExposure, aPrescription } from '@/domain/testing/builders';
 
 const day = (n: number) => new Date(Date.UTC(2026, 9, n, 12));
@@ -64,6 +64,20 @@ describe('RF-SUG-07 · explain a suggestion', () => {
     });
   });
 
+  it('AC2 · for intermediate and advanced, the best e1RM of «La última vez» (P-10)', () => {
+    const last = anExposure(
+      [
+        [60, 10, 1],
+        [55, 10, null],
+      ],
+      { finishedAt: day(2) },
+    );
+
+    // RTF 11: 60 × 36 / 26 = 83,08; the 55 kg set gives less.
+    expect(explainSuggestion([last], context()).estimatedMax?.value).toBeCloseTo(83.08, 2);
+    expect(explainSuggestion([], context()).estimatedMax).toBeNull();
+  });
+
   it('AC3 · the same history and day give the same explanation (RN-SUG-16)', () => {
     const history = [anExposure([[60, 10, 2]], { finishedAt: day(2) })];
 
@@ -80,5 +94,24 @@ describe('F3 review · the explanation matches the suggestion', () => {
 
     expect(explanation.suggestion.reason).toMatchObject({ workingLoadKg: 70 });
     expect(explanation.lastTime?.at).toEqual(day(5));
+  });
+});
+
+describe('RF-SUG-07 · a calibration step of today', () => {
+  it('explains the step, with no last time', () => {
+    const base = explainSuggestion([], context());
+    const step = {
+      loadKg: 35,
+      reps: 8,
+      reason: { code: 'CALIBRATION_STEP_DOWN', side: null },
+    } as const;
+
+    expect(explainCalibrationStep(base, step)).toEqual({
+      suggestion: step,
+      lastTime: null,
+      prescription: base.prescription,
+      meanRir: null,
+      estimatedMax: null,
+    });
   });
 });
