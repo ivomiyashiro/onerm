@@ -102,6 +102,7 @@ export function routineUseCasesOver(repositories: {
     },
   };
   return {
+    observeExercises: new ObserveExercises(catalog),
     observeRoutines: new ObserveRoutines(routines, templates, profiles, workouts),
     observeTemplate: new ObserveTemplate(templates, profiles, routines, workouts, catalog),
     observeNextDay: new ObserveNextDay(profiles, routines, workouts, catalog),

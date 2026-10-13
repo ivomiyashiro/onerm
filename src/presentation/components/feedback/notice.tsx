@@ -4,11 +4,22 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { colors, radius, typography } from '@/presentation/theme';
 
-/** Figma «Notice» (Info): a neutral inline notice inside a screen, with the info icon. */
-export function Notice({ message }: { message: string }) {
+interface NoticeProps {
+  message: string;
+  /** Info: neutral, with the info icon. Warn: orange tint, with the alert icon (RIR 0 in S15). */
+  tone?: 'info' | 'warn';
+}
+
+/** Figma «Notice»: an inline notice inside a screen. */
+export function Notice({ message, tone = 'info' }: NoticeProps) {
+  const warn = tone === 'warn';
   return (
-    <View style={styles.notice}>
-      <Icon name="info" size={18} color={colors.textSecondary} />
+    <View style={[styles.notice, warn && styles.warn]}>
+      <Icon
+        name={warn ? 'alert' : 'info'}
+        size={18}
+        color={warn ? colors.textWarn : colors.textSecondary}
+      />
       <Text style={[typography.bodyM, styles.message]}>{message}</Text>
     </View>
   );
@@ -26,5 +37,6 @@ const styles = StyleSheet.create({
     borderColor: colors.borderHair,
     backgroundColor: colors.bgCard,
   },
+  warn: { borderColor: colors.borderWarnSoft, backgroundColor: colors.bgWarnSoft },
   message: { flex: 1, color: colors.textPrimary },
 });

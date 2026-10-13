@@ -38,6 +38,7 @@ export const palette = {
   limeA55: 'rgba(197, 240, 74, 0.55)',
   tealA13: 'rgba(61, 214, 196, 0.13)',
   orangeA13: 'rgba(255, 169, 77, 0.13)',
+  orangeA30: 'rgba(255, 169, 77, 0.3)',
   redA12: 'rgba(255, 107, 107, 0.12)',
   redA14: 'rgba(255, 107, 107, 0.14)',
 } as const;
@@ -87,6 +88,7 @@ export const colors = {
   borderAccent: palette.lime500,
   borderAccentSoft: palette.limeA55,
   borderErr: palette.red400,
+  borderWarnSoft: palette.orangeA30,
   borderInverse: palette.neutral50,
   handleGrab: palette.neutral500,
 } as const;
