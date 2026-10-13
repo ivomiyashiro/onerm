@@ -56,27 +56,34 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
       </Pressable>
     );
   };
-  return (
+  const bar = (
     <View
       accessibilityRole="tablist"
       style={[styles.bar, { paddingBottom: Math.max(bottomInset, 8) }]}
     >
       {tabs.slice(0, half).map(renderTab)}
-      {action && <ActionButton action={action} />}
+      {action && <ActionLabel action={action} />}
       {tabs.slice(half).map(renderTab)}
+    </View>
+  );
+  if (!action) return bar;
+  // Android only delivers a touch inside the bounds of every ancestor: the disc rises over the
+  // bar, so it lives in a taller transparent box that lets the touches around it through.
+  return (
+    <View pointerEvents="box-none" style={styles.rise}>
+      {bar}
+      <ActionDisc action={action} />
     </View>
   );
 }
 
-/** A 64 dp lime disc that rises over the bar; grey and inert when disabled. */
-function ActionButton({ action }: { action: TabAction }) {
+/** The label under the disc, also pressable; the disc carries the accessibility. */
+function ActionLabel({ action }: { action: TabAction }) {
   const disabled = action.kind === 'disabled';
-  const ink = disabled ? colors.textTertiary : colors.textOnAccent;
   return (
     <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={action.time ? `${action.label}, ${action.time}` : action.label}
-      accessibilityState={{ disabled }}
+      accessible={false}
+      importantForAccessibility="no-hide-descendants"
       disabled={disabled}
       onPress={action.onPress}
       style={styles.tab}
@@ -87,38 +94,55 @@ function ActionButton({ action }: { action: TabAction }) {
       >
         {action.label}
       </Text>
-      <View style={[styles.disc, disabled && styles.discDisabled]} pointerEvents="none">
-        {!disabled && (
-          <View style={styles.discFill}>
-            <Svg width="100%" height="100%">
-              <Defs>
-                <LinearGradient id="action" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor={colors.bgAccentTop} />
-                  <Stop offset="1" stopColor={colors.bgAccentBottom} />
-                </LinearGradient>
-              </Defs>
-              <Rect width="100%" height="100%" fill="url(#action)" />
-            </Svg>
-          </View>
-        )}
-        {action.time ? (
-          <>
-            <Icon name="dumbbell" size={22} color={ink} />
-            <Text style={[typography.monoS, { color: ink }]}>{action.time}</Text>
-          </>
-        ) : (
-          <Icon name="dumbbell" size={30} color={ink} />
-        )}
-      </View>
+    </Pressable>
+  );
+}
+
+/** A 64 dp lime disc that rises over the bar; grey and inert when disabled. */
+function ActionDisc({ action }: { action: TabAction }) {
+  const disabled = action.kind === 'disabled';
+  const ink = disabled ? colors.textTertiary : colors.textOnAccent;
+  return (
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={action.time ? `${action.label}, ${action.time}` : action.label}
+      accessibilityState={{ disabled }}
+      disabled={disabled}
+      onPress={action.onPress}
+      style={[styles.disc, disabled && styles.discDisabled]}
+    >
+      {!disabled && (
+        <View style={styles.discFill} pointerEvents="none">
+          <Svg width="100%" height="100%">
+            <Defs>
+              <LinearGradient id="action" x1="0" y1="0" x2="0" y2="1">
+                <Stop offset="0" stopColor={colors.bgAccentTop} />
+                <Stop offset="1" stopColor={colors.bgAccentBottom} />
+              </LinearGradient>
+            </Defs>
+            <Rect width="100%" height="100%" fill="url(#action)" />
+          </Svg>
+        </View>
+      )}
+      {action.time ? (
+        <>
+          <Icon name="dumbbell" size={22} color={ink} />
+          <Text style={[typography.monoS, { color: ink }]}>{action.time}</Text>
+        </>
+      ) : (
+        <Icon name="dumbbell" size={30} color={ink} />
+      )}
     </Pressable>
   );
 }
 
 /** Figma «TabBar» → Botón: 64 px, 24 px over the bar (marca §15). */
 const DISC = 64;
+const RISE = 24;
 
 const styles = StyleSheet.create({
   bar: {
+    alignSelf: 'stretch',
     flexDirection: 'row',
     alignItems: 'center',
     paddingTop: 6,
@@ -140,9 +164,10 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  rise: { marginTop: -RISE, paddingTop: RISE, alignItems: 'center' },
   disc: {
     position: 'absolute',
-    top: -30,
+    top: 0,
     width: DISC,
     height: DISC,
     alignItems: 'center',

@@ -22,6 +22,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - First launch: a welcome screen to start without an account, and three short questions (experience, goal and days per week) that can go back, be skipped and resume where you left them; then the recommended template for your answers, explained, to start with one tap, see the others or skip for now. Works offline.
 - Profile: change your level, goal, days per week, weight unit and effort mode, and the weight steps of your gym per equipment and the bar weight; a new goal or level offers to adjust your routine's reps, effort and rest without touching its exercises. Works offline.
 - Routine editor: create your own routine or edit one, with a name, days you can rename, reorder or remove, and exercises from the catalog with role, sets, rep range, reps in reserve, rest and notes; drag exercises by their handle or move them up or down, replace or remove them; the editor asks before leaving with unsaved changes, says which day is empty, warns about RIR 0 and about accessories before main exercises, and offers to activate a new routine. Works offline.
+- Start a workout from the central button of the tab bar, on any tab: it starts the next day of your routine, or shows «Continuar» with the running time of the workout in progress. Home shows the suggested weight and reps of each exercise, or «Calibrar» the first time, with an icon for what changes; «Cambiar día» lists every day with when it was last done and starts any of them. Works offline.
 
 ### Changed
 
