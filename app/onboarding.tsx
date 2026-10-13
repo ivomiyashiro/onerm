@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { OnboardingScreen } from '@/presentation/features/onboarding/onboarding-screen';
 
 export default function S05Route() {
-  return <ScreenPlaceholder id="S05" />;
+  return <OnboardingScreen />;
 }
