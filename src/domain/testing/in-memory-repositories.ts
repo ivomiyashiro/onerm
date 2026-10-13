@@ -1,12 +1,19 @@
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
+import type { RestMessage, RestTimer } from '@/domain/models/rest-timer';
 import type { RotationDay, Routine, RoutineDay } from '@/domain/models/routine';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
+import type {
+  DevicePermissions,
+  NotificationPermission,
+} from '@/domain/repositories/device-permissions';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
+import type { RestNotifier } from '@/domain/repositories/rest-notifier';
+import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
@@ -72,6 +79,75 @@ export class InMemoryOnboardingRepository implements OnboardingRepository {
 
   fail(error: unknown = new Error('disk')) {
     this.step$.fail(error);
+  }
+}
+
+export class InMemoryRestTimerRepository implements RestTimerRepository {
+  private readonly timer$ = new Observable(() => this.timer);
+
+  constructor(public timer: RestTimer = { endsAt: null, notificationPermissionAsked: false }) {}
+
+  observe(observer: Observer<RestTimer>): Unsubscribe {
+    return this.timer$.observe(observer);
+  }
+
+  async get(): Promise<RestTimer> {
+    return this.timer;
+  }
+
+  async saveEndsAt(endsAt: Date | null): Promise<void> {
+    this.timer = { ...this.timer, endsAt };
+    this.timer$.changed();
+  }
+
+  async markNotificationPermissionAsked(): Promise<void> {
+    this.timer = { ...this.timer, notificationPermissionAsked: true };
+    this.timer$.changed();
+  }
+}
+
+/** Keeps the one notification the system would hold under the fixed id `rest-timer`. */
+export class FakeRestNotifier implements RestNotifier {
+  scheduled: { at: Date; message: RestMessage } | null = null;
+
+  async schedule(at: Date, message: RestMessage): Promise<void> {
+    this.scheduled = { at, message };
+  }
+
+  async cancel(): Promise<void> {
+    this.scheduled = null;
+  }
+}
+
+export class FakeDevicePermissions implements DevicePermissions {
+  opened: ('notifications' | 'exactAlarms')[] = [];
+
+  constructor(
+    public notificationState: NotificationPermission = 'granted',
+    public exactAlarms = true,
+    /** What the user answers to the system prompt. */
+    public answer = true,
+  ) {}
+
+  async notifications(): Promise<NotificationPermission> {
+    return this.notificationState;
+  }
+
+  async requestNotifications(): Promise<boolean> {
+    this.notificationState = this.answer ? 'granted' : 'denied';
+    return this.answer;
+  }
+
+  async canScheduleExactAlarms(): Promise<boolean> {
+    return this.exactAlarms;
+  }
+
+  async openNotificationSettings(): Promise<void> {
+    this.opened.push('notifications');
+  }
+
+  async openExactAlarmSettings(): Promise<void> {
+    this.opened.push('exactAlarms');
   }
 }
 
