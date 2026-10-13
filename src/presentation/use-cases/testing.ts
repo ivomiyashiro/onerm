@@ -9,6 +9,7 @@ import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
+import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
 import { StartWorkout } from '@/domain/usecases/start-workout';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
@@ -79,6 +80,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     editRoutineDraft: new EditRoutineDraft(neverIds),
     saveRoutine: new SaveRoutine(routines),
     observeWorkout: new ObserveWorkout(profiles, routines, workouts, exercises, utcDate),
+    observeWorkoutInProgress: new ObserveWorkoutInProgress(workouts),
     startWorkout: new StartWorkout(profiles, routines, workouts, exercises, neverIds, epoch),
     logSet: new LogSet(workouts, neverIds, epoch),
     updateSet: new UpdateSet(workouts),
@@ -128,6 +130,7 @@ export function routineUseCasesOver(repositories: {
     editRoutineDraft: new EditRoutineDraft(newId),
     saveRoutine: new SaveRoutine(routines),
     observeWorkout: new ObserveWorkout(profiles, routines, workouts, catalog, utcDate),
+    observeWorkoutInProgress: new ObserveWorkoutInProgress(workouts),
     startWorkout: new StartWorkout(profiles, routines, workouts, catalog, newId, now),
     logSet: new LogSet(workouts, newId, now),
     updateSet: new UpdateSet(workouts),

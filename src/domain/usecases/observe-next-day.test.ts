@@ -106,6 +106,7 @@ describe('ObserveNextDay', () => {
       minutes: 12,
       // Prensa works the quads (the builder's default); curl is not in the catalog.
       dayKind: 'lower',
+      unit: 'kg',
       days: [
         { id: 'A', name: 'Día A', daysAgo: null, exerciseNames: ['Prensa', null] },
         { id: 'B', name: 'Día B', daysAgo: null, exerciseNames: ['Prensa', null] },

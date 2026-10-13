@@ -24,6 +24,7 @@ import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
+import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
 import { StartWorkout } from '@/domain/usecases/start-workout';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
@@ -138,6 +139,7 @@ export function createDependencies(
         exerciseRepository,
         deviceLocalDate,
       ),
+      observeWorkoutInProgress: new ObserveWorkoutInProgress(workoutRepository),
       startWorkout: new StartWorkout(
         profileRepository,
         routineRepository,

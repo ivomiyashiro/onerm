@@ -13,3 +13,14 @@ export function parseDecimal(text: string): number | null {
   const normalized = text.trim().replace(',', '.');
   return /^\d+(\.\d+)?$/.test(normalized) ? Number(normalized) : null;
 }
+
+const pad = (n: number) => String(n).padStart(2, '0');
+
+/** The time since a workout started (S07, S09, tab button): «18:42», or «1:05:09» past an hour. */
+export function elapsed(ms: number): string {
+  const seconds = Math.max(0, Math.floor(ms / 1000));
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const rest = seconds % 60;
+  return hours > 0 ? `${hours}:${pad(minutes)}:${pad(rest)}` : `${minutes}:${pad(rest)}`;
+}
