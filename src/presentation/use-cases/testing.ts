@@ -10,6 +10,15 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import {
+  AddRestTime,
+  AskRestPermission,
+  ObserveRestTimer,
+  ReadRestPermissions,
+  RescheduleRest,
+  SkipRest,
+  StartRest,
+} from '@/domain/usecases/rest-timer';
 import { StartWorkout } from '@/domain/usecases/start-workout';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
@@ -24,6 +33,11 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
+import {
+  FakeDevicePermissions,
+  FakeRestNotifier,
+  InMemoryRestTimerRepository,
+} from '@/domain/testing/in-memory-repositories';
 import type {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
@@ -86,6 +100,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     updateSet: new UpdateSet(workouts),
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, neverIds),
+    ...restUseCasesOver(),
     ...overrides,
   };
 }
@@ -136,5 +151,42 @@ export function routineUseCasesOver(repositories: {
     updateSet: new UpdateSet(workouts),
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, newId),
+  };
+}
+
+/**
+ * The rest timer use cases over an in-memory timer and fake device: by default notifications and
+ * exact alarms are allowed. Used by tests only.
+ */
+export function restUseCasesOver({
+  timers = new InMemoryRestTimerRepository(),
+  notifier = new FakeRestNotifier(),
+  permissions = new FakeDevicePermissions(),
+  now = epoch,
+}: {
+  timers?: InMemoryRestTimerRepository;
+  notifier?: FakeRestNotifier;
+  permissions?: FakeDevicePermissions;
+  now?: () => Date;
+} = {}): Partial<UseCases> &
+  Pick<
+    UseCases,
+    | 'observeRestTimer'
+    | 'startRest'
+    | 'addRestTime'
+    | 'rescheduleRest'
+    | 'skipRest'
+    | 'askRestPermission'
+    | 'readRestPermissions'
+  > {
+  const rest = [timers, notifier, permissions, now] as const;
+  return {
+    observeRestTimer: new ObserveRestTimer(timers),
+    startRest: new StartRest(...rest),
+    addRestTime: new AddRestTime(...rest),
+    rescheduleRest: new RescheduleRest(...rest),
+    skipRest: new SkipRest(timers, notifier),
+    askRestPermission: new AskRestPermission(timers, permissions),
+    readRestPermissions: new ReadRestPermissions(permissions),
   };
 }

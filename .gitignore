@@ -16,6 +16,9 @@ expo-env.d.ts
 /ios
 /android
 .kotlin/
+# Gradle output of the local native modules
+/modules/*/android/build/
+/modules/*/android/.cxx/
 *.orig.*
 *.jks
 *.p8
