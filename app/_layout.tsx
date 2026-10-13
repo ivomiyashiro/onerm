@@ -45,8 +45,12 @@ export default function RootLayout() {
               >
                 <Stack.Screen name="onboarding" />
               </Stack.Protected>
+              {/* S06 stays while its choice ends the onboarding, so it can navigate after. */}
               <Stack.Protected
-                guard={entry.kind === 'onboarding' && entry.step === 'recommendation'}
+                guard={
+                  entry.kind === 'app' ||
+                  (entry.kind === 'onboarding' && entry.step === 'recommendation')
+                }
               >
                 <Stack.Screen name="recommendation" />
               </Stack.Protected>

@@ -22,7 +22,7 @@ export type Veil = readonly { offset: number; opacity: number }[];
 export function VeiledPhoto({ photo, veil }: { photo: PhotoName; veil: Veil }) {
   return (
     <View
-      style={StyleSheet.absoluteFill}
+      style={styles.fill}
       accessibilityElementsHidden
       importantForAccessibility="no-hide-descendants"
     >
@@ -42,3 +42,8 @@ export function VeiledPhoto({ photo, veil }: { photo: PhotoName; veil: Veil }) {
     </View>
   );
 }
+
+// Clipped: on Android a cover image can spill out of an absolutely positioned parent.
+const styles = StyleSheet.create({
+  fill: { ...StyleSheet.absoluteFill, overflow: 'hidden' },
+});

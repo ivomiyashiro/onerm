@@ -65,7 +65,6 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     height: PHOTO_HEIGHT,
-    overflow: 'hidden',
   },
   content: { gap: 14, paddingHorizontal: space.s24 },
   title: { color: colors.textPrimary, textTransform: 'uppercase' },
