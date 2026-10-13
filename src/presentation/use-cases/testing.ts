@@ -2,10 +2,12 @@ import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { DeleteRoutine } from '@/domain/usecases/delete-routine';
+import { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
 import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
@@ -50,6 +52,8 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeEntry: new ObserveEntry(profiles, onboarding),
     startAsGuest: new StartAsGuest(profiles, onboarding),
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
+    observeRecommendation: new ObserveRecommendation(templates, profiles),
+    finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
     ...overrides,
   };
 }

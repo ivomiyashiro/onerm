@@ -4,10 +4,12 @@ import type { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import type { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import type { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import type { DeleteRoutine } from '@/domain/usecases/delete-routine';
+import type { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
 import type { ObserveEntry } from '@/domain/usecases/observe-entry';
 import type { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import type { ObserveTemplate } from '@/domain/usecases/observe-template';
 import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
@@ -30,6 +32,8 @@ export interface UseCases {
   observeEntry: ObserveEntry;
   startAsGuest: StartAsGuest;
   answerOnboarding: AnswerOnboarding;
+  observeRecommendation: ObserveRecommendation;
+  finishOnboarding: FinishOnboarding;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);
