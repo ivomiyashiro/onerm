@@ -13,6 +13,7 @@ import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-rout
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import type { Id } from '@/domain/models/vocabulary';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
+import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { DeleteRoutine } from '@/domain/usecases/delete-routine';
@@ -21,11 +22,13 @@ import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -105,6 +108,9 @@ export function createDependencies(
       startAsGuest: new StartAsGuest(profileRepository, onboardingRepository),
       answerOnboarding: new AnswerOnboarding(profileRepository, onboardingRepository),
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
+      observeProfile: new ObserveProfile(profileRepository),
+      updateProfile: new UpdateProfile(profileRepository, routineRepository),
+      adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
       finishOnboarding: new FinishOnboarding(
         profileRepository,
         onboardingRepository,

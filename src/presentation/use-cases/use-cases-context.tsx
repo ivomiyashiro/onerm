@@ -1,6 +1,7 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
 import type { ActivateRoutine } from '@/domain/usecases/activate-routine';
+import type { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import type { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import type { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import type { DeleteRoutine } from '@/domain/usecases/delete-routine';
@@ -9,11 +10,13 @@ import type { ObserveEntry } from '@/domain/usecases/observe-entry';
 import type { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import type { ObserveProfile } from '@/domain/usecases/observe-profile';
 import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import type { ObserveTemplate } from '@/domain/usecases/observe-template';
 import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import type { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import type { UpdateProfile } from '@/domain/usecases/update-profile';
 
 /**
  * The use cases ViewModels can call (ADR-0011 §4). The composition root (`src/di`) creates them
@@ -34,6 +37,9 @@ export interface UseCases {
   answerOnboarding: AnswerOnboarding;
   observeRecommendation: ObserveRecommendation;
   finishOnboarding: FinishOnboarding;
+  observeProfile: ObserveProfile;
+  updateProfile: UpdateProfile;
+  adjustActiveRoutine: AdjustActiveRoutine;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);
