@@ -1,5 +1,5 @@
-import type { ReactNode } from 'react';
-import { Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useEffect, useState, type ReactNode } from 'react';
+import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Scrim } from '@/presentation/components/overlay/scrim';
@@ -28,11 +28,12 @@ export function SheetOverlay({
   children,
   footer,
   scrimTestID,
-}: SheetContentProps & { scrimTestID?: string }) {
+  keyboardHeight = 0,
+}: SheetContentProps & { scrimTestID?: string; keyboardHeight?: number }) {
   return (
     <>
       <Scrim onPress={onClose} testID={scrimTestID} />
-      <View style={styles.sheet} accessibilityViewIsModal>
+      <View style={[styles.sheet, { bottom: keyboardHeight }]} accessibilityViewIsModal>
         <View style={styles.handleArea}>
           <View style={styles.handle} />
         </View>
@@ -75,6 +76,7 @@ export function BottomSheet({
   testID,
   ...content
 }: SheetContentProps & { visible: boolean; testID?: string }) {
+  const keyboardHeight = useKeyboardHeight();
   return (
     <Modal
       testID={testID}
@@ -85,9 +87,30 @@ export function BottomSheet({
       navigationBarTranslucent
       onRequestClose={content.onClose}
     >
-      <SheetOverlay {...content} scrimTestID={testID && `${testID}-scrim`} />
+      <SheetOverlay
+        {...content}
+        keyboardHeight={keyboardHeight}
+        scrimTestID={testID && `${testID}-scrim`}
+      />
     </Modal>
   );
+}
+
+/**
+ * The open keyboard's height. A sheet with a field (Incrementos) rises above it: Android doesn't
+ * resize a Modal's window for the keyboard.
+ */
+function useKeyboardHeight(): number {
+  const [height, setHeight] = useState(0);
+  useEffect(() => {
+    const show = Keyboard.addListener('keyboardDidShow', (e) => setHeight(e.endCoordinates.height));
+    const hide = Keyboard.addListener('keyboardDidHide', () => setHeight(0));
+    return () => {
+      show.remove();
+      hide.remove();
+    };
+  }, []);
+  return height;
 }
 
 interface MenuItemProps {
