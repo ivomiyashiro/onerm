@@ -40,4 +40,30 @@ describe('TabBar', () => {
 
     expect(onSelect).toHaveBeenCalledWith('progress');
   });
+
+  it('the central action goes between the tabs and can be disabled (marca §15)', async () => {
+    const user = userEvent.setup();
+    const onPress = jest.fn();
+    const { rerender } = await render(
+      <TabBar
+        tabs={TABS}
+        action={{ kind: 'continue', label: 'Continuar', time: '18:42', onPress }}
+        activeKey="index"
+        onSelect={jest.fn()}
+      />,
+    );
+
+    await user.press(screen.getByRole('button', { name: 'Continuar, 18:42' }));
+    expect(onPress).toHaveBeenCalled();
+
+    await rerender(
+      <TabBar
+        tabs={TABS}
+        action={{ kind: 'disabled', label: 'Empezar', onPress }}
+        activeKey="index"
+        onSelect={jest.fn()}
+      />,
+    );
+    expect(screen.getByRole('button', { name: 'Empezar' })).toBeDisabled();
+  });
 });

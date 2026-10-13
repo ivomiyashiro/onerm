@@ -21,6 +21,9 @@ export const home = {
   addsRepsIn: (n: number) => `suma reps en ${n}`,
   calibrate: 'Calibrar',
   inProgress: 'En curso',
+  inProgressSince: (time: string) => `En curso · ${time}`,
+  /** «×8» after the suggested load. */
+  timesReps: (n: number) => `×${n}`,
   startToday: 'Arrancá hoy',
   start: 'Empezar',
   continueWorkout: 'Continuar entrenamiento',
@@ -40,6 +43,7 @@ export const home = {
   chooseDay: {
     title: 'Elegir día',
     routineDays: (n: number) => count(n, 'día', 'días'),
+    subtitle: (routine: string, days: number) => `${routine} · ${count(days, 'día', 'días')}`,
     choose: (day: string) => `Elegir ${day}`,
     recommended: 'Recomendado',
     doneDaysAgo: (n: number) => `Hecho hace ${count(n, 'día', 'días')}`,

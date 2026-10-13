@@ -2,22 +2,31 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo } from '@/presentation/components/brand/logo';
+import type { LoadUnit } from '@/domain/models/vocabulary';
+import { toUnit } from '@/domain/rules/units';
+import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
+import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { HeroPhoto } from '@/presentation/features/home/hero-photo';
+import { TREND_ICONS, trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
+import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import { catalog } from '@/presentation/strings/catalog';
+import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
+import { loadNumber } from '@/presentation/strings/numbers';
 import { profile } from '@/presentation/strings/profile';
-import { routines } from '@/presentation/strings/routines';
 import { colors, fonts, radius, size, space, typography } from '@/presentation/theme';
 
 interface HomeScreenProps {
   /** «Elegir una rutina»: the templates (S13). */
   onChooseRoutine: () => void;
   onCreateRoutine: () => void;
+  /** «Cambiar día»: S08. */
+  onChangeDay: () => void;
 }
 
 const SKELETON_ROWS = 4;
@@ -26,11 +35,11 @@ const SKELETON_ROWS = 4;
 const SHORT_DAY_NAME = 6;
 
 /**
- * S07 · Inicio: the next day of the active routine (RN-RUT-01). The suggestions per exercise, the
- * week strip and «Cambiar día» come with the workout (#34, #35).
+ * S07 · Inicio: the next day of the active routine (RN-RUT-01) with the suggestion of each
+ * exercise (RF-SUG-01). The week strip waits for its AC (marca §8, «pendiente de especificar»).
  */
-export function HomeScreen({ onChooseRoutine, onCreateRoutine }: HomeScreenProps) {
-  const { state, actions } = useHomeViewModel();
+export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: HomeScreenProps) {
+  const { state, inProgressSince, actions } = useHomeViewModel();
   const insets = useSafeAreaInsets();
 
   return (
@@ -47,7 +56,13 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine }: HomeScreenProps
           Array.from({ length: SKELETON_ROWS }, (_, i) => (
             <SkeletonRow key={i} testID="home-skeleton" />
           ))}
-        {state.status === 'content' && <NextDay nextDay={state.nextDay} />}
+        {state.status === 'content' && (
+          <NextDay
+            nextDay={state.nextDay}
+            inProgressSince={inProgressSince}
+            onChangeDay={onChangeDay}
+          />
+        )}
         {state.status === 'empty' && (
           <>
             <EmptyState icon="list" title={home.noRoutine.title} body={home.noRoutine.body} />
@@ -80,8 +95,22 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine }: HomeScreenProps
 type NextDayContent = Extract<HomeState, { status: 'content' }>['nextDay'];
 
 /** Figma HeroCard «Hoy toca», with the photo of its kind of day, and «Lo de hoy». */
-function NextDay({ nextDay }: { nextDay: NextDayContent }) {
-  const { routine, day, sets, minutes } = nextDay;
+function NextDay({
+  nextDay,
+  inProgressSince,
+  onChangeDay,
+}: {
+  nextDay: NextDayContent;
+  inProgressSince: Date | null;
+  onChangeDay: () => void;
+}) {
+  const { routine, day, sets, minutes, unit } = nextDay;
+  const time = useElapsed(inProgressSince);
+  const trends = day.exercises.map((e) => trendOf(e.suggestion.reason.code));
+  const { up, reps } = trendCounts(trends);
+  const summary = [up > 0 && home.goesUpIn(up), reps > 0 && home.addsRepsIn(reps)]
+    .filter(Boolean)
+    .join(' · ');
   // «Día A»: the last word in lime.
   const split = day.name.lastIndexOf(' ');
   const head = split === -1 ? '' : day.name.slice(0, split + 1);
@@ -90,7 +119,9 @@ function NextDay({ nextDay }: { nextDay: NextDayContent }) {
     <>
       <View style={styles.hero}>
         <HeroPhoto kind={nextDay.dayKind} />
-        <Text style={[typography.label, { color: colors.textPrimary }]}>{home.todayIs}</Text>
+        <Text style={[typography.label, { color: time ? colors.textAccent : colors.textPrimary }]}>
+          {time ? home.inProgressSince(time) : home.todayIs}
+        </Text>
         <Text
           style={[
             day.name.length <= SHORT_DAY_NAME ? typography.displayXl : typography.displayL,
@@ -111,26 +142,86 @@ function NextDay({ nextDay }: { nextDay: NextDayContent }) {
           <Stat value={String(sets)} label={home.stats.sets(sets)} divided />
           <Stat value={home.stats.approxMinutes(minutes)} label={home.stats.minutes} divided />
         </View>
+        <View style={styles.changeDay}>
+          <Button variant="secondary" label={home.changeDay} onPress={onChangeDay} />
+        </View>
       </View>
       <View style={styles.section}>
-        <Text style={[typography.titleM, { color: colors.textPrimary }]}>{home.todayList}</Text>
+        <View style={styles.sectionHeader}>
+          <Text style={[typography.titleM, { color: colors.textPrimary }]}>{home.todayList}</Text>
+          {summary !== '' && (
+            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+              {summary.charAt(0).toUpperCase() + summary.slice(1)}
+            </Text>
+          )}
+        </View>
         <View style={styles.rows}>
-          {day.exercises.map(({ id, name, prescription }, index) => (
-            <View key={id} style={[styles.row, index > 0 && styles.rowDivider]}>
-              <Text style={[typography.bodyRow, styles.rowName]}>
-                {name ?? catalog.detail.unavailable}
-              </Text>
-              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-                {routines.template.setsByRange(
-                  prescription.sets,
-                  routines.repRange(prescription.repRange),
-                )}
-              </Text>
-            </View>
+          {day.exercises.map(({ id, name, suggestion }, index) => (
+            <TodayRow
+              key={id}
+              name={name ?? catalog.detail.unavailable}
+              trend={trends[index]}
+              loadKg={suggestion.loadKg}
+              reps={suggestion.reps}
+              unit={unit}
+              divided={index > 0}
+            />
           ))}
         </View>
       </View>
     </>
+  );
+}
+
+/**
+ * Figma «ExerciseRow»: what changes, the exercise and the suggestion (RF-SUG-01.AC1). The reason
+ * lives in S09 and S10 (marca §8).
+ */
+function TodayRow({
+  name,
+  trend,
+  loadKg,
+  reps,
+  unit,
+  divided,
+}: {
+  name: string;
+  trend: Trend;
+  loadKg: number | null;
+  reps: number;
+  unit: LoadUnit;
+  divided: boolean;
+}) {
+  return (
+    <View style={[styles.row, divided && styles.rowDivider]}>
+      <View style={styles.trend}>
+        <Icon
+          name={TREND_ICONS[trend]}
+          size={15}
+          color={trend === 'up' ? colors.textAccent : colors.textPrimary}
+        />
+      </View>
+      <Text style={[typography.bodyRow, styles.rowName]}>{name}</Text>
+      {trend === 'calibrate' ? (
+        <Badge label={home.calibrate} />
+      ) : (
+        <View style={styles.value}>
+          {loadKg !== null && (
+            <>
+              <Text style={[typography.numberMs, { color: colors.textPrimary }]}>
+                {loadNumber(toUnit(loadKg, unit), unit)}
+              </Text>
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {common.units[unit]}
+              </Text>
+            </>
+          )}
+          <Text style={[typography.numberMs, { color: colors.textPrimary }]}>
+            {home.timesReps(reps)}
+          </Text>
+        </View>
+      )}
+    </View>
   );
 }
 
@@ -214,4 +305,15 @@ const styles = StyleSheet.create({
   },
   rowDivider: { borderTopWidth: 1, borderTopColor: colors.borderHair },
   rowName: { flex: 1, color: colors.textPrimary },
+  sectionHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  changeDay: { alignSelf: 'flex-start', paddingTop: space.s10 },
+  trend: {
+    width: 30,
+    height: 30,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    backgroundColor: colors.bgRaised,
+  },
+  value: { flexDirection: 'row', alignItems: 'baseline', gap: 2 },
 });

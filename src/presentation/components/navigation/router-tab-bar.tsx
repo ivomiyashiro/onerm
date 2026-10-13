@@ -1,4 +1,4 @@
-import { TabBar, type TabItem } from '@/presentation/components/navigation/tab-bar';
+import { TabBar, type TabAction, type TabItem } from '@/presentation/components/navigation/tab-bar';
 
 /** The part of React Navigation's tab bar props that the bar uses. */
 interface TabNavigationProps {
@@ -19,8 +19,9 @@ export function RouterTabBar({
   tabs,
   state,
   navigation,
+  action,
   bottomInset,
-}: TabNavigationProps & { tabs: TabItem[]; bottomInset: number }) {
+}: TabNavigationProps & { tabs: TabItem[]; action?: TabAction; bottomInset: number }) {
   const active = state.routes[state.index];
 
   function select(name: string) {
@@ -32,5 +33,13 @@ export function RouterTabBar({
     }
   }
 
-  return <TabBar tabs={tabs} activeKey={active.name} onSelect={select} bottomInset={bottomInset} />;
+  return (
+    <TabBar
+      tabs={tabs}
+      action={action}
+      activeKey={active.name}
+      onSelect={select}
+      bottomInset={bottomInset}
+    />
+  );
 }

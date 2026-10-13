@@ -12,6 +12,7 @@ export default function S07Route() {
           params: { section: 'templates', at: String(Date.now()) },
         })
       }
+      onChangeDay={() => router.push('/choose-day')}
       onCreateRoutine={() =>
         router.push({ pathname: '/routine-editor/[id]', params: { id: 'new' } })
       }

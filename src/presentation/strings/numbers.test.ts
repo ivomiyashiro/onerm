@@ -1,4 +1,4 @@
-import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
+import { elapsed, loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 
 describe('RN-PERF-05 · numbers on screen', () => {
   it('kg with up to 2 decimals and lb with 1, with a comma and no trailing zeros', () => {
@@ -14,5 +14,13 @@ describe('RN-PERF-05 · numbers on screen', () => {
     expect(parseDecimal('abc')).toBeNull();
     expect(parseDecimal('')).toBeNull();
     expect(parseDecimal('1,2,3')).toBeNull();
+  });
+});
+
+describe('elapsed', () => {
+  it('minutes and seconds, with the hours once past one', () => {
+    expect(elapsed((18 * 60 + 42) * 1000)).toBe('18:42');
+    expect(elapsed(5 * 1000)).toBe('0:05');
+    expect(elapsed((3600 + 5 * 60 + 9) * 1000)).toBe('1:05:09');
   });
 });

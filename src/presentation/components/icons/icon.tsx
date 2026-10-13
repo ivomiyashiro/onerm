@@ -14,6 +14,8 @@ import DotsSvg from '@/presentation/components/icons/svg/dots.svg';
 import DumbbellSvg from '@/presentation/components/icons/svg/dumbbell.svg';
 import DownSvg from '@/presentation/components/icons/svg/down.svg';
 import EditSvg from '@/presentation/components/icons/svg/edit.svg';
+import EqualSvg from '@/presentation/components/icons/svg/equal.svg';
+import FlagSvg from '@/presentation/components/icons/svg/flag.svg';
 import GripSvg from '@/presentation/components/icons/svg/grip.svg';
 import HomeSvg from '@/presentation/components/icons/svg/home.svg';
 import InfoSvg from '@/presentation/components/icons/svg/info.svg';
@@ -47,6 +49,8 @@ const ICONS = {
   down: DownSvg,
   dumbbell: DumbbellSvg,
   edit: EditSvg,
+  equal: EqualSvg,
+  flag: FlagSvg,
   grip: GripSvg,
   home: HomeSvg,
   info: InfoSvg,

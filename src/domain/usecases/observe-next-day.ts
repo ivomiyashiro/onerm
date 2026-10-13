@@ -3,7 +3,7 @@ import type { LocalDate } from '@/domain/models/local-date';
 import type { Prescription } from '@/domain/models/prescription';
 import type { Profile } from '@/domain/models/profile';
 import type { RotationDay, Routine } from '@/domain/models/routine';
-import type { Id } from '@/domain/models/vocabulary';
+import type { Id, LoadUnit } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
@@ -56,6 +56,8 @@ export type NextDayOverview =
       readonly minutes: number;
       /** Picks the photo of Inicio (marca §9). */
       readonly dayKind: DayKind;
+      /** The unit the suggested loads are shown in (RN-PERF-05). */
+      readonly unit: LoadUnit;
       /** Every day of the routine, for S08; `day` is the recommended one. */
       readonly days: DayChoice[];
     };
@@ -131,6 +133,7 @@ export class ObserveNextDay {
             dayKind: dayKind(
               day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
             ),
+            unit: inputs.profile.unit,
             days: sortByPosition(routine.days).map((d) => {
               const done = lastDone.get(d.id);
               return {
