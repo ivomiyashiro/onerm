@@ -192,7 +192,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Error al preparar los datos (migración) | No pudimos preparar tus datos. **Reintentar** |
 | Unidad de carga | por mancuerna · por lado · total con barra |
 | Advertencia de RIR 0 (S15) | RIR 0 significa ir al fallo en cada serie. No lo recomendamos: no suma fuerza y aumenta la fatiga. |
-| Validación de serie | La carga tiene que estar entre 0 y 1000 {unidad}. · Las repeticiones tienen que estar entre 0 y 100. |
+| Validación de serie | La carga tiene que estar entre 0 y {máximo} {unidad}. ({máximo} es el tope de RN-ENT-02, 1000 kg, en la unidad del perfil: «1000 kg», «2204,6 lb»; decidido al cerrar #34, 2026-10-13) · Las repeticiones tienen que estar entre 0 y 100. |
 | Validación de rutina | El nombre no puede estar vacío. · El mínimo no puede ser mayor que el máximo. · Agregá al menos un ejercicio a {día}. |
 | Notificación de fin de descanso | Título: "¡Descanso terminado!" · Cuerpo: "Siguiente: {ejercicio} · {carga} × {reps}" |
 | Inicio: continuar | Continuar entrenamiento |
@@ -219,7 +219,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: lista de ejercicios | Ejercicios de hoy · {hechas}/{total} · Salteado |
 | S09: unilateral dividido | Reps izq. · Reps der. · Izq · Der · Distinto por lado · Repeticiones en reserva (RIR) · 0 = no podías hacer ni una más. |
 | S09: peso corporal y cierre | Sin carga: peso corporal · Completo (ejercicio terminado) |
-| S09: editar serie y carga | Editar serie {n} · Carga · Serie {n} · {ejercicio} · Cancelar · La carga tiene que estar entre 0 y 1000 kg. |
+| S09: editar serie y carga | Editar serie {n} · Carga · Serie {n} · {ejercicio} · Cancelar · La carga tiene que estar entre 0 y {máximo} {unidad}. |
 | Botón central de la barra de pestañas | Empezar · Continuar · {tiempo} (dentro del botón). Nombre accesible: "Empezar {día}" · "Continuar entrenamiento, {tiempo}" · "Empezar, no disponible" (deshabilitado) |
 | S07 | Hoy toca · {n} ejercicios · {n} series · ~{min} min · Esta semana · {hechos} de {meta} · Hoy · Lo de hoy · Sube en {n} · suma reps en {n} · Calibrar · En curso · {tiempo} · Arrancá hoy |
 | S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) · Se respalda al finalizar (solo con cuenta, 08 §5) |

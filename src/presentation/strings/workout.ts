@@ -84,7 +84,8 @@ export const workout = {
     setOfExercise: (n: number, exercise: string) => `Serie ${n} · ${exercise}`,
   },
   validation: {
-    load: (unit: string) => `La carga tiene que estar entre 0 y 1000 ${unit}.`,
+    /** The maximum of RN-ENT-02 (1000 kg) already in the user unit: «1000 kg», «2204,6 lb». */
+    load: (max: string, unit: string) => `La carga tiene que estar entre 0 y ${max} ${unit}.`,
     reps: 'Las repeticiones tienen que estar entre 0 y 100.',
   },
   effort: {
