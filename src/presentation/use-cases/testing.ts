@@ -1,12 +1,15 @@
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
+import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { DeleteRoutine } from '@/domain/usecases/delete-routine';
+import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
 import type {
@@ -33,6 +36,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
   const profiles = { observe: never, ...noWrites };
   const workouts = { observeInProgress: never, observeFinished: never };
   const exercises = { observeAll: never };
+  const onboarding = { observeStep: never, saveStep: async () => {} };
   return {
     observeExercises: new ObserveExercises(exercises),
     observeExerciseDetail: new ObserveExerciseDetail({ observeById: never }, workouts),
@@ -43,6 +47,9 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     activateRoutine: new ActivateRoutine(profiles, workouts),
     deleteRoutine: new DeleteRoutine(routines, profiles, workouts),
     prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
+    observeEntry: new ObserveEntry(profiles, onboarding),
+    startAsGuest: new StartAsGuest(profiles, onboarding),
+    answerOnboarding: new AnswerOnboarding(profiles, onboarding),
     ...overrides,
   };
 }
