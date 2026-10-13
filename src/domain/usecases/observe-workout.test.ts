@@ -130,4 +130,16 @@ describe('ObserveWorkout', () => {
       lastTime: null,
     });
   });
+
+  it('RF-SUG-02.AC1: an estimate from another context carries the name of its exercise', () => {
+    const elsewhere = aWorkout({
+      ...RUNNING,
+      exercises: [aWorkoutExercise({ id: 'we-1', routineExerciseId: 're-other' })],
+    });
+
+    const exercise = observe(elsewhere).last()!.exercises[0];
+
+    expect(exercise.suggestion.reason.code).toBe('ESTIMATED_FROM_E1RM');
+    expect(exercise.basisName).toBe('Sentadilla con barra');
+  });
 });
