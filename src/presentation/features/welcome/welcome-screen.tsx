@@ -59,7 +59,14 @@ export function WelcomeScreen({ onSignUp, onSignIn }: WelcomeScreenProps) {
 
 const styles = StyleSheet.create({
   screen: { flex: 1, justifyContent: 'flex-end', backgroundColor: colors.bgBase },
-  photo: { position: 'absolute', top: 0, left: 0, right: 0, height: PHOTO_HEIGHT },
+  photo: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    height: PHOTO_HEIGHT,
+    overflow: 'hidden',
+  },
   content: { gap: 14, paddingHorizontal: space.s24 },
   title: { color: colors.textPrimary, textTransform: 'uppercase' },
   actions: { gap: space.s8, paddingTop: space.s24, paddingHorizontal: space.s16 },

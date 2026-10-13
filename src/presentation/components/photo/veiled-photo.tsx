@@ -28,7 +28,8 @@ export function VeiledPhoto({ photo, veil }: { photo: PhotoName; veil: Veil }) {
     >
       <Image source={PHOTOS[photo]} style={StyleSheet.absoluteFill} resizeMode="cover" />
       <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bgPhotoDim }]} />
-      <Svg style={StyleSheet.absoluteFill} width="100%" height="100%">
+      {/* A unit viewBox stretched to the container, so the veil covers it whatever its size. */}
+      <Svg style={StyleSheet.absoluteFill} viewBox="0 0 1 1" preserveAspectRatio="none">
         <Defs>
           <LinearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
             {veil.map(({ offset, opacity }) => (
@@ -36,7 +37,7 @@ export function VeiledPhoto({ photo, veil }: { photo: PhotoName; veil: Veil }) {
             ))}
           </LinearGradient>
         </Defs>
-        <Rect width="100%" height="100%" fill="url(#veil)" />
+        <Rect width={1} height={1} fill="url(#veil)" />
       </Svg>
     </View>
   );
