@@ -83,6 +83,15 @@ export const routines = {
       'PLT-TP4':
         'Separamos tren superior e inferior para meter más trabajo por músculo sin alargar las sesiones. Cada músculo trabaja 2 veces por semana. Incluye ejercicios con más técnica, pensados para quien ya tiene experiencia.',
     },
+    /** S06: the short line under the recommended template (13 §5). */
+    summary: {
+      'PLT-FB3':
+        'Cada músculo unas 3 veces por semana con sesiones cortas. Mucha práctica de cada movimiento.',
+      'PLT-FB2':
+        'Dos sesiones de cuerpo completo por semana: alcanza para mejorar si tenés poco tiempo.',
+      'PLT-TP4':
+        'Separamos tren superior e inferior: más trabajo por músculo sin alargar las sesiones.',
+    },
     /** The criteria of each template and their sources, under the paragraph (13 §5). */
     criteria: {
       'PLT-FB3': [

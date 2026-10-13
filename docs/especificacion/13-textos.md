@@ -87,6 +87,14 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 - **PLT-FB2 — Cuerpo completo, 2 días:** "Si tenés poco tiempo, 2 días bien hechos ya generan mejoras importantes. Cada músculo trabaja 2 veces por semana. Hacemos alguna serie más por ejercicio para compensar."
 - **PLT-TP4 — Torso / Pierna, 4 días:** "Separamos tren superior e inferior para meter más trabajo por músculo sin alargar las sesiones. Cada músculo trabaja 2 veces por semana. Incluye ejercicios con más técnica, pensados para quien ya tiene experiencia."
 
+**Resumen** (S06, debajo de la tarjeta de la plantilla recomendada; el párrafo completo va en «¿Por qué?»):
+
+| Plantilla | Resumen |
+|---|---|
+| PLT-FB3 | Cada músculo unas 3 veces por semana con sesiones cortas. Mucha práctica de cada movimiento. |
+| PLT-FB2 | Dos sesiones de cuerpo completo por semana: alcanza para mejorar si tenés poco tiempo. |
+| PLT-TP4 | Separamos tren superior e inferior: más trabajo por músculo sin alargar las sesiones. |
+
 **Criterios y fuentes** (debajo del párrafo, en la misma hoja; RF-RUT-01 AC3). Cada fila tiene el criterio en lenguaje llano y sus fuentes abreviadas de la bibliografía de 10 §3 («OMS 2020» es Bull 2020), o "Criterio de práctica" cuando no hay evidencia detrás:
 
 | Plantilla | Criterio | Fuentes |
