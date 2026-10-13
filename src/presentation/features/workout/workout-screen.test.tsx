@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { Vibration } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Workout } from '@/domain/models/workout';
@@ -112,6 +113,7 @@ describe('WorkoutScreen (S09)', () => {
   });
 
   it('RF-ENT-03.AC2, AC3: a split unilateral set from the sheet, with the load per dumbbell', async () => {
+    const vibrate = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
     const { user, workouts } = await renderScreen();
 
     await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
@@ -131,6 +133,8 @@ describe('WorkoutScreen (S09)', () => {
     expect(workouts.inProgress!.exercises[0].sets).toMatchObject([
       { loadKg: 2, repsLeft: 7, repsRight: 8 },
     ]);
+    // RF-ENT-02.AC1: a short vibration once it is saved.
+    expect(vibrate).toHaveBeenCalledTimes(1);
     // RF-ENT-02.AC7: its only set was logged, so the next exercise shows.
     expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
   });

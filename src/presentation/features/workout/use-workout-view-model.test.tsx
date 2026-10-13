@@ -17,7 +17,7 @@ import {
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { stepReps } from '@/presentation/features/workout/set-form';
+import { stepReps, typeLoad } from '@/presentation/features/workout/set-form';
 import {
   useWorkoutViewModel,
   type WorkoutContent,
@@ -201,5 +201,32 @@ describe('useWorkoutViewModel', () => {
       number: 3,
       values: { loadKg: 105, reps: 8 },
     });
+  });
+
+  it('RF-ENT-14.AC1: a warm-up set is logged but is not a prescribed set: no move on', async () => {
+    const { result, workouts, content } = await renderViewModel();
+
+    await act(() => result.current.actions.openAdjust());
+    await act(() => result.current.actions.editForm((form) => ({ ...form, isWarmup: true })));
+    await act(() => result.current.actions.confirmAdjust());
+
+    expect(sets(workouts)).toMatchObject([{ isWarmup: true }]);
+    expect(content().exerciseIndex).toBe(0);
+    expect(content().rows.filter((r) => r.kind !== 'done')).toHaveLength(2);
+  });
+
+  it('RF-ENT-02.AC5: a typed load out of range is not logged and the sheet says so', async () => {
+    const { result, workouts } = await renderViewModel();
+
+    await act(() => result.current.actions.openAdjust());
+    await act(() =>
+      result.current.actions.editForm((form) =>
+        typeLoad(form, '1200', { unit: 'kg', increment: 2.5, minLoad: 20 }),
+      ),
+    );
+
+    expect(await act(() => result.current.actions.confirmAdjust())).toBe('invalid');
+    expect(sets(workouts)).toEqual([]);
+    expect(result.current.sheet).toMatchObject({ kind: 'adjust', errors: { load: true } });
   });
 });

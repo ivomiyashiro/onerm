@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -40,8 +40,12 @@ export function WorkoutScreen({ onClose }: WorkoutScreenProps) {
   const insets = useSafeAreaInsets();
   const none = state.status === 'none';
 
+  // Once: the route's callback is a new function on every render.
+  const closed = useRef(false);
   useEffect(() => {
-    if (none) onClose();
+    if (!none || closed.current) return;
+    closed.current = true;
+    onClose();
   }, [none, onClose]);
 
   return (
