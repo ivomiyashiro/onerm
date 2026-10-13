@@ -1,4 +1,4 @@
-import { StyleSheet, View } from 'react-native';
+import { StyleSheet, TextInput, View } from 'react-native';
 
 import { Plate } from '@/presentation/components/stepper/plate';
 import { colors, radius, typography } from '@/presentation/theme';
@@ -16,6 +16,8 @@ interface LoadStepperProps {
   incrementLabel: string;
   onDecrement: () => void;
   onIncrement: () => void;
+  /** With it, the value can also be typed with the numeric keyboard (RF-ENT-02.AC3). */
+  onChangeText?: (text: string) => void;
 }
 
 /** Figma «LoadStepper»: load or reps with their ± plates. */
@@ -29,13 +31,28 @@ export function LoadStepper({
   incrementLabel,
   onDecrement,
   onIncrement,
+  onChangeText,
 }: LoadStepperProps) {
   return (
     <View style={[styles.card, error && styles.cardError]}>
-      <View accessible accessibilityLabel={[label, value, unit].filter(Boolean).join(' ')}>
+      <View
+        accessible={!onChangeText}
+        accessibilityLabel={[label, value, unit].filter(Boolean).join(' ')}
+      >
         <Text style={[typography.label, styles.label]}>{label}</Text>
         <View style={styles.value}>
-          <Text style={[typography.numberHero, { color: colors.textPrimary }]}>{value}</Text>
+          {onChangeText ? (
+            <TextInput
+              accessibilityLabel={label}
+              value={value}
+              onChangeText={onChangeText}
+              keyboardType="decimal-pad"
+              selectTextOnFocus
+              style={[typography.numberHero, styles.input]}
+            />
+          ) : (
+            <Text style={[typography.numberHero, { color: colors.textPrimary }]}>{value}</Text>
+          )}
           {unit && (
             <Text style={[typography.bodyLStrong, { color: colors.textSecondary }]}>{unit}</Text>
           )}
@@ -84,5 +101,6 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   note: { textAlign: 'center' },
+  input: { minWidth: 48, padding: 0, textAlign: 'center', color: colors.textPrimary },
   plates: { flexDirection: 'row', gap: 10 },
 });
