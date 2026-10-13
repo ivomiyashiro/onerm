@@ -7,6 +7,9 @@ import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, radius, size, space, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
 
+/** The gap between the floating sheet and the screen edges (Figma «BottomSheet»). */
+const FLOAT_GAP = space.s8;
+
 interface SheetContentProps {
   title: string;
   subtitle?: string;
@@ -142,9 +145,6 @@ export function MenuItem({ icon, label, onPress, destructive = false }: MenuItem
     </Pressable>
   );
 }
-
-/** The gap between the floating sheet and the screen edges (Figma «BottomSheet»). */
-const FLOAT_GAP = space.s8;
 
 const styles = StyleSheet.create({
   sheet: {
