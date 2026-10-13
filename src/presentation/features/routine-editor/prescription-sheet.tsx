@@ -17,8 +17,13 @@ import { common } from '@/presentation/strings/common';
 import { routines as text } from '@/presentation/strings/routines';
 import { colors, space, typography } from '@/presentation/theme';
 
-/** The rest chips (decided for #33); a saved value off the list gets its own chip. */
+/**
+ * The rest chips, decided with the user for #33 (plan on the issue, 13 §10). All of them are inside
+ * RN-RUT-04; a saved value off the list gets its own chip.
+ */
 const REST_OPTIONS = [60, 90, 120, 150, 180, 240, 300];
+/** The share of the screen the sheet's content takes before it scrolls. */
+const MAX_HEIGHT_RATIO = 0.72;
 const NOTES_MAX = ROUTINE_LIMITS.notesLength.max;
 const RIR_OPTIONS = [0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: String(n) }));
 const ROLE_OPTIONS = (['main', 'accessory'] as const).map((role) => ({
@@ -69,7 +74,7 @@ export function PrescriptionSheet({
       {sheet && form && (
         // The sheet scrolls when it doesn't fit (decided for #33).
         <ScrollView
-          style={{ maxHeight: height * 0.72 }}
+          style={{ maxHeight: height * MAX_HEIGHT_RATIO }}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >

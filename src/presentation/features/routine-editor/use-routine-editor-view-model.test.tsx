@@ -295,7 +295,11 @@ describe('useRoutineEditorViewModel', () => {
       await act(() => result.current.actions.openExercise('re-1'));
 
       await act(() => result.current.actions.replaceExercise());
-      expect(result.current.picker).toEqual({ mode: 'replace', dayName: 'Día A' });
+      expect(result.current.picker).toEqual({
+        mode: 'replace',
+        dayName: 'Día A',
+        routineExerciseId: 're-1',
+      });
       await act(() => result.current.actions.pick(CURL));
 
       const [first] = content(result.current).routine.days[0].exercises;

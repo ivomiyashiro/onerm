@@ -66,7 +66,8 @@ export type EditorDialog =
   { kind: 'discard' } | { kind: 'activate'; routineName: string } | { kind: 'workoutInProgress' };
 
 /** S16 over the editor: the exercise to add to the selected day, or to put in place of another. */
-export type ExercisePicker = { mode: 'add' | 'replace'; dayName: string };
+export type ExercisePicker =
+  { mode: 'add'; dayName: string } | { mode: 'replace'; dayName: string; routineExerciseId: Id };
 
 export interface RoutineEditorViewModel {
   state: EditorState;
@@ -248,13 +249,18 @@ export function useRoutineEditorViewModel(
           emptyDay === undefined
             ? null
             : (editing.routine.days[emptyDay.path[1] as number]?.id ?? null);
-        setEditing({
-          ...editing,
-          selectedDayId: emptyDayId ?? editing.selectedDayId,
-          errors: { name: result.violations.some((v) => v.code === 'routine.name'), emptyDayId },
-        });
+        const name = result.violations.some((v) => v.code === 'routine.name');
+        // Functional: an edit made while saving is kept.
+        setEditing(
+          (current) =>
+            current && {
+              ...current,
+              selectedDayId: emptyDayId ?? current.selectedDayId,
+              errors: { name, emptyDayId },
+            },
+        );
       } else if (editing.draft.isNew) {
-        setEditing({ ...editing, dirty: false });
+        setEditing((current) => current && { ...current, dirty: false });
         setDialog({ kind: 'activate', routineName: editing.routine.name.trim() });
       } else {
         navigation.onClose();
@@ -316,8 +322,8 @@ export function useRoutineEditorViewModel(
       openPicker: () => selectedDay && setPicker({ mode: 'add', dayName: selectedDay.name }),
       closePicker: () => setPicker(null),
       pick: (exercise) => {
-        if (picker?.mode === 'replace' && sheet !== null) {
-          const id = sheet.exercise.id;
+        if (picker?.mode === 'replace') {
+          const id = picker.routineExerciseId;
           editRoutine((routine) => replaceExercise(routine, id, exercise.id));
         } else {
           editRoutine((routine, current) =>
@@ -351,7 +357,13 @@ export function useRoutineEditorViewModel(
         );
         setSheetFor(null);
       },
-      replaceExercise: () => sheet && setPicker({ mode: 'replace', dayName: sheet.dayName }),
+      replaceExercise: () =>
+        sheet &&
+        setPicker({
+          mode: 'replace',
+          dayName: sheet.dayName,
+          routineExerciseId: sheet.exercise.id,
+        }),
       removeExercise: () => {
         if (sheet === null) return;
         const id = sheet.exercise.id;
