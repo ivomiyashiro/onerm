@@ -6,6 +6,7 @@ import type { Workout } from '@/domain/models/workout';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import {
   anExercise,
+  aBilateralSet,
   aPrescription,
   aRoutine,
   aWorkout,
@@ -146,5 +147,28 @@ describe('WorkoutScreen (S09)', () => {
     await user.press(screen.getByRole('button', { name: PRESS.name }));
 
     expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-04.AC1, RF-ENT-02.AC5: a typed load out of range keeps the sheet open with the error', async () => {
+    const { user, workouts } = await renderScreen({
+      inProgress: {
+        ...RUNNING,
+        exercises: [
+          {
+            ...RUNNING.exercises[1],
+            status: 'done',
+            sets: [aBilateralSet({ id: 's1', workoutExerciseId: 'we-2', loadKg: 60, reps: 8 })],
+          },
+        ],
+      },
+    });
+
+    await user.press(screen.getAllByText('× 8')[0]);
+    await user.clear(screen.getByLabelText(text.set.load));
+    await user.type(screen.getByLabelText(text.set.load), '3000');
+    await user.press(screen.getByRole('button', { name: text.editSet.saveChanges }));
+
+    expect(screen.getByText(text.validation.load('1000', 'kg'))).toBeOnTheScreen();
+    expect(workouts.inProgress!.exercises[0].sets[0].loadKg).toBe(60);
   });
 });

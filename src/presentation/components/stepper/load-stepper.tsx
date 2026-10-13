@@ -47,7 +47,6 @@ export function LoadStepper({
               value={value}
               onChangeText={onChangeText}
               keyboardType="decimal-pad"
-              selectTextOnFocus
               style={[typography.numberHero, styles.input]}
             />
           ) : (
