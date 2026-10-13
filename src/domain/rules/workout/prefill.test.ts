@@ -38,4 +38,13 @@ describe('prefill (RN-ENT-04)', () => {
     expect(prefill(CALIBRATION, [])).toEqual({ loadKg: null, reps: 8 });
     expect(prefill(CALIBRATION, [aBilateralSet({ loadKg: 40 })])).toEqual({ loadKg: 40, reps: 8 });
   });
+
+  it('after a calibration set, the next one shows the step of RN-SUG-06, not the load used', () => {
+    const step: Suggestion = { ...SUGGESTED, loadKg: 35 };
+
+    expect(prefill(step, [aBilateralSet({ loadKg: 30, reps: 12 })], true)).toEqual({
+      loadKg: 35,
+      reps: 8,
+    });
+  });
 });

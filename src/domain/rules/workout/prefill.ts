@@ -11,10 +11,15 @@ export interface PrefilledSet {
 
 /**
  * RN-ENT-04: the suggestion, unless the previous set used another load: then that load. Warm-ups
- * don't count as the previous set, they are lighter on purpose (RN-ENT-12). The calibration steps
- * of RN-SUG-06 come with #35; until then, its next sets keep the load used.
+ * don't count as the previous set, they are lighter on purpose (RN-ENT-12). A suggestion
+ * `recalculated` from the previous set (a calibration step, RN-SUG-06) is shown as is.
  */
-export function prefill(suggestion: Suggestion, sets: readonly WorkoutSet[]): PrefilledSet {
+export function prefill(
+  suggestion: Suggestion,
+  sets: readonly WorkoutSet[],
+  recalculated = false,
+): PrefilledSet {
+  if (recalculated) return { loadKg: suggestion.loadKg, reps: suggestion.reps };
   const previous = sets.filter((set) => !set.isWarmup).at(-1);
   const used = previous?.loadKg ?? null;
   const changed =
