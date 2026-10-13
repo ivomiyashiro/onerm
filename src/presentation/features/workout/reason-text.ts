@@ -260,6 +260,14 @@ const INCREASES: ReadonlySet<SuggestionCode> = new Set([
   'HIGH_INCREASE',
 ]);
 
+/** Reasons that move the reps towards the cap: the advanced S10 shows it. */
+const REP_STEPS: ReadonlySet<SuggestionCode> = new Set([
+  'ADD_REP',
+  'EXTEND_REPS',
+  'COMPLETE_SETS',
+  'REPEAT',
+]);
+
 function factsOf(input: ReasonInput): WhyFact[] {
   const { suggestion, lastTime, meanRir, estimatedMax, prescription } = input.explanation;
   const { reason } = suggestion;
@@ -308,7 +316,7 @@ function factsOf(input: ReasonInput): WhyFact[] {
     const percent = -percentOver(suggestion.loadKg, reason.workingLoadKg);
     facts.push({ label: labels.advanced.adjustment, value: labels.decreaseValue(percent) });
   }
-  if (['ADD_REP', 'EXTEND_REPS', 'COMPLETE_SETS', 'REPEAT'].includes(reason.code)) {
+  if (REP_STEPS.has(reason.code)) {
     facts.push({ label: labels.advanced.rangeCap, value: String(prescription.repRange.max) });
   }
   return facts;

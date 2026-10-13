@@ -10,10 +10,10 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
 import type { WorkoutSet } from '@/domain/models/workout';
-import type { RirField } from '@/presentation/features/workout/set-form';
 import { remainingSets } from '@/domain/rules/workout/remaining-sets';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { ReasonRow } from '@/presentation/features/workout/reason-row';
+import type { RirField } from '@/presentation/features/workout/set-form';
 import { SetRow } from '@/presentation/features/workout/set-row';
 import { effortOptions, effortTitle, SetSheet } from '@/presentation/features/workout/set-sheet';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
@@ -292,6 +292,7 @@ function CalibrationEffort({
                 : effortTitle(effortMode)
           }
           options={effortOptions(effortMode)}
+          // A side may already be answered; a bilateral set waits with nothing chosen.
           selected={set.isUnilateral && field !== 'rir' ? (set[field] ?? -1) : -1}
           onSelect={(rir) => onEffort(set, field, rir)}
         />

@@ -23,7 +23,11 @@ export function WhySheet({ detail, onClose }: WhySheetProps) {
   const [principleOpen, setPrincipleOpen] = useState(false);
   // The last detail stays while the sheet slides away.
   const [shown, setShown] = useState(detail);
-  if (detail !== null && detail !== shown) setShown(detail);
+  if (detail !== null && detail !== shown) {
+    setShown(detail);
+    // Every opening starts with the principle folded.
+    setPrincipleOpen(false);
+  }
   const close = () => {
     setPrincipleOpen(false);
     onClose();
