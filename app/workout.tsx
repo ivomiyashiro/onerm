@@ -1,5 +1,10 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { useRouter } from 'expo-router';
+
+import { WorkoutScreen } from '@/presentation/features/workout/workout-screen';
 
 export default function S09Route() {
-  return <ScreenPlaceholder id="S09" />;
+  const router = useRouter();
+  return (
+    <WorkoutScreen onClose={() => (router.canGoBack() ? router.back() : router.replace('/'))} />
+  );
 }

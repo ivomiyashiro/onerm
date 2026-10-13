@@ -26,6 +26,19 @@ export const workout = {
     complete: 'Completo',
     load: 'Carga',
     reps: 'Repeticiones',
+    decreaseLoad: 'Bajar la carga',
+    increaseLoad: 'Subir la carga',
+    decreaseReps: 'Bajar las repeticiones',
+    increaseReps: 'Subir las repeticiones',
+    /** The load of a calibration's first set, still to choose (RN-ENT-04). */
+    noLoad: '—',
+    unilateral: 'Unilateral',
+    /** The index of a warm-up row (Figma «SetRow» Warmup). */
+    warmUpIndex: 'C',
+    prescription: (sets: number, range: string) => `${sets} × ${range}`,
+    /** The values of a set row: «62,5 kg × 8», the unit apart. */
+    timesReps: (n: number) => `× ${n}`,
+    sideReps: (left: number, right: number) => `× ${left} / ${right}`,
     stepAccessibility: (field: string, value: string, unit: string) =>
       `${field}: ${value} ${unit}. Tocá para escribir`,
     warmUpHelp:
@@ -85,6 +98,8 @@ export const workout = {
       fourOrMore: '4 o más',
       missing: '¿Cuántas más?',
     },
+    /** In the row with the RIR scale, like the rows of S15 (13 §10). */
+    rowRir: (n: number) => (n >= 5 ? 'reserva 5+' : `reserva ${n}`),
     rirTitle: 'Repeticiones en reserva (RIR)',
     rir: ['0', '1', '2', '3', '4', '5+'],
     rirHelp: '0 = no podías hacer ni una más.',
