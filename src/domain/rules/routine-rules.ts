@@ -11,10 +11,17 @@ export const ROUTINE_LIMITS = {
   nameLength: { min: 1, max: 50 },
   days: { min: 1, max: 7 },
   exercisesPerDay: { min: 1, max: 20 },
+  /** RF-RUT-06. */
+  notesLength: { max: 280 },
 } as const;
 
 export type RoutineViolationCode =
-  'routine.name' | 'routine.days' | 'day.name' | 'day.exercises' | PrescriptionViolationCode;
+  | 'routine.name'
+  | 'routine.days'
+  | 'day.name'
+  | 'day.exercises'
+  | 'exercise.notes'
+  | PrescriptionViolationCode;
 
 /** Length in characters (code points), without the spaces at the edges. */
 function nameLength(name: string): number {
@@ -23,7 +30,7 @@ function nameLength(name: string): number {
 
 /** I-02 and I-03: what a routine needs to be saved (RN-RUT-05, RN-RUT-04). */
 export function validateRoutine(routine: Routine): Violation<RoutineViolationCode>[] {
-  const { nameLength: nameLimits, days, exercisesPerDay } = ROUTINE_LIMITS;
+  const { nameLength: nameLimits, days, exercisesPerDay, notesLength } = ROUTINE_LIMITS;
   const violations: Violation<RoutineViolationCode>[] = [];
 
   if (!isWholeBetween(nameLength(routine.name), nameLimits.min, nameLimits.max)) {
@@ -40,6 +47,12 @@ export function validateRoutine(routine: Routine): Violation<RoutineViolationCod
       violations.push({ code: 'day.exercises', path: ['days', dayIndex, 'exercises'] });
     }
     day.exercises.forEach((exercise, exerciseIndex) => {
+      if (exercise.notes !== null && Array.from(exercise.notes).length > notesLength.max) {
+        violations.push({
+          code: 'exercise.notes',
+          path: ['days', dayIndex, 'exercises', exerciseIndex, 'notes'],
+        });
+      }
       violations.push(
         ...validatePrescription(exercise.prescription, [
           'days',

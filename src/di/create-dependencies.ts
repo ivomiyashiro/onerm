@@ -26,6 +26,7 @@ import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
+import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
@@ -118,6 +119,15 @@ export function createDependencies(
         onboardingRepository,
         () => new Date(),
       ),
+      loadRoutineDraft: new LoadRoutineDraft(
+        routineRepository,
+        exerciseRepository,
+        profileRepository,
+        workoutRepository,
+        newId,
+      ),
+      editRoutineDraft: new EditRoutineDraft(newId),
+      saveRoutine: new SaveRoutine(routineRepository),
     },
     appStore: createAppStore(),
   };

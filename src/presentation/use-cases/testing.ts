@@ -12,6 +12,7 @@ import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
+import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
@@ -37,7 +38,12 @@ const neverIds = () => {
  * about overridden. Used by tests only.
  */
 export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
-  const routines = { observeAll: never, observeRotationDays: never, ...noWrites };
+  const routines = {
+    observeAll: never,
+    observeById: never,
+    observeRotationDays: never,
+    ...noWrites,
+  };
   const templates = { observeAll: never };
   const profiles = { observe: never, ...noWrites };
   const workouts = { observeInProgress: never, observeFinished: never };
@@ -62,6 +68,9 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
+    loadRoutineDraft: new LoadRoutineDraft(routines, exercises, profiles, workouts, neverIds),
+    editRoutineDraft: new EditRoutineDraft(neverIds),
+    saveRoutine: new SaveRoutine(routines),
     ...overrides,
   };
 }
@@ -99,5 +108,8 @@ export function routineUseCasesOver(repositories: {
     adoptTemplate: new AdoptTemplate(templates, routines, profiles, workouts, newId),
     activateRoutine: new ActivateRoutine(profiles, workouts),
     deleteRoutine: new DeleteRoutine(routines, profiles, workouts),
+    loadRoutineDraft: new LoadRoutineDraft(routines, catalog, profiles, workouts, newId),
+    editRoutineDraft: new EditRoutineDraft(newId),
+    saveRoutine: new SaveRoutine(routines),
   };
 }
