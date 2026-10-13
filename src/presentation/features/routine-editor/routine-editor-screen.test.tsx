@@ -1,4 +1,6 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Routine } from '@/domain/models/routine';
@@ -179,5 +181,25 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByLabelText(text.editor.day.name)).toBeOnTheScreen();
     // The only day: nothing to move or remove.
     expect(screen.queryByRole('button', { name: text.editor.day.remove })).not.toBeOnTheScreen();
+  });
+
+  it('RF-RUT-05.AC1: dragging an exercise by its handle drops it in another position', async () => {
+    const { user, routines } = await renderScreen();
+    await screen.findByDisplayValue('Mi rutina de pierna');
+    ['Prensa de piernas', 'Curl de bíceps'].forEach((name, index) =>
+      fireEvent(screen.getByTestId(`row ${name}`), 'layout', {
+        nativeEvent: { layout: { x: 0, y: index * 72, width: 358, height: 72 } },
+      }),
+    );
+
+    fireGestureHandler(getByGestureTestId('drag Prensa de piernas'), [
+      { state: State.BEGAN, translationY: 0 },
+      { state: State.ACTIVE, translationY: 40 },
+      { state: State.ACTIVE, translationY: 80 },
+      { state: State.END, translationY: 80 },
+    ]);
+    await user.press(screen.getByRole('button', { name: text.editor.save }));
+
+    expect(routines.routines[0].days[0].exercises.map((e) => e.id)).toEqual(['re-2', 're-1']);
   });
 });

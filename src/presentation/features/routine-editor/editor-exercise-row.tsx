@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Animated, Pressable, StyleSheet, View, type LayoutRectangle } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
-import { colors, radius, size, typography } from '@/presentation/theme';
+import { colors, elevation, radius, size, typography } from '@/presentation/theme';
 
 interface EditorExerciseRowProps {
   name: string;
@@ -14,6 +16,10 @@ interface EditorExerciseRowProps {
   /** Tapping the row opens the prescription. */
   onPress: () => void;
   onMove: (offset: -1 | 1) => void;
+  /** Where the row sits in the list, for the drop (RF-RUT-05.AC1). */
+  onLayout: (layout: LayoutRectangle) => void;
+  /** The row was dropped `translationY` away from where it was. */
+  onDrop: (translationY: number) => void;
 }
 
 /**
@@ -27,12 +33,39 @@ export function EditorExerciseRow({
   isLast,
   onPress,
   onMove,
+  onLayout,
+  onDrop,
 }: EditorExerciseRowProps) {
+  const [dragging, setDragging] = useState(false);
+  const [offset] = useState(() => new Animated.Value(0));
+  // On the JS thread: the drop needs the layouts and the ViewModel, and a row is light to move.
+  const drag = Gesture.Pan()
+    .runOnJS(true)
+    .withTestId(`drag ${name}`)
+    .onStart(() => setDragging(true))
+    .onUpdate((event) => offset.setValue(event.translationY))
+    .onEnd((event) => onDrop(event.translationY))
+    .onFinalize(() => {
+      offset.setValue(0);
+      setDragging(false);
+    });
+
   return (
-    <View style={styles.row}>
-      <View style={styles.handle}>
-        <Icon name="grip" size={20} color={colors.textSecondary} />
-      </View>
+    <Animated.View
+      testID={`row ${name}`}
+      onLayout={(event) => onLayout(event.nativeEvent.layout)}
+      style={[styles.row, dragging && styles.dragging, { transform: [{ translateY: offset }] }]}
+    >
+      {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
+      <GestureDetector gesture={drag}>
+        <View
+          style={styles.handle}
+          accessible={false}
+          importantForAccessibility="no-hide-descendants"
+        >
+          <Icon name="grip" size={20} color={colors.textSecondary} />
+        </View>
+      </GestureDetector>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={name}
@@ -45,7 +78,7 @@ export function EditorExerciseRow({
       </Pressable>
       <Arrow icon="up" label={text.editor.moveUp} disabled={isFirst} onPress={() => onMove(-1)} />
       <Arrow icon="down" label={text.editor.moveDown} disabled={isLast} onPress={() => onMove(1)} />
-    </View>
+    </Animated.View>
   );
 }
 
@@ -85,6 +118,8 @@ const styles = StyleSheet.create({
     paddingRight: 6,
     borderRadius: 14,
   },
+  // Figma «EditorExerciseRow» (Dragging): raised over the others.
+  dragging: { zIndex: 1, backgroundColor: colors.bgRaised, ...elevation.toast },
   handle: { width: 44, height: size.targetMain, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, gap: 3, justifyContent: 'center', minHeight: size.targetMin },
   arrow: {
