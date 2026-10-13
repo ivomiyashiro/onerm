@@ -43,6 +43,7 @@ export const home = {
   chooseDay: {
     title: 'Elegir día',
     routineDays: (n: number) => count(n, 'día', 'días'),
+    subtitle: (routine: string, days: number) => `${routine} · ${count(days, 'día', 'días')}`,
     choose: (day: string) => `Elegir ${day}`,
     recommended: 'Recomendado',
     doneDaysAgo: (n: number) => `Hecho hace ${count(n, 'día', 'días')}`,

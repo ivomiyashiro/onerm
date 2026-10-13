@@ -1,8 +1,8 @@
 import { useRouter } from 'expo-router';
 
-import { SheetPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { ChooseDaySheet } from '@/presentation/features/home/choose-day-sheet';
 
 export default function S08Route() {
   const router = useRouter();
-  return <SheetPlaceholder id="S08" onClose={router.back} />;
+  return <ChooseDaySheet onClose={router.back} onStarted={() => router.replace('/workout')} />;
 }
