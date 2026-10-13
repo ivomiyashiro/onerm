@@ -137,10 +137,14 @@ export const workout = {
     skipRest: 'Saltear descanso',
     minimize: 'Minimizar',
     openTimer: 'Abrir temporizador',
-    nextSet: (n: number, total: number, load: string, reps: number) =>
-      `Siguiente: serie ${n} de ${total} · ${load} × ${reps}`,
-    next: (exercise: string, load: string, reps: number) =>
-      `Siguiente: ${exercise} · ${load} × ${reps}`,
+    /** `values` is «62,5 kg × 8». */
+    nextSet: (n: number, total: number, values: string) =>
+      `Siguiente: serie ${n} de ${total} · ${values}`,
+    next: (exercise: string, values: string) => `Siguiente: ${exercise} · ${values}`,
+    /** The minimized bar (Figma «RestTimer»). */
+    nextShort: (values: string) => `Siguiente: ${values}`,
+    /** The card of the set just done (Figma «Serie hecha»). */
+    doneSet: (n: number, values: string) => `Serie ${n} · ${values}`,
     finished: '¡Descanso terminado!',
     readyForSet: (n: number) => `Listo para la serie ${n}`,
     goToSet: (n: number) => `Ir a la serie ${n}`,
@@ -149,8 +153,6 @@ export const workout = {
   /** Local notification at the end of the rest (RN-ENT-07). */
   restNotification: {
     title: '¡Descanso terminado!',
-    body: (exercise: string, load: string, reps: number) =>
-      `Siguiente: ${exercise} · ${load} × ${reps}`,
   },
   /** Discreet notices of S09 (never network errors, UX-04). */
   notices: {
