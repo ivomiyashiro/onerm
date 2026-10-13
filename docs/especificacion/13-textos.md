@@ -78,7 +78,18 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 **Agregados:**
 - **Reentrada combinada** (`withReentry`, sumado a la línea): "…y como volvés después de {d} días, arrancamos un poco más liviano."
 - **Lado limitante** (unilaterales, en el detalle): "Tomamos tu lado {lado}, que hizo {reps}."
-- **"En qué nos basamos"**, al pie del detalle: enlace al resumen del principio correspondiente (§6).
+- **"En qué nos basamos"**, al pie del detalle: enlace al resumen del principio correspondiente (§6). Al tocarlo, el resumen se despliega en la misma hoja. Principio y nombre corto de cada código (decisión del 2026-10-13, #35):
+
+| Códigos | Principio | {principio} |
+|---|---|---|
+| `CALIBRATION`, `CALIBRATION_STEP`, `CALIBRATION_STEP_DOWN`, `ESTIMATED_FROM_E1RM`, `PRESCRIPTION_CHANGED` | P-10 | estimar tu máximo |
+| `FROM_EXERCISE_HISTORY`, `INCREASE_LOAD`, `EXTEND_REPS`, `ADD_REP`, `COMPLETE_SETS`, `REPEAT`, `BODYWEIGHT_ADD_REP`, `BODYWEIGHT_READY` | P-11 | doble progresión |
+| `CONSOLIDATE`, `EARLY_INCREASE`, `HIGH_INCREASE` | P-06 | estimar el esfuerzo |
+| `DELOAD` | P-12 | descarga |
+| `REENTRY` | P-13 | volver después de una pausa |
+| `BODYWEIGHT_CALIBRATION` | P-05 | cerca del fallo |
+
+- **Línea técnica:** la ven los niveles intermedio y avanzado (RF-SUG-07 AC2). En S10 va antes del detalle. `PRESCRIPTION_CHANGED` sin e1RM usa la línea de novato.
 
 ## 5. "¿Por qué esta rutina?" (plantillas)
 
@@ -225,7 +236,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) · Se respalda al finalizar (solo con cuenta, 08 §5) |
 | S08 | Elegir día (título de la hoja) · {rutina} · {n} días · Elegir {día} · Recomendado · Hecho hace {n} días · Nunca hecho |
 | S12 | Entrenamiento · {día} · Terminado · Duración · Series · Ejercicios · {hechos} de {total} · Récords de hoy · Nuevo récord · Mayor carga · Nuevo récord · Máximo estimado · {valor} (aprox. si corresponde) · Lo que hiciste · {n} series · mejor {carga} × {reps} · Salteado · Próximo: {día} · Listo |
-| S10 | ¿Por qué {carga} × {reps}? · La última vez · Esfuerzo medio · Subida · En qué nos basamos: {principio} · Entendido · *Avanzado:* La última vez · RIR medio · Reserva media · Máximo estimado (aprox.) · Tope del rango · Días sin entrenar · W anterior · Ajuste. Títulos por motivo: ¿Por qué elegís vos el peso? (calibración) |
+| S10 | ¿Por qué {carga} × {reps}? · La última vez · Esfuerzo medio · Subida · En qué nos basamos: {principio} · Entendido · *Avanzado:* La última vez · RIR medio · Reserva media · Máximo estimado (aprox.) · Tope del rango · Días sin entrenar · W anterior · Ajuste. Títulos por motivo: ¿Por qué elegís vos el peso? (calibración) · ¿Por qué {reps} repeticiones? (peso corporal) · Lado: izquierdo · derecho |
 | S09: lista de ejercicios (subtítulo) | {día} · {n} de {total} |
 | S01 | Cada serie, con el peso justo. · Te sugerimos la carga de cada serie y te explicamos por qué. Funciona sin conexión. · Continuar sin cuenta · Crear cuenta · Iniciar sesión |
 | S05 | Paso {n} de 3 · Saltear · Atrás · Siguiente · Ver mi rutina |
