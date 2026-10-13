@@ -14,12 +14,15 @@ export type HomeState =
 
 export interface HomeViewModel {
   state: HomeState;
+  /** The start of the workout in progress: the card says «En curso · 18:42» (RF-ENT-01.AC4). */
+  inProgressSince: Date | null;
   actions: { retry(): void };
 }
 
 /** S07 · Inicio: the next day of the active routine (RN-RUT-01), from the local database. */
 export function useHomeViewModel(): HomeViewModel {
-  const { observeNextDay } = useUseCases();
+  const { observeNextDay, observeWorkoutInProgress } = useUseCases();
+  const [inProgressSince, setInProgressSince] = useState<Date | null>(null);
   const [state, setState] = useState<HomeState>({ status: 'loading' });
   // Changing it re-runs the effect, which subscribes again.
   const [attempt, setAttempt] = useState(0);
@@ -38,10 +41,20 @@ export function useHomeViewModel(): HomeViewModel {
     [observeNextDay, attempt],
   );
 
+  useEffect(
+    () =>
+      observeWorkoutInProgress.execute({
+        next: (workout) => setInProgressSince(workout?.startedAt ?? null),
+        // The card falls back to «Hoy toca»; the read error of the next day is the one shown.
+        error: () => setInProgressSince(null),
+      }),
+    [observeWorkoutInProgress],
+  );
+
   function retry() {
     setState({ status: 'loading' });
     setAttempt((n) => n + 1);
   }
 
-  return { state, actions: { retry } };
+  return { state, inProgressSince, actions: { retry } };
 }

@@ -21,6 +21,9 @@ export const home = {
   addsRepsIn: (n: number) => `suma reps en ${n}`,
   calibrate: 'Calibrar',
   inProgress: 'En curso',
+  inProgressSince: (time: string) => `En curso · ${time}`,
+  /** «×8» after the suggested load. */
+  timesReps: (n: number) => `×${n}`,
   startToday: 'Arrancá hoy',
   start: 'Empezar',
   continueWorkout: 'Continuar entrenamiento',

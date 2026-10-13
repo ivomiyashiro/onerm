@@ -18,7 +18,6 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import { HomeScreen } from '@/presentation/features/home/home-screen';
 import { home } from '@/presentation/strings/home';
-import { routines as routineText } from '@/presentation/strings/routines';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -54,7 +53,11 @@ async function renderScreen({
     profiles: new InMemoryProfileRepository(profile),
     workouts: new InMemoryWorkoutRepository(),
   };
-  const callbacks = { onChooseRoutine: jest.fn(), onCreateRoutine: jest.fn() };
+  const callbacks = {
+    onChooseRoutine: jest.fn(),
+    onCreateRoutine: jest.fn(),
+    onChangeDay: jest.fn(),
+  };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider
@@ -94,7 +97,20 @@ describe('HomeScreen (S07)', () => {
     expect(screen.getByText(home.stats.approxMinutes(8))).toBeOnTheScreen();
     expect(screen.getByText(home.todayList)).toBeOnTheScreen();
     expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
-    expect(screen.getByText(routineText.template.setsByRange(3, '8–12'))).toBeOnTheScreen();
+  });
+
+  it('RF-SUG-01.AC1: an exercise never done shows «Calibrar»', async () => {
+    await renderScreen();
+
+    expect(screen.getByText(home.calibrate)).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-01.AC3: «Cambiar día» opens the choice of day', async () => {
+    const { user, onChangeDay } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: home.changeDay }));
+
+    expect(onChangeDay).toHaveBeenCalled();
   });
 
   it('a one-word day name is shown whole', async () => {
@@ -116,7 +132,11 @@ describe('HomeScreen (S07)', () => {
             }),
           )}
         >
-          <HomeScreen onChooseRoutine={jest.fn()} onCreateRoutine={jest.fn()} />
+          <HomeScreen
+            onChooseRoutine={jest.fn()}
+            onCreateRoutine={jest.fn()}
+            onChangeDay={jest.fn()}
+          />
         </UseCasesProvider>
       </SafeAreaProvider>,
     );
