@@ -37,6 +37,8 @@ export interface WorkoutExerciseView {
   readonly awaitingEffort: WorkoutSet | null;
   /** S10 «¿Por qué?» of `suggestion` (RF-SUG-07). */
   readonly explanation: SuggestionExplanation;
+  /** An estimate (ESTIMATED_FROM_E1RM): the name of the exercise it comes from, if known. */
+  readonly basisName: string | null;
   /** The ± step (RN-PERF-06); null for bodyweight. */
   readonly grid: LoadGrid | null;
 }
@@ -145,6 +147,7 @@ export class ObserveWorkout {
                 grid,
               });
               const { suggestion } = current;
+              const { reason } = suggestion;
               return {
                 exercise,
                 name: entry?.name ?? null,
@@ -156,6 +159,10 @@ export class ObserveWorkout {
                 ...current,
                 explanation:
                   suggestion === base.suggestion ? base : explainCalibrationStep(base, suggestion),
+                basisName:
+                  reason.code === 'ESTIMATED_FROM_E1RM'
+                    ? (catalog.get(reason.basis.exerciseId)?.name ?? null)
+                    : null,
                 grid,
               };
             }),

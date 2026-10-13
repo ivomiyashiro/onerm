@@ -1,11 +1,19 @@
 import { useEffect, useState } from 'react';
 
-import type { EffortMode, Id } from '@/domain/models/vocabulary';
+import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import type { WorkoutExerciseView, WorkoutOverview } from '@/domain/usecases/observe-workout';
+import type { IconName } from '@/presentation/components/icons/icon';
+import {
+  reasonIcon,
+  reasonLine,
+  whyDetail,
+  type ReasonInput,
+  type WhyDetail,
+} from '@/presentation/features/workout/reason-text';
 import {
   formErrors,
   formFromPrefill,
@@ -25,6 +33,8 @@ export type SetRowView =
       set: WorkoutSet;
       /** RF-ENT-02.AC4: the effort options stay in the row until one is chosen or the next set. */
       askEffort: boolean;
+      /** RF-SUG-02.AC4: a calibration set without its effort, asked below («Falta esfuerzo»). */
+      missingEffort: boolean;
     }
   | { kind: 'current' | 'pending'; number: number; values: PrefilledSet };
 
@@ -33,12 +43,20 @@ export interface WorkoutContent {
   dayName: string;
   startedAt: Date;
   effortMode: EffortMode;
+  level: ExperienceLevel;
   exerciseIndex: number;
   exercises: readonly WorkoutExerciseView[];
   exercise: WorkoutExerciseView;
   rows: SetRowView[];
-  /** What the main button does: log the current set, or go to the next exercise. */
-  primary: 'done' | 'nextExercise' | null;
+  /** RF-SUG-07.AC1: the reason of the suggestion, under the exercise. */
+  reason: { line: string; icon: IconName };
+  /**
+   * What the main button does: log the current set, go to the next exercise, or wait for the
+   * effort of a calibration set (RF-SUG-02.AC4).
+   */
+  primary: 'done' | 'nextExercise' | 'awaitEffort' | null;
+  /** The calibration set whose effort is asked below, with its number. */
+  awaitingEffort: { set: WorkoutSet; number: number } | null;
 }
 
 export type WorkoutState =
@@ -52,6 +70,8 @@ export type WorkoutSheet =
   | { kind: 'adjust'; form: SetForm; errors: SetFormErrors | null }
   | { kind: 'edit'; set: WorkoutSet; number: number; form: SetForm; errors: SetFormErrors | null }
   | { kind: 'exercises' }
+  /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
+  | { kind: 'why'; detail: WhyDetail }
   | { kind: 'exerciseMenu' };
 
 export interface WorkoutViewModel {
@@ -63,6 +83,7 @@ export interface WorkoutViewModel {
     /** «Hecho»: logs the current set; 'adjust' when it needs a value first (calibration). */
     done(): Promise<'logged' | 'adjust' | 'none'>;
     openAdjust(): void;
+    openWhy(): void;
     editForm(change: (form: SetForm) => SetForm): void;
     /** «Hecho» in the sheet. */
     confirmAdjust(): Promise<'logged' | 'invalid'>;
@@ -89,6 +110,7 @@ function rowsOf(view: WorkoutExerciseView, extra: number, effortSetId: Id | null
     number: index + 1,
     set,
     askEffort: set.id === effortSetId && !hasEffort(set),
+    missingEffort: set.id === view.awaitingEffort?.id,
   }));
   const remaining = remainingSets(view.exercise, extra);
   const prescribedLeft = remainingSets(view.exercise);
@@ -100,7 +122,7 @@ function rowsOf(view: WorkoutExerciseView, extra: number, effortSetId: Id | null
       values:
         i >= prescribedLeft && sets.length > 0
           ? valuesOf(sets.at(-1)!)
-          : prefill(view.suggestion, sets),
+          : prefill(view.suggestion, sets, view.recalculated),
     });
   }
   return rows;
@@ -167,7 +189,7 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     deleted,
     actions: {
       async done() {
-        if (!content || current?.kind !== 'current') return 'none';
+        if (!content || content.primary !== 'done' || current?.kind !== 'current') return 'none';
         const form = formFromPrefill(current.values);
         if ((await log(form)) === 'logged') return 'logged';
         setSheet({ kind: 'adjust', form, errors: formErrors(form, content.exercise.exercise) });
@@ -176,6 +198,11 @@ export function useWorkoutViewModel(): WorkoutViewModel {
       openAdjust() {
         if (current?.kind === 'current') {
           setSheet({ kind: 'adjust', form: formFromPrefill(current.values), errors: null });
+        }
+      },
+      openWhy() {
+        if (content) {
+          setSheet({ kind: 'why', detail: whyDetail(reasonInputOf(content, content.exercise)) });
         }
       },
       editForm(change) {
@@ -272,16 +299,43 @@ function contentOf(
   const exerciseIndex = Math.min(chosenIndex ?? Math.max(firstOpen, 0), exercises.length - 1);
   const exercise = exercises[exerciseIndex];
   const rows = rowsOf(exercise, extraOf(exercise.exercise.id), effortSetId);
+  const waiting = rows.find((row) => row.kind === 'done' && row.missingEffort);
   const anyLeft = exercises.some((e) => remainingSets(e.exercise, extraOf(e.exercise.id)) > 0);
   return {
     status: 'content',
     dayName: overview.workout.dayNameSnapshot,
     startedAt: overview.workout.startedAt,
     effortMode: overview.effortMode,
+    level: overview.level,
     exerciseIndex,
     exercises,
     exercise,
     rows,
-    primary: rows.some((r) => r.kind === 'current') ? 'done' : anyLeft ? 'nextExercise' : null,
+    reason: {
+      line: reasonLine(reasonInputOf(overview, exercise)),
+      icon: reasonIcon(exercise.suggestion.reason.code),
+    },
+    primary: rows.some((r) => r.kind === 'current')
+      ? waiting
+        ? 'awaitEffort'
+        : 'done'
+      : anyLeft
+        ? 'nextExercise'
+        : null,
+    awaitingEffort: waiting?.kind === 'done' ? { set: waiting.set, number: waiting.number } : null,
+  };
+}
+
+function reasonInputOf(
+  { level, effortMode }: Pick<WorkoutOverview, 'level' | 'effortMode'>,
+  view: WorkoutExerciseView,
+): ReasonInput {
+  return {
+    explanation: view.explanation,
+    level,
+    effortMode,
+    // Bodyweight shows no load: any unit will do.
+    unit: view.grid?.unit ?? 'kg',
+    basisName: view.basisName,
   };
 }

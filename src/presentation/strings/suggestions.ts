@@ -144,15 +144,31 @@ export const suggestions = {
     `…y como volvés después de ${days} días, arrancamos un poco más liviano.`,
   /** Unilateral exercises, in the detail. */
   limitingSide: (side: string, reps: number) => `Tomamos tu lado ${side}, que hizo ${reps}.`,
+  sides: { left: 'izquierdo', right: 'derecho' },
+  /** «En qué nos basamos: {principio}»: the short name of each principle behind a reason (13 §4). */
+  principleNames: {
+    'P-05': 'cerca del fallo',
+    'P-06': 'estimar el esfuerzo',
+    'P-10': 'estimar tu máximo',
+    'P-11': 'doble progresión',
+    'P-12': 'descarga',
+    'P-13': 'volver después de una pausa',
+  },
   /** S10 «¿Por qué?». */
   why: {
     title: (load: string, reps: number) => `¿Por qué ${load} × ${reps}?`,
     calibrationTitle: '¿Por qué elegís vos el peso?',
+    /** Bodyweight: no load in the title. */
+    repsTitle: (reps: number) => `¿Por qué ${reps} repeticiones?`,
     lastTime: 'La última vez',
     meanEffort: 'Esfuerzo medio',
     increase: 'Subida',
     basedOn: (principle: string) => `En qué nos basamos: ${principle}`,
     understood: 'Entendido',
+    /** Values of the data rows: «+4 % → 62,5 kg», «−10 %», «2,3 (objetivo 2)». */
+    increaseValue: (percent: number, load: string) => `+${percent} % → ${load}`,
+    decreaseValue: (percent: number) => `−${percent} %`,
+    withTarget: (value: string, target: number) => `${value} (objetivo ${target})`,
     advanced: {
       lastTime: 'La última vez',
       meanRir: 'RIR medio',

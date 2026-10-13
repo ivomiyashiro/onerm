@@ -33,6 +33,9 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
   const done = row.kind === 'done' ? row.set : null;
   const warmUp = done?.isWarmup ?? false;
   const muted = row.kind === 'pending';
+  // A calibration set asks its effort below the list, not in the row (RF-SUG-02.AC4).
+  const missing = row.kind === 'done' && row.missingEffort;
+  const asking = row.kind === 'done' && row.askEffort && !missing;
   const loadKg = done ? done.loadKg : row.kind === 'done' ? null : row.values.loadKg;
   const reps = done
     ? done.isUnilateral
@@ -44,13 +47,18 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
   const valueColor = muted ? colors.textSecondary : colors.textPrimary;
 
   return (
-    <View style={[styles.wrap, row.kind === 'done' && row.askEffort && styles.asking]}>
+    <View style={[styles.wrap, asking && styles.asking]}>
       <Pressable
         accessibilityRole="button"
         accessibilityHint={current ? text.set.tapToAdjust : undefined}
         disabled={muted}
         onPress={onPress}
-        style={[styles.row, current && styles.current, warmUp && styles.warmUp]}
+        style={[
+          styles.row,
+          (current || missing) && styles.current,
+          missing && styles.missing,
+          warmUp && styles.warmUp,
+        ]}
       >
         <View style={[styles.index, current && styles.indexCurrent, warmUp && styles.indexWarmUp]}>
           {done && !warmUp ? (
@@ -86,13 +94,18 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
             {text.set.tapToAdjust}
           </Text>
         )}
-        {done && !(row.kind === 'done' && row.askEffort) && (
+        {missing && (
+          <Text style={[typography.bodyS, { color: colors.textPrimary }]}>
+            {text.calibration.missingEffort}
+          </Text>
+        )}
+        {done && !asking && !missing && (
           <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
             {effortLabel(done, effortMode)}
           </Text>
         )}
       </Pressable>
-      {done && row.kind === 'done' && row.askEffort && (
+      {done && asking && (
         <View style={styles.effort}>
           <Text style={[typography.bodyMStrong, { color: colors.textPrimary }]}>
             {effortTitle(effortMode)}
@@ -160,6 +173,7 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
   },
   current: { borderColor: colors.borderAccentSoft, backgroundColor: colors.bgCurrent },
+  missing: { backgroundColor: colors.bgCard },
   warmUp: { opacity: 0.6 },
   index: {
     width: INDEX,
