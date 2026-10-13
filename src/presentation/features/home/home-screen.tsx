@@ -6,6 +6,7 @@ import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Text } from '@/presentation/components/text';
+import { HeroPhoto } from '@/presentation/features/home/hero-photo';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { home } from '@/presentation/strings/home';
@@ -78,7 +79,7 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine }: HomeScreenProps
 
 type NextDayContent = Extract<HomeState, { status: 'content' }>['nextDay'];
 
-/** Figma HeroCard «Hoy toca» (without the photo for now) and «Lo de hoy». */
+/** Figma HeroCard «Hoy toca», with the photo of its kind of day, and «Lo de hoy». */
 function NextDay({ nextDay }: { nextDay: NextDayContent }) {
   const { routine, day, sets, minutes } = nextDay;
   // «Día A»: the last word in lime.
@@ -88,6 +89,7 @@ function NextDay({ nextDay }: { nextDay: NextDayContent }) {
   return (
     <>
       <View style={styles.hero}>
+        <HeroPhoto kind={nextDay.dayKind} />
         <Text style={[typography.label, { color: colors.textPrimary }]}>{home.todayIs}</Text>
         <Text
           style={[
@@ -183,7 +185,8 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     borderWidth: 1,
     borderColor: colors.borderHair,
-    backgroundColor: colors.bgCard,
+    backgroundColor: colors.bgBase,
+    overflow: 'hidden',
   },
   dayName: { color: colors.textPrimary, textTransform: 'uppercase' },
   stats: { flexDirection: 'row', paddingTop: space.s4 },

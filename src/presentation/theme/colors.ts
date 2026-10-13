@@ -31,6 +31,7 @@ export const palette = {
   black: '#000000',
   whiteA7: 'rgba(255, 255, 255, 0.07)',
   whiteA14: 'rgba(255, 255, 255, 0.14)',
+  blackA30: 'rgba(0, 0, 0, 0.3)',
   blackA74: 'rgba(0, 0, 0, 0.74)',
   neutral950A90: 'rgba(14, 14, 13, 0.9)',
   limeA12: 'rgba(197, 240, 74, 0.12)',
@@ -63,6 +64,8 @@ export const colors = {
   bgErrSoft: palette.redA12,
   bgErrSoftStrong: palette.redA14,
   bgScrim: palette.blackA74,
+  /** Over a photo: black at 30 % leaves it at 70 % brightness (marca §9). */
+  bgPhotoDim: palette.blackA30,
   bgTabbar: palette.neutral950A90,
 
   textPrimary: palette.neutral50,
