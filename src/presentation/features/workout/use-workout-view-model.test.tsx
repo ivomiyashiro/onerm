@@ -229,4 +229,60 @@ describe('useWorkoutViewModel', () => {
     expect(sets(workouts)).toEqual([]);
     expect(result.current.sheet).toMatchObject({ kind: 'adjust', errors: { load: true } });
   });
+
+  it('RF-SUG-07.AC1, AC2: the reason under the exercise and «¿Por qué?» with its detail', async () => {
+    const { result, content } = await renderViewModel();
+
+    expect(content().reason).toEqual({
+      line: '¡Completaste 2 × 12! Subimos a 105 kg.',
+      icon: 'up',
+    });
+    await act(() => result.current.actions.openWhy());
+    expect(result.current.sheet).toMatchObject({
+      kind: 'why',
+      detail: { title: '¿Por qué 105 kg × 8?' },
+    });
+  });
+
+  it('RF-SUG-02.AC4, AC6: a calibration set waits for its effort, then gives the next load', async () => {
+    const { result, workouts, content } = await renderViewModel({ finished: [] });
+    const calibrate = () =>
+      act(() =>
+        result.current.actions.editForm((form) => ({
+          ...typeLoad(form, '30', { unit: 'kg', increment: 2.5, minLoad: 20 }),
+          reps: 12,
+        })),
+      );
+
+    await act(() => result.current.actions.openAdjust());
+    await calibrate();
+    await act(() => result.current.actions.confirmAdjust());
+
+    expect(content().primary).toBe('awaitEffort');
+    expect(content().rows[0]).toMatchObject({ kind: 'done', missingEffort: true });
+    expect(await act(() => result.current.actions.done())).toBe('none');
+
+    await act(() => result.current.actions.chooseEffort(sets(workouts)[0], 'rir', 4));
+
+    // RTF 16: máx(30 + 2,5; 36 down to the grid) = 35 (RN-SUG-06).
+    expect(content().primary).toBe('done');
+    expect(content().rows[1]).toMatchObject({ kind: 'current', values: { loadKg: 35 } });
+    expect(content().reason.line).toBe('Te sobró bastante: probá con 35 kg.');
+  });
+
+  it('RF-SUG-02.AC8: with 0 reps the effort is not asked', async () => {
+    const { result, content } = await renderViewModel({ finished: [] });
+
+    await act(() => result.current.actions.openAdjust());
+    await act(() =>
+      result.current.actions.editForm((form) => ({
+        ...typeLoad(form, '40', { unit: 'kg', increment: 2.5, minLoad: 20 }),
+        reps: 0,
+      })),
+    );
+    await act(() => result.current.actions.confirmAdjust());
+
+    expect(content().primary).toBe('done');
+    expect(content().rows[1]).toMatchObject({ kind: 'current', values: { loadKg: 30 } });
+  });
 });
