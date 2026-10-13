@@ -1,3 +1,4 @@
+import type { LocalDate } from '@/domain/models/local-date';
 import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
 import type { Workout } from '@/domain/models/workout';
@@ -43,6 +44,9 @@ const day = (id: string, position: number) =>
 const ROUTINE = aRoutine({ id: 'r1', name: 'Cuerpo completo', days: [day('A', 0), day('B', 1)] });
 const ACTIVE: Profile = { ...defaultProfile(), activeRoutineId: 'r1' };
 const doneOn = (routineDayId: string) => aWorkout({ routineId: 'r1', routineDayId });
+const NOW = new Date('2026-10-08T15:00:00Z');
+const localDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
+const calibrate = expect.objectContaining({ reason: { code: 'CALIBRATION' } });
 
 function observe({
   profile = ACTIVE as Profile | null,
@@ -56,6 +60,8 @@ function observe({
     routineRepository,
     new InMemoryWorkoutRepository(null, finished),
     { observeAll: (o) => (o.next([anExercise({ id: 'leg-press', name: 'Prensa' })]), () => {}) },
+    () => NOW,
+    localDate,
   ).execute({ next: (value) => values.push(value), error: jest.fn() });
   return { last: () => values[values.length - 1], routines: routineRepository };
 }
@@ -83,12 +89,15 @@ describe('ObserveNextDay', () => {
             exerciseId: 'leg-press',
             name: 'Prensa',
             prescription: aPrescription({ sets: 3, restSeconds: 120 }),
+            // RF-SUG-01.AC1: never done, the instruction is to calibrate.
+            suggestion: calibrate,
           },
           {
             id: 'A2',
             exerciseId: 'curl',
             name: null,
             prescription: aPrescription({ role: 'accessory', sets: 2, restSeconds: 90 }),
+            suggestion: calibrate,
           },
         ],
       },
@@ -97,7 +106,18 @@ describe('ObserveNextDay', () => {
       minutes: 12,
       // Prensa works the quads (the builder's default); curl is not in the catalog.
       dayKind: 'lower',
+      days: [
+        { id: 'A', name: 'Día A', daysAgo: null, exerciseNames: ['Prensa', null] },
+        { id: 'B', name: 'Día B', daysAgo: null, exerciseNames: ['Prensa', null] },
+      ],
     });
+  });
+
+  it('RF-ENT-01.AC3: each day with how many days ago it was done', () => {
+    // aWorkout finishes on 2026-10-05; today is 2026-10-08.
+    const next = observe({ finished: [doneOn('A')] }).last();
+
+    expect(next.kind === 'nextDay' && next.days.map((d) => d.daysAgo)).toEqual([3, null]);
   });
 
   it('RN-RUT-01: after day A comes day B', () => {

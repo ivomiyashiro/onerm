@@ -1,3 +1,4 @@
+import { deviceLocalDate } from '@/data/calendar/device-local-date';
 import { CATALOG_SNAPSHOT } from '@/data/catalog/catalog-snapshot';
 import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { expoSqliteDriver, expoTableChanges } from '@/data/db/expo-sqlite-driver';
@@ -22,6 +23,9 @@ import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveWorkout } from '@/domain/usecases/observe-workout';
+import { StartWorkout } from '@/domain/usecases/start-workout';
+import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
@@ -66,6 +70,7 @@ export function createDependencies(
   newId: () => Id = randomUUID,
 ): Dependencies {
   const db = () => localDatabase.database;
+  const now = () => new Date();
   const exerciseRepository = new SqliteExerciseRepository(db, changes);
   const workoutRepository = new SqliteWorkoutRepository(db, changes, Date.now);
   const routineRepository = new SqliteRoutineRepository(db, changes, Date.now);
@@ -95,6 +100,8 @@ export function createDependencies(
         routineRepository,
         workoutRepository,
         exerciseRepository,
+        now,
+        deviceLocalDate,
       ),
       adoptTemplate: new AdoptTemplate(
         templateRepository,
@@ -114,11 +121,7 @@ export function createDependencies(
       updateProfile: new UpdateProfile(profileRepository, routineRepository),
       adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
       updateLoadSetting: new UpdateLoadSetting(profileRepository),
-      finishOnboarding: new FinishOnboarding(
-        profileRepository,
-        onboardingRepository,
-        () => new Date(),
-      ),
+      finishOnboarding: new FinishOnboarding(profileRepository, onboardingRepository, now),
       loadRoutineDraft: new LoadRoutineDraft(
         routineRepository,
         exerciseRepository,
@@ -128,6 +131,25 @@ export function createDependencies(
       ),
       editRoutineDraft: new EditRoutineDraft(newId),
       saveRoutine: new SaveRoutine(routineRepository),
+      observeWorkout: new ObserveWorkout(
+        profileRepository,
+        routineRepository,
+        workoutRepository,
+        exerciseRepository,
+        deviceLocalDate,
+      ),
+      startWorkout: new StartWorkout(
+        profileRepository,
+        routineRepository,
+        workoutRepository,
+        exerciseRepository,
+        newId,
+        now,
+      ),
+      logSet: new LogSet(workoutRepository, newId, now),
+      updateSet: new UpdateSet(workoutRepository),
+      deleteSet: new DeleteSet(workoutRepository),
+      restoreSet: new RestoreSet(workoutRepository, newId),
     },
     appStore: createAppStore(),
   };
