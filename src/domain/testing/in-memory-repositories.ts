@@ -146,11 +146,8 @@ export class InMemoryRoutineTemplateRepository implements RoutineTemplateReposit
   }
 }
 
-/** Only the reads the routine use cases need; writes come with the workout cards. */
-export class InMemoryWorkoutRepository implements Pick<
-  WorkoutRepository,
-  'observeInProgress' | 'observeFinished'
-> {
+/** The in-progress workout and the finished ones, with the writes of the workout use cases. */
+export class InMemoryWorkoutRepository implements WorkoutRepository {
   private readonly inProgress$ = new Observable(() => this.inProgress);
   private readonly finished$ = new Observable(() => this.finished);
 
@@ -165,5 +162,37 @@ export class InMemoryWorkoutRepository implements Pick<
 
   observeFinished(observer: Observer<Workout[]>): Unsubscribe {
     return this.finished$.observe(observer);
+  }
+
+  observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe {
+    return this.inProgress$.observe({
+      next: (inProgress) =>
+        observer.next(
+          inProgress?.id === id ? inProgress : (this.finished.find((w) => w.id === id) ?? null),
+        ),
+      error: (error) => observer.error(error),
+    });
+  }
+
+  async save(workout: Workout): Promise<void> {
+    if (workout.status === 'in_progress') {
+      this.inProgress = workout;
+    } else {
+      if (this.inProgress?.id === workout.id) this.inProgress = null;
+      this.finished = [...this.finished.filter((w) => w.id !== workout.id), workout];
+      this.finished$.changed();
+    }
+    this.inProgress$.changed();
+  }
+
+  async delete(id: Id): Promise<void> {
+    if (this.inProgress?.id === id) this.inProgress = null;
+    this.finished = this.finished.filter((w) => w.id !== id);
+    this.inProgress$.changed();
+    this.finished$.changed();
+  }
+
+  fail(error: unknown = new Error('disk')) {
+    this.inProgress$.fail(error);
   }
 }
