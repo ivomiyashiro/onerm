@@ -1,9 +1,11 @@
+import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
 import type { RotationDay, Routine, RoutineDay } from '@/domain/models/routine';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';
@@ -51,6 +53,25 @@ export class InMemoryProfileRepository implements ProfileRepository {
 
   fail(error: unknown = new Error('disk')) {
     this.profile$.fail(error);
+  }
+}
+
+export class InMemoryOnboardingRepository implements OnboardingRepository {
+  private readonly step$ = new Observable(() => this.step);
+
+  constructor(public step: OnboardingStep | null = null) {}
+
+  observeStep(observer: Observer<OnboardingStep | null>): Unsubscribe {
+    return this.step$.observe(observer);
+  }
+
+  async saveStep(step: OnboardingStep | null): Promise<void> {
+    this.step = step;
+    this.step$.changed();
+  }
+
+  fail(error: unknown = new Error('disk')) {
+    this.step$.fail(error);
   }
 }
 

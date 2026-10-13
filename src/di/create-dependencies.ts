@@ -6,6 +6,7 @@ import type { TableChanges } from '@/data/db/table-changes';
 import { randomUUID } from 'expo-crypto';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
+import { SqliteOnboardingRepository } from '@/data/repositories/sqlite-onboarding-repository';
 import { SqliteProfileRepository } from '@/data/repositories/sqlite-profile-repository';
 import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
@@ -13,13 +14,18 @@ import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repo
 import type { Id } from '@/domain/models/vocabulary';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
+import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { DeleteRoutine } from '@/domain/usecases/delete-routine';
+import { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
+import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -60,6 +66,7 @@ export function createDependencies(
   const routineRepository = new SqliteRoutineRepository(db, changes, Date.now);
   const templateRepository = new SqliteRoutineTemplateRepository(db, changes);
   const profileRepository = new SqliteProfileRepository(db, changes, Date.now);
+  const onboardingRepository = new SqliteOnboardingRepository(db, changes);
 
   return {
     useCases: {
@@ -94,6 +101,15 @@ export function createDependencies(
       activateRoutine: new ActivateRoutine(profileRepository, workoutRepository),
       deleteRoutine: new DeleteRoutine(routineRepository, profileRepository, workoutRepository),
       prepareLocalData: new PrepareLocalData(localDatabase),
+      observeEntry: new ObserveEntry(profileRepository, onboardingRepository),
+      startAsGuest: new StartAsGuest(profileRepository, onboardingRepository),
+      answerOnboarding: new AnswerOnboarding(profileRepository, onboardingRepository),
+      observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
+      finishOnboarding: new FinishOnboarding(
+        profileRepository,
+        onboardingRepository,
+        () => new Date(),
+      ),
     },
     appStore: createAppStore(),
   };

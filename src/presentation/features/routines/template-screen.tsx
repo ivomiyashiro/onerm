@@ -7,11 +7,10 @@ import type { TemplateDetail } from '@/domain/usecases/observe-template';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
-import { Icon } from '@/presentation/components/icons/icon';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
-import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
+import { TemplateWhySheet } from '@/presentation/features/routines/template-why-sheet';
 import { RoutineChangeDialog } from '@/presentation/features/routines/routine-change-dialog';
 import { useTemplateViewModel } from '@/presentation/features/routines/use-template-view-model';
 import { catalog } from '@/presentation/strings/catalog';
@@ -72,26 +71,11 @@ export function TemplateScreen({
           <View style={[styles.bottom, { paddingBottom: insets.bottom + space.s10 }]}>
             <Button variant="primary" size="xl" label={text.template.use} onPress={actions.use} />
           </View>
-          <BottomSheet
+          <TemplateWhySheet
+            template={state.detail.template}
             visible={whyOpen}
-            title={text.template.why}
-            closeLabel={common.close}
             onClose={() => setWhyOpen(false)}
-            footer={
-              <Button
-                variant="secondary"
-                label={common.understood}
-                onPress={() => setWhyOpen(false)}
-              />
-            }
-          >
-            <View style={styles.whyContent}>
-              <Text style={[typography.bodyL, { color: colors.textPrimary }]}>
-                {rationaleOf(state.detail)}
-              </Text>
-              <Criteria templateId={state.detail.template.id} />
-            </View>
-          </BottomSheet>
+          />
         </>
       )}
       {state.status === 'error' && (
@@ -110,32 +94,6 @@ export function TemplateScreen({
         onDismiss={actions.dismissDialog}
         onGoToWorkout={onGoToWorkout}
       />
-    </View>
-  );
-}
-
-/** 13 §5, by template id; a template the texts don't know yet shows the catalog's text. */
-function rationaleOf({ template }: TemplateDetail): string {
-  const texts: Record<string, string> = text.template.rationale;
-  return texts[template.id] ?? template.rationale;
-}
-
-/** RF-RUT-01.AC3: each criterion with its sources (13 §5); none for a template the texts lack. */
-function Criteria({ templateId }: { templateId: Id }) {
-  const all: Record<string, readonly { title: string; sources: string }[]> = text.template.criteria;
-  const criteria = all[templateId] ?? [];
-  if (criteria.length === 0) return null;
-  return (
-    <View style={styles.criteria}>
-      {criteria.map(({ title, sources }, index) => (
-        <View key={title} style={[styles.criterion, index > 0 && styles.rowDivider]}>
-          <Icon name="check" size={18} color={colors.textAccent} />
-          <View style={styles.criterionText}>
-            <Text style={[typography.bodyMStrong, { color: colors.textPrimary }]}>{title}</Text>
-            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{sources}</Text>
-          </View>
-        </View>
-      ))}
     </View>
   );
 }
@@ -205,14 +163,4 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
-  whyContent: { gap: space.s14, paddingBottom: space.s16 },
-  criteria: { overflow: 'hidden', borderRadius: radius.lg, backgroundColor: colors.bgRaised },
-  criterion: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    gap: space.s12,
-    paddingHorizontal: space.s14,
-    paddingVertical: space.s12,
-  },
-  criterionText: { flex: 1, gap: space.s2 },
 });

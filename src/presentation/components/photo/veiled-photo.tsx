@@ -1,0 +1,49 @@
+import { Image, StyleSheet, View, type ImageSourcePropType } from 'react-native';
+import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+
+import { colors } from '@/presentation/theme';
+
+/** marca §9: the photos of the app (Unsplash, credited in S22), already in black and white. */
+const PHOTOS = {
+  deadlift: require('@/presentation/assets/photos/deadlift.jpg'),
+  grip: require('@/presentation/assets/photos/grip.jpg'),
+  rack: require('@/presentation/assets/photos/rack.jpg'),
+} satisfies Record<string, ImageSourcePropType>;
+
+export type PhotoName = keyof typeof PHOTOS;
+
+/** A vertical gradient of the background color: its opacity at each offset, top to bottom. */
+export type Veil = readonly { offset: number; opacity: number }[];
+
+/**
+ * A photo filling its container, dimmed to 70 % brightness and under a veil that keeps the text
+ * over it at ≥ 4.5:1 (marca §9, RNF-17). Decorative: hidden from screen readers.
+ */
+export function VeiledPhoto({ photo, veil }: { photo: PhotoName; veil: Veil }) {
+  return (
+    <View
+      style={styles.fill}
+      accessibilityElementsHidden
+      importantForAccessibility="no-hide-descendants"
+    >
+      <Image source={PHOTOS[photo]} style={StyleSheet.absoluteFill} resizeMode="cover" />
+      <View style={[StyleSheet.absoluteFill, { backgroundColor: colors.bgPhotoDim }]} />
+      {/* A unit viewBox stretched to the container, so the veil covers it whatever its size. */}
+      <Svg style={StyleSheet.absoluteFill} viewBox="0 0 1 1" preserveAspectRatio="none">
+        <Defs>
+          <LinearGradient id="veil" x1="0" y1="0" x2="0" y2="1">
+            {veil.map(({ offset, opacity }) => (
+              <Stop key={offset} offset={offset} stopColor={colors.bgBase} stopOpacity={opacity} />
+            ))}
+          </LinearGradient>
+        </Defs>
+        <Rect width={1} height={1} fill="url(#veil)" />
+      </Svg>
+    </View>
+  );
+}
+
+// Clipped: on Android a cover image can spill out of an absolutely positioned parent.
+const styles = StyleSheet.create({
+  fill: { ...StyleSheet.absoluteFill, overflow: 'hidden' },
+});
