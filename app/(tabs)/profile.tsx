@@ -11,6 +11,7 @@ export default function S21Route() {
       onSignUp={() => router.push('/sign-up')}
       onSignIn={() => router.push('/sign-in')}
       onAbout={() => router.push('/about')}
+      onIncrements={() => router.push('/increments')}
       devEntry={
         __DEV__ && (
           <Button variant="secondary" label={dev.menuEntry} onPress={() => router.push('/dev')} />

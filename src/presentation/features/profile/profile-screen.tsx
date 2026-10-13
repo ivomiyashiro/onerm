@@ -36,6 +36,8 @@ interface ProfileScreenProps {
   onSignUp: () => void;
   onSignIn: () => void;
   onAbout: () => void;
+  /** RF-PERF-06: the increments and the bar weight. */
+  onIncrements: () => void;
   /** Only in development builds: the screen list and the component gallery. */
   devEntry?: ReactNode;
 }
@@ -56,7 +58,13 @@ const SHEET_TITLE: Record<Setting, string> = {
 };
 
 /** S21 · Perfil y ajustes (RF-PERF-03..05). Sync, account and notifications arrive in F6, F7 and #36. */
-export function ProfileScreen({ onSignUp, onSignIn, onAbout, devEntry }: ProfileScreenProps) {
+export function ProfileScreen({
+  onSignUp,
+  onSignIn,
+  onAbout,
+  onIncrements,
+  devEntry,
+}: ProfileScreenProps) {
   const { state, sheet, dialog, actions } = useProfileViewModel();
   const insets = useSafeAreaInsets();
 
@@ -95,6 +103,7 @@ export function ProfileScreen({ onSignUp, onSignIn, onAbout, devEntry }: Profile
               effort: text.values.effort[state.profile.effortMode],
             }}
             onOpen={actions.open}
+            onIncrements={onIncrements}
           />
         )}
         {state.status === 'error' && (
@@ -138,9 +147,11 @@ export function ProfileScreen({ onSignUp, onSignIn, onAbout, devEntry }: Profile
 function Settings({
   values,
   onOpen,
+  onIncrements,
 }: {
   values: Record<Setting, string>;
   onOpen: (setting: Setting) => void;
+  onIncrements: () => void;
 }) {
   return (
     <>
@@ -165,6 +176,12 @@ function Settings({
           label={text.rows.effort}
           value={values.effort}
           onPress={() => onOpen('effort')}
+          divided
+        />
+        <SettingsRow
+          label={text.rows.increments}
+          value={text.rows.byEquipment}
+          onPress={onIncrements}
           divided
         />
       </Section>

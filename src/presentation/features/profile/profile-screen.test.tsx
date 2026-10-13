@@ -33,7 +33,12 @@ async function renderScreen(profile: Profile | null = defaultProfile()) {
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),
   });
-  const callbacks = { onSignUp: jest.fn(), onSignIn: jest.fn(), onAbout: jest.fn() };
+  const callbacks = {
+    onSignUp: jest.fn(),
+    onSignIn: jest.fn(),
+    onAbout: jest.fn(),
+    onIncrements: jest.fn(),
+  };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider useCases={useCases}>
@@ -86,6 +91,14 @@ describe('ProfileScreen (S21)', () => {
 
     expect(screen.getByText(dialogs.D06.body('ganar fuerza'))).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: dialogs.D06.adjust })).toBeOnTheScreen();
+  });
+
+  it('RF-PERF-06: «Incrementos de peso» opens its screen', async () => {
+    const { onIncrements } = await renderScreen();
+
+    await userEvent.press(screen.getByRole('button', { name: text.rows.increments }));
+
+    expect(onIncrements).toHaveBeenCalled();
   });
 
   it('error: a failed read offers to retry', async () => {
