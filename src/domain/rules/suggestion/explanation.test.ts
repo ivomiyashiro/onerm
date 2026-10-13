@@ -64,6 +64,20 @@ describe('RF-SUG-07 · explain a suggestion', () => {
     });
   });
 
+  it('AC2 · for intermediate and advanced, the best e1RM of «La última vez» (P-10)', () => {
+    const last = anExposure(
+      [
+        [60, 10, 1],
+        [55, 10, null],
+      ],
+      { finishedAt: day(2) },
+    );
+
+    // RTF 11: 60 × 36 / 26 = 83,08; the 55 kg set gives less.
+    expect(explainSuggestion([last], context()).estimatedMax?.value).toBeCloseTo(83.08, 2);
+    expect(explainSuggestion([], context()).estimatedMax).toBeNull();
+  });
+
   it('AC3 · the same history and day give the same explanation (RN-SUG-16)', () => {
     const history = [anExposure([[60, 10, 2]], { finishedAt: day(2) })];
 

@@ -2,8 +2,8 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
-import type { EffortMode } from '@/domain/models/vocabulary';
-import type { Workout, WorkoutExercise } from '@/domain/models/workout';
+import type { EffortMode, ExperienceLevel } from '@/domain/models/vocabulary';
+import type { Workout, WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
@@ -12,8 +12,10 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { loadGridFor } from '@/domain/rules/suggestion/load-grid-for';
+import type { SuggestionExplanation } from '@/domain/rules/suggestion/explanation';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
-import { suggestionFor } from '@/domain/rules/workout/suggestion-for';
+import { currentSuggestion } from '@/domain/rules/workout/current-suggestion';
+import { explanationFor } from '@/domain/rules/workout/suggestion-for';
 import { observeTogether } from '@/domain/usecases/observe-together';
 
 export interface WorkoutExerciseView {
@@ -24,7 +26,14 @@ export interface WorkoutExerciseView {
   readonly catalog: Exercise | null;
   /** The note of the routine exercise (RF-RUT-06.AC2). */
   readonly notes: string | null;
+  /** For the next set: in calibration it follows the sets logged (RN-SUG-06, RN-SUG-13). */
   readonly suggestion: Suggestion;
+  /** The suggestion was recalculated from the last set: the next one shows it as is. */
+  readonly recalculated: boolean;
+  /** A calibration set still without its effort: the next set waits (RF-SUG-02.AC4). */
+  readonly awaitingEffort: WorkoutSet | null;
+  /** S10 «¿Por qué?» of `suggestion` (RF-SUG-07). */
+  readonly explanation: SuggestionExplanation;
   /** The ± step (RN-PERF-06); null for bodyweight. */
   readonly grid: LoadGrid | null;
 }
@@ -34,6 +43,8 @@ export interface WorkoutOverview {
   readonly workout: Workout;
   readonly exercises: readonly WorkoutExerciseView[];
   readonly effortMode: EffortMode;
+  /** The short reason and S10 have a novice and an advanced version (13 §4). */
+  readonly level: ExperienceLevel;
 }
 
 /**
@@ -73,7 +84,7 @@ export class ObserveWorkout {
   ) {}
 
   execute(observer: Observer<WorkoutOverview | null>): Unsubscribe {
-    let cache: { key: string; suggestions: Map<string, Suggestion> } | null = null;
+    let cache: { key: string; explanations: Map<string, SuggestionExplanation> } | null = null;
 
     return observeTogether<[Workout | null, Workout[], Profile | null, Routine[], Exercise[]]>(
       [
@@ -102,8 +113,8 @@ export class ObserveWorkout {
             exercises.map((e) => `${e.id}:${e.loadType}:${e.primaryEquipment}`).join(','),
             historyKey(finished),
           ].join('\n');
-          if (cache?.key !== key) cache = { key, suggestions: new Map() };
-          const { suggestions } = cache;
+          if (cache?.key !== key) cache = { key, explanations: new Map() };
+          const { explanations } = cache;
           const inputs = {
             profile,
             catalog,
@@ -115,14 +126,22 @@ export class ObserveWorkout {
           observer.next({
             workout,
             effortMode: profile.effortMode,
+            level: profile.level,
             exercises: workout.exercises.map((exercise) => {
               const entry = catalog.get(exercise.exerciseId) ?? null;
               const target = `${exercise.routineExerciseId}|${exercise.exerciseId}|${JSON.stringify(exercise.prescription)}`;
-              let suggestion = suggestions.get(target);
-              if (suggestion === undefined) {
-                suggestion = suggestionFor(exercise, inputs);
-                suggestions.set(target, suggestion);
+              let base = explanations.get(target);
+              if (base === undefined) {
+                base = explanationFor(exercise, inputs);
+                explanations.set(target, base);
               }
+              const grid = exercise.loadType === 'bodyweight' ? null : loadGridFor(profile, entry);
+              const current = currentSuggestion(base.suggestion, exercise.sets, {
+                exerciseId: exercise.exerciseId,
+                prescription: exercise.prescription,
+                grid,
+              });
+              const { suggestion } = current;
               return {
                 exercise,
                 name: entry?.name ?? null,
@@ -131,8 +150,13 @@ export class ObserveWorkout {
                   exercise.routineExerciseId === null
                     ? null
                     : (notes.get(exercise.routineExerciseId) ?? null),
-                suggestion,
-                grid: exercise.loadType === 'bodyweight' ? null : loadGridFor(profile, entry),
+                ...current,
+                // A calibration step comes from a set of today: there is no «last time» yet.
+                explanation:
+                  suggestion === base.suggestion
+                    ? base
+                    : { ...base, suggestion, lastTime: null, meanRir: null, estimatedMax: null },
+                grid,
               };
             }),
           });

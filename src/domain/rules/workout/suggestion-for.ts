@@ -4,8 +4,11 @@ import type { Prescription } from '@/domain/models/prescription';
 import type { Profile } from '@/domain/models/profile';
 import type { Id, LoadType } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import { suggestForExercise, suggestNext } from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
+import {
+  explainSuggestion,
+  type SuggestionExplanation,
+} from '@/domain/rules/suggestion/explanation';
 import { exerciseExposures, routineExposures } from '@/domain/rules/suggestion/exposures';
 import { loadGridFor } from '@/domain/rules/suggestion/load-grid-for';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
@@ -36,6 +39,17 @@ export interface SuggestionTarget {
  * A substitute or an unplanned exercise goes by its own history in any context (RN-SUG-15).
  */
 export function suggestionFor(target: SuggestionTarget, inputs: SuggestionInputs): Suggestion {
+  return explanationFor(target, inputs).suggestion;
+}
+
+/**
+ * RF-SUG-07: the suggestion of `suggestionFor` with the data S10 shows. Without a routine exercise
+ * there are no ERR: the «without ERR» rule over the EE (RN-SUG-15), like `suggestForExercise`.
+ */
+export function explanationFor(
+  target: SuggestionTarget,
+  inputs: SuggestionInputs,
+): SuggestionExplanation {
   const exercise = inputs.catalog.get(target.exerciseId) ?? null;
   const loadType = target.loadType ?? exercise?.loadType ?? 'external';
   const context: SuggestionContext = {
@@ -50,12 +64,12 @@ export function suggestionFor(target: SuggestionTarget, inputs: SuggestionInputs
     grid: loadGridFor(inputs.profile, exercise) ?? loadGridFor(inputs.profile, null)!,
     exerciseExposures: exerciseExposures(target.exerciseId, inputs.finished),
   };
-  if (target.routineExerciseId === null) return suggestForExercise(context);
-  return suggestNext(
-    routineExposures(
-      { id: target.routineExerciseId, exerciseId: target.exerciseId },
-      inputs.finished,
-    ),
-    context,
-  );
+  const routine =
+    target.routineExerciseId === null
+      ? []
+      : routineExposures(
+          { id: target.routineExerciseId, exerciseId: target.exerciseId },
+          inputs.finished,
+        );
+  return explainSuggestion(routine, context);
 }

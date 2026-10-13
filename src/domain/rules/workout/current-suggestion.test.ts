@@ -21,11 +21,7 @@ describe('currentSuggestion (RN-SUG-06, RN-SUG-13)', () => {
   });
 
   it('RF-SUG-02.AC5, caso E: the second set ends the calibration with 37,5 × 8', () => {
-    const current = currentSuggestion(
-      CALIBRATION,
-      [set(0, 30, 12, 4), set(1, 35, 11, 2)],
-      input,
-    );
+    const current = currentSuggestion(CALIBRATION, [set(0, 30, 12, 4), set(1, 35, 11, 2)], input);
 
     expect(current.suggestion).toMatchObject({ loadKg: 37.5, reps: 8 });
     expect(current.suggestion.reason.code).toBe('ESTIMATED_FROM_E1RM');

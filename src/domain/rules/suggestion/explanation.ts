@@ -1,4 +1,5 @@
 import type { Prescription } from '@/domain/models/prescription';
+import { estimatedOneRepMax, type E1rm } from '@/domain/rules/suggestion/e1rm';
 import { fold, orderedContext, suggest } from '@/domain/rules/suggestion/engine';
 import type { SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import type { Exposure, ExposureSet } from '@/domain/rules/suggestion/exposures';
@@ -16,6 +17,18 @@ export interface SuggestionExplanation {
   readonly prescription: Prescription;
   /** «Esfuerzo medio»: the mean reported RIR of the sets with W of the last ERR. */
   readonly meanRir: number | null;
+  /** «Máximo estimado»: the best e1RM of «La última vez», for intermediate and advanced (P-10). */
+  readonly estimatedMax: E1rm | null;
+}
+
+/** The highest e1RM of the sets with a load (RN-SUG-07); null when none has one. */
+function bestE1rm(sets: readonly ExposureSet[]): E1rm | null {
+  let best: E1rm | null = null;
+  for (const { loadKg, reps, rir } of sets) {
+    const e1rm = loadKg === null ? null : estimatedOneRepMax(loadKg, reps, rir);
+    if (e1rm && (best === null || e1rm.value > best.value)) best = e1rm;
+  }
+  return best;
 }
 
 const asLastTime = (exposure: Exposure | undefined) =>
@@ -52,5 +65,6 @@ export function explainSuggestion(
     lastTime,
     prescription: context.prescription,
     meanRir: rirs.length === 0 ? null : rirs.reduce((sum, rir) => sum + rir, 0) / rirs.length,
+    estimatedMax: lastTime === null ? null : bestE1rm(lastTime.sets),
   };
 }
