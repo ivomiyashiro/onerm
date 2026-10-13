@@ -19,7 +19,9 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { WorkoutScreen } from '@/presentation/features/workout/workout-screen';
+import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
+import { suggestions } from '@/presentation/strings/suggestions';
 import { workout as text } from '@/presentation/strings/workout';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
@@ -56,7 +58,7 @@ async function renderScreen({
   inProgress = RUNNING as Workout | null,
   useCases = undefined as UseCases | undefined,
 } = {}) {
-  const workouts = new InMemoryWorkoutRepository(inProgress);
+  const workouts = new InMemoryWorkoutRepository(inProgress, []);
   let n = 0;
   const onClose = jest.fn();
   await render(
@@ -170,5 +172,49 @@ describe('WorkoutScreen (S09)', () => {
 
     expect(screen.getByText(text.validation.load('1000', 'kg'))).toBeOnTheScreen();
     expect(workouts.inProgress!.exercises[0].sets[0].loadKg).toBe(60);
+  });
+
+  it('RF-SUG-07: the reason under the exercise, and «¿Por qué?» opens S10 until «Entendido»', async () => {
+    const { user } = await renderScreen();
+
+    expect(screen.getByText(suggestions.reasons.CALIBRATION.novice(8, 12))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: common.why }));
+    expect(screen.getByText(suggestions.why.calibrationTitle)).toBeOnTheScreen();
+
+    await user.press(screen.getByRole('button', { name: /En qué nos basamos/ }));
+    expect(screen.getByText(/podemos estimar tu máximo/)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: suggestions.why.understood }));
+    expect(screen.queryByText(suggestions.why.calibrationTitle)).not.toBeOnTheScreen();
+  });
+
+  it('RF-SUG-02.AC4: a calibration set without effort blocks «Hecho» until it is chosen', async () => {
+    const { user, workouts } = await renderScreen({
+      inProgress: {
+        ...RUNNING,
+        exercises: [
+          {
+            ...RUNNING.exercises[1],
+            sets: [
+              aBilateralSet({
+                id: 's1',
+                workoutExerciseId: 'we-2',
+                loadKg: 60,
+                reps: 8,
+                rir: null,
+              }),
+            ],
+          },
+        ],
+      },
+    });
+
+    expect(screen.getByText(text.calibration.missingEffort)).toBeOnTheScreen();
+    expect(screen.getByText(text.calibration.askEffortForSet(1))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.primaryAction.done })).toBeDisabled();
+
+    await user.press(screen.getByRole('radio', { name: text.effort.simple.twoOrThree }));
+
+    expect(workouts.inProgress!.exercises[0].sets[0]).toMatchObject({ rir: 2 });
+    expect(screen.getByRole('button', { name: text.primaryAction.done })).toBeEnabled();
   });
 });

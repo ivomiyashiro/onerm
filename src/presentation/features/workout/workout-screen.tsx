@@ -9,10 +9,15 @@ import { Snackbar } from '@/presentation/components/feedback/snackbar';
 import { Icon } from '@/presentation/components/icons/icon';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
+import type { WorkoutSet } from '@/domain/models/workout';
+import type { RirField } from '@/presentation/features/workout/set-form';
 import { remainingSets } from '@/domain/rules/workout/remaining-sets';
+import { Segmented } from '@/presentation/components/choice/segmented';
+import { ReasonRow } from '@/presentation/features/workout/reason-row';
 import { SetRow } from '@/presentation/features/workout/set-row';
-import { SetSheet } from '@/presentation/features/workout/set-sheet';
+import { effortOptions, effortTitle, SetSheet } from '@/presentation/features/workout/set-sheet';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
+import { WhySheet } from '@/presentation/features/workout/why-sheet';
 import {
   useWorkoutViewModel,
   type WorkoutContent,
@@ -144,6 +149,7 @@ function Workout({
         {exercise.notes && (
           <Text style={[typography.bodyM, { color: colors.textSecondary }]}>{exercise.notes}</Text>
         )}
+        <ReasonRow line={content.reason.line} icon={content.reason.icon} onWhy={actions.openWhy} />
         {exercise.name === null && (
           <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
             {text.unavailable.body}
@@ -165,6 +171,13 @@ function Workout({
         </View>
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
+        {content.awaitingEffort && (
+          <CalibrationEffort
+            waiting={content.awaitingEffort}
+            effortMode={effortMode}
+            onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+          />
+        )}
         {deleted && (
           <Snackbar
             message={text.setDeleted.message}
@@ -172,12 +185,13 @@ function Workout({
             onDismiss={actions.dismissUndo}
           />
         )}
-        {content.primary === 'done' && (
+        {(content.primary === 'done' || content.primary === 'awaitEffort') && (
           <Button
             variant="primary"
             size="xl"
             label={text.primaryAction.done}
             icon="check"
+            disabled={content.primary === 'awaitEffort'}
             onPress={() => void done()}
           />
         )}
@@ -202,6 +216,7 @@ function Workout({
         onDelete={() => void actions.deleteSet()}
         onClose={actions.closeSheet}
       />
+      <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />
       <BottomSheet
         visible={sheet?.kind === 'exercises'}
         title={text.exerciseList.title}
@@ -245,7 +260,51 @@ function Workout({
   );
 }
 
+/**
+ * RF-SUG-02.AC4 (Figma «S09 · Calibración»): the effort of a calibration set, required before the
+ * next one; one row per side when the sides differ.
+ */
+function CalibrationEffort({
+  waiting,
+  effortMode,
+  onEffort,
+}: {
+  waiting: NonNullable<WorkoutContent['awaitingEffort']>;
+  effortMode: WorkoutContent['effortMode'];
+  onEffort: (set: WorkoutSet, field: RirField, rir: number) => void;
+}) {
+  const { set, number } = waiting;
+  const fields: RirField[] =
+    set.isUnilateral && set.repsLeft !== set.repsRight ? ['rirLeft', 'rirRight'] : ['rir'];
+  return (
+    <View style={styles.effort}>
+      <Text style={[typography.bodyLStrong, { color: colors.textPrimary }]}>
+        {effortTitle(effortMode)}
+      </Text>
+      {fields.map((field) => (
+        <Segmented
+          key={field}
+          label={
+            field === 'rirLeft'
+              ? text.set.left
+              : field === 'rirRight'
+                ? text.set.right
+                : effortTitle(effortMode)
+          }
+          options={effortOptions(effortMode)}
+          selected={set.isUnilateral && field !== 'rir' ? (set[field] ?? -1) : -1}
+          onSelect={(rir) => onEffort(set, field, rir)}
+        />
+      ))}
+      <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+        {text.calibration.askEffortForSet(number)}
+      </Text>
+    </View>
+  );
+}
+
 const styles = StyleSheet.create({
+  effort: { gap: space.s10, paddingBottom: space.s8 },
   screen: { flex: 1, backgroundColor: colors.bgBase },
   message: { padding: space.s16 },
   header: {
