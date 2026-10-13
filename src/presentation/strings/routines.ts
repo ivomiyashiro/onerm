@@ -125,6 +125,37 @@ export const routines = {
   },
   editor: {
     title: 'Editar rutina',
+    createTitle: 'Crear rutina',
+    moveUp: 'Subir',
+    moveDown: 'Bajar',
+    /** The row's line: «3 × 8–12 · reserva 2 · 2 min». */
+    exerciseLine: (sets: number, range: string, rir: number, rest: string) =>
+      `${sets} × ${range} · reserva ${rir} · ${rest}`,
+    /** «60 s», «90 s», «2 min», «2:30». */
+    rest: (seconds: number) => {
+      if (seconds <= 90) return `${seconds} s`;
+      const minutes = Math.floor(seconds / 60);
+      const rest = seconds % 60;
+      return rest === 0 ? `${minutes} min` : `${minutes}:${String(rest).padStart(2, '0')}`;
+    },
+    workoutInProgress: 'Los cambios aplican desde tu próximo entrenamiento.',
+    /** S15 · Prescripción (hoja): «Principal · Día A». */
+    sheetSubtitle: (role: ExerciseRole, day: string) => `${roles[role]} · ${day}`,
+    role: 'Rol',
+    roles,
+    notes: 'Notas',
+    notesPlaceholder: 'Ej.: asiento en posición 4',
+    notesCount: (n: number, max: number) => `${n}/${max}`,
+    replace: 'Reemplazar ejercicio',
+    remove: 'Quitar ejercicio',
+    /** S15 · Opciones del día (hoja). */
+    day: {
+      exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
+      name: 'Nombre del día',
+      moveBefore: 'Mover antes',
+      moveAfter: 'Mover después',
+      remove: 'Quitar día',
+    },
     name: 'Nombre de la rutina',
     addDay: '+ Día',
     addExercise: 'Agregar ejercicio',
@@ -153,6 +184,8 @@ export const routines = {
       emptyName: 'El nombre no puede estar vacío.',
       minOverMax: 'El mínimo no puede ser mayor que el máximo.',
       dayWithoutExercises: (day: string) => `Agregá al menos un ejercicio a ${day}.`,
+      sets: 'Las series tienen que estar entre 1 y 10.',
+      reps: 'Las repeticiones tienen que estar entre 1 y 30.',
     },
     rirZeroWarning:
       'RIR 0 significa ir al fallo en cada serie. No lo recomendamos: no suma fuerza y aumenta la fatiga.',

@@ -23,6 +23,8 @@ import { colors, space, typography } from '@/presentation/theme';
 interface ExerciseSearchScreenProps {
   onBack: () => void;
   onOpenExercise: (exercise: Exercise) => void;
+  /** From S15: «Agregar al {día}» or «Reemplazar ejercicio», and a tap picks the exercise. */
+  title?: string;
 }
 
 const SKELETON_ROWS = 5;
@@ -31,7 +33,11 @@ const SKELETON_ROWS = 5;
  * S16 · Buscador de ejercicios (RF-CAT-01), to explore the catalog. The inline chips are the
  * chosen filters and the equipment; «Más filtros» opens every muscle and equipment in a sheet.
  */
-export function ExerciseSearchScreen({ onBack, onOpenExercise }: ExerciseSearchScreenProps) {
+export function ExerciseSearchScreen({
+  onBack,
+  onOpenExercise,
+  title = catalog.search.title,
+}: ExerciseSearchScreenProps) {
   const viewModel = useExerciseSearchViewModel();
   const { search, actions } = viewModel;
   const [filtersOpen, setFiltersOpen] = useState(false);
@@ -39,7 +45,7 @@ export function ExerciseSearchScreen({ onBack, onOpenExercise }: ExerciseSearchS
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
-      <TopBar title={catalog.search.title} backLabel={common.back} onBack={onBack} />
+      <TopBar title={title} backLabel={common.back} onBack={onBack} />
       <View style={styles.search}>
         <SearchField
           label={catalog.search.placeholder}
