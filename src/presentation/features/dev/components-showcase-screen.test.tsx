@@ -1,14 +1,25 @@
+import type { ReactNode } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import { ComponentsShowcaseScreen } from '@/presentation/features/dev/components-showcase-screen';
 import { strings } from '@/presentation/strings';
 import { devShowcase as t } from '@/presentation/strings/dev-showcase';
 
+// The sheet floats above the system bar, so it reads the safe area.
+const METRICS = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: { top: 54, left: 0, right: 0, bottom: 34 },
+};
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <SafeAreaProvider initialMetrics={METRICS}>{children}</SafeAreaProvider>
+);
+
 jest.useFakeTimers();
 
 describe('ComponentsShowcaseScreen', () => {
   it('renders every base component', async () => {
-    await render(<ComponentsShowcaseScreen />);
+    await render(<ComponentsShowcaseScreen />, { wrapper });
 
     expect(screen.getAllByRole('button', { name: t.buttons.start })).toHaveLength(2);
     expect(screen.getAllByRole('button', { name: t.buttons.seeAll })).toHaveLength(2);
@@ -26,7 +37,7 @@ describe('ComponentsShowcaseScreen', () => {
 
   it('opens the bottom sheet, the dialog and the snackbar', async () => {
     const user = userEvent.setup();
-    await render(<ComponentsShowcaseScreen />);
+    await render(<ComponentsShowcaseScreen />, { wrapper });
 
     await user.press(screen.getByRole('button', { name: t.overlays.openSheet }));
     expect(screen.getByRole('header', { name: t.overlays.sheetTitle })).toBeOnTheScreen();

@@ -1,3 +1,5 @@
+import type { ReactNode } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import {
@@ -5,6 +7,15 @@ import {
   SheetPlaceholder,
 } from '@/presentation/features/dev/screen-placeholder';
 import { dev } from '@/presentation/strings/dev';
+
+// The sheet floats above the system bar, so it reads the safe area.
+const METRICS = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: { top: 54, left: 0, right: 0, bottom: 34 },
+};
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <SafeAreaProvider initialMetrics={METRICS}>{children}</SafeAreaProvider>
+);
 
 jest.useFakeTimers();
 
@@ -27,7 +38,7 @@ describe('SheetPlaceholder', () => {
   it('is a sheet named after the screen that closes with ×', async () => {
     const user = userEvent.setup();
     const onClose = jest.fn();
-    await render(<SheetPlaceholder id="S08" onClose={onClose} />);
+    await render(<SheetPlaceholder id="S08" onClose={onClose} />, { wrapper });
 
     expect(screen.getByRole('header', { name: dev.screens.S08 })).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: dev.close }));

@@ -1,10 +1,14 @@
 import { useEffect, useState, type ReactNode } from 'react';
 import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Scrim } from '@/presentation/components/overlay/scrim';
-import { colors, elevation, radius, size, typography } from '@/presentation/theme';
+import { colors, elevation, radius, size, space, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
+
+/** The gap between the floating sheet and the screen edges (Figma «BottomSheet»). */
+const FLOAT_GAP = space.s8;
 
 interface SheetContentProps {
   title: string;
@@ -30,10 +34,13 @@ export function SheetOverlay({
   scrimTestID,
   keyboardHeight = 0,
 }: SheetContentProps & { scrimTestID?: string; keyboardHeight?: number }) {
+  const insets = useSafeAreaInsets();
+  // Floating: a gap above the system bar, or above the keyboard while it is open.
+  const bottom = (keyboardHeight > 0 ? keyboardHeight : insets.bottom) + FLOAT_GAP;
   return (
     <>
       <Scrim onPress={onClose} testID={scrimTestID} />
-      <View style={[styles.sheet, { bottom: keyboardHeight }]} accessibilityViewIsModal>
+      <View style={[styles.sheet, { bottom }]} accessibilityViewIsModal>
         <View style={styles.handleArea}>
           <View style={styles.handle} />
         </View>
@@ -68,8 +75,9 @@ export function SheetOverlay({
 }
 
 /**
- * Figma «BottomSheet»: the single bottom sheet of the app (menus, lists, edit set, keypad…).
- * It closes with the × button, the scrim or the back button.
+ * Figma «BottomSheet»: the single bottom sheet of the app (menus, lists, edit set, keypad…). It
+ * floats, inset from the screen edges with every corner rounded. It closes with the × button, the
+ * scrim or the back button.
  */
 export function BottomSheet({
   visible,
@@ -141,15 +149,12 @@ export function MenuItem({ icon, label, onPress, destructive = false }: MenuItem
 const styles = StyleSheet.create({
   sheet: {
     position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    // Figma «safe-bottom»: the system navigation sits on top of the sheet.
-    paddingBottom: 34,
+    left: FLOAT_GAP,
+    right: FLOAT_GAP,
+    paddingBottom: space.s16,
     paddingHorizontal: 16,
-    borderTopLeftRadius: radius.xxl,
-    borderTopRightRadius: radius.xxl,
-    borderTopWidth: 1,
+    borderRadius: radius.xxl,
+    borderWidth: 1,
     borderColor: colors.borderSheetEdge,
     backgroundColor: colors.bgSheet,
     ...elevation.sheet,

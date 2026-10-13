@@ -1,7 +1,18 @@
+import type { ReactNode } from 'react';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
+
+// The sheet floats above the system bar, so it reads the safe area.
+const METRICS = {
+  frame: { x: 0, y: 0, width: 390, height: 844 },
+  insets: { top: 54, left: 0, right: 0, bottom: 34 },
+};
+const wrapper = ({ children }: { children: ReactNode }) => (
+  <SafeAreaProvider initialMetrics={METRICS}>{children}</SafeAreaProvider>
+);
 
 jest.useFakeTimers();
 
@@ -17,6 +28,7 @@ const renderSheet = (onClose = jest.fn()) =>
     >
       <Text>Contenido</Text>
     </BottomSheet>,
+    { wrapper },
   );
 
 describe('BottomSheet', () => {
