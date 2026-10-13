@@ -87,6 +87,20 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 - **PLT-FB2 — Cuerpo completo, 2 días:** "Si tenés poco tiempo, 2 días bien hechos ya generan mejoras importantes. Cada músculo trabaja 2 veces por semana. Hacemos alguna serie más por ejercicio para compensar."
 - **PLT-TP4 — Torso / Pierna, 4 días:** "Separamos tren superior e inferior para meter más trabajo por músculo sin alargar las sesiones. Cada músculo trabaja 2 veces por semana. Incluye ejercicios con más técnica, pensados para quien ya tiene experiencia."
 
+**Criterios y fuentes** (debajo del párrafo, en la misma hoja; RF-RUT-01 AC3). Cada fila tiene el criterio en lenguaje llano y sus fuentes abreviadas de la bibliografía de 10 §3 («OMS 2020» es Bull 2020), o "Criterio de práctica" cuando no hay evidencia detrás:
+
+| Plantilla | Criterio | Fuentes |
+|---|---|---|
+| PLT-FB3 | Cada músculo 2 o más veces por semana | Schoenfeld 2019 · OMS 2020 |
+| PLT-FB3 | Máquinas y mancuernas: resultados parecidos a la barra | Haugen 2023 |
+| PLT-FB3 | Sesiones de una hora o menos | Criterio de práctica |
+| PLT-FB2 | Con 2 días por semana ya hay mejoras importantes | OMS 2020 · ACSM 2026 |
+| PLT-FB2 | Cada músculo 2 veces por semana | Schoenfeld 2019 · OMS 2020 |
+| PLT-FB2 | Algo menos de volumen: una concesión por el tiempo | Pelland 2025 |
+| PLT-TP4 | Cada músculo 2 veces por semana | Schoenfeld 2019 · OMS 2020 |
+| PLT-TP4 | Unas 10 series por semana por músculo | ACSM 2026 · Pelland 2025 |
+| PLT-TP4 | Más ejercicios con técnica, para quien ya tiene experiencia | Criterio de práctica |
+
 ## 6. "En qué nos basamos" (resúmenes de P-01 a P-13)
 
 | Principio | Resumen en lenguaje llano |

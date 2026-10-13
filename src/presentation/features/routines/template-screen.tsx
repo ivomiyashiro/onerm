@@ -7,6 +7,7 @@ import type { TemplateDetail } from '@/domain/usecases/observe-template';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
+import { Icon } from '@/presentation/components/icons/icon';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
@@ -84,7 +85,12 @@ export function TemplateScreen({
               />
             }
           >
-            <Text style={[typography.bodyL, styles.rationale]}>{rationaleOf(state.detail)}</Text>
+            <View style={styles.whyContent}>
+              <Text style={[typography.bodyL, { color: colors.textPrimary }]}>
+                {rationaleOf(state.detail)}
+              </Text>
+              <Criteria templateId={state.detail.template.id} />
+            </View>
           </BottomSheet>
         </>
       )}
@@ -112,6 +118,26 @@ export function TemplateScreen({
 function rationaleOf({ template }: TemplateDetail): string {
   const texts: Record<string, string> = text.template.rationale;
   return texts[template.id] ?? template.rationale;
+}
+
+/** RF-RUT-01.AC3: each criterion with its sources (13 §5); none for a template the texts lack. */
+function Criteria({ templateId }: { templateId: Id }) {
+  const all: Record<string, readonly { title: string; sources: string }[]> = text.template.criteria;
+  const criteria = all[templateId] ?? [];
+  if (criteria.length === 0) return null;
+  return (
+    <View style={styles.criteria}>
+      {criteria.map(({ title, sources }, index) => (
+        <View key={title} style={[styles.criterion, index > 0 && styles.rowDivider]}>
+          <Icon name="check" size={18} color={colors.textAccent} />
+          <View style={styles.criterionText}>
+            <Text style={[typography.bodyMStrong, { color: colors.textPrimary }]}>{title}</Text>
+            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{sources}</Text>
+          </View>
+        </View>
+      ))}
+    </View>
+  );
 }
 
 function Header({ detail, onWhy }: { detail: TemplateDetail; onWhy: () => void }) {
@@ -179,5 +205,14 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
-  rationale: { color: colors.textPrimary, paddingHorizontal: space.s4, paddingBottom: space.s16 },
+  whyContent: { gap: space.s14, paddingBottom: space.s16 },
+  criteria: { overflow: 'hidden', borderRadius: radius.lg, backgroundColor: colors.bgRaised },
+  criterion: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: space.s12,
+    paddingHorizontal: space.s14,
+    paddingVertical: space.s12,
+  },
+  criterionText: { flex: 1, gap: space.s2 },
 });
