@@ -1,4 +1,5 @@
 import type { Exercise } from '@/domain/models/exercise';
+import type { LocalDate } from '@/domain/models/local-date';
 import type { Prescription } from '@/domain/models/prescription';
 import type { Profile } from '@/domain/models/profile';
 import type { RotationDay, Routine } from '@/domain/models/routine';
@@ -9,9 +10,14 @@ import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
+import { daysBetween } from '@/domain/rules/calendar';
+import { sortByPosition } from '@/domain/rules/position-order';
 import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
+import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import { sessionMinutes } from '@/domain/rules/routine/session-duration';
+import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+import { suggestionFor } from '@/domain/rules/workout/suggestion-for';
 import { observeTogether } from '@/domain/usecases/observe-together';
 
 export interface NextDayExercise {
@@ -20,6 +26,17 @@ export interface NextDayExercise {
   /** Null while the exercise is not in the local catalog (RN-CAT-04). */
   readonly name: string | null;
   readonly prescription: Prescription;
+  /** RF-SUG-01.AC1: a load and reps, or the instruction to calibrate. */
+  readonly suggestion: Suggestion;
+}
+
+/** A day of S08 · Elegir día (RF-ENT-01.AC3). */
+export interface DayChoice {
+  readonly id: Id;
+  readonly name: string;
+  /** Calendar days since it was last done with this routine; null if never (RN-GEN-01). */
+  readonly daysAgo: number | null;
+  readonly exerciseNames: (string | null)[];
 }
 
 /** What S07 shows: the next day of the active routine, or that there is none. */
@@ -38,6 +55,8 @@ export type NextDayOverview =
       readonly minutes: number;
       /** Picks the photo of Inicio (marca §9). */
       readonly dayKind: DayKind;
+      /** Every day of the routine, for S08; `day` is the recommended one. */
+      readonly days: DayChoice[];
     };
 
 const NO_ACTIVE_ROUTINE: NextDayOverview = { kind: 'noActiveRoutine' };
@@ -53,6 +72,8 @@ export class ObserveNextDay {
     private readonly routines: Pick<RoutineRepository, 'observeAll' | 'observeRotationDays'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeFinished'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
+    private readonly now: () => Date,
+    private readonly localDate: (instant: Date) => LocalDate,
   ) {}
 
   execute(observer: Observer<NextDayOverview>): Unsubscribe {
@@ -77,6 +98,22 @@ export class ObserveNextDay {
           if (day === undefined) return observer.next(NO_ACTIVE_ROUTINE);
 
           const catalog = new Map(exercises.map((exercise) => [exercise.id, exercise]));
+          const today = this.localDate(this.now());
+          const inputs = {
+            profile: profile ?? defaultProfile(),
+            catalog,
+            finished,
+            today,
+            localDate: this.localDate,
+          };
+          const lastDone = new Map<Id, Date>();
+          for (const workout of finished) {
+            const { routineDayId, finishedAt } = workout;
+            if (workout.routineId !== routine.id || routineDayId === null || finishedAt === null)
+              continue;
+            const known = lastDone.get(routineDayId);
+            if (known === undefined || finishedAt > known) lastDone.set(routineDayId, finishedAt);
+          }
           const prescriptions = day.exercises.map((exercise) => exercise.prescription);
           observer.next({
             kind: 'nextDay',
@@ -89,6 +126,10 @@ export class ObserveNextDay {
                 exerciseId,
                 name: catalog.get(exerciseId)?.name ?? null,
                 prescription,
+                suggestion: suggestionFor(
+                  { routineExerciseId: id, exerciseId, prescription },
+                  inputs,
+                ),
               })),
             },
             sets: prescriptions.reduce((total, { sets }) => total + sets, 0),
@@ -96,6 +137,15 @@ export class ObserveNextDay {
             dayKind: dayKind(
               day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
             ),
+            days: sortByPosition(routine.days).map((d) => {
+              const done = lastDone.get(d.id);
+              return {
+                id: d.id,
+                name: d.name,
+                daysAgo: done === undefined ? null : daysBetween(this.localDate(done), today),
+                exerciseNames: d.exercises.map((e) => catalog.get(e.exerciseId)?.name ?? null),
+              };
+            }),
           });
         },
         error: (error) => observer.error(error),

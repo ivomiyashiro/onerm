@@ -77,7 +77,9 @@ describe('ObserveWorkout', () => {
 
     await workouts.save({
       ...RUNNING,
-      exercises: [{ ...RUNNING.exercises[0], sets: [aBilateralSet({ workoutExerciseId: 'we-1' })] }],
+      exercises: [
+        { ...RUNNING.exercises[0], sets: [aBilateralSet({ workoutExerciseId: 'we-1' })] },
+      ],
     });
 
     // SQLite re-reads the history after any write to the workout tables: the same history.

@@ -52,7 +52,10 @@ export function suggestionFor(target: SuggestionTarget, inputs: SuggestionInputs
   };
   if (target.routineExerciseId === null) return suggestForExercise(context);
   return suggestNext(
-    routineExposures({ id: target.routineExerciseId, exerciseId: target.exerciseId }, inputs.finished),
+    routineExposures(
+      { id: target.routineExerciseId, exerciseId: target.exerciseId },
+      inputs.finished,
+    ),
     context,
   );
 }

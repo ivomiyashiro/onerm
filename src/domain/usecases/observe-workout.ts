@@ -48,7 +48,12 @@ function historyKey(finished: readonly Workout[]): string {
         w.id,
         w.startedAt.getTime(),
         w.finishedAt?.getTime(),
-        ...w.exercises.map((e) => [e.id, e.routineExerciseId, e.exerciseId, JSON.stringify(e.sets)]),
+        ...w.exercises.map((e) => [
+          e.id,
+          e.routineExerciseId,
+          e.exerciseId,
+          JSON.stringify(e.sets),
+        ]),
       ].join('|'),
     )
     .join('\n');
@@ -126,8 +131,7 @@ export class ObserveWorkout {
                     ? null
                     : (notes.get(exercise.routineExerciseId) ?? null),
                 suggestion,
-                grid:
-                  exercise.loadType === 'bodyweight' ? null : loadGridFor(profile, entry),
+                grid: exercise.loadType === 'bodyweight' ? null : loadGridFor(profile, entry),
               };
             }),
           });

@@ -10,7 +10,11 @@ import {
 } from '@/domain/testing/builders';
 
 const localDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
-const DUMBBELL = anExercise({ id: 'db-press', primaryEquipment: 'dumbbell', equipment: ['dumbbell'] });
+const DUMBBELL = anExercise({
+  id: 'db-press',
+  primaryEquipment: 'dumbbell',
+  equipment: ['dumbbell'],
+});
 
 function inputs(overrides: Partial<SuggestionInputs> = {}): SuggestionInputs {
   return {
@@ -76,7 +80,11 @@ describe('suggestionFor', () => {
   });
 
   it('a bodyweight exercise never suggests a load', () => {
-    const pullUp = anExercise({ id: 'pull-up', loadType: 'bodyweight', primaryEquipment: 'bodyweight' });
+    const pullUp = anExercise({
+      id: 'pull-up',
+      loadType: 'bodyweight',
+      primaryEquipment: 'bodyweight',
+    });
 
     const suggestion = suggestionFor(
       { ...planned, exerciseId: 'pull-up' },

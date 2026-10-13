@@ -10,6 +10,9 @@ import type { ObserveEntry } from '@/domain/usecases/observe-entry';
 import type { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import type { ObserveWorkout } from '@/domain/usecases/observe-workout';
+import type { StartWorkout } from '@/domain/usecases/start-workout';
+import type { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import type { ObserveProfile } from '@/domain/usecases/observe-profile';
 import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
@@ -50,6 +53,12 @@ export interface UseCases {
   loadRoutineDraft: LoadRoutineDraft;
   editRoutineDraft: EditRoutineDraft;
   saveRoutine: SaveRoutine;
+  observeWorkout: ObserveWorkout;
+  startWorkout: StartWorkout;
+  logSet: LogSet;
+  updateSet: UpdateSet;
+  deleteSet: DeleteSet;
+  restoreSet: RestoreSet;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);
