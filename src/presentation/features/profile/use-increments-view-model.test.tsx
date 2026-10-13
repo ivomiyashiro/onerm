@@ -59,6 +59,17 @@ describe('useIncrementsViewModel', () => {
     expect(profiles.profile?.barWeightKg).toBe(20);
   });
 
+  it('RN-PERF-05: more decimals than the unit shows are not saved', async () => {
+    const { result, profiles } = await renderViewModel();
+
+    await act(() => result.current.actions.edit('dumbbell'));
+    await act(() => result.current.actions.type('2,555'));
+    await act(() => result.current.actions.save());
+
+    expect(result.current.editing).toMatchObject({ error: true });
+    expect(profiles.profile?.loadIncrementsKg.dumbbell).toBe(2);
+  });
+
   it('error: a failed read, and retry reads again', async () => {
     const { result, profiles } = await renderViewModel();
 

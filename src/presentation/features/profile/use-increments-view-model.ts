@@ -65,10 +65,13 @@ export function useIncrementsViewModel(): IncrementsViewModel {
   }
 
   async function save() {
-    if (editing === null) return;
+    if (editing === null || state.status !== 'content') return;
     const value = parseDecimal(editing.text);
     try {
-      if (value === null) throw new RangeError('Not a number');
+      // RN-PERF-05: no more decimals than the unit shows, so what is saved is what is seen.
+      if (value === null || parseDecimal(loadNumber(value, state.unit)) !== value) {
+        throw new RangeError('Not a number with the decimals of the unit');
+      }
       await updateLoadSetting.execute(editing.setting, value);
       setEditing(null);
     } catch {
