@@ -3,6 +3,7 @@ import {
   formErrors,
   formFromPrefill,
   formFromSet,
+  maxLoadText,
   setRir,
   stepLoad,
   stepReps,
@@ -69,5 +70,10 @@ describe('set form', () => {
 
   it('bodyweight never logs a load (I-06)', () => {
     expect(toSetInput(form, { loadType: 'bodyweight', isUnilateral: false }).loadKg).toBeNull();
+  });
+
+  it('RN-ENT-02: the load limit is 1000 kg, shown in the user unit', () => {
+    expect(maxLoadText('kg')).toBe('1000');
+    expect(maxLoadText('lb')).toBe('2204,6');
   });
 });

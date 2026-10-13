@@ -10,6 +10,7 @@ import { LoadStepper } from '@/presentation/components/stepper/load-stepper';
 import { Text } from '@/presentation/components/text';
 import {
   EFFORT_VALUES,
+  maxLoadText,
   setRir,
   stepLoad,
   stepReps,
@@ -128,7 +129,7 @@ export function SetSheet({
                 unit={common.units[unit]}
                 note={
                   sheet?.errors?.load
-                    ? text.validation.load(common.units[unit])
+                    ? text.validation.load(maxLoadText(unit), common.units[unit])
                     : loadConvention(exercise)
                 }
                 error={sheet?.errors?.load}

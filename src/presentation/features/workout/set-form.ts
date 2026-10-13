@@ -1,11 +1,11 @@
-import type { EffortMode, LoadType } from '@/domain/models/vocabulary';
+import type { EffortMode, LoadType, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { fromUnit, toUnit } from '@/domain/rules/units';
 import type { PrefilledSet } from '@/domain/rules/workout/prefill';
-import { validateWorkoutSet } from '@/domain/rules/workout-set-rules';
+import { SET_LIMITS, validateWorkoutSet } from '@/domain/rules/workout-set-rules';
 import type { SetInput } from '@/domain/usecases/workout-sets';
-import { parseDecimal } from '@/presentation/strings/numbers';
+import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 
 /** What the «Ajustar serie» and «Editar serie» sheets edit. Loads in kg, like the domain. */
 export interface SetForm {
@@ -152,3 +152,8 @@ export const EFFORT_VALUES: Record<EffortMode, readonly number[]> = {
   simple: [0, 1, 2, 4],
   rir: [0, 1, 2, 3, 4, 5],
 };
+
+/** The load limit of RN-ENT-02 (in kg) shown in the user unit, for the error of the load step. */
+export function maxLoadText(unit: LoadUnit): string {
+  return loadNumber(toUnit(SET_LIMITS.loadKg.max, unit), unit);
+}
