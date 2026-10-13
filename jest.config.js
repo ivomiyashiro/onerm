@@ -7,5 +7,8 @@ module.exports = {
   },
   // Integration tests (*.int.test.ts) run with `bun run test:int` (jest.int.config.js).
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/', '\\.int\\.test\\.tsx?$'],
+  // The first render of a screen suite loads the whole UI tree cold: on the CI runner, with
+  // fewer cores and every suite in parallel, it went over Jest's 5 s default (#112, #114).
+  testTimeout: 15_000,
   collectCoverageFrom: ['src/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}', '!**/*.test.{ts,tsx}'],
 };
