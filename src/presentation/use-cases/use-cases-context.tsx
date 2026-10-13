@@ -14,6 +14,11 @@ import type { ObserveProfile } from '@/domain/usecases/observe-profile';
 import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import type { ObserveTemplate } from '@/domain/usecases/observe-template';
+import type {
+  EditRoutineDraft,
+  LoadRoutineDraft,
+  SaveRoutine,
+} from '@/domain/usecases/routine-draft';
 import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import type { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import type { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
@@ -42,6 +47,9 @@ export interface UseCases {
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;
   updateLoadSetting: UpdateLoadSetting;
+  loadRoutineDraft: LoadRoutineDraft;
+  editRoutineDraft: EditRoutineDraft;
+  saveRoutine: SaveRoutine;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);

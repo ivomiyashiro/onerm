@@ -76,7 +76,13 @@ describe('routine edits', () => {
 
   it('RF-RUT-03.AC2: a new exercise takes its role and sets from the mechanic, and the prescription from the goal', () => {
     const profile = { goal: 'hypertrophy', level: 'novice' } as const;
-    const routine = addExercise(oneDay, 'day-1', { id: 'curl', mechanic: 'isolation' }, profile, 'x');
+    const routine = addExercise(
+      oneDay,
+      'day-1',
+      { id: 'curl', mechanic: 'isolation' },
+      profile,
+      'x',
+    );
     expect(routine.days[0].exercises[3]).toEqual({
       id: 'x',
       routineDayId: 'day-1',

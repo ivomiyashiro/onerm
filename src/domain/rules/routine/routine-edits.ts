@@ -149,9 +149,7 @@ export function withPositions(routine: Routine, rotationDays: readonly RotationD
     rotationDays.filter((day) => day.routineId === routine.id).map((day) => [day.id, day.position]),
   );
   let next = Math.max(-1, ...saved.values()) + 1;
-  const positions = routine.days
-    .map((day) => saved.get(day.id) ?? next++)
-    .sort((a, b) => a - b);
+  const positions = routine.days.map((day) => saved.get(day.id) ?? next++).sort((a, b) => a - b);
   return {
     ...routine,
     days: routine.days.map((day, index) => ({
