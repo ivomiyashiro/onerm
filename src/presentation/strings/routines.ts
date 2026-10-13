@@ -83,6 +83,33 @@ export const routines = {
       'PLT-TP4':
         'Separamos tren superior e inferior para meter más trabajo por músculo sin alargar las sesiones. Cada músculo trabaja 2 veces por semana. Incluye ejercicios con más técnica, pensados para quien ya tiene experiencia.',
     },
+    /** The criteria of each template and their sources, under the paragraph (13 §5). */
+    criteria: {
+      'PLT-FB3': [
+        {
+          title: 'Cada músculo 2 o más veces por semana',
+          sources: 'Schoenfeld 2019 · OMS 2020',
+        },
+        { title: 'Máquinas y mancuernas: resultados parecidos a la barra', sources: 'Haugen 2023' },
+        { title: 'Sesiones de una hora o menos', sources: 'Criterio de práctica' },
+      ],
+      'PLT-FB2': [
+        {
+          title: 'Con 2 días por semana ya hay mejoras importantes',
+          sources: 'OMS 2020 · ACSM 2026',
+        },
+        { title: 'Cada músculo 2 veces por semana', sources: 'Schoenfeld 2019 · OMS 2020' },
+        { title: 'Algo menos de volumen: una concesión por el tiempo', sources: 'Pelland 2025' },
+      ],
+      'PLT-TP4': [
+        { title: 'Cada músculo 2 veces por semana', sources: 'Schoenfeld 2019 · OMS 2020' },
+        { title: 'Unas 10 series por semana por músculo', sources: 'ACSM 2026 · Pelland 2025' },
+        {
+          title: 'Más ejercicios con técnica, para quien ya tiene experiencia',
+          sources: 'Criterio de práctica',
+        },
+      ],
+    },
     /** S06 and S14, with the strength goal. */
     strengthWarning:
       'Estas rutinas usan máquinas y mancuernas. Si tu meta es levantar más en sentadilla, banca o peso muerto con barra, podés armar tu propia rutina con esos ejercicios.',

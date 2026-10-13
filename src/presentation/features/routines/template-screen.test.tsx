@@ -102,12 +102,16 @@ describe('TemplateScreen (S14)', () => {
     expect(screen.getByText(text.template.strengthWarning)).toBeOnTheScreen();
   });
 
-  it('RF-RUT-01.AC3: «¿Por qué esta rutina?» explains it in plain language', async () => {
+  it('RF-RUT-01.AC3: «¿Por qué esta rutina?» gives its criteria in plain language with their sources', async () => {
     const { user } = await renderScreen();
 
     await user.press(screen.getByRole('button', { name: text.template.why }));
 
     expect(screen.getByText(text.template.rationale['PLT-FB3'])).toBeOnTheScreen();
+    for (const { title, sources } of text.template.criteria['PLT-FB3']) {
+      expect(screen.getByText(title)).toBeOnTheScreen();
+      expect(screen.getByText(sources)).toBeOnTheScreen();
+    }
     await user.press(screen.getByRole('button', { name: common.understood }));
     expect(screen.queryByText(text.template.rationale['PLT-FB3'])).not.toBeOnTheScreen();
   });
