@@ -95,6 +95,8 @@ describe('ObserveNextDay', () => {
       sets: 5,
       // 3 × (40 + 120) + 2 × (40 + 90) = 740 s.
       minutes: 12,
+      // Prensa works the quads (the builder's default); curl is not in the catalog.
+      dayKind: 'lower',
     });
   });
 

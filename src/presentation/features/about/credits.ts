@@ -9,9 +9,14 @@ export interface Credit {
 
 /**
  * Only what the app ships today (decided 2026-10-12, #31): the catalog is curated by the team, so
- * the wger row arrives with its seed (F6, ADR-0004 R1), and the photos row with the photos.
+ * the wger row arrives with its seed (F6, ADR-0004 R1). The photos are the ones of Inicio (#32).
  */
 export const CREDITS: readonly Credit[] = [
+  {
+    title: profile.about.photos,
+    detail: profile.about.photosCredit,
+    url: 'https://unsplash.com/license',
+  },
   {
     title: profile.about.fonts,
     detail: profile.about.fontsCredit,
