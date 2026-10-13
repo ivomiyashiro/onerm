@@ -11,7 +11,7 @@ import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { HeroPhoto } from '@/presentation/features/home/hero-photo';
-import { TREND_ICONS, trendOf, type Trend } from '@/presentation/features/home/trend';
+import { TREND_ICONS, trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import { catalog } from '@/presentation/strings/catalog';
@@ -107,12 +107,9 @@ function NextDay({
   const { routine, day, sets, minutes, unit } = nextDay;
   const time = useElapsed(inProgressSince);
   const trends = day.exercises.map((e) => trendOf(e.suggestion.reason.code));
-  const summary = [
-    [home.goesUpIn, trends.filter((t) => t === 'up').length] as const,
-    [home.addsRepsIn, trends.filter((t) => t === 'reps').length] as const,
-  ]
-    .filter(([, n]) => n > 0)
-    .map(([text, n]) => text(n))
+  const { up, reps } = trendCounts(trends);
+  const summary = [up > 0 && home.goesUpIn(up), reps > 0 && home.addsRepsIn(reps)]
+    .filter(Boolean)
     .join(' · ');
   // «Día A»: the last word in lime.
   const split = day.name.lastIndexOf(' ');

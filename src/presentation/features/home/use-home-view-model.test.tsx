@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import { aRoutine } from '@/domain/testing/builders';
+import { aRoutine, aWorkout } from '@/domain/testing/builders';
 import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
@@ -16,12 +16,13 @@ import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 async function renderViewModel(
   profile: Profile | null = { ...defaultProfile(), activeRoutineId: 'routine-1' },
+  inProgress = null as ReturnType<typeof aWorkout> | null,
 ) {
   const repositories = {
     routines: new InMemoryRoutineRepository([aRoutine()]),
     templates: new InMemoryRoutineTemplateRepository(),
     profiles: new InMemoryProfileRepository(profile),
-    workouts: new InMemoryWorkoutRepository(),
+    workouts: new InMemoryWorkoutRepository(inProgress),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
     <UseCasesProvider useCases={someUseCases(routineUseCasesOver(repositories))}>
@@ -66,5 +67,17 @@ describe('useHomeViewModel', () => {
 
     await act(() => result.current.actions.retry());
     expect(result.current.state.status).toBe('content');
+  });
+
+  it('RF-ENT-01.AC4: the start of the workout in progress, or null', async () => {
+    const startedAt = new Date('2026-10-13T18:00:00Z');
+    const { result, workouts } = await renderViewModel(
+      undefined,
+      aWorkout({ status: 'in_progress', startedAt, finishedAt: null }),
+    );
+    expect(result.current.inProgressSince).toEqual(startedAt);
+
+    await act(() => workouts.fail());
+    expect(result.current.inProgressSince).toBeNull();
   });
 });

@@ -41,3 +41,11 @@ export const TREND_ICONS: Record<Trend, IconName> = {
   deload: 'clock',
   calibrate: 'flag',
 };
+
+/** How many exercises go up in load and how many add reps («Sube en 1 · suma reps en 3»). */
+export function trendCounts(trends: readonly Trend[]): { up: number; reps: number } {
+  return {
+    up: trends.filter((t) => t === 'up').length,
+    reps: trends.filter((t) => t === 'reps').length,
+  };
+}
