@@ -6,6 +6,7 @@ import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { openTestLocalDatabase } from '@/data/db/open-test-database';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import { AppProviders } from '@/di/app-providers';
+import { FakeDevicePermissions, FakeRestNotifier } from '@/domain/testing/in-memory-repositories';
 import { useExerciseSearchViewModel } from '@/presentation/features/exercises/use-exercise-search-view-model';
 import { useAppStore } from '@/presentation/state/app-store-context';
 
@@ -27,7 +28,10 @@ describe('AppProviders', () => {
     await localDatabase.prepare();
 
     await render(
-      <AppProviders storage={{ localDatabase, changes: new ManualTableChanges() }}>
+      <AppProviders
+        storage={{ localDatabase, changes: new ManualTableChanges() }}
+        device={{ notifier: new FakeRestNotifier(), permissions: new FakeDevicePermissions() }}
+      >
         <Probe />
       </AppProviders>,
     );
