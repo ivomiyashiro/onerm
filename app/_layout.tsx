@@ -1,4 +1,5 @@
 import { Stack } from 'expo-router';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders } from '@/di/app-providers';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
@@ -21,46 +22,49 @@ const SHEET_ROUTES = SCREEN_IDS.filter((id) => screenRoutes[id].sheet).map((id) 
 
 export default function RootLayout() {
   return (
-    <AppProviders>
-      {/* The screens mount once the local database is migrated (07 §6). */}
-      <StartupGate>
-        <EntryGate>
-          {(entry) => (
-            <Stack
-              screenOptions={{
-                headerShown: false,
-                contentStyle: { backgroundColor: colors.bgBase },
-              }}
-            >
-              {/* 08 §3: only the stage's screens exist, so each answer that is saved moves the
+    // Gestures (the drag of S15) need a root view over the whole app.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <AppProviders>
+        {/* The screens mount once the local database is migrated (07 §6). */}
+        <StartupGate>
+          <EntryGate>
+            {(entry) => (
+              <Stack
+                screenOptions={{
+                  headerShown: false,
+                  contentStyle: { backgroundColor: colors.bgBase },
+                }}
+              >
+                {/* 08 §3: only the stage's screens exist, so each answer that is saved moves the
                   app to the next one; the first available screen is where it opens. */}
-              <Stack.Protected guard={entry.kind === 'app'}>
-                <Stack.Screen name="(tabs)" />
-              </Stack.Protected>
-              <Stack.Protected guard={entry.kind === 'welcome'}>
-                <Stack.Screen name="welcome" />
-              </Stack.Protected>
-              <Stack.Protected
-                guard={entry.kind === 'onboarding' && entry.step !== 'recommendation'}
-              >
-                <Stack.Screen name="onboarding" />
-              </Stack.Protected>
-              {/* S06 stays while its choice ends the onboarding, so it can navigate after. */}
-              <Stack.Protected
-                guard={
-                  entry.kind === 'app' ||
-                  (entry.kind === 'onboarding' && entry.step === 'recommendation')
-                }
-              >
-                <Stack.Screen name="recommendation" />
-              </Stack.Protected>
-              {SHEET_ROUTES.map((name) => (
-                <Stack.Screen key={name} name={name} options={SHEET} />
-              ))}
-            </Stack>
-          )}
-        </EntryGate>
-      </StartupGate>
-    </AppProviders>
+                <Stack.Protected guard={entry.kind === 'app'}>
+                  <Stack.Screen name="(tabs)" />
+                </Stack.Protected>
+                <Stack.Protected guard={entry.kind === 'welcome'}>
+                  <Stack.Screen name="welcome" />
+                </Stack.Protected>
+                <Stack.Protected
+                  guard={entry.kind === 'onboarding' && entry.step !== 'recommendation'}
+                >
+                  <Stack.Screen name="onboarding" />
+                </Stack.Protected>
+                {/* S06 stays while its choice ends the onboarding, so it can navigate after. */}
+                <Stack.Protected
+                  guard={
+                    entry.kind === 'app' ||
+                    (entry.kind === 'onboarding' && entry.step === 'recommendation')
+                  }
+                >
+                  <Stack.Screen name="recommendation" />
+                </Stack.Protected>
+                {SHEET_ROUTES.map((name) => (
+                  <Stack.Screen key={name} name={name} options={SHEET} />
+                ))}
+              </Stack>
+            )}
+          </EntryGate>
+        </StartupGate>
+      </AppProviders>
+    </GestureHandlerRootView>
   );
 }

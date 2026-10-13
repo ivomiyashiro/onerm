@@ -1,4 +1,4 @@
-import { useEffect, useEffectEvent } from 'react';
+import { useEffect, useEffectEvent, useRef } from 'react';
 import { BackHandler, Modal, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -14,6 +14,7 @@ import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
+import { dropIndex, type RowLayout } from '@/presentation/features/routine-editor/drop-index';
 import { DaySheet } from '@/presentation/features/routine-editor/day-sheet';
 import { EditorExerciseRow } from '@/presentation/features/routine-editor/editor-exercise-row';
 import { PrescriptionSheet } from '@/presentation/features/routine-editor/prescription-sheet';
@@ -98,6 +99,8 @@ function Editor({
   const dayIndex = routine.days.findIndex((day) => day.id === selectedDayId);
   const day = routine.days[dayIndex];
   const exercises = day?.exercises ?? [];
+  // Measured by each row, read only when one is dropped.
+  const rowLayouts = useRef<RowLayout[]>([]);
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
 
   return (
@@ -151,6 +154,15 @@ function Editor({
                   isLast={index === exercises.length - 1}
                   onPress={() => actions.openExercise(exercise.id)}
                   onMove={(offset) => actions.moveExercise(exercise.id, offset)}
+                  onLayout={(layout) => {
+                    rowLayouts.current[index] = layout;
+                  }}
+                  onDrop={(translationY) =>
+                    actions.moveExerciseTo(
+                      exercise.id,
+                      dropIndex(rowLayouts.current.slice(0, exercises.length), index, translationY),
+                    )
+                  }
                 />
               ))}
             </View>
