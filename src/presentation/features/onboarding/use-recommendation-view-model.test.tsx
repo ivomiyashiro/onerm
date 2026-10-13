@@ -76,6 +76,20 @@ describe('useRecommendationViewModel', () => {
     expect(onDone).toHaveBeenCalledWith('home');
   });
 
+  it('a retry after a failed finish does not adopt the template twice', async () => {
+    const { result, routines, onboarding, onDone } = await renderViewModel();
+    const saveStep = jest.spyOn(onboarding, 'saveStep').mockRejectedValueOnce(new Error('disk'));
+
+    await act(() => result.current.actions.start());
+    expect(onDone).not.toHaveBeenCalled();
+
+    await act(() => result.current.actions.start());
+
+    expect(routines.routines).toHaveLength(1);
+    expect(onDone).toHaveBeenCalledWith('home');
+    saveStep.mockRestore();
+  });
+
   it('RF-PERF-02.AC3: «Ver otras rutinas» finishes and opens the templates', async () => {
     const { result, profiles, onDone } = await renderViewModel();
 

@@ -38,6 +38,8 @@ export function useRecommendationViewModel(
   const [inApp, setInApp] = useState(false);
   // A ref, not state: two taps in the same frame must not adopt twice.
   const busy = useRef(false);
+  // Adopted already: a retry after a failed finish must not copy the template again.
+  const adopted = useRef(false);
 
   useEffect(
     () =>
@@ -82,7 +84,14 @@ export function useRecommendationViewModel(
   async function start() {
     if (state.status !== 'content') return;
     const { id } = state.recommendation.template;
-    await finish('home', () => adoptTemplate.execute(id));
+    await finish('home', async () => {
+      if (adopted.current) return;
+      // A workout can't be in progress before the onboarding ends, but if one were, the
+      // routine would not change: stay on S06 instead of finishing.
+      const result = await adoptTemplate.execute(id);
+      if (result.status !== 'done') throw new Error('The template was not adopted');
+      adopted.current = true;
+    });
   }
 
   function retry() {

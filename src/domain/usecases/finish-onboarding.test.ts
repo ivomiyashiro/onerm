@@ -17,4 +17,16 @@ describe('FinishOnboarding', () => {
     expect(profiles.profile).toMatchObject({ onboardingCompletedAt: NOW, activeRoutineId: 'r1' });
     expect(onboarding.step).toBeNull();
   });
+
+  it('keeps the date of an onboarding already done (S06 opened again by a link)', async () => {
+    const before = new Date(0);
+    const profiles = new InMemoryProfileRepository({
+      ...defaultProfile(),
+      onboardingCompletedAt: before,
+    });
+
+    await new FinishOnboarding(profiles, new InMemoryOnboardingRepository(), () => NOW).execute();
+
+    expect(profiles.profile?.onboardingCompletedAt).toBe(before);
+  });
 });

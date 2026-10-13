@@ -18,7 +18,9 @@ export class FinishOnboarding {
   async execute(): Promise<void> {
     const profile =
       (await firstValue<Profile | null>((o) => this.profiles.observe(o))) ?? defaultProfile();
-    await this.profiles.save({ ...profile, onboardingCompletedAt: this.now() });
+    if (profile.onboardingCompletedAt === null) {
+      await this.profiles.save({ ...profile, onboardingCompletedAt: this.now() });
+    }
     await this.onboarding.saveStep(null);
   }
 }
