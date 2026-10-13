@@ -35,6 +35,19 @@ export const profile = {
     barWeight: 'Peso de la barra',
     lbNote: 'Si cambiás a lb usamos otros saltos (5 lb, 10 lb): no se convierten.',
   },
+  /** The current value of each row (Figma S21). */
+  values: {
+    goal: { health: 'Salud general', hypertrophy: 'Ganar músculo', strength: 'Ganar fuerza' },
+    unit: { kg: 'kg', lb: 'lb' },
+    effort: { simple: 'Escala simple', rir: 'RIR numérico' },
+    /** «{nivel}» inside D06 (13 §8). */
+    levelInText: { novice: 'novato', intermediate: 'intermedio', advanced: 'avanzado' },
+  },
+  readError: {
+    title: 'No pudimos cargar tu perfil',
+    body: 'Tus datos siguen guardados en este teléfono. Probá de nuevo.',
+    retry: 'Reintentar',
+  },
   /** Setting sheets of S21 (marca §14). */
   sheets: {
     level: 'Nivel',

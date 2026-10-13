@@ -234,7 +234,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: notas de los pasos | Subimos {n} kg · Bajamos {p} % · Mismo peso · Volvés a {piso}: piso del rango · {n} más que el tope · Rango {piso} a {tope} |
 | S09: calibración y sustitución | Primera vez (etiqueta) · Contanos cuántas más podías hacer en la serie {n}: con eso calculamos tu peso. · Serie {n} de {total} · hecha · Sustituto · En lugar de {ejercicio}. Solo para hoy. · Siguiente: serie {n} de {total} · {carga} × {reps} |
 | S11 | Sustituir ejercicio · En lugar de {ejercicio} · Buscar ejercicio · Mismo músculo · Otros ejercicios · No encontramos ejercicios · Probá con otra palabra o elegí uno del mismo músculo. · Ver el mismo músculo |
-| Errores de lectura (S07, S13, S16, S18) | No pudimos cargar {tu inicio / tus rutinas / los ejercicios / tu historial} · Tus datos siguen guardados en este teléfono. Probá de nuevo. · Reintentar |
+| Errores de lectura (S07, S13, S16, S18, S21) | No pudimos cargar {tu inicio / tus rutinas / los ejercicios / tu historial / tu perfil} · Tus datos siguen guardados en este teléfono. Probá de nuevo. · Reintentar |
 | Arranque: error al preparar los datos | No pudimos preparar tus datos · Tus entrenamientos están a salvo. Cerrá y volvé a abrir la app, o probá de nuevo. · Reintentar |
 | S17 no disponible todavía | Ejercicio no disponible todavía. Lo estamos actualizando: cuando tengas conexión aparece completo. |
 | S19 edición | Listo (sale de la edición) · Eliminar entrenamiento (en el menú) |
