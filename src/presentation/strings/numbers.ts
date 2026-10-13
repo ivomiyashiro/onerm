@@ -14,6 +14,16 @@ export function parseDecimal(text: string): number | null {
   return /^\d+(\.\d+)?$/.test(normalized) ? Number(normalized) : null;
 }
 
+/** One decimal at most, with a comma: «2,3», «2». */
+export function decimal(value: number): string {
+  return String(Number(value.toFixed(1))).replace('.', ',');
+}
+
+/** A day of the history in the device time zone: «5/10». */
+export function dayMonth(at: Date): string {
+  return `${at.getDate()}/${at.getMonth() + 1}`;
+}
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** The time since a workout started (S07, S09, tab button): «18:42», or «1:05:09» past an hour. */
