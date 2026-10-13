@@ -98,7 +98,8 @@ export class ObserveWorkout {
           const key = [
             workout.id,
             JSON.stringify(profile),
-            exercises.length,
+            // What the engine and the grid read from the catalog (a sync can change it).
+            exercises.map((e) => `${e.id}:${e.loadType}:${e.primaryEquipment}`).join(','),
             historyKey(finished),
           ].join('\n');
           if (cache?.key !== key) cache = { key, suggestions: new Map() };

@@ -13,6 +13,7 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { daysBetween } from '@/domain/rules/calendar';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
+import { lastDoneByDay } from '@/domain/rules/routine/last-done';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import { sessionMinutes } from '@/domain/rules/routine/session-duration';
@@ -106,14 +107,7 @@ export class ObserveNextDay {
             today,
             localDate: this.localDate,
           };
-          const lastDone = new Map<Id, Date>();
-          for (const workout of finished) {
-            const { routineDayId, finishedAt } = workout;
-            if (workout.routineId !== routine.id || routineDayId === null || finishedAt === null)
-              continue;
-            const known = lastDone.get(routineDayId);
-            if (known === undefined || finishedAt > known) lastDone.set(routineDayId, finishedAt);
-          }
+          const lastDone = lastDoneByDay(routine.id, finished);
           const prescriptions = day.exercises.map((exercise) => exercise.prescription);
           observer.next({
             kind: 'nextDay',
