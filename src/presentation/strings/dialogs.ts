@@ -72,6 +72,9 @@ export const dialogs = {
     title: '¿Ajustamos tu rutina?',
     body: (goal: string) =>
       `Cambiaste tu objetivo a ${goal}. Podemos actualizar repeticiones, esfuerzo y descansos. Tus ejercicios y su orden no cambian.`,
+    /** After a new level (RN-PERF-03). */
+    bodyLevel: (level: string) =>
+      `Cambiaste tu nivel a ${level}. Podemos actualizar repeticiones, esfuerzo y descansos. Tus ejercicios y su orden no cambian.`,
     adjust: 'Ajustar',
     keep: 'Dejar como está',
   },

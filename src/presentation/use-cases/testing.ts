@@ -1,4 +1,5 @@
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
+import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { DeleteRoutine } from '@/domain/usecases/delete-routine';
@@ -7,11 +8,14 @@ import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
+import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
 import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
+import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
 import type {
@@ -53,6 +57,10 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     startAsGuest: new StartAsGuest(profiles, onboarding),
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
     observeRecommendation: new ObserveRecommendation(templates, profiles),
+    observeProfile: new ObserveProfile(profiles),
+    updateProfile: new UpdateProfile(profiles, { observeById: never }),
+    adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
+    updateLoadSetting: new UpdateLoadSetting(profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
     ...overrides,
   };
