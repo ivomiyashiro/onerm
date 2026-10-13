@@ -16,6 +16,7 @@ import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import type { ObserveTemplate } from '@/domain/usecases/observe-template';
 import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import type { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import type { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
 import type { UpdateProfile } from '@/domain/usecases/update-profile';
 
 /**
@@ -40,6 +41,7 @@ export interface UseCases {
   observeProfile: ObserveProfile;
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;
+  updateLoadSetting: UpdateLoadSetting;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);

@@ -14,6 +14,7 @@ import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
@@ -59,6 +60,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, { observeById: never }),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
+    updateLoadSetting: new UpdateLoadSetting(profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
     ...overrides,
   };

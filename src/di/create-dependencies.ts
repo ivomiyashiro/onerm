@@ -28,6 +28,7 @@ import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
@@ -111,6 +112,7 @@ export function createDependencies(
       observeProfile: new ObserveProfile(profileRepository),
       updateProfile: new UpdateProfile(profileRepository, routineRepository),
       adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
+      updateLoadSetting: new UpdateLoadSetting(profileRepository),
       finishOnboarding: new FinishOnboarding(
         profileRepository,
         onboardingRepository,

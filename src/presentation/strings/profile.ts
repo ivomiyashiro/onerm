@@ -30,8 +30,14 @@ export const profile = {
     allow: 'Permitir',
   },
   increments: {
-    help: 'Incrementos: Usamos estos saltos para que las sugerencias sean pesos que existen en tu gimnasio.',
+    help: 'Usamos estos saltos para que las sugerencias sean pesos que existen en tu gimnasio.',
+    title: 'Incrementos de peso',
     inKg: 'En kg',
+    inLb: 'En lb',
+    bar: 'Barra',
+    /** «2,5 kg». */
+    value: (amount: string, unit: string) => `${amount} ${unit}`,
+    invalid: (max: number, unit: string) => `Tiene que ser mayor que 0 y hasta ${max} ${unit}.`,
     barWeight: 'Peso de la barra',
     lbNote: 'Si cambiás a lb usamos otros saltos (5 lb, 10 lb): no se convierten.',
   },
