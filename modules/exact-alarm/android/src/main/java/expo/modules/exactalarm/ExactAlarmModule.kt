@@ -1,6 +1,7 @@
 package expo.modules.exactalarm
 
 import android.app.AlarmManager
+import android.content.ActivityNotFoundException
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
@@ -33,7 +34,11 @@ class ExactAlarmModule : Module() {
         val intent = Intent(Settings.ACTION_REQUEST_SCHEDULE_EXACT_ALARM)
           .setData(Uri.parse("package:${context.packageName}"))
           .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-        context.startActivity(intent)
+        try {
+          context.startActivity(intent)
+        } catch (_: ActivityNotFoundException) {
+          // Some builds don't have that screen: the notice in S09 stays.
+        }
       }
     }
   }

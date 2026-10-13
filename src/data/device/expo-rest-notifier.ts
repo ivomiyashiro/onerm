@@ -39,12 +39,11 @@ export class ExpoRestNotifier implements RestNotifier {
   }
 
   async cancel(): Promise<void> {
-    try {
-      await Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID);
-      await Notifications.dismissNotificationAsync(REST_NOTIFICATION_ID);
-    } catch {
-      // Nothing was scheduled.
-    }
+    // Each on its own: nothing scheduled must not leave a notice already shown.
+    await Promise.allSettled([
+      Notifications.cancelScheduledNotificationAsync(REST_NOTIFICATION_ID),
+      Notifications.dismissNotificationAsync(REST_NOTIFICATION_ID),
+    ]);
   }
 }
 

@@ -36,7 +36,11 @@ describe('ExpoRestNotifier (RN-ENT-07, spike #14)', () => {
     );
   });
 
-  it('cancel removes the scheduled one and one already shown', async () => {
+  it('cancel removes the scheduled one and one already shown, even if nothing was scheduled', async () => {
+    jest
+      .mocked(Notifications.cancelScheduledNotificationAsync)
+      .mockRejectedValueOnce(new Error('none'));
+
     await new ExpoRestNotifier('Descanso').cancel();
 
     expect(Notifications.cancelScheduledNotificationAsync).toHaveBeenCalledWith('rest-timer');
