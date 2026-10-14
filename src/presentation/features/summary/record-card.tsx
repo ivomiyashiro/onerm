@@ -7,7 +7,7 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
-import { decimal, loadNumber } from '@/presentation/strings/numbers';
+import { estimateText, loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, space, typography } from '@/presentation/theme';
 
@@ -16,10 +16,6 @@ const { summary: strings } = text;
 /** «62,5 kg» in the unit of the profile (RN-PERF-05). */
 export const loadText = (kg: number, unit: LoadUnit) =>
   `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
-
-/** An estimated max: one decimal, so it doesn't look more precise than it is (Figma «S20»). */
-export const estimateText = (kg: number, unit: LoadUnit) =>
-  `${decimal(toUnit(kg, unit))} ${common.units[unit]}`;
 
 /** Figma «RecordCard»: a record beaten in a workout (RF-PROG-05.AC2), in S12 and S19. */
 export function RecordCard({ record, unit }: { record: SummaryRecord; unit: LoadUnit }) {

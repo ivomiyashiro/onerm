@@ -34,3 +34,8 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Changed
 
 - Bottom sheets float over the screen, inset from its edges and with every corner rounded.
+
+### Fixed
+
+- Typing the load of a calibration set started after the «—» shown in the field, so the set could not be logged.
+- The estimated max shows one decimal, as an estimate.

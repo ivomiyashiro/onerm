@@ -1,4 +1,5 @@
 import type { LoadUnit } from '@/domain/models/vocabulary';
+import { toUnit } from '@/domain/rules/units';
 import { common } from '@/presentation/strings/common';
 
 /** RN-PERF-05: kg with up to 2 decimals, lb with up to 1. */
@@ -28,6 +29,11 @@ export function dayMonth(at: Date): string {
 /** A day in the device time zone, in words: «lunes 28 de septiembre». */
 export function longDate(at: Date): string {
   return common.longDate(common.weekdays[at.getDay()], at.getDate(), common.months[at.getMonth()]);
+}
+
+/** An estimated max (e1RM) with one decimal: an estimate, not a load on the bar (Figma «S20»). */
+export function estimateText(kg: number, unit: LoadUnit): string {
+  return `${decimal(toUnit(kg, unit))} ${common.units[unit]}`;
 }
 
 /** A short day for charts and lists: «30 sep». */
