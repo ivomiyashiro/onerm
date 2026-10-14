@@ -32,6 +32,7 @@ const DENSE_RADIUS = 2.5;
  */
 export function ProgressChart({ points, label }: { points: readonly ChartPoint[]; label: string }) {
   const [width, setWidth] = useState(0);
+  if (points.length === 0) return null;
   const values = points.map((p) => p.value);
   const min = Math.min(...values);
   const max = Math.max(...values);

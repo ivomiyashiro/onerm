@@ -60,7 +60,9 @@ export function WeeklyVolumeView() {
             {weeksAgo === 0 ? text.thisWeek : range}
           </Text>
           <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {text.weekSubtitle(range, text.workoutsOfGoal(volume.workouts, volume.goal))}
+            {weeksAgo === 0
+              ? text.weekSubtitle(range, text.workoutsOfGoal(volume.workouts, volume.goal))
+              : text.workoutsOfGoal(volume.workouts, volume.goal)}
           </Text>
         </View>
         <Pressable
