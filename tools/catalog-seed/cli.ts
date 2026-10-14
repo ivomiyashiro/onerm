@@ -43,7 +43,7 @@ async function main(): Promise<void> {
     report.exercises.map(({ exercise }) => exercise),
     previous,
   );
-  writeFileSync(snapshotFile, `${JSON.stringify(file, null, 2)}\n`);
+  if (file !== previous) writeFileSync(snapshotFile, `${JSON.stringify(file, null, 2)}\n`);
   console.log(
     file === previous
       ? `Snapshot unchanged (version ${file.version}).`
