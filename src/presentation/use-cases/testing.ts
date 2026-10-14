@@ -10,6 +10,7 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
 import {
   AddRestTime,
   AskRestPermission,
@@ -20,6 +21,13 @@ import {
   StartRest,
 } from '@/domain/usecases/rest-timer';
 import { StartWorkout } from '@/domain/usecases/start-workout';
+import {
+  DiscardWorkout,
+  FinishWorkout,
+  ReadWorkoutResume,
+  SkipExercise,
+  SubstituteExercise,
+} from '@/domain/usecases/workout-lifecycle';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
@@ -33,6 +41,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
+import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import {
   FakeDevicePermissions,
   FakeRestNotifier,
@@ -101,6 +110,15 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, neverIds),
     ...restUseCasesOver(),
+    ...lifecycle(workouts, neverIds, epoch),
+    observeWorkoutSummary: new ObserveWorkoutSummary(
+      profiles,
+      routines,
+      workouts,
+      exercises,
+      epoch,
+      utcDate,
+    ),
     ...overrides,
   };
 }
@@ -117,6 +135,8 @@ export function routineUseCasesOver(repositories: {
   exercises?: readonly Exercise[];
   newId?: () => Id;
   now?: () => Date;
+  /** What finishing and discarding do to the rest; nothing by default. */
+  stopRest?: Pick<SkipRest, 'execute'>;
 }): Partial<UseCases> {
   const {
     routines,
@@ -126,6 +146,7 @@ export function routineUseCasesOver(repositories: {
     exercises = [],
     newId = neverIds,
     now = epoch,
+    stopRest,
   } = repositories;
   const catalog = {
     observeAll: (observer: { next(value: Exercise[]): void }) => {
@@ -151,6 +172,31 @@ export function routineUseCasesOver(repositories: {
     updateSet: new UpdateSet(workouts),
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, newId),
+    ...lifecycle(workouts, newId, now, stopRest),
+    observeWorkoutSummary: new ObserveWorkoutSummary(
+      profiles,
+      routines,
+      workouts,
+      catalog,
+      now,
+      utcDate,
+    ),
+  };
+}
+
+/** Skip, substitute, finish, discard and resume over `workouts`. */
+function lifecycle(
+  workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save' | 'delete'>,
+  newId: () => Id,
+  now: () => Date,
+  stopRest: Pick<SkipRest, 'execute'> = { execute: async () => {} },
+) {
+  return {
+    skipExercise: new SkipExercise(workouts),
+    substituteExercise: new SubstituteExercise(workouts, newId),
+    finishWorkout: new FinishWorkout(workouts, stopRest, now),
+    discardWorkout: new DiscardWorkout(workouts, stopRest),
+    readWorkoutResume: new ReadWorkoutResume(workouts, now),
   };
 }
 

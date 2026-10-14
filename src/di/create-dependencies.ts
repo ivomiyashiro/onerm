@@ -30,6 +30,7 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
 import {
   AddRestTime,
   AskRestPermission,
@@ -40,6 +41,13 @@ import {
   StartRest,
 } from '@/domain/usecases/rest-timer';
 import { StartWorkout } from '@/domain/usecases/start-workout';
+import {
+  DiscardWorkout,
+  FinishWorkout,
+  ReadWorkoutResume,
+  SkipExercise,
+  SubstituteExercise,
+} from '@/domain/usecases/workout-lifecycle';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
@@ -111,6 +119,7 @@ export function createDependencies(
   const onboardingRepository = new SqliteOnboardingRepository(db, changes);
   const restTimerRepository = new SqliteRestTimerRepository(db, changes);
   const rest = [restTimerRepository, notifier, permissions, now] as const;
+  const stopRest = new SkipRest(restTimerRepository, notifier);
 
   return {
     useCases: {
@@ -189,9 +198,22 @@ export function createDependencies(
       startRest: new StartRest(...rest),
       addRestTime: new AddRestTime(...rest),
       rescheduleRest: new RescheduleRest(...rest),
-      skipRest: new SkipRest(restTimerRepository, notifier),
+      skipRest: stopRest,
       askRestPermission: new AskRestPermission(restTimerRepository, permissions),
       readRestPermissions: new ReadRestPermissions(restTimerRepository, permissions),
+      skipExercise: new SkipExercise(workoutRepository),
+      substituteExercise: new SubstituteExercise(workoutRepository, newId),
+      finishWorkout: new FinishWorkout(workoutRepository, stopRest, now),
+      discardWorkout: new DiscardWorkout(workoutRepository, stopRest),
+      readWorkoutResume: new ReadWorkoutResume(workoutRepository, now),
+      observeWorkoutSummary: new ObserveWorkoutSummary(
+        profileRepository,
+        routineRepository,
+        workoutRepository,
+        exerciseRepository,
+        now,
+        deviceLocalDate,
+      ),
     },
     appStore: createAppStore(),
   };
