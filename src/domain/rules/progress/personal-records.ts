@@ -86,3 +86,37 @@ export function workoutRecords(
         !areLoadsEqual(now.heaviestLoad.loadKg, before.heaviestLoad.loadKg)));
   return { e1rm, heaviestLoad };
 }
+
+/**
+ * RN-PROG-03 for the history (S18): how many of (a) and (b) each workout beat, in one pass over
+ * the EE of an exercise in order, so a long history stays cheap (RNF-14). Same rule as
+ * `workoutRecords`: the first exposure is never a record. Workouts without records are left out.
+ */
+export function recordsByWorkout(exposures: readonly Exposure[]): Map<Id, number> {
+  const counts = new Map<Id, number>();
+  let bestE1rm: number | null = null;
+  let heaviest: number | null = null;
+  exposures.forEach((exposure, index) => {
+    const today = personalRecords([exposure]);
+    const e1rm = today.bestE1rm?.e1rm.value ?? null;
+    const load = today.heaviestLoad?.loadKg ?? null;
+    if (index > 0) {
+      const beaten =
+        Number(e1rm !== null && (bestE1rm === null || e1rm > bestE1rm)) +
+        Number(
+          load !== null &&
+            (heaviest === null || (load > heaviest && !areLoadsEqual(load, heaviest))),
+        );
+      if (beaten > 0)
+        counts.set(exposure.workoutId, (counts.get(exposure.workoutId) ?? 0) + beaten);
+    }
+    if (e1rm !== null && (bestE1rm === null || e1rm > bestE1rm)) bestE1rm = e1rm;
+    if (
+      load !== null &&
+      (heaviest === null || (load > heaviest && !areLoadsEqual(load, heaviest)))
+    ) {
+      heaviest = load;
+    }
+  });
+  return counts;
+}

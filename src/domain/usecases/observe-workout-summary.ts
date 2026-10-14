@@ -12,6 +12,7 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { limitingSide } from '@/domain/rules/limiting-side';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { personalRecords, workoutRecords } from '@/domain/rules/progress/personal-records';
+import { workoutMinutes } from '@/domain/rules/progress/workout-stats';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import type { E1rm } from '@/domain/rules/suggestion/e1rm';
@@ -58,6 +59,32 @@ export interface WorkoutSummary {
   /** «Próximo: {día}» of its routine (RN-RUT-01); null if the routine is gone. */
   readonly nextDayName: string | null;
   readonly unit: LoadUnit;
+}
+
+/**
+ * RN-PROG-03 (a) and (b) beaten by `workout`, by exercise in its order (S12, S19). Only with an
+ * earlier EE of that exercise.
+ */
+export function recordsOf(
+  workout: Workout,
+  finished: readonly Workout[],
+  nameOf: (exerciseId: Id) => string | null,
+): SummaryRecord[] {
+  const records: SummaryRecord[] = [];
+  for (const exerciseId of new Set(sortByPosition(workout.exercises).map((e) => e.exerciseId))) {
+    const exposures = exerciseExposures(exerciseId, finished);
+    const beaten = workoutRecords(exposures, workout.id);
+    const today = personalRecords(exposures.filter((e) => e.workoutId === workout.id));
+    const name = nameOf(exerciseId);
+    if (beaten.heaviestLoad && today.heaviestLoad) {
+      const { loadKg, reps } = today.heaviestLoad;
+      records.push({ kind: 'heaviestLoad', name, loadKg, reps });
+    }
+    if (beaten.e1rm && today.bestE1rm) {
+      records.push({ kind: 'e1rm', name, e1rm: today.bestE1rm.e1rm });
+    }
+  }
+  return records;
 }
 
 function bestSet(exercise: WorkoutExercise) {
@@ -112,20 +139,7 @@ export class ObserveWorkoutSummary {
           };
           const ordered = sortByPosition(workout.exercises);
 
-          const records: SummaryRecord[] = [];
-          for (const exerciseId of new Set(ordered.map((e) => e.exerciseId))) {
-            const exposures = exerciseExposures(exerciseId, finished);
-            const beaten = workoutRecords(exposures, workout.id);
-            const today = personalRecords(exposures.filter((e) => e.workoutId === workout.id));
-            const name = nameOf(exerciseId);
-            if (beaten.heaviestLoad && today.heaviestLoad) {
-              const { loadKg, reps } = today.heaviestLoad;
-              records.push({ kind: 'heaviestLoad', name, loadKg, reps });
-            }
-            if (beaten.e1rm && today.bestE1rm) {
-              records.push({ kind: 'e1rm', name, e1rm: today.bestE1rm.e1rm });
-            }
-          }
+          const records = recordsOf(workout, finished, nameOf);
 
           const lines = ordered.map((exercise): SummaryLine => {
             const name = nameOf(exercise.exerciseId);
@@ -147,10 +161,7 @@ export class ObserveWorkoutSummary {
                   finished,
                 );
           // A set corrected to before the start never gives a negative duration.
-          const minutes = Math.max(
-            0,
-            Math.round((workout.finishedAt.getTime() - workout.startedAt.getTime()) / 60_000),
-          );
+          const minutes = workoutMinutes(workout);
 
           observer.next({
             dayName: workout.dayNameSnapshot,

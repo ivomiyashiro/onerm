@@ -1,4 +1,8 @@
-import { personalRecords, workoutRecords } from '@/domain/rules/progress/personal-records';
+import {
+  personalRecords,
+  recordsByWorkout,
+  workoutRecords,
+} from '@/domain/rules/progress/personal-records';
 import { anExposure } from '@/domain/testing/builders';
 
 const day = (n: number) => new Date(Date.UTC(2026, 8, n, 12));
@@ -101,5 +105,26 @@ describe('RN-PROG-03 · records highlighted in the workout summary', () => {
     const history = [on(1, [[60, 6, 2]]), on(4, [[55, 12, 2]])];
 
     expect(workoutRecords(history, 'w4')).toEqual({ e1rm: true, heaviestLoad: false });
+  });
+});
+
+describe('recordsByWorkout (S18)', () => {
+  it('RN-PROG-03: the (a) and (b) records each workout beat, as workoutRecords says', () => {
+    const history = [
+      on(1, [[60, 10, 2]]),
+      on(4, [[62.5, 10, 2]]),
+      on(8, [[62.5, 6, 2]]),
+      on(9, [[60, 12, 2]]),
+    ];
+
+    const counts = recordsByWorkout(history);
+
+    for (const { workoutId } of history) {
+      const { e1rm, heaviestLoad } = workoutRecords(history, workoutId);
+      expect(counts.get(workoutId) ?? 0).toBe(Number(e1rm) + Number(heaviestLoad));
+    }
+    // The first time is never a record; w4 beat both.
+    expect(counts.get('w1')).toBeUndefined();
+    expect(counts.get('w4')).toBe(2);
   });
 });
