@@ -30,7 +30,9 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveExerciseProgress } from '@/domain/usecases/observe-exercise-progress';
 import { ObserveHistory } from '@/domain/usecases/observe-history';
+import { ObserveWeeklyVolume } from '@/domain/usecases/observe-weekly-volume';
 import { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
 import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
 import {
@@ -232,6 +234,20 @@ export function createDependencies(
       addPastSet: new AddPastSet(workoutRepository, newId),
       deletePastSet: new DeletePastSet(workoutRepository),
       deleteWorkout: new DeleteWorkout(workoutRepository),
+      observeExerciseProgress: new ObserveExerciseProgress(
+        profileRepository,
+        workoutRepository,
+        exerciseRepository,
+        now,
+        deviceLocalDate,
+      ),
+      observeWeeklyVolume: new ObserveWeeklyVolume(
+        profileRepository,
+        workoutRepository,
+        exerciseRepository,
+        now,
+        deviceLocalDate,
+      ),
     },
     appStore: createAppStore(),
   };
