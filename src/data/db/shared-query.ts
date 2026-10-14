@@ -71,10 +71,12 @@ export function sharedQuery<T>(
         });
       });
     }
-    observers.add(observer);
-    observer.next(current.value);
+    // One entry per subscription, so the same observer subscribed twice is two observations.
+    const entry: Observer<T> = { next: (v) => observer.next(v), error: (e) => observer.error(e) };
+    observers.add(entry);
+    entry.next(current.value);
     return () => {
-      if (!observers.delete(observer)) return;
+      if (!observers.delete(entry)) return;
       if (observers.size === 0) reset();
     };
   };

@@ -141,7 +141,8 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
 
   /**
    * Changes whenever a row of a finished workout does: every write moves its `updated_at`
-   * (RN-SYNC-02), and a new or deleted row changes a count. Deleted rows count too, so a delete
+   * (RN-SYNC-02), and a new or deleted row changes a count. The sum and the latest stamp together
+   * make a change that leaves both as they were practically impossible (accepted). Deleted rows count too, so a delete
    * shows. Three aggregate queries over indexed columns: cheap next to reading the history.
    */
   private finishedFingerprint(): string {
@@ -150,6 +151,7 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
     const stamp = (column: SQLiteColumn) => ({
       rows: count(),
       stamps: sql<number>`coalesce(sum(${column}), 0)`,
+      latest: sql<number>`coalesce(max(${column}), 0)`,
     });
     const own = db.select(stamp(workouts.updatedAt)).from(workouts).where(finished).get();
     const exercises = db
@@ -165,7 +167,9 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
       .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
       .where(finished)
       .get();
-    return [own, exercises, sets].map((row) => `${row?.rows}:${row?.stamps}`).join('|');
+    return [own, exercises, sets]
+      .map((row) => `${row?.rows}:${row?.stamps}:${row?.latest}`)
+      .join('|');
   }
 
   /** The live aggregates that match `where`, in `order`. */
