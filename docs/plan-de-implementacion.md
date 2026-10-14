@@ -47,11 +47,12 @@
 | Base local | `expo-sqlite` + Drizzle ORM + `drizzle-kit` | ADR-0010 |
 | Remoto | `@supabase/supabase-js`, Supabase CLI local para desarrollo y tests | ADR-0001 |
 | Estado | ViewModels como hooks + Zustand + DI por Context | ADR-0011 |
-| Dispositivo | `expo-notifications`, `expo-keep-awake`, `expo-haptics`, `expo-secure-store`, `expo-crypto`, `@react-native-community/netinfo` | ADR-0007 |
+| Dispositivo | `expo-notifications`, `expo-keep-awake`, `expo-secure-store`, `expo-crypto`, `@react-native-community/netinfo`. La vibración usa `Vibration` de React Native, sin `expo-haptics` | ADR-0007 |
 | Tests | Jest (`jest-expo`) + `@testing-library/react-native`. E2E con Maestro, opcional | RNF-12, RNF-15 |
 | Calidad | ESLint + Prettier + `eslint-plugin-boundaries` | RNF-11 |
 | CI | GitHub Actions: typecheck, lint y tests en cada PR | — |
-| Se decide después | Librería de gráficos (F5d), Google Sign-In nativo (spike en F1, implementación en F7 porque es Should) | — |
+| Gráficos | Sin librería: el gráfico de S20 y las barras de volumen se dibujan con `react-native-svg`, que la app ya usa para los íconos (#39) | — |
+| Se decide después | Google Sign-In nativo (spike en F1, implementación en F7 porque es Should) | — |
 
 ## 5. Riesgos del plan
 
@@ -69,3 +70,4 @@
 | 2026-10-02 | Versión inicial: fases F0–F9, stack y criterios de salida. |
 | 2026-10-02 | Revisión con dos jueces: dependencias en todas las cards, la unión del invitado pasa a F8 (necesita sync), el e1RM pasa a la primera card del motor, cards nuevas #52 (modo avión) y #53 (estados de UI), y `tools/board.sh`. |
 | 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#16 y #18–#53), sin sprints ni estimaciones. |
+| 2026-10-14 | Revisión de F5: el stack refleja lo construido (gráficos con `react-native-svg`, sin librería, y vibración con `Vibration`, sin `expo-haptics`). |
