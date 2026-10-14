@@ -21,6 +21,9 @@ const HEIGHT = 140;
 const LEFT = 36;
 const PAD = 8;
 const RADIUS = 5;
+/** With many points (a long «Todo») they would overlap: smaller dots. */
+const DENSE_POINTS = 40;
+const DENSE_RADIUS = 2.5;
 
 /**
  * Figma «S20 · Progreso de ejercicio»: a line through the points (RN-PROG-02: only with 2 or more),
@@ -36,7 +39,7 @@ export function ProgressChart({ points, label }: { points: readonly ChartPoint[]
   const spread = max - min || Math.max(1, max * 0.1);
   const low = Math.floor(max === min ? min - spread / 2 : min);
   const high = Math.ceil(max === min ? max + spread / 2 : max);
-  const ticks = [high, (high + low) / 2, low];
+  const ticks = [high, Math.round((high + low) / 2), low];
 
   const plotWidth = Math.max(0, width - LEFT - PAD * 2);
   const x = (index: number) =>
@@ -52,9 +55,9 @@ export function ProgressChart({ points, label }: { points: readonly ChartPoint[]
     >
       {width > 0 && (
         <Svg width={width} height={HEIGHT}>
-          {ticks.map((tick) => (
+          {ticks.map((tick, i) => (
             <Line
-              key={tick}
+              key={i}
               x1={LEFT}
               x2={width}
               y1={y(tick)}
@@ -77,7 +80,7 @@ export function ProgressChart({ points, label }: { points: readonly ChartPoint[]
               key={i}
               cx={x(i)}
               cy={y(p.value)}
-              r={RADIUS}
+              r={points.length > DENSE_POINTS ? DENSE_RADIUS : RADIUS}
               strokeWidth={2}
               stroke={p.record ? colors.bgAccent : colors.textPrimary}
               fill={p.record ? colors.bgAccent : p.hollow ? colors.bgCard : colors.textPrimary}
@@ -86,9 +89,9 @@ export function ProgressChart({ points, label }: { points: readonly ChartPoint[]
         </Svg>
       )}
       {width > 0 &&
-        ticks.map((tick) => (
+        ticks.map((tick, i) => (
           <Text
-            key={tick}
+            key={i}
             style={[typography.monoS, styles.tick, { top: y(tick) - 8 }]}
             importantForAccessibility="no"
           >
