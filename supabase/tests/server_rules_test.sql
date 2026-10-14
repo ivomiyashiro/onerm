@@ -21,8 +21,8 @@ values ('PLT-1', 'Full body', 'novice', 3, 60, 'x');
 
 -- Anonymous: reads the catalog and app_config, writes nothing, sees no user data
 set local role anon;
-select is((select count(*) from public.exercises), 1::bigint, 'anonymous reads the catalog');
-select is((select count(*) from public.routine_templates), 1::bigint, 'anonymous reads the templates');
+select is((select count(*) from public.exercises where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'anonymous reads the catalog');
+select is((select count(*) from public.routine_templates where id = 'PLT-1'), 1::bigint, 'anonymous reads the templates');
 select is((select min_app_version from public.app_config), '0.0.0', 'anonymous reads the minimum app version');
 select throws_ok($$update public.app_config set min_app_version = '99.0.0'$$, '42501', null,
                  'anonymous cannot write app_config');
@@ -33,7 +33,7 @@ reset role;
 select pg_temp.login('00000000-0000-0000-0000-00000000000a');
 
 -- Authenticated: the same read, no write
-select is((select count(*) from public.exercises), 1::bigint, 'a user reads the catalog');
+select is((select count(*) from public.exercises where id = '30000000-0000-0000-0000-000000000001'), 1::bigint, 'a user reads the catalog');
 select throws_ok(
   $$insert into public.exercises (id, slug, name, load_type, primary_muscles, primary_equipment, equipment, mechanic, is_unilateral)
     values ('30000000-0000-0000-0000-000000000002', 'x', 'X', 'external', '[]', 'machine', '[]', 'compound', false)$$,

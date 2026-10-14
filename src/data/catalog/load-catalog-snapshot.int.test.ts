@@ -48,7 +48,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
     expect(counts()).toEqual(EXPECTED);
     expect(t.db.select().from(appState).get()).toMatchObject({
       owner: 'guest',
-      catalogVersion: '1',
+      catalogVersion: CATALOG_SNAPSHOT.version,
     });
   });
 
@@ -87,7 +87,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
     expect(t.db.select().from(appState).get()).toMatchObject({
       owner: 'u1',
       onboardingStep: 2,
-      catalogVersion: '1',
+      catalogVersion: CATALOG_SNAPSHOT.version,
     });
   });
 
@@ -128,7 +128,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
     };
     const newer: CatalogSnapshot = {
       ...CATALOG_SNAPSHOT,
-      version: '2',
+      version: String(Number(CATALOG_SNAPSHOT.version) + 1),
       // An existing exercise renamed in the bundle, and a new one.
       exercises: [
         { ...first, name: 'Prensa renombrada' },
@@ -151,7 +151,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
       expect(names).toContain('Nuevo');
       expect(names).toContain(first.name);
       expect(names).not.toContain('Prensa renombrada');
-      expect(t.db.select().from(appState).get()?.catalogVersion).toBe('2');
+      expect(t.db.select().from(appState).get()?.catalogVersion).toBe(newer.version);
     });
 
     it('an older or equal bundled snapshot does nothing', () => {
@@ -159,7 +159,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
 
       loadCatalogSnapshot(t.db, CATALOG_SNAPSHOT);
 
-      expect(t.db.select().from(appState).get()?.catalogVersion).toBe('2');
+      expect(t.db.select().from(appState).get()?.catalogVersion).toBe(newer.version);
       expect(counts()).toEqual({ ...EXPECTED, exercises: 23 });
     });
   });

@@ -61,6 +61,7 @@
     "format:check": "prettier --check .",
     "test": "jest",
     "test:int": "jest -c jest.int.config.js",
+    "seed:catalog": "bun tools/catalog-seed/cli.ts",
     "test:supabase": "supabase test db && jest -c jest.supabase.config.js",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
