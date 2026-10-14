@@ -160,4 +160,13 @@ describe('rest permissions (RF-ENT-06.AC9, AC10)', () => {
     // D05 answered «Ahora no»: the system could still ask, but the notice says it's off.
     expect(await read(new FakeDevicePermissions('undetermined'), true)).toBe('notifications');
   });
+
+  it('S21 (#146): a permission never asked is not given either', async () => {
+    const read = new ReadRestPermissions(
+      new InMemoryRestTimerRepository(),
+      new FakeDevicePermissions('undetermined'),
+    );
+
+    expect(await read.execute({ neverAsked: 'missing' })).toBe('notifications');
+  });
 });
