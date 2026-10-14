@@ -36,15 +36,17 @@ export function useRestPermissionsSetting(): RestPermissionsSettingViewModel {
     () => readRestPermissions.execute({ neverAsked: 'missing' }),
     [readRestPermissions],
   );
-  const show = (missing: 'notifications' | 'exactAlarms' | null) =>
-    setState({ status: 'ready', missing });
+  const show = useCallback(
+    (missing: 'notifications' | 'exactAlarms' | null) => setState({ status: 'ready', missing }),
+    [],
+  );
 
   // On mount, and back from the phone's settings.
   useEffect(() => {
     let active = true;
     const refresh = () =>
       void read().then((missing) => {
-        if (active) setState({ status: 'ready', missing });
+        if (active) show(missing);
       });
     refresh();
     const subscription = AppState.addEventListener('change', (status) => {
@@ -54,7 +56,7 @@ export function useRestPermissionsSetting(): RestPermissionsSettingViewModel {
       active = false;
       subscription.remove();
     };
-  }, [read]);
+  }, [read, show]);
 
   return {
     state,

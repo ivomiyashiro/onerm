@@ -60,4 +60,14 @@ describe('useRestPermissionsSetting (S21, #146)', () => {
     expect(result.current.exactAlarmsDialog).toBe(false);
     expect(permissions.opened).toEqual(['exactAlarms']);
   });
+
+  it('refusing the system prompt sends the switch on to the phone settings', async () => {
+    const permissions = new FakeDevicePermissions('undetermined', true, false);
+    const { result } = await renderSetting(permissions);
+
+    await act(() => result.current.actions.toggle());
+
+    expect(result.current.state).toEqual({ status: 'ready', missing: 'notifications' });
+    expect(permissions.opened).toEqual(['notifications']);
+  });
 });
