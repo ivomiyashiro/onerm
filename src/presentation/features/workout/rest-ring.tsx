@@ -24,7 +24,8 @@ export function RestRing({
 }: RestRingProps) {
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const left = Math.min(1, Math.max(0, progress));
+  // A rest of 0 s gives 0/0: an empty ring.
+  const left = Number.isFinite(progress) ? Math.min(1, Math.max(0, progress)) : 0;
   const center = size / 2;
 
   return (

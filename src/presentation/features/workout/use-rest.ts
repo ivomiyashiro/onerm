@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { AppState } from 'react-native';
 
 import type { RestTimer } from '@/domain/models/rest-timer';
@@ -75,25 +75,29 @@ export function useRest(
         });
   const message = rest?.message ?? null;
 
-  // The notice names the next set; it changes once the logged set reaches the screen.
+  // A set is logged before the screen sees it: the rest starts with the text of the previous
+  // render (or a provisional one), and is scheduled again here once the text names the next set.
   const body = message?.body ?? null;
+  const latestBody = useRef(body);
   useEffect(() => {
+    latestBody.current = body;
     if (body !== null) void rescheduleRest.execute({ title: text.restNotification.title, body });
   }, [body, rescheduleRest]);
 
-  // Back from the settings: the notice of S09 and a notice that now can be scheduled.
+  // Back from the settings: the notice of S09, and a notice that now can be scheduled.
   useEffect(() => {
     const refresh = () => void readRestPermissions.execute().then(setNotice);
     refresh();
     const subscription = AppState.addEventListener('change', (status) => {
       if (status !== 'active') return;
       refresh();
-      if (body !== null) {
-        void rescheduleRest.execute({ title: text.restNotification.title, body });
+      const current = latestBody.current;
+      if (current !== null) {
+        void rescheduleRest.execute({ title: text.restNotification.title, body: current });
       }
     });
     return () => subscription.remove();
-  }, [readRestPermissions, rescheduleRest, body]);
+  }, [readRestPermissions, rescheduleRest]);
 
   const seconds = () => (rest ? rest.totalSeconds : 0);
 
