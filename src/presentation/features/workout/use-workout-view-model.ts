@@ -1,7 +1,6 @@
 import { useEffect, useState } from 'react';
 
 import type { Exercise } from '@/domain/models/exercise';
-
 import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/position-order';
