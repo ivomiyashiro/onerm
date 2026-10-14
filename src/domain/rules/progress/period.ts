@@ -13,6 +13,7 @@ export function periodStart(period: ProgressPeriod, today: LocalDate): LocalDate
   if (period === 'all') return null;
   if (period === 'fourWeeks') return addDays(today, -28);
   const [year, month, day] = today.split('-').map(Number);
+  // Dates built from `today`'s fields, never from the clock (ADR-0009).
   const target = new Date(Date.UTC(year, month - 1 - 3, 1));
   const lastDay = new Date(
     Date.UTC(target.getUTCFullYear(), target.getUTCMonth() + 1, 0),
