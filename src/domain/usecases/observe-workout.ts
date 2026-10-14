@@ -28,6 +28,8 @@ export interface WorkoutExerciseView {
   readonly name: string | null;
   /** From the catalog, for the load convention (RN-ENT-05). */
   readonly catalog: Exercise | null;
+  /** A substitute: the name of the planned exercise it replaces (RN-ENT-10); null otherwise. */
+  readonly plannedName: string | null;
   /** The note of the routine exercise (RF-RUT-06.AC2). */
   readonly notes: string | null;
   /** For the next set: in calibration it follows the sets logged (RN-SUG-06, RN-SUG-13). */
@@ -157,6 +159,10 @@ export class ObserveWorkout {
                 exercise,
                 name: entry?.name ?? null,
                 catalog: entry,
+                plannedName:
+                  isSubstitution(exercise) && exercise.plannedExerciseId !== null
+                    ? (catalog.get(exercise.plannedExerciseId)?.name ?? null)
+                    : null,
                 notes:
                   exercise.routineExerciseId === null
                     ? null

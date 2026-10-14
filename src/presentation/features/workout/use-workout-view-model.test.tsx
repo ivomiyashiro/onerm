@@ -34,6 +34,8 @@ import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-ca
 
 const SQUAT = anExercise();
 const PRESS = anExercise({ id: 'press', name: 'Press de banca' });
+const LEG_PRESS = anExercise({ id: 'leg-press', name: 'Prensa de piernas' });
+const CURL = anExercise({ id: 'curl', name: 'Curl', primaryMuscles: ['biceps'] });
 const twoSets = aPrescription({ sets: 2 });
 const RUNNING = aWorkout({
   status: 'in_progress',
@@ -97,7 +99,7 @@ async function renderViewModel({
               templates: new InMemoryRoutineTemplateRepository(),
               profiles: new InMemoryProfileRepository(defaultProfile()),
               workouts,
-              exercises: [SQUAT, PRESS],
+              exercises: [SQUAT, PRESS, LEG_PRESS, CURL],
               newId: () => `set-${++n}`,
               now: () => NOW,
             }),
@@ -304,6 +306,118 @@ describe('useWorkoutViewModel', () => {
 
     expect(content().primary).toBe('done');
     expect(content().rows[1]).toMatchObject({ kind: 'current', values: { loadKg: 30 } });
+  });
+
+  describe('lifecycle (RF-ENT-08, RF-ENT-09, RF-ENT-11, RF-ENT-12)', () => {
+    it('RF-ENT-08.AC1: «Saltear ejercicio» marks it skipped and goes to the next one', async () => {
+      const { result, workouts, content } = await renderViewModel();
+
+      await act(() => result.current.actions.skipExercise());
+
+      expect(workouts.inProgress!.exercises[0].status).toBe('skipped');
+      expect(content()).toMatchObject({ exerciseIndex: 1, skipped: false });
+    });
+
+    it('RF-ENT-08.AC3: back on a skipped exercise its sets are logged as usual', async () => {
+      const { result, workouts, content } = await renderViewModel();
+      await act(() => result.current.actions.skipExercise());
+
+      await act(() => result.current.actions.goTo(0));
+      expect(content()).toMatchObject({ skipped: true, primary: 'done' });
+      await act(() => result.current.actions.done());
+
+      expect(workouts.inProgress!.exercises[0].status).toBe('done');
+    });
+
+    it('RF-ENT-09.AC1: S11 lists the same muscle first and searches any other', async () => {
+      const { result } = await renderViewModel();
+
+      await act(() => result.current.actions.openSubstitute());
+      expect(result.current.sheet).toMatchObject({
+        kind: 'substitute',
+        query: '',
+        options: { sameMuscle: [LEG_PRESS, PRESS], others: [CURL] },
+      });
+      await act(() => result.current.actions.searchSubstitute('curl'));
+
+      expect(result.current.sheet).toMatchObject({
+        options: { sameMuscle: [], others: [CURL] },
+      });
+    });
+
+    it('RF-ENT-09.AC3: the substitute takes the place, named as instead of the original', async () => {
+      const { result, content } = await renderViewModel();
+      await act(() => result.current.actions.openSubstitute());
+
+      await act(() => result.current.actions.substitute(LEG_PRESS));
+
+      expect(result.current.sheet).toBeNull();
+      expect(content()).toMatchObject({ exerciseIndex: 0 });
+      expect(content().exercise).toMatchObject({
+        name: 'Prensa de piernas',
+        plannedName: 'Sentadilla con barra',
+      });
+    });
+
+    it('RF-ENT-09.AC4: after a set, the substitute comes next and is shown', async () => {
+      const { result, workouts, content } = await renderViewModel();
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.openSubstitute());
+
+      await act(() => result.current.actions.substitute(LEG_PRESS));
+
+      expect(workouts.inProgress!.exercises.map((e) => e.exerciseId)).toEqual([
+        'barbell-back-squat',
+        'leg-press',
+        'press',
+      ]);
+      expect(content()).toMatchObject({ exerciseIndex: 1 });
+    });
+
+    it('RF-ENT-11.AC2: with exercises without sets, D10 asks first', async () => {
+      const { result, workouts } = await renderViewModel();
+
+      expect(await act(() => result.current.actions.finish())).toBeNull();
+      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 2 });
+      const id = await act(() => result.current.actions.confirmFinish());
+
+      expect(id).toBe(RUNNING.id);
+      expect(workouts.finished.at(-1)!.exercises.map((e) => e.status)).toEqual([
+        'skipped',
+        'skipped',
+      ]);
+    });
+
+    it('RF-ENT-11.AC1: with every set done, «Finalizar entrenamiento» finishes at once', async () => {
+      const { result, workouts, content } = await renderViewModel();
+      for (let i = 0; i < 4; i++) await act(() => result.current.actions.done());
+
+      expect(content().primary).toBe('finish');
+      expect(await act(() => result.current.actions.finish())).toBe(RUNNING.id);
+      expect(workouts.inProgress).toBeNull();
+    });
+
+    it('RF-ENT-12.AC1: «Descartar» confirms with D09, then the workout is gone', async () => {
+      const { result, workouts } = await renderViewModel();
+      await act(() => result.current.actions.done());
+
+      await act(() => result.current.actions.discard());
+      expect(result.current.confirm).toEqual({ kind: 'discard', sets: 1 });
+      await act(() => result.current.actions.confirmDiscard());
+
+      expect(workouts.inProgress).toBeNull();
+      expect(result.current.state).toEqual({ status: 'none' });
+    });
+
+    it('«Cancelar» closes the confirmation without changes', async () => {
+      const { result, workouts } = await renderViewModel();
+      await act(() => result.current.actions.discard());
+
+      await act(() => result.current.actions.closeConfirm());
+
+      expect(result.current.confirm).toBeNull();
+      expect(workouts.inProgress).not.toBeNull();
+    });
   });
 
   describe('rest (RF-ENT-06)', () => {

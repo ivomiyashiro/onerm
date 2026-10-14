@@ -1,10 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import type { Exercise } from '@/domain/models/exercise';
 import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
+import {
+  substituteOptions,
+  type SubstituteOptions,
+} from '@/domain/rules/workout/substitute-options';
 import type { WorkoutExerciseView, WorkoutOverview } from '@/domain/usecases/observe-workout';
 import type { IconName } from '@/presentation/components/icons/icon';
 import {
@@ -48,14 +53,16 @@ export interface WorkoutContent {
   exerciseIndex: number;
   exercises: readonly WorkoutExerciseView[];
   exercise: WorkoutExerciseView;
+  /** RF-ENT-08: the current exercise was skipped; its sets can still be logged (AC3). */
+  skipped: boolean;
   rows: SetRowView[];
   /** RF-SUG-07.AC1: the reason of the suggestion, under the exercise. */
   reason: { line: string; icon: IconName };
   /**
-   * What the main button does: log the current set, go to the next exercise, or wait for the
-   * effort of a calibration set (RF-SUG-02.AC4).
+   * What the main button does: log the current set, go to the next exercise, wait for the effort
+   * of a calibration set (RF-SUG-02.AC4) or, with nothing left, finish (RF-ENT-11).
    */
-  primary: 'done' | 'nextExercise' | 'awaitEffort' | null;
+  primary: 'done' | 'nextExercise' | 'awaitEffort' | 'finish';
   /** The calibration set whose effort is asked below, with its number. */
   awaitingEffort: { set: WorkoutSet; number: number } | null;
 }
@@ -73,7 +80,14 @@ export type WorkoutSheet =
   | { kind: 'exercises' }
   /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
   | { kind: 'why'; detail: WhyDetail }
-  | { kind: 'exerciseMenu' };
+  | { kind: 'exerciseMenu' }
+  | { kind: 'workoutMenu' }
+  /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
+  | { kind: 'substitute'; query: string; options: SubstituteOptions };
+
+/** D10 before finishing with exercises without sets (RF-ENT-11.AC2), D09 before discarding. */
+export type WorkoutConfirm =
+  { kind: 'finish'; pending: number } | { kind: 'discard'; sets: number };
 
 export interface WorkoutViewModel extends Pick<
   Rest,
@@ -83,6 +97,7 @@ export interface WorkoutViewModel extends Pick<
   sheet: WorkoutSheet | null;
   /** «Serie eliminada · Deshacer» (RF-ENT-04.AC2). */
   deleted: WorkoutSet | null;
+  confirm: WorkoutConfirm | null;
   actions: {
     /** «Hecho»: logs the current set; 'adjust' when it needs a value first (calibration). */
     done(): Promise<'logged' | 'adjust' | 'none'>;
@@ -103,6 +118,19 @@ export interface WorkoutViewModel extends Pick<
     openExerciseMenu(): void;
     addSet(): void;
     closeSheet(): void;
+    openWorkoutMenu(): void;
+    /** RF-ENT-08: «Saltear ejercicio». */
+    skipExercise(): Promise<void>;
+    openSubstitute(): void;
+    searchSubstitute(query: string): void;
+    substitute(exercise: Exercise): Promise<void>;
+    /** RF-ENT-11: the finished workout's id, or null when D10 asks first. */
+    finish(): Promise<Id | null>;
+    confirmFinish(): Promise<Id | null>;
+    /** RF-ENT-12: D09 first. */
+    discard(): void;
+    confirmDiscard(): Promise<void>;
+    closeConfirm(): void;
   } & Rest['actions'];
 }
 
@@ -148,18 +176,38 @@ function hasEffort(set: WorkoutSet): boolean {
  * local database and the screen follows it (RN-SYNC-01): nothing waits for the network.
  */
 export function useWorkoutViewModel(): WorkoutViewModel {
-  const { observeWorkout, logSet, updateSet, deleteSet, restoreSet } = useUseCases();
+  const {
+    observeWorkout,
+    observeExercises,
+    logSet,
+    updateSet,
+    deleteSet,
+    restoreSet,
+    skipExercise,
+    substituteExercise,
+    finishWorkout,
+    discardWorkout,
+  } = useUseCases();
   const [overview, setOverview] = useState<WorkoutOverview | null | 'loading' | 'error'>('loading');
   const [chosenIndex, setChosenIndex] = useState<number | null>(null);
   const [extras, setExtras] = useState<Record<Id, number>>({});
   const [effortSetId, setEffortSetId] = useState<Id | null>(null);
   const [sheet, setSheet] = useState<WorkoutSheet | null>(null);
   const [deleted, setDeleted] = useState<WorkoutSet | null>(null);
+  const [confirm, setConfirm] = useState<WorkoutConfirm | null>(null);
+  const [catalog, setCatalog] = useState<Exercise[]>([]);
 
   useEffect(
     () => observeWorkout.execute({ next: setOverview, error: () => setOverview('error') }),
     [observeWorkout],
   );
+
+  // S11 reads the catalog only while it is open.
+  const substituting = sheet?.kind === 'substitute';
+  useEffect(() => {
+    if (!substituting) return;
+    return observeExercises.execute({ next: setCatalog, error: () => setCatalog([]) });
+  }, [substituting, observeExercises]);
 
   const state = contentOf(overview, chosenIndex, extras, effortSetId);
   const content = state.status === 'content' ? state : null;
@@ -192,10 +240,25 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     return 'logged';
   }
 
+  const shownSheet: WorkoutSheet | null =
+    sheet?.kind === 'substitute' && content
+      ? {
+          ...sheet,
+          options: substituteOptions(catalog, content.exercise.exercise.exerciseId, sheet.query),
+        }
+      : sheet;
+
+  async function finishNow(): Promise<Id | null> {
+    setConfirm(null);
+    setSheet(null);
+    return finishWorkout.execute();
+  }
+
   return {
     state,
-    sheet,
+    sheet: shownSheet,
     deleted,
+    confirm,
     rest: rest.rest,
     restMinimized: rest.restMinimized,
     dialog: rest.dialog,
@@ -291,6 +354,52 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setSheet(null);
       },
       closeSheet: () => setSheet(null),
+      openWorkoutMenu: () => setSheet({ kind: 'workoutMenu' }),
+      async skipExercise() {
+        if (!content) return;
+        setSheet(null);
+        await skipExercise.execute(content.exercise.exercise.id);
+        const next = firstIncomplete(
+          content.exercises.map((e) => e.exercise),
+          content.exerciseIndex,
+          (e) => extraOf(e.id),
+        );
+        if (next !== null) setChosenIndex(next);
+      },
+      openSubstitute: () =>
+        setSheet({ kind: 'substitute', query: '', options: { sameMuscle: [], others: [] } }),
+      searchSubstitute: (query) =>
+        setSheet((open) => (open?.kind === 'substitute' ? { ...open, query } : open)),
+      async substitute(exercise) {
+        if (!content) return;
+        setSheet(null);
+        const original = content.exercise.exercise;
+        if ((await substituteExercise.execute(original.id, exercise)) === null) return;
+        // RN-ENT-10: right after an original with sets, in its place otherwise.
+        setChosenIndex(content.exerciseIndex + (original.sets.length > 0 ? 1 : 0));
+      },
+      async finish() {
+        if (!content) return null;
+        const pending = content.exercises.filter((e) => e.exercise.status === 'pending').length;
+        if (pending > 0) {
+          setSheet(null);
+          setConfirm({ kind: 'finish', pending });
+          return null;
+        }
+        return finishNow();
+      },
+      confirmFinish: finishNow,
+      discard() {
+        if (!content) return;
+        setSheet(null);
+        const sets = content.exercises.reduce((n, e) => n + e.exercise.sets.length, 0);
+        setConfirm({ kind: 'discard', sets });
+      },
+      async confirmDiscard() {
+        setConfirm(null);
+        await discardWorkout.execute();
+      },
+      closeConfirm: () => setConfirm(null),
     },
   };
 }
@@ -308,13 +417,15 @@ function contentOf(
   const extraOf = (id: Id) => extras[id] ?? 0;
   // Until the user picks one, the first exercise with sets left (RF-ENT-13 resumes there too).
   const firstOpen = exercises.findIndex(
-    (e) => remainingSets(e.exercise, extraOf(e.exercise.id)) > 0,
+    (e) => e.exercise.status !== 'skipped' && remainingSets(e.exercise, extraOf(e.exercise.id)) > 0,
   );
   const exerciseIndex = Math.min(chosenIndex ?? Math.max(firstOpen, 0), exercises.length - 1);
   const exercise = exercises[exerciseIndex];
   const rows = rowsOf(exercise, extraOf(exercise.exercise.id), effortSetId);
   const waiting = rows.find((row) => row.kind === 'done' && row.missingEffort);
-  const anyLeft = exercises.some((e) => remainingSets(e.exercise, extraOf(e.exercise.id)) > 0);
+  const anyLeft = exercises.some(
+    (e) => e.exercise.status !== 'skipped' && remainingSets(e.exercise, extraOf(e.exercise.id)) > 0,
+  );
   return {
     status: 'content',
     dayName: overview.workout.dayNameSnapshot,
@@ -324,6 +435,7 @@ function contentOf(
     exerciseIndex,
     exercises,
     exercise,
+    skipped: exercise.exercise.status === 'skipped',
     rows,
     reason: {
       line: reasonLine(reasonInputOf(overview, exercise)),
@@ -335,7 +447,7 @@ function contentOf(
         : 'done'
       : anyLeft
         ? 'nextExercise'
-        : null,
+        : 'finish',
     awaitingEffort: waiting?.kind === 'done' ? { set: waiting.set, number: waiting.number } : null,
   };
 }

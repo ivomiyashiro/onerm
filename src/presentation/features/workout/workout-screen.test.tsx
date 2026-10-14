@@ -48,6 +48,7 @@ const ROW = anExercise({
   isUnilateral: true,
 });
 const PRESS = anExercise({ id: 'press', name: 'Press de banca' });
+const CABLE_ROW = anExercise({ id: 'cable-row', name: 'Remo en polea', primaryMuscles: ['back'] });
 const RUNNING = aWorkout({
   status: 'in_progress',
   finishedAt: null,
@@ -55,10 +56,11 @@ const RUNNING = aWorkout({
     aWorkoutExercise({
       id: 'we-1',
       exerciseId: 'one-arm-row',
+      plannedExerciseId: 'one-arm-row',
       isUnilateral: true,
       prescription: aPrescription({ sets: 1 }),
     }),
-    aWorkoutExercise({ id: 'we-2', exerciseId: 'press', position: 1 }),
+    aWorkoutExercise({ id: 'we-2', exerciseId: 'press', plannedExerciseId: 'press', position: 1 }),
   ],
 });
 
@@ -74,6 +76,7 @@ async function renderScreen({
   const timers = new InMemoryRestTimerRepository();
   let n = 0;
   const onClose = jest.fn();
+  const onFinished = jest.fn();
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider
@@ -85,7 +88,7 @@ async function renderScreen({
               templates: new InMemoryRoutineTemplateRepository(),
               profiles: new InMemoryProfileRepository(defaultProfile()),
               workouts,
-              exercises: [ROW, PRESS],
+              exercises: [ROW, PRESS, CABLE_ROW],
               newId: () => `set-${++n}`,
               now: () => NOW,
             }),
@@ -98,11 +101,11 @@ async function renderScreen({
           })
         }
       >
-        <WorkoutScreen onClose={onClose} />
+        <WorkoutScreen onClose={onClose} onFinished={onFinished} />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
-  return { workouts, timers, onClose, user: userEvent.setup() };
+  return { workouts, timers, onClose, onFinished, user: userEvent.setup() };
 }
 
 describe('WorkoutScreen (S09)', () => {
@@ -159,6 +162,54 @@ describe('WorkoutScreen (S09)', () => {
     expect(vibrate).toHaveBeenCalledTimes(1);
     // RF-ENT-02.AC7: its only set was logged, so the next exercise shows.
     expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-12: «Descartar entrenamiento» asks with D09, then goes back', async () => {
+    const { user, workouts, onClose } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.title }));
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.discard }));
+    expect(screen.getByText(dialogs.D09.body(0))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D09.discardDestructive }));
+
+    expect(workouts.inProgress).toBeNull();
+    expect(onClose).toHaveBeenCalled();
+  });
+
+  it('RF-ENT-11.AC2: «Finalizar entrenamiento» with exercises left asks with D10, then S12', async () => {
+    const { user, workouts, onFinished, onClose } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.title }));
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.finish }));
+    expect(screen.getByRole('header', { name: dialogs.D10.title(2) })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D10.finish }));
+
+    expect(workouts.finished).toHaveLength(1);
+    expect(onFinished).toHaveBeenCalledWith(RUNNING.id);
+    expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('RF-ENT-09: «Sustituir ejercicio» opens S11; the substitute says what it replaces', async () => {
+    const { user } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.substitute }));
+    expect(screen.getByText(text.substitute.sameMuscle)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: CABLE_ROW.name }));
+
+    expect(screen.getByRole('header', { name: CABLE_ROW.name })).toBeOnTheScreen();
+    expect(screen.getByText(text.substitution.insteadOf(ROW.name))).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-08: «Saltear ejercicio» goes to the next one; «Ver todos» marks it', async () => {
+    const { user } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.skip }));
+    expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: text.header.seeAll }));
+
+    expect(screen.getByText(text.exerciseList.skipped)).toBeOnTheScreen();
   });
 
   it('«Ver todos» goes to another exercise', async () => {

@@ -11,6 +11,7 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
+import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { remainingSets } from '@/domain/rules/workout/remaining-sets';
 import { ReasonRow } from '@/presentation/features/workout/reason-row';
@@ -21,6 +22,7 @@ import type { RirField } from '@/presentation/features/workout/set-form';
 import { SetRow } from '@/presentation/features/workout/set-row';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import { SetSheet } from '@/presentation/features/workout/set-sheet';
+import { SubstituteSheet } from '@/presentation/features/workout/substitute-sheet';
 import { useCountdown } from '@/presentation/features/workout/use-countdown';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
@@ -45,10 +47,12 @@ const REST_END_VIBRATION = [0, 400, 200, 400];
 interface WorkoutScreenProps {
   /** No workout in progress any more: back to the tabs. */
   onClose: () => void;
+  /** RF-ENT-11: finished, to its summary (S12). */
+  onFinished: (workoutId: Id) => void;
 }
 
 /** S09 · Entrenamiento en curso (08 §5): the current exercise, its sets and «Hecho». */
-export function WorkoutScreen({ onClose }: WorkoutScreenProps) {
+export function WorkoutScreen({ onClose, onFinished }: WorkoutScreenProps) {
   // RF-ENT-07: the screen stays on only here; leaving S09 lets it turn off again.
   useKeepAwake();
   const viewModel = useWorkoutViewModel();
@@ -67,7 +71,18 @@ export function WorkoutScreen({ onClose }: WorkoutScreenProps) {
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
       {state.status === 'content' && (
-        <Workout viewModel={viewModel} content={state} bottomInset={insets.bottom} />
+        <Workout
+          viewModel={viewModel}
+          content={state}
+          bottomInset={insets.bottom}
+          finish={async (run) => {
+            // Finishing leaves no workout in progress: S12 replaces the screen, not «back».
+            closed.current = true;
+            const id = await run();
+            if (id === null) closed.current = false;
+            else onFinished(id);
+          }}
+        />
       )}
       {state.status === 'error' && (
         <View style={styles.message}>
@@ -82,12 +97,15 @@ function Workout({
   viewModel,
   content,
   bottomInset,
+  finish,
 }: {
   viewModel: WorkoutViewModel;
   content: WorkoutContent;
   bottomInset: number;
+  /** Runs a finish action; once finished, to S12. */
+  finish: (run: () => Promise<Id | null>) => Promise<void>;
 }) {
-  const { sheet, deleted, actions, rest, restMinimized, dialog, notice } = viewModel;
+  const { sheet, deleted, actions, rest, restMinimized, dialog, notice, confirm } = viewModel;
   const remaining = useCountdown(rest?.endsAt ?? null);
   const restEnded = remaining !== null && remaining <= 0;
 
@@ -114,7 +132,7 @@ function Workout({
   async function done() {
     if ((await actions.done()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
   }
-  async function confirm() {
+  async function confirmSet() {
     if (sheet?.kind === 'edit') return actions.saveEdit();
     if ((await actions.confirmAdjust()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
   }
@@ -125,7 +143,15 @@ function Workout({
         <Text style={[typography.bodyLStrong, { color: colors.textPrimary }]}>
           {content.dayName}
         </Text>
-        <Text style={[typography.monoS, { color: colors.textSecondary }]}>{time}</Text>
+        <Text style={[typography.monoS, styles.flex, { color: colors.textSecondary }]}>{time}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={text.workoutMenu.title}
+          onPress={actions.openWorkoutMenu}
+          style={styles.iconButton}
+        >
+          <Icon name="dots" color={colors.textPrimary} />
+        </Pressable>
       </View>
       <View style={styles.progress}>
         {exercises.map((e, index) => (
@@ -135,7 +161,7 @@ function Workout({
               styles.segment,
               index === exerciseIndex
                 ? styles.segmentCurrent
-                : remainingSets(e.exercise) === 0
+                : remainingSets(e.exercise) === 0 && e.exercise.status !== 'skipped'
                   ? styles.segmentDone
                   : styles.segmentTodo,
             ]}
@@ -152,13 +178,18 @@ function Workout({
           </Text>
           <Pressable
             accessibilityRole="button"
-            accessibilityLabel={text.workoutMenu.title}
+            accessibilityLabel={text.exerciseMenu.title(name)}
             onPress={actions.openExerciseMenu}
             style={styles.iconButton}
           >
             <Icon name="dots" color={colors.textPrimary} />
           </Pressable>
         </View>
+        {exercise.plannedName !== null && (
+          <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+            {text.substitution.insteadOf(exercise.plannedName)}
+          </Text>
+        )}
         <View style={styles.facts}>
           <Badge
             label={text.set.prescription(
@@ -168,10 +199,14 @@ function Workout({
             tone="inverse"
           />
           {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
-          <Text style={[typography.bodyS, styles.flex, { color: colors.textSecondary }]}>
+          {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
+          {content.skipped && <Badge label={text.exerciseList.skipped} />}
+          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
             {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
           </Text>
-          <Button variant="tertiary" label={text.header.seeAll} onPress={actions.openExercises} />
+          <View style={styles.seeAll}>
+            <Button variant="tertiary" label={text.header.seeAll} onPress={actions.openExercises} />
+          </View>
         </View>
         {exercise.notes && (
           <Text style={[typography.bodyM, { color: colors.textSecondary }]}>{exercise.notes}</Text>
@@ -231,6 +266,14 @@ function Workout({
             onPress={() => void done()}
           />
         )}
+        {content.primary === 'finish' && (
+          <Button
+            variant="primary"
+            size="xl"
+            label={text.primaryAction.finish}
+            onPress={() => void finish(actions.finish)}
+          />
+        )}
         {content.primary === 'nextExercise' && (
           <Button
             variant="primary"
@@ -248,7 +291,7 @@ function Workout({
         setTotal={Math.max(prescription.sets, currentNumber)}
         effortMode={effortMode}
         onChange={actions.editForm}
-        onConfirm={() => void confirm()}
+        onConfirm={() => void confirmSet()}
         onDelete={() => void actions.deleteSet()}
         onClose={actions.closeSheet}
       />
@@ -303,6 +346,8 @@ function Workout({
       >
         {exercises.map((e, index) => {
           const logged = e.exercise.sets.filter((s) => !s.isWarmup).length;
+          // Figma «S09 · Ver todos con salteado»: a skipped exercise is muted.
+          const muted = e.exercise.status === 'skipped' ? colors.textSecondary : colors.textPrimary;
           return (
             <Pressable
               key={e.exercise.id}
@@ -312,14 +357,16 @@ function Workout({
               onPress={() => actions.goTo(index)}
               style={[styles.listRow, index === exerciseIndex && styles.listRowCurrent]}
             >
-              <Text style={[typography.bodyRow, styles.flex, { color: colors.textPrimary }]}>
+              <Text style={[typography.bodyRow, styles.flex, { color: muted }]}>
                 {e.name ?? catalog.detail.unavailable}
               </Text>
               <Text style={[typography.monoS, { color: colors.textSecondary }]}>
-                {text.exerciseList.progress(
-                  Math.min(logged, e.exercise.prescription.sets),
-                  e.exercise.prescription.sets,
-                )}
+                {e.exercise.status === 'skipped'
+                  ? text.exerciseList.skipped
+                  : text.exerciseList.progress(
+                      Math.min(logged, e.exercise.prescription.sets),
+                      e.exercise.prescription.sets,
+                    )}
               </Text>
             </Pressable>
           );
@@ -328,11 +375,76 @@ function Workout({
       <BottomSheet
         visible={sheet?.kind === 'exerciseMenu'}
         title={name}
+        subtitle={text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
         closeLabel={common.close}
         onClose={actions.closeSheet}
       >
+        <MenuItem
+          icon="swap"
+          label={text.exerciseMenu.substitute}
+          onPress={actions.openSubstitute}
+        />
+        <MenuItem
+          icon="skip"
+          label={text.exerciseMenu.skip}
+          onPress={() => void actions.skipExercise()}
+        />
         <MenuItem icon="plus" label={text.exerciseMenu.addSet} onPress={actions.addSet} />
       </BottomSheet>
+      <BottomSheet
+        visible={sheet?.kind === 'workoutMenu'}
+        title={text.workoutMenu.title}
+        subtitle={text.workoutMenu.subtitle(content.dayName, time ?? '')}
+        closeLabel={common.close}
+        onClose={actions.closeSheet}
+      >
+        <MenuItem
+          icon="flag"
+          label={text.workoutMenu.finish}
+          onPress={() => void finish(actions.finish)}
+        />
+        <MenuItem
+          icon="trash"
+          label={text.workoutMenu.discard}
+          destructive
+          onPress={actions.discard}
+        />
+      </BottomSheet>
+      <SubstituteSheet
+        sheet={sheet?.kind === 'substitute' ? sheet : null}
+        originalName={name}
+        onSearch={actions.searchSubstitute}
+        onChoose={(exercise) => void actions.substitute(exercise)}
+        onClose={actions.closeSheet}
+      />
+      <Dialog
+        visible={confirm?.kind === 'finish'}
+        title={dialogs.D10.title(confirm?.kind === 'finish' ? confirm.pending : 0)}
+        body={dialogs.D10.body}
+        actions={[
+          {
+            label: dialogs.D10.finish,
+            kind: 'advance',
+            onPress: () => void finish(actions.confirmFinish),
+          },
+          { label: dialogs.D10.keepTraining, kind: 'plain', onPress: actions.closeConfirm },
+        ]}
+        onDismiss={actions.closeConfirm}
+      />
+      <Dialog
+        visible={confirm?.kind === 'discard'}
+        title={dialogs.D09.title}
+        body={dialogs.D09.body(confirm?.kind === 'discard' ? confirm.sets : 0)}
+        actions={[
+          { label: dialogs.D09.cancel, kind: 'safe', onPress: actions.closeConfirm },
+          {
+            label: dialogs.D09.discardDestructive,
+            kind: 'destructive',
+            onPress: () => void actions.confirmDiscard(),
+          },
+        ]}
+        onDismiss={actions.closeConfirm}
+      />
     </>
   );
 }
@@ -386,7 +498,14 @@ const styles = StyleSheet.create({
   title: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: space.s4 },
   flex: { flex: 1 },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
-  facts: { flexDirection: 'row', alignItems: 'center', gap: space.s8, paddingLeft: space.s4 },
+  facts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: space.s8,
+    paddingLeft: space.s4,
+  },
+  seeAll: { marginLeft: 'auto' },
   rows: { gap: space.s8 },
   bottom: {
     gap: space.s8,

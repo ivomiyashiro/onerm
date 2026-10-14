@@ -30,6 +30,16 @@ describe('firstIncomplete (RF-ENT-02.AC7)', () => {
     expect(firstIncomplete(exercises, 2)).toBe(0);
   });
 
+  it('RF-ENT-08.AC1: a skipped exercise is passed over', () => {
+    const exercises = [
+      exercise(1, [], 'a'),
+      { ...exercise(1, [], 'b'), status: 'skipped' as const },
+      exercise(1, [], 'c'),
+    ];
+
+    expect(firstIncomplete(exercises, 0)).toBe(2);
+  });
+
   it('null when everything is done', () => {
     expect(firstIncomplete([exercise(1, [{}])], 0)).toBeNull();
   });

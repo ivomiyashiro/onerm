@@ -11,8 +11,8 @@ export function remainingSets(exercise: WorkoutExercise, extra = 0): number {
 
 /**
  * RF-ENT-02.AC7: the next exercise with sets left after `from`, in order and wrapping around,
- * never `from` itself (its last set was just logged); null when no other has sets left. `extra`
- * gives the extra sets of each exercise.
+ * never `from` itself (its last set was just logged); null when no other has sets left. Skipped
+ * exercises are passed over (RF-ENT-08.AC1). `extra` gives the extra sets of each exercise.
  */
 export function firstIncomplete(
   exercises: readonly WorkoutExercise[],
@@ -21,7 +21,8 @@ export function firstIncomplete(
 ): number | null {
   for (let step = 1; step < exercises.length; step++) {
     const index = (from + step) % exercises.length;
-    if (remainingSets(exercises[index], extra(exercises[index])) > 0) return index;
+    const exercise = exercises[index];
+    if (exercise.status !== 'skipped' && remainingSets(exercise, extra(exercise)) > 0) return index;
   }
   return null;
 }
