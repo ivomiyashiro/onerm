@@ -4,6 +4,7 @@ import type { SvgProps } from 'react-native-svg';
 import AlertSvg from '@/presentation/components/icons/svg/alert.svg';
 import ArrowSvg from '@/presentation/components/icons/svg/arrow.svg';
 import BackSvg from '@/presentation/components/icons/svg/back.svg';
+import BellSvg from '@/presentation/components/icons/svg/bell.svg';
 import ChartSvg from '@/presentation/components/icons/svg/chart.svg';
 import CheckSvg from '@/presentation/components/icons/svg/check.svg';
 import ChevronSvg from '@/presentation/components/icons/svg/chevron.svg';
@@ -39,6 +40,7 @@ const ICONS = {
   alert: AlertSvg,
   arrow: ArrowSvg,
   back: BackSvg,
+  bell: BellSvg,
   chart: ChartSvg,
   check: CheckSvg,
   chevron: ChevronSvg,

@@ -34,3 +34,9 @@ export function elapsed(ms: number): string {
   const rest = seconds % 60;
   return hours > 0 ? `${hours}:${pad(minutes)}:${pad(rest)}` : `${minutes}:${pad(rest)}`;
 }
+
+/** What is left of the rest (S09): «01:14», whole seconds rounded up, never below zero. */
+export function countdown(ms: number): string {
+  const seconds = Math.max(0, Math.ceil(ms / 1000));
+  return `${pad(Math.floor(seconds / 60))}:${pad(seconds % 60)}`;
+}

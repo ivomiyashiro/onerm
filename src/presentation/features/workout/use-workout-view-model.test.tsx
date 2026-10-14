@@ -12,7 +12,10 @@ import {
   aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
+  FakeDevicePermissions,
+  FakeRestNotifier,
   InMemoryProfileRepository,
+  InMemoryRestTimerRepository,
   InMemoryRoutineRepository,
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
@@ -22,7 +25,11 @@ import {
   useWorkoutViewModel,
   type WorkoutContent,
 } from '@/presentation/features/workout/use-workout-view-model';
-import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
+import {
+  restUseCasesOver,
+  routineUseCasesOver,
+  someUseCases,
+} from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 
 const SQUAT = anExercise();
@@ -60,29 +67,36 @@ const LAST_TIME = aWorkout({
   ),
 });
 
+const NOW = new Date('2026-10-13T18:05:00Z');
+const after = (seconds: number) => new Date(NOW.getTime() + seconds * 1000);
+
 async function renderViewModel({
   inProgress = RUNNING as Workout | null,
   finished = [LAST_TIME],
   useCases = undefined as UseCases | undefined,
+  permissions = new FakeDevicePermissions(),
 } = {}) {
   const workouts = new InMemoryWorkoutRepository(inProgress, finished);
+  const timers = new InMemoryRestTimerRepository();
+  const notifier = new FakeRestNotifier();
   let n = 0;
   const hook = await renderHook(() => useWorkoutViewModel(), {
     wrapper: ({ children }: { children: ReactNode }) => (
       <UseCasesProvider
         useCases={
           useCases ??
-          someUseCases(
-            routineUseCasesOver({
+          someUseCases({
+            ...routineUseCasesOver({
               routines: new InMemoryRoutineRepository([aRoutine()]),
               templates: new InMemoryRoutineTemplateRepository(),
               profiles: new InMemoryProfileRepository(defaultProfile()),
               workouts,
               exercises: [SQUAT, PRESS],
               newId: () => `set-${++n}`,
-              now: () => new Date('2026-10-13T18:05:00Z'),
+              now: () => NOW,
             }),
-          )
+            ...restUseCasesOver({ timers, notifier, permissions, now: () => NOW }),
+          })
         }
       >
         {children}
@@ -90,7 +104,7 @@ async function renderViewModel({
     ),
   });
   const content = () => hook.result.current.state as WorkoutContent;
-  return { ...hook, workouts, content };
+  return { ...hook, workouts, content, timers, notifier, permissions };
 }
 
 const sets = (workouts: InMemoryWorkoutRepository, id = 'we-1') =>
@@ -284,5 +298,141 @@ describe('useWorkoutViewModel', () => {
 
     expect(content().primary).toBe('done');
     expect(content().rows[1]).toMatchObject({ kind: 'current', values: { loadKg: 30 } });
+  });
+
+  describe('rest (RF-ENT-06)', () => {
+    it('AC1: «Hecho» starts the prescribed rest and schedules its notice', async () => {
+      const { result, timers, notifier } = await renderViewModel();
+
+      await act(() => result.current.actions.done());
+
+      expect(timers.timer.endsAt).toEqual(after(120));
+      expect(result.current.rest).toMatchObject({
+        totalSeconds: 120,
+        setText: 'Serie 1 · 105 kg × 8',
+        nextText: 'Siguiente: serie 2 de 2 · 105 kg × 8',
+        nextShort: 'Siguiente: 105 kg × 8',
+      });
+      expect(result.current.restMinimized).toBe(false);
+      expect(notifier.scheduled).toEqual({
+        at: after(120),
+        message: {
+          title: '¡Descanso terminado!',
+          body: 'Siguiente: Sentadilla con barra · 105 kg × 8',
+        },
+      });
+    });
+
+    it("RN-ENT-12: a warm-up set doesn't start the rest", async () => {
+      const { result, timers } = await renderViewModel();
+
+      await act(() => result.current.actions.openAdjust());
+      await act(() => result.current.actions.editForm((form) => ({ ...form, isWarmup: true })));
+      await act(() => result.current.actions.confirmAdjust());
+
+      expect(timers.timer.endsAt).toBeNull();
+      expect(result.current.rest).toBeNull();
+    });
+
+    it('AC2–AC4: +15 s, «Reiniciar» and «Saltear»', async () => {
+      const { result, timers, notifier } = await renderViewModel();
+      await act(() => result.current.actions.done());
+
+      await act(() => result.current.actions.addRest());
+      expect(timers.timer.endsAt).toEqual(after(135));
+      await act(() => result.current.actions.restartRest());
+      expect(timers.timer.endsAt).toEqual(after(120));
+      await act(() => result.current.actions.skipRest());
+
+      expect(timers.timer.endsAt).toBeNull();
+      expect(notifier.scheduled).toBeNull();
+      expect(result.current.rest).toBeNull();
+    });
+
+    it('minimized, it stays as a bar until a new rest opens it again', async () => {
+      const { result } = await renderViewModel();
+      await act(() => result.current.actions.done());
+
+      await act(() => result.current.actions.minimizeRest());
+      expect(result.current.restMinimized).toBe(true);
+      await act(() => result.current.actions.done());
+
+      expect(result.current.restMinimized).toBe(false);
+    });
+
+    it('after the last set of an exercise, «Siguiente» is the next exercise', async () => {
+      const { result } = await renderViewModel();
+
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.done());
+
+      expect(result.current.rest).toMatchObject({
+        setText: 'Serie 2 · 105 kg × 8',
+        nextText: 'Siguiente: Press de banca · 105 kg × 8',
+      });
+    });
+
+    it('RF-SUG-02.AC4: a calibration set waits for the answer, then shows the new load', async () => {
+      const { result, workouts } = await renderViewModel({ finished: [] });
+      await act(() => result.current.actions.openAdjust());
+      await act(() =>
+        result.current.actions.editForm((form) => ({
+          ...typeLoad(form, '30', { unit: 'kg', increment: 2.5, minLoad: 20 }),
+          reps: 12,
+        })),
+      );
+      await act(() => result.current.actions.confirmAdjust());
+
+      expect(result.current.rest).toMatchObject({
+        awaitingEffort: true,
+        nextText: 'Siguiente: serie 2 de 2 · peso según tu respuesta',
+        calibrationNote: null,
+      });
+      await act(() => result.current.actions.chooseEffort(sets(workouts)[0], 'rir', 4));
+
+      expect(result.current.rest).toMatchObject({
+        awaitingEffort: false,
+        calibrationNote: 'Te sobró bastante: probá con 35 kg.',
+        nextText: 'Siguiente: serie 2 de 2 · 35 kg × 8',
+      });
+    });
+  });
+
+  describe('rest permissions (RF-ENT-06.AC7, AC9, AC10)', () => {
+    it('AC9: D05 after the first set, then D17 when exact alarms are missing', async () => {
+      const permissions = new FakeDevicePermissions('undetermined', false);
+      const { result } = await renderViewModel({ permissions });
+
+      await act(() => result.current.actions.done());
+      expect(result.current.dialog).toBe('notifications');
+      await act(() => result.current.actions.allowNotifications());
+      expect(result.current.dialog).toBe('exactAlarms');
+      await act(() => result.current.actions.openExactAlarmSettings());
+
+      expect(permissions.opened).toEqual(['exactAlarms']);
+      expect(result.current.dialog).toBeNull();
+    });
+
+    it('AC9: «Ahora no» never asks again and the workout goes on', async () => {
+      const { result } = await renderViewModel({
+        permissions: new FakeDevicePermissions('undetermined'),
+      });
+
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.dismissDialog());
+      await act(() => result.current.actions.done());
+
+      expect(result.current.dialog).toBeNull();
+    });
+
+    it('AC7, AC10: the notice of the missing permission and its action', async () => {
+      const permissions = new FakeDevicePermissions('denied');
+      const { result } = await renderViewModel({ permissions });
+
+      expect(result.current.notice).toBe('notifications');
+      await act(() => result.current.actions.openNotice());
+
+      expect(permissions.opened).toEqual(['notifications']);
+    });
   });
 });

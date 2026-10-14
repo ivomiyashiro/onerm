@@ -23,6 +23,7 @@ import {
   type SetForm,
   type SetFormErrors,
 } from '@/presentation/features/workout/set-form';
+import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** One row of the set list (08 §5): logged, the current one, or still to do. */
@@ -74,7 +75,10 @@ export type WorkoutSheet =
   | { kind: 'why'; detail: WhyDetail }
   | { kind: 'exerciseMenu' };
 
-export interface WorkoutViewModel {
+export interface WorkoutViewModel extends Pick<
+  Rest,
+  'rest' | 'restMinimized' | 'dialog' | 'notice'
+> {
   state: WorkoutState;
   sheet: WorkoutSheet | null;
   /** «Serie eliminada · Deshacer» (RF-ENT-04.AC2). */
@@ -99,7 +103,7 @@ export interface WorkoutViewModel {
     openExerciseMenu(): void;
     addSet(): void;
     closeSheet(): void;
-  };
+  } & Rest['actions'];
 }
 
 /** The rows of an exercise: logged sets, then the current one and the rest still to do. */
@@ -161,6 +165,7 @@ export function useWorkoutViewModel(): WorkoutViewModel {
   const content = state.status === 'content' ? state : null;
   const current = content?.rows.find((row) => row.kind === 'current') ?? null;
   const extraOf = (id: Id) => extras[id] ?? 0;
+  const rest = useRest(typeof overview === 'object' ? overview : null, extraOf);
 
   /** Logs the current set and, after its last prescribed set, moves on (RF-ENT-02.AC7). */
   async function log(form: SetForm): Promise<'logged' | 'invalid'> {
@@ -172,6 +177,10 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     const result = await logSet.execute(exercise.id, input);
     if (result.status !== 'saved') return 'invalid';
     setEffortSetId(result.set.id);
+    await rest.onLogged({
+      isWarmup: input.isWarmup,
+      restSeconds: exercise.prescription.restSeconds,
+    });
     if (!input.isWarmup && remainingSets(exercise, extraOf(exercise.id)) === 1) {
       const next = firstIncomplete(
         content.exercises.map((e) => e.exercise),
@@ -187,7 +196,12 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     state,
     sheet,
     deleted,
+    rest: rest.rest,
+    restMinimized: rest.restMinimized,
+    dialog: rest.dialog,
+    notice: rest.notice,
     actions: {
+      ...rest.actions,
       async done() {
         if (!content || content.primary !== 'done' || current?.kind !== 'current') return 'none';
         const form = formFromPrefill(current.values);

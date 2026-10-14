@@ -13,8 +13,9 @@ import { ExactAlarm } from '../../../modules/exact-alarm';
  */
 export class ExpoDevicePermissions implements DevicePermissions {
   async notifications(): Promise<NotificationPermission> {
-    const { status } = await Notifications.getPermissionsAsync();
-    return status;
+    const { status, canAskAgain } = await Notifications.getPermissionsAsync();
+    // Android 13+ reports «denied» before the first prompt; the system can still ask.
+    return status === 'denied' && canAskAgain ? 'undetermined' : status;
   }
 
   async requestNotifications(): Promise<boolean> {

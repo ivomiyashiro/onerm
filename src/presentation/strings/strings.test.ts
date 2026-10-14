@@ -78,7 +78,7 @@ describe('strings (13-textos, RNF-21)', () => {
       [strings.routines.template.exerciseLine(3, '8–12', 'main'), '3 series × 8–12 · Principal'],
       [strings.home.chooseDay.doneDaysAgo(3), 'Hecho hace 3 días'],
       [strings.workout.set.setOf(2, 3), 'Serie 2 de 3'],
-      [strings.workout.rest.nextSet(2, 3, '62,5 kg', 8), 'Siguiente: serie 2 de 3 · 62,5 kg × 8'],
+      [strings.workout.rest.nextSet(2, 3, '62,5 kg × 8'), 'Siguiente: serie 2 de 3 · 62,5 kg × 8'],
       [
         strings.workout.validation.load('2204,6', 'lb'),
         'La carga tiene que estar entre 0 y 2204,6 lb.',
