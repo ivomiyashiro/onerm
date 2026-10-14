@@ -11,6 +11,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { HistoryScreen } from '@/presentation/features/progress/history-screen';
+import { principles } from '@/presentation/strings/principles';
 import { progress as text } from '@/presentation/strings/progress';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
@@ -91,5 +92,16 @@ describe('HistoryScreen (S18)', () => {
     await user.press(screen.getByRole('button', { name: text.overview.empty.action }));
 
     expect(onStartNext).toHaveBeenCalled();
+  });
+
+  it('RF-PROG-06.AC1: «Volumen» shows this week per muscle and «¿Por qué 10 series?»', async () => {
+    const { user } = await renderScreen([on('w1', 28, 100)]);
+
+    await user.press(screen.getByRole('tab', { name: text.overview.volume }));
+    expect(screen.getByText(text.overview.thisWeek)).toBeOnTheScreen();
+    expect(screen.getByText('Pecho')).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: text.overview.why10 }));
+
+    expect(screen.getByText(principles['P-03'])).toBeOnTheScreen();
   });
 });

@@ -1,5 +1,5 @@
-import { memo, useMemo } from 'react';
-import { Pressable, SectionList, StyleSheet, View } from 'react-native';
+import { memo, useMemo, useState } from 'react';
+import { Pressable, ScrollView, SectionList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
@@ -7,8 +7,10 @@ import type { HistoryItem } from '@/domain/usecases/observe-history';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Icon } from '@/presentation/components/icons/icon';
+import { SectionTabs } from '@/presentation/components/navigation/section-tabs';
 import { Text } from '@/presentation/components/text';
 import { useHistoryViewModel } from '@/presentation/features/progress/use-history-view-model';
+import { WeeklyVolumeView } from '@/presentation/features/progress/weekly-volume-view';
 import { common } from '@/presentation/strings/common';
 import { progress as text } from '@/presentation/strings/progress';
 import { colors, radius, space, typography } from '@/presentation/theme';
@@ -22,12 +24,13 @@ interface HistoryScreenProps {
 }
 
 /**
- * S18 · Progreso, Historial (RF-PROG-01, Figma «S18 · Historial»): the finished workouts by month,
+ * S18 · Progreso (Figma «S18 · Historial» and «Volumen semanal»): Historial (RF-PROG-01): the finished workouts by month,
  * in a virtualized list so a long history scrolls without stutter (AC4, RNF-14).
  */
 export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps) {
   const { state, actions } = useHistoryViewModel();
   const insets = useSafeAreaInsets();
+  const [section, setSection] = useState<'history' | 'volume'>('history');
   // RNF-14: a new array on every render would re-render every visible row.
   const sections = useMemo(
     () =>
@@ -42,7 +45,21 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
       <Text style={[typography.displayM, styles.title]} accessibilityRole="header">
         {text.overview.title}
       </Text>
-      {state.status === 'content' ? (
+      <View style={styles.tabs}>
+        <SectionTabs
+          tabs={[
+            { key: 'history', label: text.overview.history },
+            { key: 'volume', label: text.overview.volume },
+          ]}
+          selectedKey={section}
+          onSelect={setSection}
+        />
+      </View>
+      {section === 'volume' ? (
+        <ScrollView contentContainerStyle={styles.list}>
+          <WeeklyVolumeView />
+        </ScrollView>
+      ) : state.status === 'content' ? (
         <SectionList
           sections={sections}
           keyExtractor={(item) => item.id}
@@ -152,6 +169,7 @@ const styles = StyleSheet.create({
     paddingVertical: space.s4,
     paddingHorizontal: space.s20,
   },
+  tabs: { paddingHorizontal: space.s16 },
   // The rows of a month touch: they make one card.
   sections: { paddingHorizontal: space.s16, paddingBottom: 120 },
   list: { gap: space.s10, paddingTop: space.s8, paddingHorizontal: space.s16, paddingBottom: 120 },

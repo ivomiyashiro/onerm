@@ -26,6 +26,8 @@ export const progress = {
     why10: '¿Por qué 10 series?',
     /** «Guía 8–12 · referencia 10» (Figma «S18 · Volumen semanal»). */
     guide: 'Guía 8–12 · referencia 10',
+    /** «28 sep – 4 oct · 2 de 3 entrenamientos». */
+    weekSubtitle: (range: string, workouts: string) => `${range} · ${workouts}`,
     previousWeek: 'Semana anterior',
     nextWeek: 'Semana siguiente',
     empty: {
