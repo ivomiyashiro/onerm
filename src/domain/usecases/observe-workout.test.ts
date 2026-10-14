@@ -76,6 +76,8 @@ describe('ObserveWorkout', () => {
 
     // As an ERR, 3 × 12 at the cap would raise the load (RN-SUG-03).
     expect(view.exercises[0].suggestion.reason.code).not.toBe('INCREASE_LOAD');
+    // «En lugar de Sentadilla con barra» (Figma «S09 · Ejercicio sustituido»).
+    expect(view.exercises[0].plannedName).toBe('Sentadilla con barra');
   });
 
   it('no workout in progress: null', () => {
