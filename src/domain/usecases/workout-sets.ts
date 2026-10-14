@@ -31,19 +31,23 @@ type Workouts = Pick<WorkoutRepository, 'observeInProgress' | 'save'>;
 
 /**
  * RN-ENT-09: an exercise with effective sets is done, also after being skipped. Without them it
- * goes back to pending, or stays skipped.
+ * goes back to pending, or stays skipped; in a finished workout it is skipped.
  */
-function withSets(exercise: WorkoutExercise, sets: readonly WorkoutSet[]): WorkoutExercise {
+export function withSets(
+  workout: Workout,
+  exercise: WorkoutExercise,
+  sets: readonly WorkoutSet[],
+): WorkoutExercise {
   const sorted = sortByPosition(sets);
   const status = sorted.some(isEffectiveSet)
     ? 'done'
-    : exercise.status === 'skipped'
+    : exercise.status === 'skipped' || workout.status === 'finished'
       ? 'skipped'
       : 'pending';
   return { ...exercise, status, sets: sorted };
 }
 
-function replaceExercise(workout: Workout, exercise: WorkoutExercise): Workout {
+export function replaceExercise(workout: Workout, exercise: WorkoutExercise): Workout {
   return {
     ...workout,
     exercises: workout.exercises.map((e) => (e.id === exercise.id ? exercise : e)),
@@ -53,13 +57,13 @@ function replaceExercise(workout: Workout, exercise: WorkoutExercise): Workout {
 const inProgress = (workouts: Workouts) =>
   firstValue<Workout | null>((o) => workouts.observeInProgress(o));
 
-function exerciseOfSet(workout: Workout, setId: Id) {
+export function exerciseOfSet(workout: Workout, setId: Id) {
   return workout.exercises.find((e) => e.sets.some((s) => s.id === setId));
 }
 
 /** Validates against the copy of the workout exercise and saves it (RN-ENT-02, RN-SYNC-01). */
-async function write(
-  workouts: Workouts,
+export async function write(
+  workouts: Pick<WorkoutRepository, 'save'>,
   workout: Workout,
   exercise: WorkoutExercise,
   set: WorkoutSet,
@@ -67,7 +71,7 @@ async function write(
   const violations = validateWorkoutSet(set, exercise);
   if (violations.length > 0) return { status: 'invalid', violations };
   const sets = [...exercise.sets.filter((s) => s.id !== set.id), set];
-  await workouts.save(replaceExercise(workout, withSets(exercise, sets)));
+  await workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
   return { status: 'saved', set };
 }
 
@@ -120,7 +124,7 @@ export class DeleteSet {
     const set = exercise?.sets.find((s) => s.id === setId);
     if (!workout || !exercise || !set) return null;
     const sets = exercise.sets.filter((s) => s.id !== setId);
-    await this.workouts.save(replaceExercise(workout, withSets(exercise, sets)));
+    await this.workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
     return set;
   }
 }
@@ -140,6 +144,6 @@ export class RestoreSet {
     const exercise = workout?.exercises.find((e) => e.id === set.workoutExerciseId);
     if (!workout || !exercise) return;
     const sets = [...exercise.sets, { ...set, id: this.newId() }];
-    await this.workouts.save(replaceExercise(workout, withSets(exercise, sets)));
+    await this.workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
   }
 }

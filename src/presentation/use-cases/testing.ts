@@ -10,7 +10,15 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveHistory } from '@/domain/usecases/observe-history';
+import { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
 import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+import {
+  AddPastSet,
+  DeletePastSet,
+  DeleteWorkout,
+  UpdatePastSet,
+} from '@/domain/usecases/past-workout-edits';
 import {
   AddRestTime,
   AskRestPermission,
@@ -41,6 +49,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
+import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import {
   FakeDevicePermissions,
@@ -111,6 +120,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     restoreSet: new RestoreSet(workouts, neverIds),
     ...restUseCasesOver(),
     ...lifecycle(workouts, neverIds, epoch),
+    ...history(profiles, workouts, exercises, neverIds),
     observeWorkoutSummary: new ObserveWorkoutSummary(
       profiles,
       routines,
@@ -173,6 +183,7 @@ export function routineUseCasesOver(repositories: {
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, newId),
     ...lifecycle(workouts, newId, now, stopRest),
+    ...history(profiles, workouts, catalog, newId),
     observeWorkoutSummary: new ObserveWorkoutSummary(
       profiles,
       routines,
@@ -181,6 +192,23 @@ export function routineUseCasesOver(repositories: {
       now,
       utcDate,
     ),
+  };
+}
+
+/** S18 and S19: the history, the detail and the edits of the past. */
+function history(
+  profiles: Pick<InMemoryProfileRepository, 'observe'>,
+  workouts: Pick<WorkoutRepository, 'observeFinished' | 'save' | 'delete'>,
+  exercises: { observeAll: ExerciseRepository['observeAll'] },
+  newId: () => Id,
+) {
+  return {
+    observeHistory: new ObserveHistory(workouts),
+    observeWorkoutDetail: new ObserveWorkoutDetail(profiles, workouts, exercises),
+    updatePastSet: new UpdatePastSet(workouts),
+    addPastSet: new AddPastSet(workouts, newId),
+    deletePastSet: new DeletePastSet(workouts),
+    deleteWorkout: new DeleteWorkout(workouts),
   };
 }
 

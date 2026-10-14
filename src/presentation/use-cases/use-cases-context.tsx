@@ -12,7 +12,15 @@ import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import type { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import type { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import type { ObserveHistory } from '@/domain/usecases/observe-history';
+import type { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
 import type { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+import type {
+  AddPastSet,
+  DeletePastSet,
+  DeleteWorkout,
+  UpdatePastSet,
+} from '@/domain/usecases/past-workout-edits';
 import type {
   AddRestTime,
   AskRestPermission,
@@ -91,6 +99,12 @@ export interface UseCases {
   discardWorkout: DiscardWorkout;
   readWorkoutResume: ReadWorkoutResume;
   observeWorkoutSummary: ObserveWorkoutSummary;
+  observeHistory: ObserveHistory;
+  observeWorkoutDetail: ObserveWorkoutDetail;
+  updatePastSet: UpdatePastSet;
+  addPastSet: AddPastSet;
+  deletePastSet: DeletePastSet;
+  deleteWorkout: DeleteWorkout;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);

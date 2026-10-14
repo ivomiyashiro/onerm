@@ -30,7 +30,15 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveHistory } from '@/domain/usecases/observe-history';
+import { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
 import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+import {
+  AddPastSet,
+  DeletePastSet,
+  DeleteWorkout,
+  UpdatePastSet,
+} from '@/domain/usecases/past-workout-edits';
 import {
   AddRestTime,
   AskRestPermission,
@@ -214,6 +222,16 @@ export function createDependencies(
         now,
         deviceLocalDate,
       ),
+      observeHistory: new ObserveHistory(workoutRepository),
+      observeWorkoutDetail: new ObserveWorkoutDetail(
+        profileRepository,
+        workoutRepository,
+        exerciseRepository,
+      ),
+      updatePastSet: new UpdatePastSet(workoutRepository),
+      addPastSet: new AddPastSet(workoutRepository, newId),
+      deletePastSet: new DeletePastSet(workoutRepository),
+      deleteWorkout: new DeleteWorkout(workoutRepository),
     },
     appStore: createAppStore(),
   };
