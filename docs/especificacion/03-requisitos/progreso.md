@@ -109,7 +109,7 @@ Escenario: AC6 — Validación
   Entonces veo el error y no se guarda
 ```
 
-**Notas:** en el MVP **no** se editan la fecha ni la duración de un entrenamiento.
+**Notas:** en el MVP **no** se editan la fecha ni la duración de un entrenamiento. Una serie agregada a un entrenamiento pasado (AC3) toma como hora el fin del entrenamiento (`finishedAt`): queda dentro de él y no cambia su duración (decisión de #38, 2026-10-14).
 
 ---
 

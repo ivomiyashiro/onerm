@@ -13,7 +13,7 @@ import {
 
 type Workouts = Pick<WorkoutRepository, 'observeFinished' | 'save'>;
 
-const finishedWorkout = async (workouts: Workouts, id: Id) =>
+const finishedWorkout = async (workouts: Pick<WorkoutRepository, 'observeFinished'>, id: Id) =>
   (await firstValue<Workout[]>((o) => workouts.observeFinished(o))).find((w) => w.id === id) ??
   null;
 
@@ -37,7 +37,7 @@ export class UpdatePastSet {
 
 /**
  * RF-PROG-03.AC3: a forgotten set at the end of an exercise. Its time is the end of the workout,
- * so it stays inside it without changing the duration (not defined by the specification).
+ * so it stays inside it without changing the duration (note of RF-PROG-03).
  */
 export class AddPastSet {
   constructor(
@@ -74,11 +74,15 @@ export class DeletePastSet {
   }
 }
 
-/** RF-PROG-03.AC4: after D16, the workout leaves the history (logical delete, I-07). */
+/**
+ * RF-PROG-03.AC4: after D16, the workout leaves the history (logical delete, I-07). Only a
+ * finished one: the workout in progress is discarded from S09 (RF-ENT-12).
+ */
 export class DeleteWorkout {
-  constructor(private readonly workouts: Pick<WorkoutRepository, 'delete'>) {}
+  constructor(private readonly workouts: Pick<WorkoutRepository, 'observeFinished' | 'delete'>) {}
 
-  execute(workoutId: Id): Promise<void> {
-    return this.workouts.delete(workoutId);
+  async execute(workoutId: Id): Promise<void> {
+    const workout = await finishedWorkout(this.workouts, workoutId);
+    if (workout !== null) await this.workouts.delete(workout.id);
   }
 }

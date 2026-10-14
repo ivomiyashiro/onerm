@@ -88,6 +88,15 @@ describe('past workout edits (RF-PROG-03)', () => {
     expect(workouts.finished).toEqual([]);
   });
 
+  it('AC4: never the workout in progress, which is deleted physically (RN-SYNC-13)', async () => {
+    const running = aWorkout({ id: 'now', status: 'in_progress', finishedAt: null });
+    const workouts = new InMemoryWorkoutRepository(running, [PAST]);
+
+    await new DeleteWorkout(workouts).execute('now');
+
+    expect(workouts.inProgress).toBe(running);
+  });
+
   it('a workout that is gone reports missing', async () => {
     const { workouts } = setUp();
 
