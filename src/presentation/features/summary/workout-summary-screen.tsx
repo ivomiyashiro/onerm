@@ -3,18 +3,16 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LoadUnit } from '@/domain/models/vocabulary';
-import { toUnit } from '@/domain/rules/units';
-import type { SummaryLine, SummaryRecord } from '@/domain/usecases/observe-workout-summary';
+import type { SummaryLine } from '@/domain/usecases/observe-workout-summary';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
+import { loadText, RecordCard } from '@/presentation/features/summary/record-card';
 import { useWorkoutSummaryViewModel } from '@/presentation/features/summary/use-workout-summary-view-model';
 import { reasonIcon } from '@/presentation/features/workout/reason-text';
 import { catalog } from '@/presentation/strings/catalog';
-import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
-import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
 
@@ -25,9 +23,6 @@ interface WorkoutSummaryScreenProps {
   /** «Listo», or the workout is gone: back to the tabs. */
   onDone: () => void;
 }
-
-const load = (kg: number, unit: LoadUnit) =>
-  `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
 
 /** S12 · Resumen del entrenamiento (RF-ENT-11.AC1, Figma «S12 · Resumen con récords»). */
 export function WorkoutSummaryScreen({ workoutId, onDone }: WorkoutSummaryScreenProps) {
@@ -116,35 +111,6 @@ function Stat({ value, label }: { value: string; label: string }) {
   );
 }
 
-/** Figma «RecordCard»: a record beaten today (RF-PROG-05.AC2). */
-function RecordCard({ record, unit }: { record: SummaryRecord; unit: LoadUnit }) {
-  const [kind, value] =
-    record.kind === 'heaviestLoad'
-      ? [strings.heaviestLoad, `${load(record.loadKg, unit)} ${text.set.timesReps(record.reps)}`]
-      : [
-          strings.estimatedMax,
-          record.e1rm.precision === 'approximate'
-            ? strings.approximate(load(record.e1rm.value, unit))
-            : load(record.e1rm.value, unit),
-        ];
-  return (
-    <View style={styles.record}>
-      <View style={styles.trophy}>
-        <Icon name="trophy" color={colors.textOnAccent} />
-      </View>
-      <View style={styles.flex}>
-        <Text style={[typography.label, { color: colors.textAccent }]}>
-          {strings.recordTitle(kind)}
-        </Text>
-        <Text style={[typography.numberMl, { color: colors.textPrimary }]}>{value}</Text>
-        <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-          {record.name ?? catalog.detail.unavailable}
-        </Text>
-      </View>
-    </View>
-  );
-}
-
 /** Figma «SummaryRow»: an exercise with its sets and best set, or skipped. */
 function SummaryRow({ line, unit, first }: { line: SummaryLine; unit: LoadUnit; first: boolean }) {
   let detail: string;
@@ -157,7 +123,7 @@ function SummaryRow({ line, unit, first }: { line: SummaryLine; unit: LoadUnit; 
     detail =
       loadKg === null
         ? strings.exerciseLineBodyweight(line.sets, reps)
-        : strings.exerciseLine(line.sets, load(loadKg, unit), reps);
+        : strings.exerciseLine(line.sets, loadText(loadKg, unit), reps);
     // What changes next time (S07 uses the same icons).
     icon = reasonIcon(line.next);
   }
@@ -199,24 +165,6 @@ const styles = StyleSheet.create({
   stat: { gap: 2 },
   section: { gap: space.s10 },
   sectionHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
-  record: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 14,
-    padding: space.s16,
-    borderRadius: 18,
-    borderWidth: 1,
-    borderColor: colors.borderAccentSoft,
-    backgroundColor: colors.bgCard,
-  },
-  trophy: {
-    width: 48,
-    height: 48,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 14,
-    backgroundColor: colors.bgAccent,
-  },
   flex: { flex: 1, gap: 2 },
   list: {
     overflow: 'hidden',

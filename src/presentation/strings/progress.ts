@@ -39,6 +39,11 @@ export const progress = {
     title: 'Entrenamiento',
     edit: 'Editar entrenamiento',
     date: (weekday: string, day: number, month: string) => `${weekday} ${day} de ${month}`,
+    /** «Miércoles 30 de septiembre · 52 min · 17 series» (Figma «S19 · Detalle»). */
+    meta: (date: string, minutes: number, sets: number) =>
+      `${date.charAt(0).toUpperCase()}${date.slice(1)} · ${minutes} min · ${count(sets, 'serie', 'series')}`,
+    /** Accessibility label of the pencil and of the ⋯ (13 §S19). */
+    menu: 'Opciones del entrenamiento',
     substitutes: (exercise: string) => `Sustituye a ${exercise}`,
     skipped: 'Salteado',
     editHelp: 'Tocá una serie para corregirla. Tus sugerencias se recalculan solas.',
