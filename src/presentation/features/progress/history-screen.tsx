@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Pressable, SectionList, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -27,6 +28,14 @@ interface HistoryScreenProps {
 export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps) {
   const { state, actions } = useHistoryViewModel();
   const insets = useSafeAreaInsets();
+  // RNF-14: a new array on every render would re-render every visible row.
+  const sections = useMemo(
+    () =>
+      state.status === 'content'
+        ? state.months.map((month) => ({ ...month, data: month.items }))
+        : [],
+    [state],
+  );
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
@@ -35,7 +44,7 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
       </Text>
       {state.status === 'content' ? (
         <SectionList
-          sections={state.months.map((month) => ({ ...month, data: month.items }))}
+          sections={sections}
           keyExtractor={(item) => item.id}
           stickySectionHeadersEnabled={false}
           contentContainerStyle={styles.sections}
@@ -47,7 +56,7 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
               item={item}
               first={index === 0}
               last={index === section.data.length - 1}
-              onPress={() => onOpenWorkout(item.id)}
+              onOpen={onOpenWorkout}
             />
           )}
         />
@@ -80,16 +89,16 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
 }
 
 /** A workout of the history: its date, day and routine, duration, sets and records. */
-function HistoryRow({
+const HistoryRow = memo(function HistoryRow({
   item,
   first,
   last,
-  onPress,
+  onOpen,
 }: {
   item: HistoryItem;
   first: boolean;
   last: boolean;
-  onPress: () => void;
+  onOpen: (workoutId: Id) => void;
 }) {
   const title = text.overview.workoutTitle(item.dayName, item.routineName);
   const month = common.months[item.finishedAt.getMonth()];
@@ -97,7 +106,7 @@ function HistoryRow({
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={title}
-      onPress={onPress}
+      onPress={() => onOpen(item.id)}
       style={({ pressed }) => [
         styles.row,
         first && styles.rowFirst,
@@ -133,7 +142,7 @@ function HistoryRow({
       <Icon name="chevron" size={20} color={colors.textPrimary} />
     </Pressable>
   );
-}
+});
 
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
