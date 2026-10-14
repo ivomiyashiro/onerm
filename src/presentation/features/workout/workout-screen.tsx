@@ -201,10 +201,12 @@ function Workout({
           {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
           {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
           {content.skipped && <Badge label={text.exerciseList.skipped} />}
-          <Text style={[typography.bodyS, styles.flex, { color: colors.textSecondary }]}>
+          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
             {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
           </Text>
-          <Button variant="tertiary" label={text.header.seeAll} onPress={actions.openExercises} />
+          <View style={styles.seeAll}>
+            <Button variant="tertiary" label={text.header.seeAll} onPress={actions.openExercises} />
+          </View>
         </View>
         {exercise.notes && (
           <Text style={[typography.bodyM, { color: colors.textSecondary }]}>{exercise.notes}</Text>
@@ -344,6 +346,8 @@ function Workout({
       >
         {exercises.map((e, index) => {
           const logged = e.exercise.sets.filter((s) => !s.isWarmup).length;
+          // Figma «S09 · Ver todos con salteado»: a skipped exercise is muted.
+          const muted = e.exercise.status === 'skipped' ? colors.textSecondary : colors.textPrimary;
           return (
             <Pressable
               key={e.exercise.id}
@@ -353,7 +357,7 @@ function Workout({
               onPress={() => actions.goTo(index)}
               style={[styles.listRow, index === exerciseIndex && styles.listRowCurrent]}
             >
-              <Text style={[typography.bodyRow, styles.flex, { color: colors.textPrimary }]}>
+              <Text style={[typography.bodyRow, styles.flex, { color: muted }]}>
                 {e.name ?? catalog.detail.unavailable}
               </Text>
               <Text style={[typography.monoS, { color: colors.textSecondary }]}>
@@ -371,6 +375,7 @@ function Workout({
       <BottomSheet
         visible={sheet?.kind === 'exerciseMenu'}
         title={name}
+        subtitle={text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
         closeLabel={common.close}
         onClose={actions.closeSheet}
       >
@@ -493,7 +498,14 @@ const styles = StyleSheet.create({
   title: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: space.s4 },
   flex: { flex: 1 },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
-  facts: { flexDirection: 'row', alignItems: 'center', gap: space.s8, paddingLeft: space.s4 },
+  facts: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    alignItems: 'center',
+    columnGap: space.s8,
+    paddingLeft: space.s4,
+  },
+  seeAll: { marginLeft: 'auto' },
   rows: { gap: space.s8 },
   bottom: {
     gap: space.s8,
