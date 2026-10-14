@@ -4,6 +4,7 @@ import {
   loadNumber,
   longDate,
   parseDecimal,
+  shortDate,
 } from '@/presentation/strings/numbers';
 
 describe('RN-PERF-05 · numbers on screen', () => {
@@ -43,5 +44,11 @@ describe('countdown (RN-ENT-07)', () => {
 describe('longDate', () => {
   it('D02: the weekday, the day and the month, in the device zone', () => {
     expect(longDate(new Date(2026, 8, 28, 18))).toBe('lunes 28 de septiembre');
+  });
+});
+
+describe('shortDate', () => {
+  it('S20: the day and the first three letters of the month', () => {
+    expect(shortDate(new Date(2026, 8, 30, 18))).toBe('30 sep');
   });
 });
