@@ -236,6 +236,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: encabezado | Ver todos · {n} de {total} · Tocá uno para ir (lista) · Guardar cambios (editar serie) · Se respalda al finalizar (solo con cuenta, 08 §5) |
 | S08 | Elegir día (título de la hoja) · {rutina} · {n} días · Elegir {día} · Recomendado · Hecho hace {n} días · Nunca hecho |
 | S12 | Entrenamiento · {día} · Terminado · Duración · Series · Ejercicios · {hechos} de {total} · Récords de hoy · Nuevo récord · Mayor carga · Nuevo récord · Máximo estimado · {valor} (aprox. si corresponde) · Lo que hiciste · {n} series · mejor {carga} × {reps} · Salteado · Próximo: {día} · Listo |
+| S12 (agregados en #37, 2026-10-14) | {n} min (duración) · {n} series · mejor × {reps} (ejercicio de peso corporal, sin carga como en las filas de S09) |
 | S10 | ¿Por qué {carga} × {reps}? · La última vez · Esfuerzo medio · Subida · En qué nos basamos: {principio} · Entendido · *Avanzado:* La última vez · RIR medio · Reserva media · Máximo estimado (aprox.) · Tope del rango · Días sin entrenar · W anterior · Ajuste. Títulos por motivo: ¿Por qué elegís vos el peso? (calibración) · ¿Por qué {reps} repeticiones? (peso corporal) · Lado: izquierdo · derecho |
 | S09: lista de ejercicios (subtítulo) | {día} · {n} de {total} |
 | S01 | Cada serie, con el peso justo. · Te sugerimos la carga de cada serie y te explicamos por qué. Funciona sin conexión. · Continuar sin cuenta · Crear cuenta · Iniciar sesión |

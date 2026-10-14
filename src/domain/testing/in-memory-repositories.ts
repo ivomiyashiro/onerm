@@ -271,4 +271,8 @@ export class InMemoryWorkoutRepository implements WorkoutRepository {
   fail(error: unknown = new Error('disk')) {
     this.inProgress$.fail(error);
   }
+
+  failFinished(error: unknown = new Error('disk')) {
+    this.finished$.fail(error);
+  }
 }

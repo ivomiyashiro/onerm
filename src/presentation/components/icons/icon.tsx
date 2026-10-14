@@ -30,6 +30,7 @@ import SkipSvg from '@/presentation/components/icons/svg/skip.svg';
 import SpinnerSvg from '@/presentation/components/icons/svg/spinner.svg';
 import SwapSvg from '@/presentation/components/icons/svg/swap.svg';
 import TrashSvg from '@/presentation/components/icons/svg/trash.svg';
+import TrophySvg from '@/presentation/components/icons/svg/trophy.svg';
 import UpSvg from '@/presentation/components/icons/svg/up.svg';
 import UserSvg from '@/presentation/components/icons/svg/user.svg';
 import WifiOffSvg from '@/presentation/components/icons/svg/wifi-off.svg';
@@ -66,6 +67,7 @@ const ICONS = {
   spinner: SpinnerSvg,
   swap: SwapSvg,
   trash: TrashSvg,
+  trophy: TrophySvg,
   up: UpSvg,
   user: UserSvg,
   'wifi-off': WifiOffSvg,
