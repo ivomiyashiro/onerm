@@ -74,6 +74,11 @@ export function reasonIcon(code: SuggestionCode): IconName {
 
 const isAdvanced = (level: ExperienceLevel) => level !== 'novice';
 
+/** An estimated max (e1RM) with one decimal: it is an estimate, not a load on the bar. */
+function formatEstimate(kg: number, unit: LoadUnit): string {
+  return `${decimal(toUnit(kg, unit))} ${common.units[unit]}`;
+}
+
 function formatLoad(kg: number | null, unit: LoadUnit): string {
   if (kg === null) return text.set.noLoad;
   return `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
@@ -116,7 +121,7 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
     case 'ESTIMATED_FROM_E1RM': {
       const date = dayMonth(reason.basis.at);
       return advanced || input.basisName === null
-        ? r.ESTIMATED_FROM_E1RM.advanced(formatLoad(reason.e1rm.value, unit), date)
+        ? r.ESTIMATED_FROM_E1RM.advanced(formatEstimate(reason.e1rm.value, unit), date)
         : r.ESTIMATED_FROM_E1RM.novice(input.basisName, date);
     }
     case 'FROM_EXERCISE_HISTORY':
@@ -126,7 +131,7 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
     case 'PRESCRIPTION_CHANGED':
       // Without an e1RM the technical line has nothing to show: the plain one says it all.
       return advanced && reason.e1rm !== null
-        ? r.PRESCRIPTION_CHANGED.advanced(formatLoad(reason.e1rm.value, unit))
+        ? r.PRESCRIPTION_CHANGED.advanced(formatEstimate(reason.e1rm.value, unit))
         : r.PRESCRIPTION_CHANGED.novice(repRange.min, repRange.max);
     case 'REENTRY':
       return advanced
@@ -189,7 +194,7 @@ function detailOf(suggestion: Suggestion, input: ReasonInput): string {
       return r.ESTIMATED_FROM_E1RM.detail(
         formatLoad(reason.basis.loadKg, unit),
         reason.basis.reps,
-        formatLoad(reason.e1rm.value, unit),
+        formatEstimate(reason.e1rm.value, unit),
         repRange.min,
         targetRir,
         formatLoad(suggestion.loadKg, unit),

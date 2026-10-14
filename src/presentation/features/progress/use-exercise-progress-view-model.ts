@@ -5,7 +5,7 @@ import { toUnit } from '@/domain/rules/units';
 import type { ProgressPeriod } from '@/domain/rules/progress/period';
 import type { ExerciseProgressView } from '@/domain/usecases/observe-exercise-progress';
 import type { ChartPoint } from '@/presentation/features/progress/progress-chart';
-import { loadText } from '@/presentation/features/summary/record-card';
+import { estimateText, loadText } from '@/presentation/features/summary/record-card';
 import { common } from '@/presentation/strings/common';
 import { shortDate } from '@/presentation/strings/numbers';
 import { progress } from '@/presentation/strings/progress';
@@ -144,7 +144,7 @@ export function contentOf(view: ExerciseProgressView): ExerciseProgressContent {
     cards: [
       {
         label: text.estimatedMax,
-        value: loadText(best.e1rm.value, unit),
+        value: estimateText(best.e1rm.value, unit),
         caption:
           best.e1rm.precision === 'approximate'
             ? text.recordApproximate
