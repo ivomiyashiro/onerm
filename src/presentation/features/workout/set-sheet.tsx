@@ -18,19 +18,27 @@ import {
   type RepsField,
   type RirField,
   type SetForm,
+  type SetFormErrors,
 } from '@/presentation/features/workout/set-form';
-import type { WorkoutSheet } from '@/presentation/features/workout/use-workout-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, space, typography } from '@/presentation/theme';
 
-type SetSheetState = Extract<WorkoutSheet, { kind: 'adjust' | 'edit' }>;
+/** S09 «Ajustar serie» or «Editar serie n»; S19 uses the same sheet (RF-PROG-03). */
+export type SetSheetState =
+  | { kind: 'adjust'; form: SetForm; errors: SetFormErrors | null }
+  | { kind: 'edit'; number: number; form: SetForm; errors: SetFormErrors | null };
+
+/** What the sheet reads of the exercise: the copy, its name, catalog entry and ± step. */
+export type SetSheetExercise = Pick<WorkoutExerciseView, 'exercise' | 'name' | 'catalog' | 'grid'> &
+  /** In S09 only: a past set (S19) is never in calibration. */
+  Partial<Pick<WorkoutExerciseView, 'suggestion'>>;
 
 interface SetSheetProps {
   sheet: SetSheetState | null;
-  exercise: WorkoutExerciseView;
+  exercise: SetSheetExercise;
   /** «Serie n de total» of the current set. */
   setNumber: number;
   setTotal: number;
@@ -42,7 +50,9 @@ interface SetSheetProps {
 }
 
 /** RN-ENT-05: the load convention next to the load (ADR-0008). */
-export function loadConvention(view: WorkoutExerciseView): string | undefined {
+export function loadConvention(
+  view: Pick<SetSheetExercise, 'catalog' | 'exercise'>,
+): string | undefined {
   const equipment = view.catalog?.primaryEquipment;
   if (equipment === 'dumbbell') return common.loadUnit.perDumbbell;
   if (view.exercise.isUnilateral) return common.loadUnit.perSide;
@@ -204,8 +214,8 @@ const CALIBRATION_CODES = new Set([
 ]);
 
 /** RN-ENT-12: the warm-up switch is not available during the calibration. */
-function isCalibrating(view: WorkoutExerciseView): boolean {
-  return CALIBRATION_CODES.has(view.suggestion.reason.code);
+function isCalibrating(view: SetSheetExercise): boolean {
+  return view.suggestion !== undefined && CALIBRATION_CODES.has(view.suggestion.reason.code);
 }
 
 function Toggle({
