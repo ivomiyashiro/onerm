@@ -6,8 +6,10 @@ import { Text } from '@/presentation/components/text';
 
 interface LoadStepperProps {
   label: string;
-  /** Already formatted for display ("62,5"). */
+  /** Already formatted for display ("62,5"); empty without a value. */
   value: string;
+  /** Shown while there is no value ("—"): never part of what is typed (#140). */
+  placeholder?: string;
   unit?: string;
   /** What the change means ("Subimos 2,5 kg") or, with `error`, what is wrong. */
   note?: string;
@@ -24,6 +26,7 @@ interface LoadStepperProps {
 export function LoadStepper({
   label,
   value,
+  placeholder,
   unit,
   note,
   error = false,
@@ -37,7 +40,7 @@ export function LoadStepper({
     <View style={[styles.card, error && styles.cardError]}>
       <View
         accessible={!onChangeText}
-        accessibilityLabel={[label, value, unit].filter(Boolean).join(' ')}
+        accessibilityLabel={[label, value || placeholder, unit].filter(Boolean).join(' ')}
       >
         <Text style={[typography.label, styles.label]}>{label}</Text>
         <View style={styles.value}>
@@ -45,12 +48,16 @@ export function LoadStepper({
             <TextInput
               accessibilityLabel={label}
               value={value}
+              placeholder={placeholder}
+              placeholderTextColor={colors.textPrimary}
               onChangeText={onChangeText}
               keyboardType="decimal-pad"
               style={[typography.numberHero, styles.input]}
             />
           ) : (
-            <Text style={[typography.numberHero, { color: colors.textPrimary }]}>{value}</Text>
+            <Text style={[typography.numberHero, { color: colors.textPrimary }]}>
+              {value || placeholder}
+            </Text>
           )}
           {unit && (
             <Text style={[typography.bodyLStrong, { color: colors.textSecondary }]}>{unit}</Text>

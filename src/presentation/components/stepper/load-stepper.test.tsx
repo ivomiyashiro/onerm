@@ -62,4 +62,12 @@ describe('LoadStepper', () => {
     expect(note).toHaveStyle({ color: colors.textErr });
     expect(note.props.accessibilityLiveRegion).toBe('polite');
   });
+
+  it('#140: without a value the field is empty and shows the placeholder, so typing starts clean', async () => {
+    await render(<LoadStepper {...baseProps} value="" placeholder="—" onChangeText={jest.fn()} />);
+
+    const input = screen.getByLabelText('Carga');
+    expect(input.props.value).toBe('');
+    expect(input.props.placeholder).toBe('—');
+  });
 });
