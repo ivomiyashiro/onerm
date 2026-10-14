@@ -146,8 +146,10 @@ export class ObserveWorkoutSummary {
                   rotationDays.filter((day) => day.routineId === routine.id),
                   finished,
                 );
-          const minutes = Math.round(
-            (workout.finishedAt.getTime() - workout.startedAt.getTime()) / 60_000,
+          // A set corrected to before the start never gives a negative duration.
+          const minutes = Math.max(
+            0,
+            Math.round((workout.finishedAt.getTime() - workout.startedAt.getTime()) / 60_000),
           );
 
           observer.next({

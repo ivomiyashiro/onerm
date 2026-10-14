@@ -21,7 +21,7 @@ const OLD = anExercise({
   id: 'old',
   name: 'Press viejo',
   primaryMuscles: ['chest'],
-  deprecatedAt: new Date(),
+  deprecatedAt: new Date('2026-01-01T00:00:00Z'),
 });
 const CATALOG = [ROW, FLY, CABLE_PRESS, MACHINE_PRESS, OLD];
 
