@@ -68,6 +68,19 @@ describe('useWorkoutDetailViewModel', () => {
     expect(result.current.state).toEqual({ status: 'loading' });
   });
 
+  it('missing for a workout that is not in the history', async () => {
+    const { result } = await renderViewModel('other');
+
+    expect(result.current.state).toEqual({ status: 'missing' });
+  });
+
+  it('error when the local read fails', async () => {
+    const { result, workouts } = await renderViewModel();
+    await act(() => workouts.failFinished());
+
+    expect(result.current.state).toEqual({ status: 'error' });
+  });
+
   it('RF-PROG-02.AC1: content; sets open only while editing', async () => {
     const { result } = await renderViewModel();
     expect(result.current.state).toMatchObject({ status: 'content', detail: { id: 'w1' } });
