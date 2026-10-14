@@ -4,6 +4,8 @@ import { WorkoutSummaryScreen } from '@/presentation/features/summary/workout-su
 
 export default function S12Route() {
   const router = useRouter();
-  const { id = '' } = useLocalSearchParams<{ id?: string }>();
-  return <WorkoutSummaryScreen workoutId={id} onDone={() => router.replace('/')} />;
+  // A link can repeat the param; a missing or unknown id shows nothing and goes back.
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const workoutId = (Array.isArray(id) ? id[0] : id) ?? '';
+  return <WorkoutSummaryScreen workoutId={workoutId} onDone={() => router.replace('/')} />;
 }

@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -34,13 +34,12 @@ export function WorkoutSummaryScreen({ workoutId, onDone }: WorkoutSummaryScreen
   const state = useWorkoutSummaryViewModel(workoutId);
   const insets = useSafeAreaInsets();
 
-  // Once: the route's callback is a new function on every render.
-  const left = useRef(false);
+  // The route's callback is a new function on every render: only the status matters.
+  const leave = useEffectEvent(() => onDone());
+  const missing = state.status === 'missing';
   useEffect(() => {
-    if (state.status !== 'missing' || left.current) return;
-    left.current = true;
-    onDone();
-  }, [state.status, onDone]);
+    if (missing) leave();
+  }, [missing]);
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>

@@ -34,13 +34,17 @@ export function useWorkoutResume({
 
   useEffect(() => {
     let active = true;
-    void readWorkoutResume.execute().then((found) => {
-      if (!active) return;
-      if (found.kind === 'resume') resume();
-      if (found.kind === 'abandoned') {
-        setAbandoned({ startedAt: found.startedAt, sets: found.sets });
-      }
-    });
+    readWorkoutResume
+      .execute()
+      .then((found) => {
+        if (!active) return;
+        if (found.kind === 'resume') resume();
+        if (found.kind === 'abandoned') {
+          setAbandoned({ startedAt: found.startedAt, sets: found.sets });
+        }
+      })
+      // A failed local read: the tabs show it (S07 error), and «Continuar» still opens S09.
+      .catch(() => {});
     return () => {
       active = false;
     };
