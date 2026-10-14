@@ -401,7 +401,15 @@ Escenario: AC4 — Invitado
   Dado que soy invitado y es mi primer entrenamiento finalizado
   Cuando veo el resumen
   Entonces se me sugiere crear una cuenta (RF-AUTH-01, AC5)
+
+Escenario: AC5 — Sin series efectivas
+  Dado que no registré ninguna serie efectiva
+  Cuando toco "Finalizar"
+  Entonces se me ofrece descartarlo (D18) en lugar de finalizarlo
+  Y si lo descarto, el próximo día no cambia y el historial queda igual (RF-ENT-12)
 ```
+
+**Notas:** AC5 es la decisión D2 de la revisión de F5 (2026-10-14). Un entrenamiento abandonado (RN-ENT-11) se puede finalizar igual desde D02.
 
 ---
 

@@ -161,5 +161,11 @@ export const dialogs = {
     body: 'Sin este permiso no podemos avisarte con la pantalla bloqueada. Activá «Alarmas y recordatorios» para OneRM.',
     openSettings: 'Abrir ajustes',
     notNow: 'Ahora no',
+  } /** RF-ENT-11.AC5: «Finalizar» without any effective set (decision D2 of the F5 review). */,
+  D18: {
+    title: '¿Descartar el entrenamiento?',
+    body: 'No registraste series, así que no hay nada para guardar.',
+    discardDestructive: 'Descartar',
+    keepTraining: 'Seguir entrenando',
   },
 } as const;

@@ -38,6 +38,7 @@ const LEG_PRESS = anExercise({ id: 'leg-press', name: 'Prensa de piernas' });
 const CURL = anExercise({ id: 'curl', name: 'Curl', primaryMuscles: ['biceps'] });
 const twoSets = aPrescription({ sets: 2 });
 const RUNNING = aWorkout({
+  id: 'running',
   status: 'in_progress',
   finishedAt: null,
   startedAt: new Date('2026-10-13T18:00:00Z'),
@@ -376,16 +377,27 @@ describe('useWorkoutViewModel', () => {
 
     it('RF-ENT-11.AC2: with exercises without sets, D10 asks first', async () => {
       const { result, workouts } = await renderViewModel();
+      await act(() => result.current.actions.done());
 
       expect(await act(() => result.current.actions.finish())).toBeNull();
-      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 2 });
+      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 1 });
       const id = await act(() => result.current.actions.confirmFinish());
 
       expect(id).toBe(RUNNING.id);
-      expect(workouts.finished.at(-1)!.exercises.map((e) => e.status)).toEqual([
-        'skipped',
-        'skipped',
-      ]);
+      expect(workouts.finished.at(-1)!.exercises.map((e) => e.status)).toEqual(['done', 'skipped']);
+    });
+
+    it('RF-ENT-11.AC5: without any effective set, finishing offers to discard (D18)', async () => {
+      const { result, workouts } = await renderViewModel();
+
+      expect(await act(() => result.current.actions.finish())).toBeNull();
+      expect(result.current.confirm).toEqual({ kind: 'empty' });
+      expect(workouts.finished).toHaveLength(1);
+      await act(() => result.current.actions.confirmDiscard());
+
+      // Discarded, not finished: the history and the next day stay as they were.
+      expect(workouts.inProgress).toBeNull();
+      expect(workouts.finished).toHaveLength(1);
     });
 
     it('RF-ENT-11.AC1: with every set done, «Finalizar entrenamiento» finishes at once', async () => {

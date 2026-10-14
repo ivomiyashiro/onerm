@@ -432,6 +432,20 @@ function Workout({
         onDismiss={actions.closeConfirm}
       />
       <Dialog
+        visible={confirm?.kind === 'empty'}
+        title={dialogs.D18.title}
+        body={dialogs.D18.body}
+        actions={[
+          { label: dialogs.D18.keepTraining, kind: 'safe', onPress: actions.closeConfirm },
+          {
+            label: dialogs.D18.discardDestructive,
+            kind: 'destructive',
+            onPress: () => void actions.confirmDiscard(),
+          },
+        ]}
+        onDismiss={actions.closeConfirm}
+      />
+      <Dialog
         visible={confirm?.kind === 'discard'}
         title={dialogs.D09.title}
         body={dialogs.D09.body(confirm?.kind === 'discard' ? confirm.sets : 0)}
