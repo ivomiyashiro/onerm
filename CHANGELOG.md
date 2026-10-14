@@ -37,5 +37,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- With a long history (1,000 workouts), logging a set no longer reads the whole history again, and the app starts faster.
 - Typing the load of a calibration set started after the «—» shown in the field, so the set could not be logged.
 - The estimated max shows one decimal, as an estimate.

@@ -1,10 +1,10 @@
-import { eq } from 'drizzle-orm';
+import { eq, getTableName } from 'drizzle-orm';
 
 import { openTestDatabase, type TestDatabase } from '@/data/db/open-test-database';
 import { appState, workoutExercises, workouts, workoutSets } from '@/data/db/schema';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
-import type { Workout } from '@/domain/models/workout';
+import type { Workout, WorkoutSet } from '@/domain/models/workout';
 import {
   aBilateralSet,
   aUnilateralSet,
@@ -254,15 +254,21 @@ describe('SqliteWorkoutRepository: observation', () => {
     ]);
   });
 
-  it('re-reads after a change in the sets', async () => {
+  it('re-reads after a write to a finished set from outside the repository (the sync pull)', async () => {
     await repository.save(FINISHED);
     const values: Workout[][] = [];
     repository.observeFinished({ next: (value) => values.push(value), error: jest.fn() });
 
+    t.db
+      .update(workoutSets)
+      .set({ reps: 10, updatedAt: T0 + 5000 })
+      .where(eq(workoutSets.id, 's1'))
+      .run();
     changes.emit('workout_sets');
     await flush();
 
     expect(values).toHaveLength(2);
+    expect(values[1][0].exercises[0].sets[0]).toMatchObject({ reps: 10 });
   });
 });
 
@@ -339,5 +345,81 @@ describe('SqliteWorkoutRepository: delete (06 §3, I-07)', () => {
     const read = last<Workout | null>((o) => repository.observeById('w1', o))();
 
     expect(read?.exercises.map((exercise) => exercise.id)).toEqual(['we2']);
+  });
+});
+
+describe('SqliteWorkoutRepository: one shared read of the finished history (#141)', () => {
+  function watchFinished() {
+    const values: Workout[][] = [];
+    const stop = repository.observeFinished({ next: (v) => values.push(v), error: jest.fn() });
+    return { values, stop };
+  }
+
+  it('a set of the workout in progress neither reads the history again nor wakes its observers', async () => {
+    await repository.save(FINISHED);
+    await repository.save(IN_PROGRESS);
+    const a = watchFinished();
+    const b = watchFinished();
+
+    now += 1000;
+    await repository.save({
+      ...IN_PROGRESS,
+      exercises: [
+        {
+          ...IN_PROGRESS.exercises[0],
+          sets: [aBilateralSet({ id: 'new', workoutExerciseId: 'we3' })],
+        },
+      ],
+    });
+    TABLES.forEach((table) => changes.emit(getTableName(table)));
+    await flush();
+
+    expect(a.values).toHaveLength(1);
+    expect(b.values).toHaveLength(1);
+  });
+
+  it('a correction to a finished workout reaches every observer once', async () => {
+    await repository.save(FINISHED);
+    const a = watchFinished();
+    const b = watchFinished();
+
+    now += 1000;
+    const [squat, row] = FINISHED.exercises;
+    await repository.save({
+      ...FINISHED,
+      exercises: [
+        { ...squat, sets: [{ ...squat.sets[0], reps: 9 } as WorkoutSet, squat.sets[1]] },
+        row,
+      ],
+    });
+    TABLES.forEach((table) => changes.emit(getTableName(table)));
+    await flush();
+
+    expect(a.values).toHaveLength(2);
+    expect(b.values.at(-1)![0].exercises[0].sets[0]).toMatchObject({ reps: 9 });
+  });
+
+  it('finishing the workout in progress adds it to the history', async () => {
+    await repository.save(IN_PROGRESS);
+    const a = watchFinished();
+
+    now += 1000;
+    await repository.save({ ...IN_PROGRESS, status: 'finished', finishedAt: new Date(now) });
+    changes.emit('workouts');
+    await flush();
+
+    expect(a.values.map((list) => list.map((w) => w.id))).toEqual([[], ['w2']]);
+  });
+
+  it('a deleted finished workout leaves it', async () => {
+    await repository.save(FINISHED);
+    const a = watchFinished();
+
+    now += 1000;
+    await repository.delete('w1');
+    changes.emit('workouts');
+    await flush();
+
+    expect(a.values.at(-1)).toEqual([]);
   });
 });
