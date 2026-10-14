@@ -101,6 +101,19 @@ describe('wger adapter: map (ADR-0004 §3)', () => {
   });
 });
 
+describe('wger adapter: descriptions', () => {
+  it('decodes the HTML entities of the description', () => {
+    const result = mapWgerExercise(
+      exercise({
+        translations: [
+          { language: 4, name: 'X', description: '<p>Pecho &amp; hombros&nbsp;hoy</p>' },
+        ],
+      }),
+    );
+    expect(result).toMatchObject({ candidate: { description: 'Pecho & hombros hoy' } });
+  });
+});
+
 describe('wger adapter: extract', () => {
   it('follows the pagination until there is no next page', async () => {
     const pages = [
@@ -114,6 +127,15 @@ describe('wger adapter: extract', () => {
     }
     expect(seen).toEqual([{ id: 1 }, { id: 2 }, { id: 3 }]);
     expect(fetchFn).toHaveBeenCalledTimes(2);
+  });
+
+  it('refuses a next page on another host', async () => {
+    const fetchFn = jest.fn(async () => ({
+      ok: true,
+      json: async () => ({ next: 'https://evil.example/page2', results: [] }),
+    }));
+    const extract = wgerAdapter(fetchFn as unknown as typeof fetch).extract();
+    await expect(extract[Symbol.asyncIterator]().next()).rejects.toThrow('another host');
   });
 
   it('fails loudly when the API answers an error', async () => {

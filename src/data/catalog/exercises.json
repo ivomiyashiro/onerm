@@ -1,6 +1,6 @@
 {
-  "version": 2,
-  "contentHash": "effe96439d875575",
+  "version": 3,
+  "contentHash": "e61860c45866bbce",
   "exercises": [
     {
       "id": "69aee190-c7d4-4241-a7c3-171912305d67",
@@ -204,7 +204,7 @@
       ],
       "mechanic": "compound",
       "isUnilateral": false,
-      "description": "Tipos de sentadillas con disco Goblet Squat: Es la sentadilla con disco más común, donde el disco se sostiene a la altura del pecho, ayudando a mantener una buena postura y mejorando la estabilidad del tobillo.&nbsp; Overhead Plate Squat: En esta variación, el disco se mantiene por encima de la cabeza durante todo el movimiento de la sentadilla, lo que aumenta la demanda de movilidad y estabilidad del hombro.",
+      "description": "Tipos de sentadillas con disco Goblet Squat: Es la sentadilla con disco más común, donde el disco se sostiene a la altura del pecho, ayudando a mantener una buena postura y mejorando la estabilidad del tobillo. Overhead Plate Squat: En esta variación, el disco se mantiene por encima de la cabeza durante todo el movimiento de la sentadilla, lo que aumenta la demanda de movilidad y estabilidad del hombro.",
       "attributions": [
         {
           "source": "wger",
@@ -295,7 +295,7 @@
       ],
       "mechanic": "isolation",
       "isUnilateral": false,
-      "description": "Ajusta la palanca de la máquina para adaptarla a tu altura y siéntate en la máquina con la espalda contra la almohadilla de respaldo. Coloca los tobillos sobre los cojines , los muslos debajo del cojinete de sujeción justo por encima de las rodillas y las manos en los agarres.Al inspirar realiza una flexión de las rodillas. Mantener la espalda inmóvil en todo momento únicamente solo debe movilizarse&nbsp; los pies por la flexión de rodilla. Mantén la posición contraída por un segundo. Lentamente regresa a la posición inicial. Espirar al final del movimiento.",
+      "description": "Ajusta la palanca de la máquina para adaptarla a tu altura y siéntate en la máquina con la espalda contra la almohadilla de respaldo. Coloca los tobillos sobre los cojines , los muslos debajo del cojinete de sujeción justo por encima de las rodillas y las manos en los agarres.Al inspirar realiza una flexión de las rodillas. Mantener la espalda inmóvil en todo momento únicamente solo debe movilizarse los pies por la flexión de rodilla. Mantén la posición contraída por un segundo. Lentamente regresa a la posición inicial. Espirar al final del movimiento.",
       "attributions": [
         {
           "source": "wger",
@@ -443,7 +443,7 @@
       ],
       "mechanic": "isolation",
       "isUnilateral": false,
-      "description": "Mire&nbsp; hacia&nbsp; la&nbsp; máquina&nbsp; y&nbsp; coloque&nbsp; las&nbsp; puntas&nbsp; de&nbsp; los&nbsp; pies&nbsp; en&nbsp; el&nbsp; borde&nbsp; más&nbsp; cercano&nbsp; del&nbsp; escalón&nbsp; con&nbsp; los&nbsp; pies&nbsp; paralelos&nbsp; entre&nbsp; sí. Sumerja&nbsp; su&nbsp; cuerpo&nbsp; debajo&nbsp; de&nbsp; las hombreras&nbsp; y&nbsp; póngase&nbsp; de&nbsp; pie&nbsp; con&nbsp; el&nbsp; cuerpo&nbsp; completamente&nbsp; erguido. Permita&nbsp; que&nbsp; sus&nbsp; talones&nbsp; caigan&nbsp; más&nbsp; abajo&nbsp; que&nbsp; el&nbsp; escalón&nbsp; hasta&nbsp; que&nbsp; sienta&nbsp; un&nbsp; estiramiento. No&nbsp; permita&nbsp; que&nbsp; le&nbsp; bloqueen&nbsp; las&nbsp; rodillas.&nbsp; Movimiento&nbsp; hacia&nbsp; arriba Ponga&nbsp; los&nbsp; dedos&nbsp; de&nbsp; los&nbsp; pies&nbsp; en&nbsp; punta&nbsp; para&nbsp; levantar&nbsp; los&nbsp; talones arriba. Mantenga&nbsp; su&nbsp; cuerpo&nbsp; erguido&nbsp; y&nbsp; no&nbsp; mire&nbsp; hacia&nbsp; abajo&nbsp; ni&nbsp; se&nbsp; incline&nbsp; hacia&nbsp; adelante&nbsp; o&nbsp; hacia&nbsp; atrás. Movimiento&nbsp; descendente Permita&nbsp; que&nbsp; sus&nbsp; talones&nbsp; vuelvan&nbsp; a&nbsp; caer&nbsp; a&nbsp; la&nbsp; posición&nbsp; inicial. Mantenga&nbsp; su&nbsp; cuerpo&nbsp; completamente&nbsp; erguido&nbsp; y&nbsp; no&nbsp; rebote&nbsp; desde&nbsp; la&nbsp; posición&nbsp; más&nbsp; baja&nbsp; para&nbsp;&nbsp; comenzar&nbsp; el&nbsp; movimiento&nbsp; ascendente.",
+      "description": "Mire hacia la máquina y coloque las puntas de los pies en el borde más cercano del escalón con los pies paralelos entre sí. Sumerja su cuerpo debajo de las hombreras y póngase de pie con el cuerpo completamente erguido. Permita que sus talones caigan más abajo que el escalón hasta que sienta un estiramiento. No permita que le bloqueen las rodillas. Movimiento hacia arriba Ponga los dedos de los pies en punta para levantar los talones arriba. Mantenga su cuerpo erguido y no mire hacia abajo ni se incline hacia adelante o hacia atrás. Movimiento descendente Permita que sus talones vuelvan a caer a la posición inicial. Mantenga su cuerpo completamente erguido y no rebote desde la posición más baja para comenzar el movimiento ascendente.",
       "attributions": [
         {
           "source": "wger",
@@ -646,7 +646,7 @@
       ],
       "mechanic": "isolation",
       "isUnilateral": false,
-      "description": "Siéntese&nbsp; en&nbsp; la&nbsp; máquina&nbsp; y&nbsp; coloque&nbsp; las&nbsp; rodillas&nbsp; y&nbsp; los&nbsp; muslos&nbsp; debajo&nbsp; de&nbsp; las&nbsp; almohadillas. Coloque&nbsp; las&nbsp; puntas&nbsp; de&nbsp; los&nbsp; pies&nbsp; en&nbsp; el&nbsp; borde&nbsp; más&nbsp; cercano&nbsp; del&nbsp; escalón&nbsp; con&nbsp; los&nbsp; pies&nbsp; &nbsp;paralelos&nbsp; entre&nbsp; sí. Apunte&nbsp; ligeramente&nbsp; &nbsp;con&nbsp; los&nbsp; dedos&nbsp; de&nbsp; los&nbsp; pies&nbsp; para&nbsp; levantar&nbsp; las&nbsp; almohadillas&nbsp; de&nbsp; los&nbsp; muslos&nbsp; y&nbsp; quitar&nbsp; la&nbsp; barra&nbsp; &nbsp;de&nbsp; apoyo. Permita&nbsp; que&nbsp; sus&nbsp; talones&nbsp; &nbsp;bajen&nbsp; más&nbsp; abajo&nbsp; que&nbsp; el&nbsp; escalón&nbsp; hasta&nbsp; que&nbsp; sienta&nbsp; un Movimiento&nbsp; hacia&nbsp; arriba Ponga&nbsp; los&nbsp; dedos&nbsp; de&nbsp; los&nbsp; pies&nbsp; en&nbsp; punta&nbsp; para&nbsp; &nbsp;levantar&nbsp; los&nbsp; talones. No&nbsp; tire&nbsp; de&nbsp; las&nbsp; asas&nbsp; ni&nbsp; incline&nbsp; el&nbsp; torso&nbsp; hacia&nbsp; atrás. Elevación&nbsp; de&nbsp; talón&nbsp; sentado Movimiento&nbsp; descendente estirar. Posición&nbsp; inicial Permita&nbsp; que&nbsp; sus&nbsp; talones&nbsp; vuelvan&nbsp; a&nbsp; caer&nbsp; a&nbsp; la&nbsp; posición&nbsp; inicial. Cuando&nbsp; &nbsp;complete&nbsp; el&nbsp; conjunto,&nbsp; mueva&nbsp; la&nbsp; barra&nbsp; de&nbsp; apoyo&nbsp; a&nbsp; su&nbsp; lugar.",
+      "description": "Siéntese en la máquina y coloque las rodillas y los muslos debajo de las almohadillas. Coloque las puntas de los pies en el borde más cercano del escalón con los pies paralelos entre sí. Apunte ligeramente con los dedos de los pies para levantar las almohadillas de los muslos y quitar la barra de apoyo. Permita que sus talones bajen más abajo que el escalón hasta que sienta un Movimiento hacia arriba Ponga los dedos de los pies en punta para levantar los talones. No tire de las asas ni incline el torso hacia atrás. Elevación de talón sentado Movimiento descendente estirar. Posición inicial Permita que sus talones vuelvan a caer a la posición inicial. Cuando complete el conjunto, mueva la barra de apoyo a su lugar.",
       "attributions": [
         {
           "source": "wger",

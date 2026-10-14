@@ -2,7 +2,8 @@ import type { Equipment, Muscle } from '@/domain/models/vocabulary';
 
 import type { ExerciseSourceAdapter, MapResult } from '../types';
 
-const API = 'https://wger.de/api/v2/exerciseinfo/';
+const ORIGIN = 'https://wger.de/';
+const API = `${ORIGIN}api/v2/exerciseinfo/`;
 const SPANISH = 4;
 const ENGLISH = 2;
 const PAGE_SIZE = 100;
@@ -71,6 +72,9 @@ export function wgerAdapter(fetchFn: typeof fetch = fetch): ExerciseSourceAdapte
         if (!response.ok) throw new Error(`wger answered ${response.status} for ${url}`);
         const page = (await response.json()) as WgerPage;
         yield* page.results;
+        if (page.next !== null && !page.next.startsWith(ORIGIN)) {
+          throw new Error(`wger sent the next page to another host: ${page.next}`);
+        }
         url = page.next;
       }
     },
@@ -146,6 +150,12 @@ export function mapWgerExercise(input: unknown): MapResult {
 function stripHtml(html: string): string {
   return html
     .replace(/<[^>]*>/g, ' ')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/&amp;/g, '&')
     .replace(/\s+/g, ' ')
     .trim();
 }
