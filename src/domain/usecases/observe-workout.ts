@@ -17,6 +17,7 @@ import {
   type SuggestionExplanation,
 } from '@/domain/rules/suggestion/explanation';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
+import { isSubstitution } from '@/domain/rules/substitution';
 import { currentSuggestion } from '@/domain/rules/workout/current-suggestion';
 import { explanationFor } from '@/domain/rules/workout/suggestion-for';
 import { observeTogether } from '@/domain/usecases/observe-together';
@@ -137,7 +138,11 @@ export class ObserveWorkout {
               const target = `${exercise.routineExerciseId}|${exercise.exerciseId}|${JSON.stringify(exercise.prescription)}`;
               let base = explanations.get(target);
               if (base === undefined) {
-                base = explanationFor(exercise, inputs);
+                // RN-SUG-15: a substitute has no ERR; its load comes from its own EE.
+                const routineExerciseId = isSubstitution(exercise)
+                  ? null
+                  : exercise.routineExerciseId;
+                base = explanationFor({ ...exercise, routineExerciseId }, inputs);
                 explanations.set(target, base);
               }
               const grid = exercise.loadType === 'bodyweight' ? null : loadGridFor(profile, entry);

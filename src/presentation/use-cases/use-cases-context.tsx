@@ -12,6 +12,7 @@ import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import type { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import type { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import type { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
 import type {
   AddRestTime,
   AskRestPermission,
@@ -22,6 +23,13 @@ import type {
   StartRest,
 } from '@/domain/usecases/rest-timer';
 import type { StartWorkout } from '@/domain/usecases/start-workout';
+import type {
+  DiscardWorkout,
+  FinishWorkout,
+  ReadWorkoutResume,
+  SkipExercise,
+  SubstituteExercise,
+} from '@/domain/usecases/workout-lifecycle';
 import type { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
 import type { ObserveProfile } from '@/domain/usecases/observe-profile';
 import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
@@ -77,6 +85,12 @@ export interface UseCases {
   skipRest: SkipRest;
   askRestPermission: AskRestPermission;
   readRestPermissions: ReadRestPermissions;
+  skipExercise: SkipExercise;
+  substituteExercise: SubstituteExercise;
+  finishWorkout: FinishWorkout;
+  discardWorkout: DiscardWorkout;
+  readWorkoutResume: ReadWorkoutResume;
+  observeWorkoutSummary: ObserveWorkoutSummary;
 }
 
 const UseCasesContext = createContext<UseCases | null>(null);

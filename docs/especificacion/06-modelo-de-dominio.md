@@ -72,7 +72,7 @@ Entre agregados las referencias son **solo por ID**. Por ejemplo, un `WorkoutExe
 
 - Descartar un entrenamiento **en curso** lo borra **físicamente**, con sus ejercicios y series: nunca se subió (RN-SYNC-13, RF-ENT-12). Borrar un entrenamiento **finalizado** es un borrado lógico del agregado (I-07). No existe un estado `discarded`.
 - Una **sustitución** se reconoce cuando `exerciseId ≠ plannedExerciseId` (RN-ENT-10). Se compara contra la copia, no contra la rutina actual, para que cambiar el ejercicio de la rutina no reescriba el historial (RN-RUT-08).
-- Sustituir **crea un nuevo** `WorkoutExercise`. El original conserva sus series (RN-ENT-10).
+- Sustituir **crea un nuevo** `WorkoutExercise`. El original conserva sus series (RN-ENT-10) y el sustituto va a continuación. Si el original todavía no tiene series, el sustituto ocupa su lugar y el original se quita del entrenamiento en curso (Figma «S09 · Ejercicio sustituido»). Así el sustituto conserva la prescripción y el ejercicio planificado, y el historial lo muestra como «en lugar de …».
 - Un **ejercicio no planificado** (Could) es un `WorkoutExercise` sin `routineExerciseId` ni `plannedExerciseId`.
 
 ### Exercise (catálogo)

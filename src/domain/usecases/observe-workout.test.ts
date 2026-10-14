@@ -58,6 +58,26 @@ function observe(
 }
 
 describe('ObserveWorkout', () => {
+  it('RF-ENT-09.AC3, RN-SUG-15: a substitute goes by its own EE, never as ERR', () => {
+    const substitute = (sets: number[]) =>
+      aWorkoutExercise({
+        id: 'we-1',
+        routineExerciseId: 're-1',
+        plannedExerciseId: 'barbell-back-squat',
+        exerciseId: 'leg-press',
+        sets: sets.map((position) =>
+          aBilateralSet({ id: `s${position}`, position, loadKg: 100, reps: 12, rir: 2 }),
+        ),
+      });
+    const before = aWorkout({ id: 'before', exercises: [substitute([0, 1, 2])] });
+    const running = { ...RUNNING, exercises: [substitute([])] };
+
+    const view = observe(running, { finished: [before] }).last()!;
+
+    // As an ERR, 3 × 12 at the cap would raise the load (RN-SUG-03).
+    expect(view.exercises[0].suggestion.reason.code).not.toBe('INCREASE_LOAD');
+  });
+
   it('no workout in progress: null', () => {
     expect(observe(null).last()).toBeNull();
   });

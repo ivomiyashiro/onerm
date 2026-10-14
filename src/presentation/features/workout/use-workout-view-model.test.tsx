@@ -41,7 +41,13 @@ const RUNNING = aWorkout({
   startedAt: new Date('2026-10-13T18:00:00Z'),
   exercises: [
     aWorkoutExercise({ id: 'we-1', prescription: twoSets }),
-    aWorkoutExercise({ id: 'we-2', exerciseId: 'press', position: 1, prescription: twoSets }),
+    aWorkoutExercise({
+      id: 'we-2',
+      exerciseId: 'press',
+      plannedExerciseId: 'press',
+      position: 1,
+      prescription: twoSets,
+    }),
   ],
 });
 /** 2 × 12 at 100 kg last time: today 105 × 8 (RN-SUG-03). */
