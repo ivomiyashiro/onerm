@@ -24,6 +24,12 @@ export const progress = {
     volumeHelp:
       'Rango guía: 8 a 12 series por músculo. Contamos 1 por cada serie de un músculo principal y 0,5 si es secundario.',
     why10: '¿Por qué 10 series?',
+    /** «Guía 8–12 · referencia 10» (Figma «S18 · Volumen semanal»). */
+    guide: 'Guía 8–12 · referencia 10',
+    /** «28 sep – 4 oct · 2 de 3 entrenamientos». */
+    weekSubtitle: (range: string, workouts: string) => `${range} · ${workouts}`,
+    previousWeek: 'Semana anterior',
+    nextWeek: 'Semana siguiente',
     empty: {
       title: 'Todavía no hay entrenamientos',
       body: 'Cuando termines tu primer entrenamiento lo vas a ver acá.',
@@ -58,6 +64,8 @@ export const progress = {
     record: 'récord',
     approximate: 'aproximado',
     periods: { fourWeeks: '4 semanas', threeMonths: '3 meses', all: 'Todo' },
+    /** Accessible name of the period options. */
+    period: 'Período',
     estimatedMaxIn: (unit: string) => `Máximo estimado en ${unit}`,
     highPrecision: 'Precisión alta',
     approximatePrecision: 'Aproximada',
@@ -70,6 +78,12 @@ export const progress = {
       help: 'Con más de 15 repeticiones no podemos estimar tu máximo con precisión, así que te mostramos tu mejor serie.',
     },
     bestSetPerWorkout: 'Mejor serie de cada entrenamiento',
+    /** Captions of the record cards (Figma «S20»). */
+    recordOn: (date: string) => `récord · ${date}`,
+    recordApproximate: 'récord · aproximado',
+    lastTime: 'última vez',
+    repsUnit: 'reps',
+    title: 'Progreso',
     maxReps: 'Máximas reps',
     totalReps: 'Reps totales',
     maxRepsPerWorkout: 'Máximas repeticiones por entrenamiento',

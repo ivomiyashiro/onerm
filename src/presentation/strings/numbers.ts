@@ -30,6 +30,11 @@ export function longDate(at: Date): string {
   return common.longDate(common.weekdays[at.getDay()], at.getDate(), common.months[at.getMonth()]);
 }
 
+/** A short day for charts and lists: «30 sep». */
+export function shortDate(at: Date): string {
+  return `${at.getDate()} ${common.months[at.getMonth()].slice(0, 3)}`;
+}
+
 const pad = (n: number) => String(n).padStart(2, '0');
 
 /** The time since a workout started (S07, S09, tab button): «18:42», or «1:05:09» past an hour. */
