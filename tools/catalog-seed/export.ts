@@ -1,20 +1,9 @@
 import { createHash } from 'node:crypto';
 
+import type { ExerciseRecord, ExercisesFile } from '@/data/catalog/exercises-file';
 import type { Exercise } from '@/domain/models/exercise';
 
-/** An exercise as stored in the snapshot file: JSON has no Date. */
-export type ExerciseRecord = Omit<Exercise, 'deprecatedAt'> & {
-  readonly deprecatedAt: string | null;
-};
-
-/** The snapshot included in the app (ADR-0004 §3 «export», RF-CAT-03). */
-export interface ExercisesFile {
-  /** Whole and increasing: the app loads a snapshot only when it is newer (load-catalog-snapshot). */
-  readonly version: number;
-  /** Hash of the exercises: the version only goes up when the content changes. */
-  readonly contentHash: string;
-  readonly exercises: readonly ExerciseRecord[];
-}
+export type { ExerciseRecord, ExercisesFile };
 
 export function toRecord(exercise: Exercise): ExerciseRecord {
   return { ...exercise, deprecatedAt: exercise.deprecatedAt?.toISOString() ?? null };
