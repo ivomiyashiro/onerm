@@ -4,6 +4,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { RouterTabBar } from '@/presentation/components/navigation/router-tab-bar';
 import type { TabItem } from '@/presentation/components/navigation/tab-bar';
 import { useTabAction } from '@/presentation/features/workout/use-tab-action';
+import { WorkoutResumeDialog } from '@/presentation/features/workout/workout-resume-dialog';
 import { navigation } from '@/presentation/strings/navigation';
 
 const TABS: TabItem[] = [
@@ -22,11 +23,18 @@ export default function TabsLayout() {
   const router = useRouter();
   const action = useTabAction(() => router.push('/workout'));
   return (
-    <Tabs
-      tabBar={(props) => (
-        <RouterTabBar tabs={TABS} action={action} bottomInset={insets.bottom} {...props} />
-      )}
-      screenOptions={{ headerShown: false }}
-    />
+    <>
+      <Tabs
+        tabBar={(props) => (
+          <RouterTabBar tabs={TABS} action={action} bottomInset={insets.bottom} {...props} />
+        )}
+        screenOptions={{ headerShown: false }}
+      />
+      {/* RF-ENT-13: the tabs mount once per app start, so this runs on opening the app. */}
+      <WorkoutResumeDialog
+        onResume={() => router.push('/workout')}
+        onFinished={(id) => router.push({ pathname: '/workout-summary', params: { id } })}
+      />
+    </>
   );
 }

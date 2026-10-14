@@ -1,4 +1,5 @@
 import type { LoadUnit } from '@/domain/models/vocabulary';
+import { common } from '@/presentation/strings/common';
 
 /** RN-PERF-05: kg with up to 2 decimals, lb with up to 1. */
 const DECIMALS: Record<LoadUnit, number> = { kg: 2, lb: 1 };
@@ -22,6 +23,11 @@ export function decimal(value: number): string {
 /** A day of the history in the device time zone: «5/10». */
 export function dayMonth(at: Date): string {
   return `${at.getDate()}/${at.getMonth() + 1}`;
+}
+
+/** A day in the device time zone, in words: «lunes 28 de septiembre». */
+export function longDate(at: Date): string {
+  return common.longDate(common.weekdays[at.getDay()], at.getDate(), common.months[at.getMonth()]);
 }
 
 const pad = (n: number) => String(n).padStart(2, '0');
