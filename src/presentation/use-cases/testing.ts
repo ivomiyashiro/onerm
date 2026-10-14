@@ -10,7 +10,9 @@ import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
 import { ObserveWorkout } from '@/domain/usecases/observe-workout';
 import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
+import { ObserveExerciseProgress } from '@/domain/usecases/observe-exercise-progress';
 import { ObserveHistory } from '@/domain/usecases/observe-history';
+import { ObserveWeeklyVolume } from '@/domain/usecases/observe-weekly-volume';
 import { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
 import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
 import {
@@ -120,7 +122,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     restoreSet: new RestoreSet(workouts, neverIds),
     ...restUseCasesOver(),
     ...lifecycle(workouts, neverIds, epoch),
-    ...history(profiles, workouts, exercises, neverIds),
+    ...history(profiles, workouts, exercises, neverIds, epoch),
     observeWorkoutSummary: new ObserveWorkoutSummary(
       profiles,
       routines,
@@ -183,7 +185,7 @@ export function routineUseCasesOver(repositories: {
     deleteSet: new DeleteSet(workouts),
     restoreSet: new RestoreSet(workouts, newId),
     ...lifecycle(workouts, newId, now, stopRest),
-    ...history(profiles, workouts, catalog, newId),
+    ...history(profiles, workouts, catalog, newId, now),
     observeWorkoutSummary: new ObserveWorkoutSummary(
       profiles,
       routines,
@@ -195,14 +197,23 @@ export function routineUseCasesOver(repositories: {
   };
 }
 
-/** S18 and S19: the history, the detail and the edits of the past. */
+/** S18, S19 and S20: the history, the detail, the edits of the past and the progress. */
 function history(
   profiles: Pick<InMemoryProfileRepository, 'observe'>,
   workouts: Pick<WorkoutRepository, 'observeFinished' | 'save' | 'delete'>,
   exercises: { observeAll: ExerciseRepository['observeAll'] },
   newId: () => Id,
+  now: () => Date,
 ) {
   return {
+    observeExerciseProgress: new ObserveExerciseProgress(
+      profiles,
+      workouts,
+      exercises,
+      now,
+      utcDate,
+    ),
+    observeWeeklyVolume: new ObserveWeeklyVolume(profiles, workouts, exercises, now, utcDate),
     observeHistory: new ObserveHistory(workouts),
     observeWorkoutDetail: new ObserveWorkoutDetail(profiles, workouts, exercises),
     updatePastSet: new UpdatePastSet(workouts),
