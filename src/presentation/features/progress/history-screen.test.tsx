@@ -68,9 +68,9 @@ describe('HistoryScreen (S18)', () => {
   it('loading: skeleton rows', async () => {
     await renderScreen([], someUseCases());
 
-    expect(
-      screen.getAllByTestId('history-skeleton', { includeHiddenElements: true }),
-    ).toHaveLength(4);
+    expect(screen.getAllByTestId('history-skeleton', { includeHiddenElements: true })).toHaveLength(
+      4,
+    );
   });
 
   it('RF-PROG-01.AC1: the workouts by month, with records; one opens its detail', async () => {
