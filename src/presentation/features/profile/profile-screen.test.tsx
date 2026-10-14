@@ -5,6 +5,7 @@ import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { aRoutine } from '@/domain/testing/builders';
 import {
+  FakeDevicePermissions,
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
@@ -15,7 +16,7 @@ import { ProfileScreen } from '@/presentation/features/profile/profile-screen';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { onboarding } from '@/presentation/strings/onboarding';
 import { profile as text } from '@/presentation/strings/profile';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { restUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
@@ -25,10 +26,14 @@ const METRICS = {
   insets: { top: 54, left: 0, right: 0, bottom: 34 },
 };
 
-async function renderScreen(profile: Profile | null = defaultProfile()) {
+async function renderScreen(
+  profile: Profile | null = defaultProfile(),
+  permissions = new FakeDevicePermissions(),
+) {
   const profiles = new InMemoryProfileRepository(profile);
   const routines = new InMemoryRoutineRepository([aRoutine()]);
   const useCases = someUseCases({
+    ...restUseCasesOver({ permissions }),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),
@@ -50,6 +55,36 @@ async function renderScreen(profile: Profile | null = defaultProfile()) {
 }
 
 describe('ProfileScreen (S21)', () => {
+  it('#146: «Notificaciones del descanso» is on with both permissions', async () => {
+    await renderScreen();
+
+    expect(await screen.findByText(text.rows.restNotificationsHelp)).toBeOnTheScreen();
+    expect(screen.getByRole('switch', { name: text.rows.restNotifications })).toHaveProp(
+      'value',
+      true,
+    );
+  });
+
+  it('RF-ENT-06.AC7: blocked notifications say so and open the phone settings', async () => {
+    const permissions = new FakeDevicePermissions('denied');
+    const user = userEvent.setup();
+    await renderScreen(defaultProfile(), permissions);
+
+    expect(await screen.findByText(text.permissions.notificationsBlocked)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: text.permissions.openPhoneSettings }));
+
+    expect(permissions.opened).toEqual(['notifications']);
+  });
+
+  it('RF-ENT-06.AC10: without exact alarms, «Permitir» opens D17', async () => {
+    const user = userEvent.setup();
+    await renderScreen(defaultProfile(), new FakeDevicePermissions('granted', false));
+
+    await user.press(await screen.findByRole('button', { name: text.permissions.allow }));
+
+    expect(screen.getByRole('header', { name: dialogs.D17.title })).toBeOnTheScreen();
+  });
+
   it('content: each setting with its value', async () => {
     await renderScreen({ ...defaultProfile(), goal: 'hypertrophy', unit: 'lb' });
 

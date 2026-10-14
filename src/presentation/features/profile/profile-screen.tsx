@@ -18,6 +18,7 @@ import { SettingsGroup, SettingsRow } from '@/presentation/components/list/setti
 import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
+import { RestNotificationsRow } from '@/presentation/features/profile/rest-notifications-row';
 import {
   useProfileViewModel,
   type ProfileViewModel,
@@ -57,7 +58,7 @@ const SHEET_TITLE: Record<Setting, string> = {
   effort: text.sheets.effort,
 };
 
-/** S21 · Perfil y ajustes (RF-PERF-03..05). Sync, account and notifications arrive in F6, F7 and #36. */
+/** S21 · Perfil y ajustes (RF-PERF-03..05, the rest notifications of 08 §6). Sync and account arrive in F7 and F8. */
 export function ProfileScreen({
   onSignUp,
   onSignIn,
@@ -184,6 +185,7 @@ function Settings({
           onPress={onIncrements}
           divided
         />
+        <RestNotificationsRow />
       </Section>
     </>
   );

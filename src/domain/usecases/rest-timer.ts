@@ -122,18 +122,27 @@ export class AskRestPermission {
   }
 }
 
-/** RF-ENT-06.AC7, AC10: the notice of S09, by the permission that is missing. */
+/** RF-ENT-06.AC7, AC10: the notice of S09 (and the row of S21), by the permission that is missing. */
 export class ReadRestPermissions {
   constructor(
     private readonly timers: RestTimerRepository,
     private readonly permissions: DevicePermissions,
   ) {}
 
-  async execute(): Promise<'notifications' | 'exactAlarms' | null> {
+  /**
+   * `neverAsked: 'missing'` (S21): a permission the system never asked for counts as missing.
+   * S09 waits for D05 instead, so by default it says nothing yet.
+   */
+  async execute({
+    neverAsked = 'waitForD05',
+  }: { neverAsked?: 'waitForD05' | 'missing' } = {}): Promise<
+    'notifications' | 'exactAlarms' | null
+  > {
     const notifications = await this.permissions.notifications();
     if (notifications === 'denied') return 'notifications';
     // Never asked: D05 comes first. After D05 they are off, even if the system could still ask.
     if (notifications === 'undetermined') {
+      if (neverAsked === 'missing') return 'notifications';
       return (await this.timers.get()).notificationPermissionAsked ? 'notifications' : null;
     }
     return (await this.permissions.canScheduleExactAlarms()) ? null : 'exactAlarms';
