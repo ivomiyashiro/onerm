@@ -8,6 +8,11 @@ export const progress = {
     volume: 'Volumen',
     monthYear: (month: string, year: number) => `${month} ${year}`,
     duration: (minutes: number) => `${minutes} min`,
+    /** «Día A · Cuerpo completo A/B» (Figma «S18 · Historial»). */
+    workoutTitle: (day: string, routine: string) => `${day} · ${routine}`,
+    /** «52 min · 17 series». */
+    workoutMeta: (minutes: number, sets: number) =>
+      `${minutes} min · ${count(sets, 'serie', 'series')}`,
     sets: (n: number) => count(n, 'serie', 'series'),
     records: (n: number) => count(n, 'récord', 'récords'),
     pending: 'Pendiente',
