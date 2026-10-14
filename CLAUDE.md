@@ -81,7 +81,7 @@ The `tdd` skill has the detail: what each layer's tests own, the tests not to wr
   - `bun run test` runs the unit tests and `bun run test:int` the integration tests (`jest.int.config.js`, plain Node; also `*.int.test.tsx` for wiring tests such as `AppProviders`), both in CI;
   - repositories observe through `observeQuery` and `TableChanges`: `ManualTableChanges.emit('<table>')` plays a write in the tests;
   - a schema change in `src/data/db/schema.ts` needs `bunx drizzle-kit generate`, and a merged migration is never edited (07 §6: additive). Metro caches the `.sql` inlined in `drizzle/migrations.js`: after regenerating an unmerged migration, restart it with `--clear`.
-- Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job (they land in #40):
+- Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job:
   - **pgTAP** in `supabase/tests/*.sql` for the trigger and RLS rules, one transaction with `rollback` per file;
   - **Jest + supabase-js** in `*.supabase.test.ts` (with `jest.supabase.config.js`, plain Node: `jest-expo` replaces `fetch`) for what the client sees through PostgREST, with two real users;
   - start the stack first with `bunx supabase start` (Docker; project `onerm-mvp`, ports 553xx).

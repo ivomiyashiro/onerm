@@ -38,3 +38,13 @@ jobs:
       - run: bun run test --ci
       - name: Integration tests (real SQLite, the app's migrations)
         run: bun run test:int --ci
+
+  supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: ./.github/actions/setup
+      - name: Start local Supabase (project onerm-mvp, ports 553xx)
+        run: bunx supabase start
+      - name: Server rules (pgTAP) and what the client sees (Jest + supabase-js)
+        run: bun run test:supabase
