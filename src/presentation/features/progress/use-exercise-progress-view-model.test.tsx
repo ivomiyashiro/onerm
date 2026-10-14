@@ -101,6 +101,13 @@ describe('useExerciseProgressViewModel', () => {
     expect(points.map((p) => p.hollow)).toEqual([false, true]);
   });
 
+  it('the estimated max shows one decimal, like an estimate (Figma «S20»)', async () => {
+    const { result } = await renderViewModel('press', HISTORY);
+
+    // 60 × 14 RIR 1: 60 × 36 / 22 = 98,18…
+    expect(result.current.state).toMatchObject({ cards: [{ value: '98,2 kg' }, {}] });
+  });
+
   it('RF-PROG-04.AC3: «Todo» brings the older exposures', async () => {
     const { result } = await renderViewModel('press', HISTORY);
 

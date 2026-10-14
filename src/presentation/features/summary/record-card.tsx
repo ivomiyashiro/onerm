@@ -7,7 +7,7 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
-import { loadNumber } from '@/presentation/strings/numbers';
+import { estimateText, loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, space, typography } from '@/presentation/theme';
 
@@ -28,8 +28,8 @@ export function RecordCard({ record, unit }: { record: SummaryRecord; unit: Load
       : [
           strings.estimatedMax,
           record.e1rm.precision === 'approximate'
-            ? strings.approximate(loadText(record.e1rm.value, unit))
-            : loadText(record.e1rm.value, unit),
+            ? strings.approximate(estimateText(record.e1rm.value, unit))
+            : estimateText(record.e1rm.value, unit),
         ];
   return (
     <View style={styles.record}>

@@ -7,7 +7,7 @@ import type { ExerciseProgressView } from '@/domain/usecases/observe-exercise-pr
 import type { ChartPoint } from '@/presentation/features/progress/progress-chart';
 import { loadText } from '@/presentation/features/summary/record-card';
 import { common } from '@/presentation/strings/common';
-import { shortDate } from '@/presentation/strings/numbers';
+import { estimateText, shortDate } from '@/presentation/strings/numbers';
 import { progress } from '@/presentation/strings/progress';
 import { workout } from '@/presentation/strings/workout';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
@@ -144,7 +144,7 @@ export function contentOf(view: ExerciseProgressView): ExerciseProgressContent {
     cards: [
       {
         label: text.estimatedMax,
-        value: loadText(best.e1rm.value, unit),
+        value: estimateText(best.e1rm.value, unit),
         caption:
           best.e1rm.precision === 'approximate'
             ? text.recordApproximate

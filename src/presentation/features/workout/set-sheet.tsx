@@ -84,10 +84,11 @@ export function SetSheet({
   const unit = grid?.unit ?? 'kg';
   const range = planned.prescription.repRange;
 
+  // Without a load the field is empty and «—» is its placeholder, so typing starts clean (#140).
   const loadValue = (value: SetForm) =>
     value.loadText ??
     (value.loadKg === null || Number.isNaN(value.loadKg)
-      ? text.set.noLoad
+      ? ''
       : loadNumber(toUnit(value.loadKg, unit), unit));
 
   const repsStep = (value: SetForm, field: RepsField, label: string) => (
@@ -136,6 +137,7 @@ export function SetSheet({
               <LoadStepper
                 label={text.set.load}
                 value={loadValue(form)}
+                placeholder={text.set.noLoad}
                 unit={common.units[unit]}
                 note={
                   sheet?.errors?.load

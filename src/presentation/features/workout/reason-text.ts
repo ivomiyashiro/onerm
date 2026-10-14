@@ -11,7 +11,7 @@ import { toUnit } from '@/domain/rules/units';
 import type { IconName } from '@/presentation/components/icons/icon';
 import { TREND_ICONS, trendOf } from '@/presentation/features/home/trend';
 import { common } from '@/presentation/strings/common';
-import { dayMonth, decimal, loadNumber } from '@/presentation/strings/numbers';
+import { dayMonth, decimal, estimateText, loadNumber } from '@/presentation/strings/numbers';
 import { principles } from '@/presentation/strings/principles';
 import { suggestions } from '@/presentation/strings/suggestions';
 import { workout as text } from '@/presentation/strings/workout';
@@ -116,7 +116,7 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
     case 'ESTIMATED_FROM_E1RM': {
       const date = dayMonth(reason.basis.at);
       return advanced || input.basisName === null
-        ? r.ESTIMATED_FROM_E1RM.advanced(formatLoad(reason.e1rm.value, unit), date)
+        ? r.ESTIMATED_FROM_E1RM.advanced(estimateText(reason.e1rm.value, unit), date)
         : r.ESTIMATED_FROM_E1RM.novice(input.basisName, date);
     }
     case 'FROM_EXERCISE_HISTORY':
@@ -126,7 +126,7 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
     case 'PRESCRIPTION_CHANGED':
       // Without an e1RM the technical line has nothing to show: the plain one says it all.
       return advanced && reason.e1rm !== null
-        ? r.PRESCRIPTION_CHANGED.advanced(formatLoad(reason.e1rm.value, unit))
+        ? r.PRESCRIPTION_CHANGED.advanced(estimateText(reason.e1rm.value, unit))
         : r.PRESCRIPTION_CHANGED.novice(repRange.min, repRange.max);
     case 'REENTRY':
       return advanced
@@ -189,7 +189,7 @@ function detailOf(suggestion: Suggestion, input: ReasonInput): string {
       return r.ESTIMATED_FROM_E1RM.detail(
         formatLoad(reason.basis.loadKg, unit),
         reason.basis.reps,
-        formatLoad(reason.e1rm.value, unit),
+        estimateText(reason.e1rm.value, unit),
         repRange.min,
         targetRir,
         formatLoad(suggestion.loadKg, unit),
