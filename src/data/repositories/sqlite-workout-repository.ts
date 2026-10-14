@@ -1,7 +1,10 @@
-import { and, asc, desc, eq, inArray, isNull, notInArray, type SQL } from 'drizzle-orm';
+import { and, asc, count, desc, eq, inArray, isNull, notInArray, sql, type SQL } from 'drizzle-orm';
+
+import type { SQLiteColumn } from 'drizzle-orm/sqlite-core';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { observeQuery } from '@/data/db/observe-query';
+import { sharedQuery } from '@/data/db/shared-query';
 import { workoutExercises, workouts, workoutSets } from '@/data/db/schema';
 import { currentUserId, softDelete, writeSyncRow } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
@@ -18,11 +21,21 @@ const TABLES = [workouts, workoutExercises, workoutSets];
  * per operation. Only live rows with a live parent are emitted (I-07, RN-SYNC-12).
  */
 export class SqliteWorkoutRepository implements WorkoutRepository {
+  /** The finished history, read once for every observer (#141). */
+  private readonly finished: (observer: Observer<Workout[]>) => Unsubscribe;
+
   constructor(
     private readonly db: () => AppDatabase,
     private readonly changes: TableChanges,
     private readonly now: () => number,
-  ) {}
+  ) {
+    this.finished = sharedQuery(
+      changes,
+      TABLES,
+      () => this.finishedFingerprint(),
+      () => this.read(eq(workouts.status, 'finished'), asc(workouts.finishedAt)),
+    );
+  }
 
   observeInProgress(observer: Observer<Workout | null>): Unsubscribe {
     return observeQuery(
@@ -34,13 +47,12 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
     );
   }
 
+  /**
+   * Logging a set writes the same tables, but not a finished workout's rows: the fingerprint
+   * stays and nothing is read again (RNF-03 with the history of RNF-14, #141).
+   */
   observeFinished(observer: Observer<Workout[]>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      TABLES,
-      () => this.read(eq(workouts.status, 'finished'), asc(workouts.finishedAt)),
-      observer,
-    );
+    return this.finished(observer);
   }
 
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe {
@@ -125,6 +137,35 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
       softDelete(tx, workoutExercises, eq(workoutExercises.workoutId, id), now);
       softDelete(tx, workouts, eq(workouts.id, id), now);
     });
+  }
+
+  /**
+   * Changes whenever a row of a finished workout does: every write moves its `updated_at`
+   * (RN-SYNC-02), and a new or deleted row changes a count. Deleted rows count too, so a delete
+   * shows. Three aggregate queries over indexed columns: cheap next to reading the history.
+   */
+  private finishedFingerprint(): string {
+    const db = this.db();
+    const finished = eq(workouts.status, 'finished');
+    const stamp = (column: SQLiteColumn) => ({
+      rows: count(),
+      stamps: sql<number>`coalesce(sum(${column}), 0)`,
+    });
+    const own = db.select(stamp(workouts.updatedAt)).from(workouts).where(finished).get();
+    const exercises = db
+      .select(stamp(workoutExercises.updatedAt))
+      .from(workoutExercises)
+      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+      .where(finished)
+      .get();
+    const sets = db
+      .select(stamp(workoutSets.updatedAt))
+      .from(workoutSets)
+      .innerJoin(workoutExercises, eq(workoutSets.workoutExerciseId, workoutExercises.id))
+      .innerJoin(workouts, eq(workoutExercises.workoutId, workouts.id))
+      .where(finished)
+      .get();
+    return [own, exercises, sets].map((row) => `${row?.rows}:${row?.stamps}`).join('|');
   }
 
   /** The live aggregates that match `where`, in `order`. */
