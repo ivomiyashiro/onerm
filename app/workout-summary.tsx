@@ -1,5 +1,11 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { useLocalSearchParams, useRouter } from 'expo-router';
+
+import { WorkoutSummaryScreen } from '@/presentation/features/summary/workout-summary-screen';
 
 export default function S12Route() {
-  return <ScreenPlaceholder id="S12" />;
+  const router = useRouter();
+  // A link can repeat the param; a missing or unknown id shows nothing and goes back.
+  const { id } = useLocalSearchParams<{ id?: string | string[] }>();
+  const workoutId = (Array.isArray(id) ? id[0] : id) ?? '';
+  return <WorkoutSummaryScreen workoutId={workoutId} onDone={() => router.replace('/')} />;
 }

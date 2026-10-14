@@ -1,4 +1,10 @@
-import { countdown, elapsed, loadNumber, parseDecimal } from '@/presentation/strings/numbers';
+import {
+  countdown,
+  elapsed,
+  loadNumber,
+  longDate,
+  parseDecimal,
+} from '@/presentation/strings/numbers';
 
 describe('RN-PERF-05 · numbers on screen', () => {
   it('kg with up to 2 decimals and lb with 1, with a comma and no trailing zeros', () => {
@@ -31,5 +37,11 @@ describe('countdown (RN-ENT-07)', () => {
     expect(countdown(73_200)).toBe('01:14');
     expect(countdown(0)).toBe('00:00');
     expect(countdown(-500)).toBe('00:00');
+  });
+});
+
+describe('longDate', () => {
+  it('D02: the weekday, the day and the month, in the device zone', () => {
+    expect(longDate(new Date(2026, 8, 28, 18))).toBe('lunes 28 de septiembre');
   });
 });

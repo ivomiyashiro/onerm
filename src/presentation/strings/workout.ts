@@ -191,6 +191,13 @@ export const workout = {
     whatYouDid: 'Lo que hiciste',
     exerciseLine: (sets: number, load: string, reps: number) =>
       `${count(sets, 'serie', 'series')} · mejor ${load} × ${reps}`,
+    /** Bodyweight: no load, like the set rows («× 12»). */
+    exerciseLineBodyweight: (sets: number, reps: number) =>
+      `${count(sets, 'serie', 'series')} · mejor × ${reps}`,
+    minutes: (n: number) => `${n} min`,
+    title: (day: string) => `Entrenamiento · ${day}`,
+    recordTitle: (record: string) => `Nuevo récord · ${record}`,
+    approximate: (value: string) => `${value} (aprox.)`,
     skipped: 'Salteado',
     nextDay: (day: string) => `Próximo: ${day}`,
     ready: 'Listo',

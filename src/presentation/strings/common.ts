@@ -31,4 +31,22 @@ export const common = {
   minutes: (n: number) => `~${n} min`,
   exercises: (n: number) => count(n, 'ejercicio', 'ejercicios'),
   sets: (n: number) => count(n, 'serie', 'series'),
+  /** By `Date.getDay()`: Sunday first. */
+  weekdays: ['domingo', 'lunes', 'martes', 'miércoles', 'jueves', 'viernes', 'sábado'],
+  months: [
+    'enero',
+    'febrero',
+    'marzo',
+    'abril',
+    'mayo',
+    'junio',
+    'julio',
+    'agosto',
+    'septiembre',
+    'octubre',
+    'noviembre',
+    'diciembre',
+  ],
+  /** «lunes 28 de septiembre» (D02, S19). */
+  longDate: (weekday: string, day: number, month: string) => `${weekday} ${day} de ${month}`,
 } as const;
