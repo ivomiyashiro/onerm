@@ -58,12 +58,15 @@ export const workout = {
     finish: 'Finalizar entrenamiento',
   },
   exerciseMenu: {
+    /** Accessibility label of the ⋯ of the exercise (like S13's). */
+    title: (exercise: string) => `Opciones de ${exercise}`,
     substitute: 'Sustituir ejercicio',
     skip: 'Saltear ejercicio',
     addSet: 'Agregar serie',
   },
   workoutMenu: {
     title: 'Entrenamiento',
+    subtitle: (day: string, time: string) => `${day} · ${time}`,
     finish: 'Finalizar entrenamiento',
     discard: 'Descartar entrenamiento',
   },
