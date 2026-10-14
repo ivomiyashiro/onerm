@@ -13,7 +13,10 @@ import {
   aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
+  FakeDevicePermissions,
+  FakeRestNotifier,
   InMemoryProfileRepository,
+  InMemoryRestTimerRepository,
   InMemoryRoutineRepository,
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
@@ -23,7 +26,12 @@ import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
 import { suggestions } from '@/presentation/strings/suggestions';
 import { workout as text } from '@/presentation/strings/workout';
-import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
+import { dialogs } from '@/presentation/strings/dialogs';
+import {
+  restUseCasesOver,
+  routineUseCasesOver,
+  someUseCases,
+} from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
@@ -54,11 +62,16 @@ const RUNNING = aWorkout({
   ],
 });
 
+const NOW = new Date('2026-10-13T18:05:00Z');
+
 async function renderScreen({
   inProgress = RUNNING as Workout | null,
   useCases = undefined as UseCases | undefined,
+  permissions = new FakeDevicePermissions(),
+  finished = [] as Workout[],
 } = {}) {
-  const workouts = new InMemoryWorkoutRepository(inProgress, []);
+  const workouts = new InMemoryWorkoutRepository(inProgress, finished);
+  const timers = new InMemoryRestTimerRepository();
   let n = 0;
   const onClose = jest.fn();
   await render(
@@ -66,24 +79,30 @@ async function renderScreen({
       <UseCasesProvider
         useCases={
           useCases ??
-          someUseCases(
-            routineUseCasesOver({
+          someUseCases({
+            ...routineUseCasesOver({
               routines: new InMemoryRoutineRepository([aRoutine()]),
               templates: new InMemoryRoutineTemplateRepository(),
               profiles: new InMemoryProfileRepository(defaultProfile()),
               workouts,
               exercises: [ROW, PRESS],
               newId: () => `set-${++n}`,
-              now: () => new Date('2026-10-13T18:05:00Z'),
+              now: () => NOW,
             }),
-          )
+            ...restUseCasesOver({
+              timers,
+              notifier: new FakeRestNotifier(),
+              permissions,
+              now: () => NOW,
+            }),
+          })
         }
       >
         <WorkoutScreen onClose={onClose} />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
-  return { workouts, onClose, user: userEvent.setup() };
+  return { workouts, timers, onClose, user: userEvent.setup() };
 }
 
 describe('WorkoutScreen (S09)', () => {
@@ -216,5 +235,92 @@ describe('WorkoutScreen (S09)', () => {
 
     expect(workouts.inProgress!.exercises[0].sets[0]).toMatchObject({ rir: 2 });
     expect(screen.getByRole('button', { name: text.primaryAction.done })).toBeEnabled();
+  });
+
+  describe('rest (RF-ENT-06)', () => {
+    // A press with history: «Hecho» logs right away.
+    const WITH_HISTORY = {
+      ...RUNNING,
+      exercises: [{ ...RUNNING.exercises[1], prescription: aPrescription({ sets: 3 }) }],
+    };
+
+    // Last time 3 × 8 at 60 kg on the press: no calibration.
+    const LAST_TIME = aWorkout({
+      exercises: [
+        aWorkoutExercise({
+          id: 'old',
+          exerciseId: 'press',
+          plannedExerciseId: 'press',
+          status: 'done',
+          sets: [0, 1, 2].map((position) =>
+            aBilateralSet({
+              id: `old-${position}`,
+              workoutExerciseId: 'old',
+              position,
+              loadKg: 60,
+              reps: 8,
+            }),
+          ),
+        }),
+      ],
+    });
+    const renderRest = (options: Parameters<typeof renderScreen>[0] = {}) =>
+      renderScreen({ inProgress: WITH_HISTORY, finished: [LAST_TIME], ...options });
+
+    beforeEach(() => jest.setSystemTime(NOW));
+
+    it('after «Hecho» the rest opens full screen; minimized it stays over «Hecho»', async () => {
+      const { user } = await renderRest();
+
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      await act(() => jest.advanceTimersByTime(300));
+
+      expect(screen.getByRole('header', { name: text.rest.title })).toBeOnTheScreen();
+      expect(screen.getByText('02:00')).toBeOnTheScreen();
+      await user.press(screen.getByRole('button', { name: text.rest.minimize }));
+
+      expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: text.rest.openTimer })).toBeOnTheScreen();
+    });
+
+    it('AC4: «Saltear descanso» closes it', async () => {
+      const { user, timers } = await renderRest();
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+
+      await user.press(screen.getByRole('button', { name: text.rest.skipRest }));
+
+      expect(timers.timer.endsAt).toBeNull();
+      expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
+    });
+
+    it('AC6: at the end it vibrates and says «¡Descanso terminado!» with the next set', async () => {
+      const vibrate = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
+      const { user } = await renderRest();
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      vibrate.mockClear();
+
+      await act(() => jest.advanceTimersByTime(121_000));
+
+      expect(screen.getByRole('header', { name: text.rest.finished })).toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: text.rest.goToSet(2) })).toBeOnTheScreen();
+      expect(vibrate).toHaveBeenCalledTimes(1);
+    });
+
+    it('AC9: D05 on the first set', async () => {
+      const { user } = await renderRest({ permissions: new FakeDevicePermissions('undetermined') });
+
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+
+      expect(screen.getByText(dialogs.D05.title)).toBeOnTheScreen();
+    });
+
+    it('AC7: without notifications, the notice with «Activar»', async () => {
+      await renderScreen({ permissions: new FakeDevicePermissions('denied') });
+
+      expect(screen.getByText(text.notices.notificationsDenied)).toBeOnTheScreen();
+      expect(
+        screen.getByRole('button', { name: text.notices.notificationsAction }),
+      ).toBeOnTheScreen();
+    });
   });
 });

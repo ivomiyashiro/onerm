@@ -1,4 +1,4 @@
-import { elapsed, loadNumber, parseDecimal } from '@/presentation/strings/numbers';
+import { countdown, elapsed, loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 
 describe('RN-PERF-05 · numbers on screen', () => {
   it('kg with up to 2 decimals and lb with 1, with a comma and no trailing zeros', () => {
@@ -22,5 +22,14 @@ describe('elapsed', () => {
     expect(elapsed((18 * 60 + 42) * 1000)).toBe('18:42');
     expect(elapsed(5 * 1000)).toBe('0:05');
     expect(elapsed((3600 + 5 * 60 + 9) * 1000)).toBe('1:05:09');
+  });
+});
+
+describe('countdown (RN-ENT-07)', () => {
+  it('whole seconds left, rounded up, with two-digit minutes', () => {
+    expect(countdown(74_000)).toBe('01:14');
+    expect(countdown(73_200)).toBe('01:14');
+    expect(countdown(0)).toBe('00:00');
+    expect(countdown(-500)).toBe('00:00');
   });
 });

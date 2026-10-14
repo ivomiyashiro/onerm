@@ -1,3 +1,4 @@
+import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Vibration, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -8,14 +9,19 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Snackbar } from '@/presentation/components/feedback/snackbar';
 import { Icon } from '@/presentation/components/icons/icon';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
+import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { remainingSets } from '@/domain/rules/workout/remaining-sets';
-import { Segmented } from '@/presentation/components/choice/segmented';
 import { ReasonRow } from '@/presentation/features/workout/reason-row';
+import { RestBar } from '@/presentation/features/workout/rest-bar';
+import { RestNotice } from '@/presentation/features/workout/rest-notice';
+import { RestScreen } from '@/presentation/features/workout/rest-screen';
 import type { RirField } from '@/presentation/features/workout/set-form';
 import { SetRow } from '@/presentation/features/workout/set-row';
-import { effortOptions, effortTitle, SetSheet } from '@/presentation/features/workout/set-sheet';
+import { SetEffort } from '@/presentation/features/workout/set-effort';
+import { SetSheet } from '@/presentation/features/workout/set-sheet';
+import { useCountdown } from '@/presentation/features/workout/use-countdown';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
 import {
@@ -25,6 +31,7 @@ import {
 } from '@/presentation/features/workout/use-workout-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
+import { dialogs } from '@/presentation/strings/dialogs';
 import { home } from '@/presentation/strings/home';
 import { routines } from '@/presentation/strings/routines';
 import { workout as text } from '@/presentation/strings/workout';
@@ -32,6 +39,8 @@ import { colors, radius, space, typography } from '@/presentation/theme';
 
 /** A short pulse when a set is logged (RF-ENT-02.AC1). */
 const LOGGED_VIBRATION_MS = 30;
+/** The end of the rest with the app open (RF-ENT-06.AC6): longer, so it is felt in a pocket. */
+const REST_END_VIBRATION = [0, 400, 200, 400];
 
 interface WorkoutScreenProps {
   /** No workout in progress any more: back to the tabs. */
@@ -40,6 +49,8 @@ interface WorkoutScreenProps {
 
 /** S09 · Entrenamiento en curso (08 §5): the current exercise, its sets and «Hecho». */
 export function WorkoutScreen({ onClose }: WorkoutScreenProps) {
+  // RF-ENT-07: the screen stays on only here; leaving S09 lets it turn off again.
+  useKeepAwake();
   const viewModel = useWorkoutViewModel();
   const { state } = viewModel;
   const insets = useSafeAreaInsets();
@@ -76,7 +87,23 @@ function Workout({
   content: WorkoutContent;
   bottomInset: number;
 }) {
-  const { sheet, deleted, actions } = viewModel;
+  const { sheet, deleted, actions, rest, restMinimized, dialog, notice } = viewModel;
+  const remaining = useCountdown(rest?.endsAt ?? null);
+  const restEnded = remaining !== null && remaining <= 0;
+
+  // RF-ENT-06.AC6: once, when it ends with the app open (not when opening an old one).
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (remaining === null) {
+      wasRunning.current = false;
+      return;
+    }
+    if (!restEnded) wasRunning.current = true;
+    else if (wasRunning.current) {
+      wasRunning.current = false;
+      Vibration.vibrate(REST_END_VIBRATION);
+    }
+  }, [remaining, restEnded]);
   const { exercise, exercises, exerciseIndex, rows, effortMode } = content;
   const time = useElapsed(content.startedAt);
   const unit = exercise.grid?.unit ?? null;
@@ -171,6 +198,15 @@ function Workout({
         </View>
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
+        {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}
+        {rest && restMinimized && remaining !== null && (
+          <RestBar
+            rest={rest}
+            remainingMs={remaining}
+            onAdd={() => void actions.addRest()}
+            onExpand={actions.expandRest}
+          />
+        )}
         {content.awaitingEffort && (
           <CalibrationEffort
             waiting={content.awaitingEffort}
@@ -217,6 +253,47 @@ function Workout({
         onClose={actions.closeSheet}
       />
       <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />
+      {rest && remaining !== null && (
+        <RestScreen
+          rest={rest}
+          visible={!restMinimized}
+          remainingMs={remaining}
+          effortMode={effortMode}
+          onAdd={() => void actions.addRest()}
+          onRestart={() => void actions.restartRest()}
+          onSkip={() => void actions.skipRest()}
+          onMinimize={actions.minimizeRest}
+          onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+        />
+      )}
+      <Dialog
+        visible={dialog === 'notifications'}
+        title={dialogs.D05.title}
+        body={dialogs.D05.body}
+        actions={[
+          {
+            label: dialogs.D05.allow,
+            kind: 'advance',
+            onPress: () => void actions.allowNotifications(),
+          },
+          { label: dialogs.D05.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
+        ]}
+        onDismiss={() => void actions.dismissDialog()}
+      />
+      <Dialog
+        visible={dialog === 'exactAlarms'}
+        title={dialogs.D17.title}
+        body={dialogs.D17.body}
+        actions={[
+          {
+            label: dialogs.D17.openSettings,
+            kind: 'advance',
+            onPress: () => void actions.openExactAlarmSettings(),
+          },
+          { label: dialogs.D17.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
+        ]}
+        onDismiss={() => void actions.dismissDialog()}
+      />
       <BottomSheet
         visible={sheet?.kind === 'exercises'}
         title={text.exerciseList.title}
@@ -273,32 +350,11 @@ function CalibrationEffort({
   effortMode: WorkoutContent['effortMode'];
   onEffort: (set: WorkoutSet, field: RirField, rir: number) => void;
 }) {
-  const { set, number } = waiting;
-  const fields: RirField[] =
-    set.isUnilateral && set.repsLeft !== set.repsRight ? ['rirLeft', 'rirRight'] : ['rir'];
   return (
     <View style={styles.effort}>
-      <Text style={[typography.bodyLStrong, { color: colors.textPrimary }]}>
-        {effortTitle(effortMode)}
-      </Text>
-      {fields.map((field) => (
-        <Segmented
-          key={field}
-          label={
-            field === 'rirLeft'
-              ? text.set.left
-              : field === 'rirRight'
-                ? text.set.right
-                : effortTitle(effortMode)
-          }
-          options={effortOptions(effortMode)}
-          // A side may already be answered; a bilateral set waits with nothing chosen.
-          selected={set.isUnilateral && field !== 'rir' ? (set[field] ?? -1) : -1}
-          onSelect={(rir) => onEffort(set, field, rir)}
-        />
-      ))}
+      <SetEffort set={waiting.set} effortMode={effortMode} onEffort={onEffort} />
       <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-        {text.calibration.askEffortForSet(number)}
+        {text.calibration.askEffortForSet(waiting.number)}
       </Text>
     </View>
   );
