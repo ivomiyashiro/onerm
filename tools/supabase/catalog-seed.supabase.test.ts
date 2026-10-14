@@ -17,7 +17,8 @@ const URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:55321';
 
 /** The local stack's keys come from the CLI: nothing key-shaped is written in the repo. */
 function localKey(name: 'PUBLISHABLE_KEY' | 'SECRET_KEY'): string {
-  const fromEnv = process.env[`SUPABASE_${name}`];
+  const fromEnv =
+    name === 'SECRET_KEY' ? process.env.SUPABASE_SECRET_KEY : process.env.SUPABASE_PUBLISHABLE_KEY;
   if (fromEnv) return fromEnv;
   const status = execFileSync('./node_modules/.bin/supabase', ['status', '-o', 'env'], {
     encoding: 'utf8',
