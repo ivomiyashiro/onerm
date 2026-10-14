@@ -4,6 +4,7 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/position-order';
+import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import {
@@ -85,9 +86,12 @@ export type WorkoutSheet =
   /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
   | { kind: 'substitute'; query: string; options: SubstituteOptions };
 
-/** D10 before finishing with exercises without sets (RF-ENT-11.AC2), D09 before discarding. */
+/**
+ * D10 before finishing with exercises without sets (RF-ENT-11.AC2), D09 before discarding, and
+ * D18 when there is nothing to finish: no effective set at all (AC5).
+ */
 export type WorkoutConfirm =
-  { kind: 'finish'; pending: number } | { kind: 'discard'; sets: number };
+  { kind: 'finish'; pending: number } | { kind: 'discard'; sets: number } | { kind: 'empty' };
 
 export interface WorkoutViewModel extends Pick<
   Rest,
@@ -380,6 +384,12 @@ export function useWorkoutViewModel(): WorkoutViewModel {
       },
       async finish() {
         if (!content) return null;
+        // AC5: without effective sets it would only move the next day and leave an empty workout.
+        if (!content.exercises.some((e) => e.exercise.sets.some(isEffectiveSet))) {
+          setSheet(null);
+          setConfirm({ kind: 'empty' });
+          return null;
+        }
         const pending = content.exercises.filter((e) => e.exercise.status === 'pending').length;
         if (pending > 0) {
           setSheet(null);

@@ -178,15 +178,34 @@ describe('WorkoutScreen (S09)', () => {
 
   it('RF-ENT-11.AC2: «Finalizar entrenamiento» with exercises left asks with D10, then S12', async () => {
     const { user, workouts, onFinished, onClose } = await renderScreen();
+    // A calibration set: «Hecho» opens the sheet, and a load logs it.
+    await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+    await user.press(screen.getByRole('button', { name: text.set.increaseLoad }));
+    await user.press(screen.getAllByRole('button', { name: text.primaryAction.done }).at(-1)!);
+    await user.press(screen.getByRole('button', { name: text.rest.minimize }));
 
     await user.press(screen.getByRole('button', { name: text.workoutMenu.title }));
     await user.press(screen.getByRole('button', { name: text.workoutMenu.finish }));
-    expect(screen.getByRole('header', { name: dialogs.D10.title(2) })).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: dialogs.D10.title(1) })).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: dialogs.D10.finish }));
 
     expect(workouts.finished).toHaveLength(1);
     expect(onFinished).toHaveBeenCalledWith(RUNNING.id);
     expect(onClose).not.toHaveBeenCalled();
+  });
+
+  it('RF-ENT-11.AC5: finishing without any set offers to discard with D18', async () => {
+    const { user, workouts, onClose, onFinished } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.title }));
+    await user.press(screen.getByRole('button', { name: text.workoutMenu.finish }));
+    expect(screen.getByRole('header', { name: dialogs.D18.title })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D18.discardDestructive }));
+
+    expect(workouts.inProgress).toBeNull();
+    expect(workouts.finished).toEqual([]);
+    expect(onFinished).not.toHaveBeenCalled();
+    expect(onClose).toHaveBeenCalled();
   });
 
   it('RF-ENT-09: «Sustituir ejercicio» opens S11; the substitute says what it replaces', async () => {

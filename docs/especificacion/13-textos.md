@@ -163,6 +163,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | D08 Cambios sin guardar | ¿Salir sin guardar? | Vas a perder los cambios en esta rutina. | **Seguir editando** · Salir sin guardar |
 | D09 Descartar el entrenamiento | ¿Descartar el entrenamiento? | Se borran las {n} series registradas. | **Cancelar** · Descartar (destructivo) |
 | D10 Finalizar con pendientes | Te faltan {n} ejercicios | Los que no hiciste quedan como salteados. | **Finalizar igual** · Seguir entrenando |
+| D18 Finalizar sin series | ¿Descartar el entrenamiento? | No registraste series, así que no hay nada para guardar. | **Seguir entrenando** · Descartar (destructivo) |
 | D11 Eliminar rutina | ¿Eliminar {rutina}? | Tus entrenamientos con esta rutina se conservan en el historial. | **Cancelar** · Eliminar (destructivo) |
 | D12 Cambio que no se pudo respaldar | No pudimos respaldar un cambio | {detalle}. Si lo descartás, {vuelve a la versión guardada / se borra junto con {n} registros que dependen de él}. | **Reintentar** · Descartar este cambio (destructivo) · Cerrar |
 | D13 Sugerencia de crear cuenta | Guardá tu progreso | Tus datos solo están en este teléfono. Creá una cuenta gratis para no perderlos. | **Crear cuenta** · Ahora no |
