@@ -191,7 +191,7 @@ export function createDependencies(
       rescheduleRest: new RescheduleRest(...rest),
       skipRest: new SkipRest(restTimerRepository, notifier),
       askRestPermission: new AskRestPermission(restTimerRepository, permissions),
-      readRestPermissions: new ReadRestPermissions(permissions),
+      readRestPermissions: new ReadRestPermissions(restTimerRepository, permissions),
     },
     appStore: createAppStore(),
   };

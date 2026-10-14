@@ -16,9 +16,19 @@ const permissions = new ExpoDevicePermissions();
 
 describe('ExpoDevicePermissions (RF-ENT-06.AC9, AC10)', () => {
   it('reads the notification permission as the system reports it', async () => {
-    jest.mocked(Notifications.getPermissionsAsync).mockResolvedValue({ status: 'denied' } as never);
+    jest
+      .mocked(Notifications.getPermissionsAsync)
+      .mockResolvedValue({ status: 'denied', canAskAgain: false } as never);
 
     expect(await permissions.notifications()).toBe('denied');
+  });
+
+  it('Android 13+: «denied» while the system can still ask means not asked yet', async () => {
+    jest
+      .mocked(Notifications.getPermissionsAsync)
+      .mockResolvedValue({ status: 'denied', canAskAgain: true } as never);
+
+    expect(await permissions.notifications()).toBe('undetermined');
   });
 
   it('asks the system and says whether it was granted', async () => {

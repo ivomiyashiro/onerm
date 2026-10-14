@@ -187,6 +187,6 @@ export function restUseCasesOver({
     rescheduleRest: new RescheduleRest(...rest),
     skipRest: new SkipRest(timers, notifier),
     askRestPermission: new AskRestPermission(timers, permissions),
-    readRestPermissions: new ReadRestPermissions(permissions),
+    readRestPermissions: new ReadRestPermissions(timers, permissions),
   };
 }

@@ -146,13 +146,18 @@ describe('rest permissions (RF-ENT-06.AC9, AC10)', () => {
   });
 
   it('AC7, AC10: the notices of S09 say which permission is missing', async () => {
-    const read = (permissions: FakeDevicePermissions) =>
-      new ReadRestPermissions(permissions).execute();
+    const read = (permissions: FakeDevicePermissions, asked = false) =>
+      new ReadRestPermissions(
+        new InMemoryRestTimerRepository({ endsAt: null, notificationPermissionAsked: asked }),
+        permissions,
+      ).execute();
 
     expect(await read(new FakeDevicePermissions('denied'))).toBe('notifications');
     expect(await read(new FakeDevicePermissions('granted', false))).toBe('exactAlarms');
     expect(await read(new FakeDevicePermissions('granted', true))).toBeNull();
     // Never asked: D05 comes first, no notice yet.
     expect(await read(new FakeDevicePermissions('undetermined'))).toBeNull();
+    // D05 answered «Ahora no»: the system could still ask, but the notice says it's off.
+    expect(await read(new FakeDevicePermissions('undetermined'), true)).toBe('notifications');
   });
 });
