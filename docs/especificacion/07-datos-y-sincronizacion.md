@@ -181,7 +181,7 @@ al autenticarse con owner = guest:
        Descartar → D01b; si confirma → borrar físicamente las filas del invitado (excepción de RN-SYNC-15: nunca se subieron; incluido un
                    entrenamiento en curso, que D01b menciona); si cancela → volver a D01
        Cancelar → cerrar la sesión de autenticación, owner sigue = guest, pending_migration_uid = null; fin
-  6. owner = uid; pending_migration_uid = null; restauración (§4.2) y después sync normal
+  6. owner = uid; owner_email = email de la cuenta; pending_migration_uid = null; restauración (§4.2) y después sync normal
 ```
 
 - **Punto de entrada (F7, D1):** todo ingreso (registro, inicio de sesión, Google, enlace de recuperación) pasa por un único caso de uso, `EnterAccount`. Con `owner = guest` solo ejecuta el paso 0 y el dispositivo **sigue siendo del invitado** hasta el paso 6; los pasos 1 a 6 llegan con la unión (#43). Con `owner = A` aplica RN-AUTH-07.
