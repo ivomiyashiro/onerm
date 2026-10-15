@@ -444,6 +444,18 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(a.row(routines, r)).toMatchObject({ dirty: true, serverUpdatedAt: null });
   });
 
+  it('RF-SYNC-01.AC2: without a server the sync fails quietly and the change stays pending', async () => {
+    const unreachable = createClient('http://127.0.0.1:9', PUBLISHABLE_KEY, {
+      auth: { persistSession: false },
+    });
+    const offline = device(unreachable, userId);
+    const r = randomUUID();
+    offline.write(routines, routine(r));
+
+    expect(await offline.engine.sync()).toBe('failed');
+    expect(offline.row(routines, r)).toMatchObject({ dirty: true, conflict: null });
+  }, 60_000);
+
   it('without the session of the owner nothing of the user goes up', async () => {
     const offline = device(anonClient(), userId);
     const r = randomUUID();

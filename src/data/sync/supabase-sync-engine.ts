@@ -24,6 +24,8 @@ export class SupabaseSyncEngine implements SyncEngine {
   async sync(): Promise<SyncResult> {
     try {
       if (await this.isOutdated()) return 'appOutdated';
+      // Catalog first (RN-SYNC-06): a pulled row may name an exercise that only it brings
+      // (ADR-0002 R7). If it fails, the network is down for the push too.
       await pullCatalog(this.db(), this.client);
 
       // A guest only downloads the catalog (RN-SYNC-09); so does a guest merge not finished yet.

@@ -33,16 +33,14 @@ export async function pullChanges(
   for (const sync of USER_TABLES) {
     await pullTable(db, client, sync, { userId, pageSize }, (tx, remote) => {
       const table = sync.table as typeof routines;
-      const current = tx.select().from(table).where(eq(table.id, remote.id)).get() ?? null;
+      const row = remote as RemoteSyncRow;
+      const current = tx.select().from(table).where(eq(table.id, row.id)).get() ?? null;
       const incoming = {
-        updatedAt: serverTimeMs((remote as RemoteSyncRow).updated_at),
-        deletedAt:
-          (remote as RemoteSyncRow).deleted_at === null
-            ? null
-            : serverTimeMs((remote as RemoteSyncRow).deleted_at!),
+        updatedAt: serverTimeMs(row.updated_at),
+        deletedAt: row.deleted_at === null ? null : serverTimeMs(row.deleted_at),
       };
       if (pullAction(current, incoming) === 'keep') return;
-      write(tx, sync, remote);
+      write(tx, sync, row);
     });
   }
 }
