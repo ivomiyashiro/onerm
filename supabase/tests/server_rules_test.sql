@@ -3,7 +3,7 @@
 -- (RN-AUTH-03), and the data checks of 07 §2.2.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(16);
+select plan(17);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'a@test.local');
@@ -48,6 +48,11 @@ select lives_ok(
   $$insert into public.workouts (id, created_at, updated_at, routine_name_snapshot, day_name_snapshot, status, started_at, finished_at)
     values ('40000000-0000-0000-0000-000000000002', now(), now(), 'r', 'd', 'finished', now(), now())$$,
   'a finished workout is accepted');
+
+select throws_ok(
+  $$insert into public.workouts (id, created_at, updated_at, routine_name_snapshot, day_name_snapshot, status, started_at)
+    values ('40000000-0000-0000-0000-000000000003', now(), now(), 'r', 'd', 'finished', now())$$,
+  '23514', null, 'a finished workout without finished_at is rejected');
 
 -- RN-AUTH-06: the profile id is the user id, and there is one per user
 select throws_ok(

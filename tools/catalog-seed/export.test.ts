@@ -45,4 +45,31 @@ describe('snapshot export (ADR-0004 §3)', () => {
     );
     expect(file.exercises[0].deprecatedAt).toBe('2026-10-14T00:00:00.000Z');
   });
+
+  describe('RN-CAT-05: what a routine depends on never changes for an id', () => {
+    const published = buildExercisesFile([exercise], previous);
+
+    it.each([
+      ['loadType', { loadType: 'bodyweight' as const }],
+      ['isUnilateral', { isUnilateral: true }],
+      ['primaryEquipment', { primaryEquipment: 'cable' as const }],
+    ])('refuses to change %s of a published exercise', (attribute, change) => {
+      expect(() => buildExercisesFile([{ ...exercise, ...change }], published)).toThrow(attribute);
+    });
+
+    it('lets the rest change: the name, the muscles, the aliases', () => {
+      const renamed = buildExercisesFile(
+        [{ ...exercise, name: 'Prensa 45', aliases: ['Leg press'], primaryMuscles: ['glutes'] }],
+        published,
+      );
+
+      expect(renamed.version).toBe(published.version + 1);
+    });
+
+    it('a new exercise has no previous attributes to keep', () => {
+      const other = { ...exercise, id: 'd37937e1-b735-449b-ac07-30b8ffbaeb28', slug: 'otro' };
+
+      expect(() => buildExercisesFile([exercise, other], published)).not.toThrow();
+    });
+  });
 });

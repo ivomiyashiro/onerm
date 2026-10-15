@@ -73,6 +73,8 @@ export async function loadCatalog(
   seeded: readonly SeededExercise[],
   templates: readonly RoutineTemplate[],
   now: Date,
+  /** Limits which exercises may be deprecated (a test shares the server with other data). */
+  deprecateAmong?: ReadonlySet<string>,
 ): Promise<LoadReport> {
   const written: Record<string, number> = {};
   const unchanged: Record<string, number> = {};
@@ -156,7 +158,9 @@ export async function loadCatalog(
     .is('deprecated_at', null);
   if (error) throw new Error(`exercises: ${error.message}`);
   const kept = new Set(seeded.map(({ exercise }) => exercise.id));
-  const gone = (live as { id: string }[]).map((row) => row.id).filter((id) => !kept.has(id));
+  const gone = (live as { id: string }[])
+    .map((row) => row.id)
+    .filter((id) => !kept.has(id) && (deprecateAmong?.has(id) ?? true));
   if (gone.length > 0) {
     const { error: deprecateError } = await client
       .from('exercises')
