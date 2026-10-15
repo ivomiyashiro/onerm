@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 import type { ContinueWithGoogleResult } from '@/domain/usecases/continue-with-google';
-import { useAppStore } from '@/presentation/state/app-store-context';
+import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { auth } from '@/presentation/strings/auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
@@ -26,8 +26,8 @@ const MESSAGE: Record<Exclude<ContinueWithGoogleResult['status'], 'done' | 'canc
 
 /** «Continuar con Google» of S02 and S03 (RF-AUTH-04). Cancelling says nothing (AC4). */
 export function useGoogleSignInViewModel(): GoogleSignInViewModel {
-  const { continueWithGoogle, continueAfterAuth } = useUseCases();
-  const setAccount = useAppStore((s) => s.setAccount);
+  const { continueWithGoogle } = useUseCases();
+  const afterAuth = useAfterAuth();
   const [state, setState] = useState<GoogleSignInState>({ status: 'idle', message: null });
   // A ref, not state: two taps in the same frame must open Google only once.
   const working = useRef(false);
@@ -39,13 +39,7 @@ export function useGoogleSignInViewModel(): GoogleSignInViewModel {
     try {
       const result = await continueWithGoogle.execute();
       if (result.status === 'done') {
-        setAccount({
-          kind: 'user',
-          userId: result.userId,
-          email: result.email,
-          sessionExpired: false,
-        });
-        await continueAfterAuth.execute().catch(() => undefined);
+        await afterAuth(result);
         setState({ status: 'done', message: null });
       } else {
         setState({

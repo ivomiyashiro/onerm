@@ -578,6 +578,7 @@ describe('local-only tables (07 §2.4)', () => {
       id: 1,
       owner: 'guest',
       pendingMigrationUid: null,
+      ownerEmail: null,
       onboardingStep: null,
       catalogVersion: null,
       restTimerEndsAt: null,

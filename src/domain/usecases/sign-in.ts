@@ -1,10 +1,12 @@
 import { emailProblem, type EmailProblem } from '@/domain/rules/auth/credentials';
 import type { AccountRepository } from '@/domain/repositories/account-repository';
 import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import { EnterAccount } from '@/domain/usecases/enter-account';
 
 export type SignInResult =
   | { status: 'invalid'; email: EmailProblem | null; passwordMissing: boolean }
-  | { status: 'done'; userId: string }
+  /** `pendingMerge`: a guest device, whose data waits for the union (07 §4.3). */
+  | { status: 'done'; userId: string; pendingMerge: boolean }
   | { status: 'wrongCredentials' }
   /** RN-AUTH-07: the device has the data of another account. */
   | { status: 'otherAccount' }
@@ -13,10 +15,14 @@ export type SignInResult =
 
 /** RF-AUTH-03: signs in; the device then belongs to that account (or keeps belonging to it). */
 export class SignIn {
+  private readonly enter: EnterAccount;
+
   constructor(
     private readonly gateway: Pick<AuthGateway, 'signIn' | 'signOut'>,
-    private readonly account: Pick<AccountRepository, 'readOwner' | 'saveOwner'>,
-  ) {}
+    account: Pick<AccountRepository, 'readOwner' | 'savePendingMigration' | 'saveOwnerEmail'>,
+  ) {
+    this.enter = new EnterAccount(gateway, account);
+  }
 
   async execute(input: { email: string; password: string }): Promise<SignInResult> {
     const email = emailProblem(input.email);
@@ -29,15 +35,15 @@ export class SignIn {
     }
     if (outcome.status !== 'signedIn') return outcome;
 
-    // RN-AUTH-07: only the account whose data is here can come back. The session just opened is
-    // closed, so none of this device's data can ever be uploaded to the other account.
-    const owner = await this.account.readOwner();
-    if (owner.kind === 'user' && owner.userId !== outcome.userId) {
-      await this.gateway.signOut();
-      return { status: 'otherAccount' };
-    }
-
-    await this.account.saveOwner({ kind: 'user', userId: outcome.userId });
-    return { status: 'done', userId: outcome.userId };
+    const entry = await this.enter.execute({
+      userId: outcome.userId,
+      email: input.email.trim(),
+    });
+    if (entry.status === 'otherAccount') return entry;
+    return {
+      status: 'done',
+      userId: outcome.userId,
+      pendingMerge: entry.status === 'pendingMerge',
+    };
   }
 }

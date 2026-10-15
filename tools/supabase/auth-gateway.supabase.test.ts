@@ -190,7 +190,10 @@ describe('SupabaseAuthGateway: password recovery (RF-AUTH-08)', () => {
     const link = await followToTheApp(await verifyUrlInEmailTo(email));
 
     expect(link.startsWith('onerm://new-password#')).toBe(true);
-    await expect(phone.openRecoveryLink(link)).resolves.toMatchObject({ status: 'opened', email });
+    const opened = await phone.openRecoveryLink(link);
+    expect(opened).toMatchObject({ status: 'opened', email });
+    // The account read from the link before opening it is the one the server opens (RN-AUTH-07).
+    expect(phone.recoveryLinkUser(link)).toBe(opened.status === 'opened' ? opened.userId : 'none');
     await expect(phone.setNewPassword('contraseña-nueva')).resolves.toMatchObject({
       status: 'done',
     });

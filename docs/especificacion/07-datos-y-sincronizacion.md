@@ -71,7 +71,7 @@ Nunca se guarda en texto plano (RNF-07).
 | Tabla | Contenido |
 |---|---|
 | `sync_state` | `table_name`, `cursor` (TEXT: el `server_updated_at` y el `id` de la última fila, tal como los devuelve el servidor; un `Date` truncaría los microsegundos, spike #13), `last_success_at`, `restore_completed` |
-| `app_state` | `owner` (`guest` o `user_id`), `pending_migration_uid?` (unión del invitado sin terminar, §4.3), `onboarding_step?` (RF-PERF-01 AC6: 1 a 3 son las preguntas de S05 y 4 es la recomendación, S06; se borra al terminar el onboarding), `catalog_version`, `rest_timer_ends_at?` (la notificación usa siempre el identificador fijo `rest-timer`, RN-ENT-07), `last_account_nudge_at?`, `notification_permission_asked` |
+| `app_state` | `owner` (`guest` o `user_id`), `pending_migration_uid?` (unión del invitado sin terminar, §4.3), `owner_email?` (el email de la cuenta dueña, para decir con cuál se vuelve a entrar si la sesión se perdió, RN-AUTH-07), `onboarding_step?` (RF-PERF-01 AC6: 1 a 3 son las preguntas de S05 y 4 es la recomendación, S06; se borra al terminar el onboarding), `catalog_version`, `rest_timer_ends_at?` (la notificación usa siempre el identificador fijo `rest-timer`, RN-ENT-07), `last_account_nudge_at?`, `notification_permission_asked` |
 
 ## 3. Servidor: seguridad, LWW y borrado
 
@@ -181,15 +181,16 @@ al autenticarse con owner = guest:
        Descartar → D01b; si confirma → borrar físicamente las filas del invitado (excepción de RN-SYNC-15: nunca se subieron; incluido un
                    entrenamiento en curso, que D01b menciona); si cancela → volver a D01
        Cancelar → cerrar la sesión de autenticación, owner sigue = guest, pending_migration_uid = null; fin
-  6. owner = uid; pending_migration_uid = null; restauración (§4.2) y después sync normal
+  6. owner = uid; owner_email = email de la cuenta; pending_migration_uid = null; restauración (§4.2) y después sync normal
 ```
 
+- **Punto de entrada (F7, D1):** todo ingreso (registro, inicio de sesión, Google, enlace de recuperación) pasa por un único caso de uso, `EnterAccount`. Con `owner = guest` solo ejecuta el paso 0 y el dispositivo **sigue siendo del invitado** hasta el paso 6; los pasos 1 a 6 llegan con la unión (#43). Con `owner = A` aplica RN-AUTH-07.
 - **Entrenamiento en curso del invitado:** se migra con el resto, pero no se sube hasta que se finaliza (RN-SYNC-13).
 - La unión es **local** y en **una sola transacción**. Si la red se corta después, los datos quedan como pendientes.
 
 ### 4.4 Cierre de sesión y cambio de cuenta (RF-AUTH-07, RN-AUTH-07)
 
-- Se cuentan los **pendientes** (RN-SYNC-08) y los **conflictos**, y se sigue el flujo de ese RF. El entrenamiento en curso bloquea el cierre (D14).
+- Se cuentan los **pendientes** (RN-SYNC-08) y los **conflictos**, y se sigue el flujo de ese RF. Un cambio rechazado conserva `_dirty = 1`, así que el número de D03 («cambios sin respaldar») ya incluye los conflictos (decisión F7, D4). El entrenamiento en curso bloquea el cierre (D14).
 - Al confirmar, se borran las tablas de usuario, `sync_state` y la sesión cifrada. El catálogo se conserva.
 - Se vuelve a la bienvenida con `owner = guest` y sin datos.
 - **Cambio de cuenta:** con `owner = A`, el login solo acepta la cuenta A (RN-AUTH-07). Si se ingresa otra, se muestra "Para entrar con otra cuenta, primero cerrá sesión".

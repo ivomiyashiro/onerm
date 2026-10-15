@@ -141,3 +141,28 @@ describe('SqliteAccountRepository', () => {
     await expect(account.readOwner()).resolves.toEqual({ kind: 'guest' });
   });
 });
+
+describe('SqliteAccountRepository: the account waiting and its email (07 §4.3, RN-AUTH-07)', () => {
+  it('keeps the account a guest waits to be united with, and forgets it', async () => {
+    await expect(account.readPendingMigration()).resolves.toBeNull();
+
+    await account.savePendingMigration('u1');
+    await expect(account.readPendingMigration()).resolves.toBe('u1');
+    await expect(account.readOwner()).resolves.toEqual({ kind: 'guest' });
+
+    await account.savePendingMigration(null);
+    await expect(account.readPendingMigration()).resolves.toBeNull();
+  });
+
+  it('keeps the owner email, and signing out forgets it with the rest', async () => {
+    await account.saveOwner({ kind: 'user', userId: 'u1' });
+    await account.saveOwnerEmail('ana@mail.com');
+    await account.savePendingMigration('u2');
+    await expect(account.readOwnerEmail()).resolves.toBe('ana@mail.com');
+
+    await account.clearUserData();
+
+    await expect(account.readOwnerEmail()).resolves.toBeNull();
+    await expect(account.readPendingMigration()).resolves.toBeNull();
+  });
+});

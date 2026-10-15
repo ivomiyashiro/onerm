@@ -2,7 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 
 import type { OpenRecoveryLinkResult } from '@/domain/usecases/open-recovery-link';
 import { auth } from '@/presentation/strings/auth';
-import { useAppStore } from '@/presentation/state/app-store-context';
+import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface NewPasswordState {
@@ -38,8 +38,8 @@ const OPEN_FAILED: Record<'offline' | 'otherAccount' | 'failed', string> = {
 
 /** S24 · Nueva contraseña (RF-AUTH-08.AC2, AC3). `url` is the link that opened the app. */
 export function useNewPasswordViewModel(url: string | null): NewPasswordViewModel {
-  const { openRecoveryLink, completePasswordRecovery, continueAfterAuth } = useUseCases();
-  const setAccount = useAppStore((s) => s.setAccount);
+  const { openRecoveryLink, completePasswordRecovery } = useUseCases();
+  const afterAuth = useAfterAuth();
   const [form, setForm] = useState({
     status: 'checking' as NewPasswordState['status'],
     password: '',
@@ -91,16 +91,13 @@ export function useNewPasswordViewModel(url: string | null): NewPasswordViewMode
       const result = await completePasswordRecovery.execute({ password: form.password });
       if (result.status === 'done') {
         sessionOpen.current = false;
-        setAccount({
-          kind: 'user',
-          userId: result.userId,
-          email: email.current,
-          sessionExpired: false,
-        });
-        await continueAfterAuth.execute().catch(() => undefined);
+        await afterAuth({ ...result, email: email.current });
         setForm((f) => ({ ...f, status: 'done' }));
       } else if (result.status === 'invalid') {
         setForm((f) => ({ ...f, status: 'editing', passwordError: auth.form.passwordTooShort }));
+      } else if (result.status === 'otherAccount') {
+        sessionOpen.current = false;
+        setForm((f) => ({ ...f, status: 'unavailable', message: OPEN_FAILED.otherAccount }));
       } else {
         setForm((f) => ({
           ...f,

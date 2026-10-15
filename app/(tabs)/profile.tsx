@@ -9,7 +9,7 @@ export default function S21Route() {
   return (
     <ProfileScreen
       onSignUp={() => router.push('/sign-up')}
-      onSignIn={() => router.push('/sign-in')}
+      onSignIn={(email) => router.push({ pathname: '/sign-in', params: email ? { email } : {} })}
       onAbout={() => router.push('/about')}
       onGoToWorkout={() => router.push('/workout')}
       onIncrements={() => router.push('/increments')}

@@ -13,12 +13,17 @@ function setup() {
 const valid = { email: ' ana@mail.com ', password: 'contraseña-larga' };
 
 describe('SignUp (RF-AUTH-02)', () => {
-  it('AC1: creates the account and the device now belongs to it', async () => {
+  it("AC1: creates the account; the guest's data waits for the union (07 §4.3)", async () => {
     const { signUp, gateway, account } = setup();
 
-    await expect(signUp.execute(valid)).resolves.toEqual({ status: 'done', userId: 'u1' });
+    await expect(signUp.execute(valid)).resolves.toEqual({
+      status: 'done',
+      userId: 'u1',
+      pendingMerge: true,
+    });
 
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
+    expect(account.owner).toEqual({ kind: 'guest' });
     expect(gateway.requests).toEqual([
       { kind: 'signUp', email: 'ana@mail.com', password: 'contraseña-larga' },
     ]);

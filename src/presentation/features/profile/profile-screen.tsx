@@ -35,7 +35,8 @@ import { colors, space, typography } from '@/presentation/theme';
 
 interface ProfileScreenProps {
   onSignUp: () => void;
-  onSignIn: () => void;
+  /** S02; from «Volver a entrar», with the account's email filled in (RN-AUTH-07). */
+  onSignIn: (email?: string) => void;
   onAbout: () => void;
   /** D14 «Ir al entrenamiento». */
   onGoToWorkout: () => void;
@@ -101,7 +102,10 @@ export function ProfileScreen({
           <SyncStatusCard
             status={{ kind: 'sessionExpired' }}
             message={text.sync.sessionExpired}
-            action={{ label: text.sync.signInAgain, onPress: onSignIn }}
+            action={{
+              label: text.sync.signInAgain,
+              onPress: () => onSignIn(account.email ?? undefined),
+            }}
           />
         )}
         {account.kind === 'guest' && (
@@ -139,7 +143,7 @@ export function ProfileScreen({
           {account.kind === 'guest' ? (
             <>
               <Button variant="secondary" label={text.sync.createAccount} onPress={onSignUp} />
-              <Button variant="tertiary" label={auth.welcome.signIn} onPress={onSignIn} />
+              <Button variant="tertiary" label={auth.welcome.signIn} onPress={() => onSignIn()} />
             </>
           ) : (
             <Button variant="danger" label={text.rows.signOut} onPress={actions.signOut} />

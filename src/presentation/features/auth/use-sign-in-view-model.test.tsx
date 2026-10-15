@@ -82,9 +82,19 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
     await act(() => result.current.actions.submit());
 
     expect(result.current.state.status).toBe('done');
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    // A guest device stays the guest's until the union (07 §4.3).
+    expect(account.owner).toEqual({ kind: 'guest' });
     expect(profiles.profile).toEqual(defaultProfile());
     expect(steps).toEqual(['level']);
+    expect(store.getState().account).toEqual({ kind: 'guest' });
+  });
+
+  it('RF-AUTH-06.AC4: the account whose data is here comes back in, and the store says so', async () => {
+    const { result, store } = await setup(undefined, undefined, { kind: 'user', userId: 'u1' });
+    await fill(result, 'ana@mail.com', 'x');
+
+    await act(() => result.current.actions.submit());
+
     expect(store.getState().account).toEqual({
       kind: 'user',
       userId: 'u1',

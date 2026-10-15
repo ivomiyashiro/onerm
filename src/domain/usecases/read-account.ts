@@ -9,7 +9,7 @@ import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 export class ReadAccount {
   constructor(
     private readonly gateway: Pick<AuthGateway, 'storedSession'>,
-    private readonly account: Pick<AccountRepository, 'readOwner'>,
+    private readonly account: Pick<AccountRepository, 'readOwner' | 'readOwnerEmail'>,
   ) {}
 
   async execute(): Promise<AccountState> {
@@ -21,7 +21,8 @@ export class ReadAccount {
     return {
       kind: 'user',
       userId: owner.userId,
-      email: alive ? stored.email : null,
+      // Without a live session the kept email says which account can come back (RN-AUTH-07).
+      email: (alive ? stored.email : null) ?? (await this.account.readOwnerEmail()),
       sessionExpired: !alive,
     };
   }

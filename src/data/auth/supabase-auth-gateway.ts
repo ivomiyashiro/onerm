@@ -6,7 +6,7 @@ import {
 
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
 import type { GoogleAccountPicker } from '@/data/auth/google-account-picker';
-import { parseRecoveryLink } from '@/data/auth/recovery-link';
+import { parseRecoveryLink, recoveryLinkUserId } from '@/data/auth/recovery-link';
 import type {
   AuthGateway,
   AuthOutcome,
@@ -79,6 +79,10 @@ export class SupabaseAuthGateway implements AuthGateway {
     return isAuthRetryableFetchError(error) ? 'offline' : 'failed';
   }
 
+  recoveryLinkUser(url: string): string | null {
+    return recoveryLinkUserId(url);
+  }
+
   async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {
     const tokens = parseRecoveryLink(url);
     if (tokens === null) return { status: 'invalidLink' };
@@ -100,7 +104,7 @@ export class SupabaseAuthGateway implements AuthGateway {
     const { data, error } = await this.client.auth.updateUser({ password });
     if (error)
       return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'failed' };
-    return { status: 'done', userId: data.user.id };
+    return { status: 'done', userId: data.user.id, email: data.user.email ?? null };
   }
 
   async signOut(): Promise<void> {
@@ -117,8 +121,11 @@ export class SupabaseAuthGateway implements AuthGateway {
   onSessionLost(listener: () => void): () => void {
     // supabase-js emits SIGNED_OUT when the server refuses to renew or has revoked the session. A
     // failed renewal for lack of connection emits nothing: it retries later (RF-AUTH-06.AC2).
-    const { data } = this.client.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT' && !this.signingOut) listener();
+    // Subscribing also replays INITIAL_SESSION: a start that ends without a session means the
+    // server refused it before this listener existed, and that SIGNED_OUT was missed.
+    const { data } = this.client.auth.onAuthStateChange((event, session) => {
+      if (this.signingOut) return;
+      if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && session === null)) listener();
     });
     return () => data.subscription.unsubscribe();
   }

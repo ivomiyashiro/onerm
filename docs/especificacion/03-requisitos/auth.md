@@ -188,6 +188,7 @@ Escenario: AC5 — Sin conexión
 - Requiere un development build de Expo y la configuración del cliente OAuth en Google Cloud (ADR-0007, ADR-0001 R7).
 - La vinculación automática de Supabase tiene que quedar **neutralizada**: Supabase vincula sola una identidad de Google verificada, así que un trigger en `auth.identities` la rechaza (spike #16, ADR-0001 R10).
 - Queda en **Should** para reducir el alcance: el MVP funciona completo con email y contraseña.
+- **Limitación aceptada (F7):** la librería nativa (`@react-native-google-signin` 16.1.5) no admite *nonce*, así que el ID token llega a Supabase sin él, también en la nube. El token solo viaja del SDK de Google a Supabase por https y no se guarda ni se registra. Se revisa si la librería lo agrega.
 
 ---
 
@@ -372,6 +373,12 @@ Escenario: AC3 — Enlace vencido o inválido
   Cuando lo abro
   Entonces veo que el enlace no es válido y la opción de pedir uno nuevo
 ```
+
+**Limitaciones conocidas (F7):**
+- El enlace abre una sesión de recuperación; si la app se cierra en S24 antes de guardar, esa sesión queda guardada hasta el próximo cierre de sesión.
+- En un dispositivo de invitado, un enlace fabricado con los tokens de otra cuenta abre esa sesión si la persona además guarda una contraseña nueva. Con D1 el dispositivo sigue siendo del invitado y nada se sube hasta la unión (07 §4.3), donde D01 muestra la cuenta. Defensa posible, pendiente: aceptar solo enlaces de un email pedido desde este dispositivo.
+
+**Notas:** con una cuenta creada con Google, el enlace también funciona y deja una contraseña además de Google: es la excepción aceptada de RN-AUTH-03 (decisión F7, D2).
 
 ---
 

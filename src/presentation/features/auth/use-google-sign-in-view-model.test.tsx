@@ -49,19 +49,27 @@ describe('useGoogleSignInViewModel (RF-AUTH-04)', () => {
     expect(result.current.state).toEqual({ status: 'idle', message: null });
   });
 
-  it('AC1, AC2: signed in: the account is in the store and the onboarding goes on', async () => {
+  it('AC1, AC2: signed in on a guest device: the store stays a guest and the onboarding goes on', async () => {
     const { result, store, steps } = await setup();
 
     await act(async () => result.current.actions.start());
 
     expect(result.current.state.status).toBe('done');
-    expect(store.getState().account).toMatchObject({
+    expect(store.getState().account).toEqual({ kind: 'guest' });
+    expect(steps.length).toBeGreaterThan(0);
+  });
+
+  it('the account whose data is here comes back in, with its email', async () => {
+    const { result, store } = await setup(undefined, { kind: 'user', userId: 'u1' });
+
+    await act(async () => result.current.actions.start());
+
+    expect(store.getState().account).toEqual({
       kind: 'user',
       userId: 'u1',
       email: 'ana@gmail.com',
       sessionExpired: false,
     });
-    expect(steps.length).toBeGreaterThan(0);
   });
 
   it('AC3: the email of a password account says to use the password', async () => {

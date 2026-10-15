@@ -177,6 +177,17 @@ describe('ProfileScreen (S21)', () => {
       expect(onSignUp).toHaveBeenCalledTimes(1);
     });
 
+    it('RF-AUTH-06.AC4: expired session: says so and «Volver a entrar» opens S02 with the email', async () => {
+      const { onSignIn } = await renderScreen(defaultProfile(), undefined, {
+        ...USER,
+        sessionExpired: true,
+      });
+
+      expect(screen.getByText(text.sync.sessionExpired)).toBeOnTheScreen();
+      await userEvent.press(screen.getByRole('button', { name: text.sync.signInAgain }));
+      expect(onSignIn).toHaveBeenCalledWith('ana@mail.com');
+    });
+
     it("user: shows the email and «Cerrar sesión», not the guest's invitation", async () => {
       await renderScreen(defaultProfile(), undefined, USER);
 

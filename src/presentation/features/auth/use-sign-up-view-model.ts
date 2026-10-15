@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 
 import type { SignUpResult } from '@/domain/usecases/sign-up';
 import { auth } from '@/presentation/strings/auth';
-import { useAppStore } from '@/presentation/state/app-store-context';
+import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface SignUpState {
@@ -31,8 +31,8 @@ export interface SignUpViewModel {
 
 /** S03 · Crear cuenta (RF-AUTH-02). What was typed is kept when something fails (AC4). */
 export function useSignUpViewModel(): SignUpViewModel {
-  const { signUp, continueAfterAuth } = useUseCases();
-  const setAccount = useAppStore((s) => s.setAccount);
+  const { signUp } = useUseCases();
+  const afterAuth = useAfterAuth();
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -85,13 +85,7 @@ export function useSignUpViewModel(): SignUpViewModel {
     try {
       const result = await signUp.execute({ email: form.email, password: form.password });
       if (result.status === 'done') {
-        setAccount({
-          kind: 'user',
-          userId: result.userId,
-          email: form.email.trim(),
-          sessionExpired: false,
-        });
-        await continueAfterAuth.execute().catch(() => undefined);
+        await afterAuth({ ...result, email: form.email.trim() });
         setForm((f) => ({ ...f, status: 'done' }));
       } else {
         setForm((f) => ({ ...f, ...failed(result) }));

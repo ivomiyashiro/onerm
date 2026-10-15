@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 import type { SignInResult } from '@/domain/usecases/sign-in';
-import { useAppStore } from '@/presentation/state/app-store-context';
+import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 import { auth } from '@/presentation/strings/auth';
 
@@ -36,8 +36,8 @@ const MESSAGE: Record<Exclude<SignInResult['status'], 'invalid' | 'done'>, strin
 
 /** S02 · Iniciar sesión (RF-AUTH-03). `initialEmail` comes from S03 when the email is taken. */
 export function useSignInViewModel(initialEmail = ''): SignInViewModel {
-  const { signIn, continueAfterAuth } = useUseCases();
-  const setAccount = useAppStore((s) => s.setAccount);
+  const { signIn } = useUseCases();
+  const afterAuth = useAfterAuth();
   const [form, setForm] = useState({
     email: initialEmail,
     password: '',
@@ -65,13 +65,7 @@ export function useSignInViewModel(initialEmail = ''): SignInViewModel {
               : auth.form.emailInvalid,
         }));
       } else if (result.status === 'done') {
-        setAccount({
-          kind: 'user',
-          userId: result.userId,
-          email: form.email.trim(),
-          sessionExpired: false,
-        });
-        await continueAfterAuth.execute().catch(() => undefined);
+        await afterAuth({ ...result, email: form.email.trim() });
         setForm((f) => ({ ...f, status: 'done' }));
       } else {
         setForm((f) => ({ ...f, status: 'editing', message: MESSAGE[result.status] }));

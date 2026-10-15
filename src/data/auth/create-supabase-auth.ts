@@ -62,6 +62,10 @@ export class UnconfiguredAuthGateway implements AuthGateway {
     return 'offline';
   }
 
+  recoveryLinkUser(): null {
+    return null;
+  }
+
   async openRecoveryLink(): Promise<RecoveryLinkOutcome> {
     return { status: 'offline' };
   }
