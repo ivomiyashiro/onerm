@@ -8,6 +8,8 @@ export const auth = {
     signIn: 'Iniciar sesión',
   },
   form: {
+    emailLabel: 'Email',
+    passwordLabel: 'Contraseña',
     continueWithGoogle: 'Continuar con Google',
     orWithEmail: 'o con tu email',
     signIn: 'Iniciar sesión',
