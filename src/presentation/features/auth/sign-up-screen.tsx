@@ -7,6 +7,7 @@ import { Notice } from '@/presentation/components/feedback/notice';
 import { TextField } from '@/presentation/components/input/text-field';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Text } from '@/presentation/components/text';
+import { GoogleSignInSection } from '@/presentation/features/auth/google-sign-in-section';
 import { useSignUpViewModel } from '@/presentation/features/auth/use-sign-up-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { common } from '@/presentation/strings/common';
@@ -19,7 +20,7 @@ interface SignUpScreenProps {
   onSignIn: (email?: string) => void;
 }
 
-/** S03 · Crear cuenta (RF-AUTH-02). "Continuar con Google" arrives with #44. */
+/** S03 · Crear cuenta (RF-AUTH-02). "Continuar con Google" (RF-AUTH-04) sits at the top. */
 export function SignUpScreen({ onBack, onDone, onSignIn }: SignUpScreenProps) {
   const { state, actions } = useSignUpViewModel();
   const insets = useSafeAreaInsets();
@@ -37,6 +38,7 @@ export function SignUpScreen({ onBack, onDone, onSignIn }: SignUpScreenProps) {
         <Text style={[typography.bodyL, { color: colors.textSecondary }]}>
           {auth.form.signUpBody}
         </Text>
+        <GoogleSignInSection onDone={onDone} disabled={submitting} />
         <TextField
           label={auth.form.emailLabel}
           value={state.email}
