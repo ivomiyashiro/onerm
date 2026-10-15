@@ -11,6 +11,7 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { SignIn } from '@/domain/usecases/sign-in';
+import { SyncNow } from '@/domain/usecases/sync-now';
 import { useSignInViewModel } from '@/presentation/features/auth/use-sign-in-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';
@@ -28,7 +29,14 @@ async function setup(
   const profiles = new InMemoryProfileRepository(null);
   const steps: unknown[] = [];
   const store = createAppStore();
+  const syncs = { asked: 0 };
   const useCases = someUseCases({
+    syncNow: new SyncNow({
+      syncNow: async () => {
+        syncs.asked++;
+        return 'synced';
+      },
+    }),
     signIn: new SignIn(gateway, account),
     continueAfterAuth: new ContinueAfterAuth(profiles, {
       saveStep: async (s) => void steps.push(s),
@@ -41,7 +49,7 @@ async function setup(
       </AppStoreProvider>
     ),
   });
-  return { ...hook, store, gateway, account, profiles, steps };
+  return { ...hook, store, gateway, account, profiles, steps, syncs };
 }
 
 async function fill(
@@ -90,7 +98,10 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
   });
 
   it('RF-AUTH-06.AC4: the account whose data is here comes back in, and the store says so', async () => {
-    const { result, store } = await setup(undefined, undefined, { kind: 'user', userId: 'u1' });
+    const { result, store, syncs } = await setup(undefined, undefined, {
+      kind: 'user',
+      userId: 'u1',
+    });
     await fill(result, 'ana@mail.com', 'x');
 
     await act(() => result.current.actions.submit());
@@ -101,6 +112,8 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
       email: 'ana@mail.com',
       sessionExpired: false,
     });
+    // Back in: the pending changes go up now, and the status leaves «sesión vencida».
+    expect(syncs.asked).toBe(1);
   });
 
   it('shows the email problem next to the field and sends nothing', async () => {

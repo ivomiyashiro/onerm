@@ -17,7 +17,7 @@ export interface AccountEntry {
  * store keeps it as a guest.
  */
 export function useAfterAuth(): (entry: AccountEntry) => Promise<void> {
-  const { continueAfterAuth } = useUseCases();
+  const { continueAfterAuth, syncNow } = useUseCases();
   const setAccount = useAppStore((s) => s.setAccount);
   return useCallback(
     async (entry: AccountEntry) => {
@@ -28,9 +28,11 @@ export function useAfterAuth(): (entry: AccountEntry) => Promise<void> {
           email: entry.email,
           sessionExpired: false,
         });
+        // The account's own session is back: what waited goes up now (RF-AUTH-06.AC4).
+        void syncNow.execute();
       }
       await continueAfterAuth.execute().catch(() => undefined);
     },
-    [continueAfterAuth, setAccount],
+    [continueAfterAuth, setAccount, syncNow],
   );
 }
