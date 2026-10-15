@@ -162,7 +162,14 @@ export function ProfileScreen({
         title={dialogs.D14.title}
         body={dialogs.D14.body('signOut')}
         actions={[
-          { label: dialogs.D14.goToWorkout, kind: 'advance', onPress: onGoToWorkout },
+          {
+            label: dialogs.D14.goToWorkout,
+            kind: 'advance',
+            onPress: () => {
+              actions.closeSignOutDialog();
+              onGoToWorkout();
+            },
+          },
           { label: dialogs.D14.cancel, kind: 'plain', onPress: actions.closeSignOutDialog },
         ]}
         onDismiss={actions.closeSignOutDialog}

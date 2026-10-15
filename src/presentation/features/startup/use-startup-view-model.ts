@@ -11,7 +11,8 @@ export interface StartupViewModel {
 }
 
 /**
- * App start (08 §3, 07 §6): prepares the local database and reads the account before the UI mounts. If a migration
+ * App start (08 §3, 07 §6): prepares the local database and reads the account before the UI
+ * mounts. If a migration
  * fails, the screen offers to retry; the data is never deleted.
  */
 export function useStartupViewModel(): StartupViewModel {

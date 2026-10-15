@@ -34,6 +34,7 @@ export function SignInScreen({
   const insets = useSafeAreaInsets();
   const submitting = state.status === 'submitting';
 
+  // `onDone` has to be stable (the routes memoize it): a new one would navigate again.
   useEffect(() => {
     if (state.status === 'done') onDone();
   }, [state.status, onDone]);

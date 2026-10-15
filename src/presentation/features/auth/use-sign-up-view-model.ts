@@ -72,7 +72,7 @@ export function useSignUpViewModel(): SignUpViewModel {
       case 'otherAccount':
         return { ...base, message: auth.errors.otherAccount };
       case 'offline':
-        return { ...base, message: auth.errors.offline('crear una cuenta') };
+        return { ...base, message: auth.errors.offline(auth.errors.actions.signUp) };
       case 'failed':
         return { ...base, message: auth.errors.unexpected };
     }

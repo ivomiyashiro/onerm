@@ -26,6 +26,8 @@ export const auth = {
     emailInvalid: 'Revisá el email: no parece válido.',
   },
   errors: {
+    /** The actions that need a connection, for `offline`. */
+    actions: { signIn: 'iniciar sesión', signUp: 'crear una cuenta' },
     offline: (action: string) =>
       `Necesitás conexión para ${action}. Podés seguir entrenando sin cuenta.`,
     wrongCredentials: 'Email o contraseña incorrectos.',

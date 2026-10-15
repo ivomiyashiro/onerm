@@ -108,7 +108,7 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
 
   it.each([
     ['AC2', { status: 'wrongCredentials' }, auth.errors.wrongCredentials],
-    ['AC3', { status: 'offline' }, auth.errors.offline('iniciar sesión')],
+    ['AC3', { status: 'offline' }, auth.errors.offline(auth.errors.actions.signIn)],
     ['unexpected', { status: 'failed' }, auth.errors.unexpected],
   ] as const)('%s: the message appears and what was typed stays', async (_ac, outcome, message) => {
     const { result } = await setup(outcome);

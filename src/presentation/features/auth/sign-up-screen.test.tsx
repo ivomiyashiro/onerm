@@ -103,7 +103,7 @@ describe('SignUpScreen (S03)', () => {
 
     await userEvent.press(submit());
 
-    expect(screen.getByText(auth.errors.offline('crear una cuenta'))).toBeOnTheScreen();
+    expect(screen.getByText(auth.errors.offline(auth.errors.actions.signUp))).toBeOnTheScreen();
     expect(screen.getByLabelText(auth.form.emailLabel)).toHaveDisplayValue('ana@mail.com');
   });
 

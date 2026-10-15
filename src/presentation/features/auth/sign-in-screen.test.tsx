@@ -107,7 +107,7 @@ describe('SignInScreen (S02)', () => {
 
     await userEvent.press(submit());
 
-    expect(screen.getByText(auth.errors.offline('iniciar sesión'))).toBeOnTheScreen();
+    expect(screen.getByText(auth.errors.offline(auth.errors.actions.signIn))).toBeOnTheScreen();
     await userEvent.press(screen.getByRole('button', { name: 'Atrás' }));
     expect(onBack).toHaveBeenCalledTimes(1);
   });

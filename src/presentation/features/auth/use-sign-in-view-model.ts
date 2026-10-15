@@ -29,7 +29,7 @@ export interface SignInViewModel {
 
 const MESSAGE: Record<Exclude<SignInResult['status'], 'invalid' | 'done'>, string> = {
   wrongCredentials: auth.errors.wrongCredentials,
-  offline: auth.errors.offline('iniciar sesión'),
+  offline: auth.errors.offline(auth.errors.actions.signIn),
   otherAccount: auth.errors.otherAccount,
   failed: auth.errors.unexpected,
 };

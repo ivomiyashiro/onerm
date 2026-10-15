@@ -115,7 +115,7 @@ describe('useSignUpViewModel (S03, RF-AUTH-02)', () => {
 
     expect(result.current.state).toMatchObject({
       status: 'editing',
-      message: auth.errors.offline('crear una cuenta'),
+      message: auth.errors.offline(auth.errors.actions.signUp),
       email: 'ana@mail.com',
       password: 'contraseña-larga',
     });
