@@ -1,0 +1,53 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
+
+import type { AppDatabase } from '@/data/db/app-database';
+import { currentUserId } from '@/data/db/sync-writes';
+import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
+
+import { pullCatalog, pullChanges } from './pull';
+import { pushChanges } from './push';
+
+/**
+ * The sync of 07 §4.1 against Supabase, straight from the client (ADR-0001): minimum version, then
+ * the catalog, then the user's push and pull. Any failure of the network or the server ends the
+ * run as `failed`; what was already applied stays, and the next run continues from there.
+ */
+export class SupabaseSyncEngine implements SyncEngine {
+  constructor(
+    private readonly db: () => AppDatabase,
+    private readonly client: SupabaseClient,
+    /** The installed app's version (`app.json`), compared with the server's minimum. */
+    private readonly appVersion: string,
+  ) {}
+
+  async sync(): Promise<SyncResult> {
+    try {
+      if (await this.isOutdated()) return 'appOutdated';
+      await pullCatalog(this.db(), this.client);
+
+      // A guest only downloads the catalog (RN-SYNC-09); so does a guest merge not finished yet.
+      const owner = currentUserId(this.db());
+      if (owner === null) return 'guest';
+
+      // Only the session of the device's owner may move its data (RN-AUTH-07). Without it the
+      // requests would go out anonymously and every row would be rejected by RLS.
+      const { data, error } = await this.client.auth.getSession();
+      if (error !== null) return 'failed';
+      if (data.session?.user.id !== owner) return 'sessionExpired';
+
+      await pushChanges(this.db(), this.client, owner);
+      await pullChanges(this.db(), this.client, owner);
+      return 'synced';
+    } catch {
+      return 'failed';
+    }
+  }
+
+  /** RN-SYNC-14: the server publishes the minimum version that can sync. */
+  private async isOutdated(): Promise<boolean> {
+    const { data, error } = await this.client.from('app_config').select('min_app_version').single();
+    if (error !== null) throw error;
+    return isOlderVersion(this.appVersion, (data as { min_app_version: string }).min_app_version);
+  }
+}
