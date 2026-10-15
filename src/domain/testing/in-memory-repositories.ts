@@ -1,3 +1,4 @@
+import type { DataOwner } from '@/domain/models/data-owner';
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
 import type { RestMessage, RestTimer } from '@/domain/models/rest-timer';
@@ -5,6 +6,8 @@ import type { RotationDay, Routine, RoutineDay } from '@/domain/models/routine';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
+import type { AccountRepository } from '@/domain/repositories/account-repository';
+import type { AuthGateway, AuthOutcome } from '@/domain/repositories/auth-gateway';
 import type {
   DevicePermissions,
   NotificationPermission,
@@ -274,5 +277,65 @@ export class InMemoryWorkoutRepository implements WorkoutRepository {
 
   failFinished(error: unknown = new Error('disk')) {
     this.finished$.fail(error);
+  }
+}
+
+export class InMemoryAccountRepository implements AccountRepository {
+  pendingChanges = 0;
+  workoutInProgress = false;
+  cleared = 0;
+
+  constructor(public owner: DataOwner = { kind: 'guest' }) {}
+
+  async readOwner(): Promise<DataOwner> {
+    return this.owner;
+  }
+
+  async saveOwner(owner: DataOwner): Promise<void> {
+    this.owner = owner;
+  }
+
+  async countPendingChanges(): Promise<number> {
+    return this.pendingChanges;
+  }
+
+  async hasWorkoutInProgress(): Promise<boolean> {
+    return this.workoutInProgress;
+  }
+
+  async clearUserData(): Promise<void> {
+    this.cleared += 1;
+    this.owner = { kind: 'guest' };
+    this.pendingChanges = 0;
+  }
+}
+
+/** The provider, answering what the test says: `outcome` for sign-up and sign-in. */
+export class FakeAuthGateway implements AuthGateway {
+  signedOut = 0;
+  readonly requests: { kind: 'signUp' | 'signIn'; email: string; password: string }[] = [];
+
+  constructor(
+    public outcome: AuthOutcome = { status: 'signedIn', userId: 'u1' },
+    public stored: string | null = null,
+  ) {}
+
+  async signUp(email: string, password: string): Promise<AuthOutcome> {
+    this.requests.push({ kind: 'signUp', email, password });
+    return this.outcome;
+  }
+
+  async signIn(email: string, password: string): Promise<AuthOutcome> {
+    this.requests.push({ kind: 'signIn', email, password });
+    return this.outcome;
+  }
+
+  async signOut(): Promise<void> {
+    this.signedOut += 1;
+    this.stored = null;
+  }
+
+  async storedUserId(): Promise<string | null> {
+    return this.stored;
   }
 }
