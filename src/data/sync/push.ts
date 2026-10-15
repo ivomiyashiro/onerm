@@ -2,6 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import {
   and,
   asc,
+  count,
   eq,
   gt,
   inArray,
@@ -54,15 +55,7 @@ export async function pushChanges(
       const rows = db
         .select()
         .from(table)
-        .where(
-          and(
-            eq(table.dirty, true),
-            isNull(table.conflict),
-            eq(table.userId, userId),
-            gt(table.id, afterId),
-            pushable(db, sync),
-          ),
-        )
+        .where(and(uploadable(db, sync, userId), gt(table.id, afterId)))
         .orderBy(asc(table.id))
         .limit(PUSH_BATCH)
         .all() as Record<string, unknown>[] as (typeof routines.$inferSelect)[];
@@ -93,6 +86,33 @@ export async function pushChanges(
       });
     }
   }
+}
+
+/**
+ * The rows the next push would upload (RN-SYNC-08): what makes a local write worth a sync
+ * (RN-SYNC-06 a). Rows in conflict and the ones they hold don't count: they wait for the person.
+ */
+export function countUploadable(db: AppDatabase, userId: string): number {
+  return USER_TABLES.reduce((total, sync) => {
+    const table = sync.table as typeof routines;
+    const row = db
+      .select({ n: count() })
+      .from(table)
+      .where(uploadable(db, sync, userId))
+      .get();
+    return total + (row?.n ?? 0);
+  }, 0);
+}
+
+/** Pending, of this owner, not in conflict and not held back. */
+function uploadable(db: AppDatabase, sync: UserTableSync, userId: string): SQL | undefined {
+  const table = sync.table as typeof routines;
+  return and(
+    eq(table.dirty, true),
+    isNull(table.conflict),
+    eq(table.userId, userId),
+    pushable(db, sync),
+  );
 }
 
 /** Not held back: not a workout in progress (RN-SYNC-13), nor under a held row (RN-SYNC-11). */

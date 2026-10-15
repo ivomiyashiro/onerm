@@ -21,6 +21,8 @@ export const profile = {
     restNotificationsHelp: 'Te avisamos aunque la pantalla esté bloqueada.',
     about: 'Acerca de y créditos',
     signOut: 'Cerrar sesión',
+    /** RF-AUTH-07.AC2: the pending changes go up before signing out. */
+    signingOutBackingUp: 'Respaldando tus datos…',
     backUpNow: 'Respaldar ahora',
   },
   permissions: {

@@ -5,6 +5,7 @@ import { AppProviders } from '@/di/app-providers';
 import { SessionWatcher } from '@/presentation/features/auth/session-watcher';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
+import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';
 import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
 import { colors } from '@/presentation/theme';
 
@@ -29,6 +30,7 @@ export default function RootLayout() {
         {/* The screens mount once the local database is migrated (07 §6). */}
         <StartupGate>
           <SessionWatcher />
+          <SyncWatcher />
           <EntryGate>
             {(entry) => (
               <Stack

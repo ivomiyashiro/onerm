@@ -10,7 +10,8 @@ import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import type { SyncResult } from '@/domain/repositories/sync-engine';
+import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
@@ -28,6 +29,15 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
   const store = createAppStore();
   const gateway = new FakeAuthGateway();
   const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+  // The backup: what it leaves pending (by default, everything), and a gate the test can hold.
+  const backup = { leftPending: null as number | null, gate: Promise.resolve() };
+  const sync = {
+    syncNow: async (): Promise<SyncResult> => {
+      await backup.gate;
+      if (backup.leftPending !== null) account.pendingChanges = backup.leftPending;
+      return 'synced';
+    },
+  };
   store.getState().setAccount({
     kind: 'user',
     userId: 'u1',
@@ -36,6 +46,7 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
   });
   const useCases = someUseCases({
     prepareSignOut: new PrepareSignOut(account),
+    backUpBeforeSignOut: new BackUpBeforeSignOut(sync, account),
     confirmSignOut: new ConfirmSignOut(gateway, account),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
@@ -47,7 +58,7 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
     </AppStoreProvider>
   );
   const hook = await renderHook(() => useProfileViewModel(), { wrapper });
-  return { ...hook, profiles, routines, store, account, gateway };
+  return { ...hook, profiles, routines, store, account, gateway, backup };
 }
 
 describe('useProfileViewModel', () => {
@@ -155,29 +166,54 @@ describe('useProfileViewModel', () => {
       expect(gateway.signedOut).toBe(1);
     });
 
-    it('AC3: with pending changes it asks first (D03) and nothing is signed out yet', async () => {
-      const { result, store, account } = await renderViewModel();
+    it('AC2: with pending changes it backs up first, and signs out once all is up', async () => {
+      const { result, store, account, backup } = await renderViewModel();
       account.pendingChanges = 3;
+      let open!: () => void;
+      backup.gate = new Promise((resolve) => (open = resolve));
+      backup.leftPending = 0;
 
-      await act(() => result.current.actions.signOut());
+      let signingOut!: Promise<void>;
+      await act(async () => {
+        signingOut = result.current.actions.signOut();
+      });
+      expect(result.current.backingUp).toBe(true);
+      expect(account.cleared).toBe(0);
 
+      await act(async () => {
+        open();
+        await signingOut;
+      });
+      expect(result.current.backingUp).toBe(false);
+      expect(result.current.signOutDialog).toBeNull();
+      expect(store.getState().account).toEqual({ kind: 'guest' });
+    });
+
+    /** Signs out with 3 pending changes and a backup that leaves them all. */
+    async function signOutWithChangesLeft() {
+      const rendered = await renderViewModel();
+      rendered.account.pendingChanges = 3;
+      await act(() => rendered.result.current.actions.signOut());
+      return rendered;
+    }
+
+    it('AC3: with changes left after the backup it asks first (D03) and nothing is signed out yet', async () => {
+      const { result, store, account } = await signOutWithChangesLeft();
+
+      expect(result.current.backingUp).toBe(false);
       expect(result.current.signOutDialog).toEqual({ kind: 'pending', count: 3 });
       expect(store.getState().account).toMatchObject({ kind: 'user' });
       expect(account.cleared).toBe(0);
     });
 
     it('AC3: «Cerrar sesión igual» signs out and «Cancelar» keeps everything', async () => {
-      const { result, store, account } = await renderViewModel();
-      account.pendingChanges = 3;
-      await act(() => result.current.actions.signOut());
+      const { result, store, account } = await signOutWithChangesLeft();
 
       await act(async () => result.current.actions.closeSignOutDialog());
       expect(result.current.signOutDialog).toBeNull();
       expect(account.cleared).toBe(0);
 
-      await act(() => result.current.actions.signOut());
       await act(() => result.current.actions.confirmSignOut());
-      expect(result.current.signOutDialog).toBeNull();
       expect(store.getState().account).toEqual({ kind: 'guest' });
       expect(account.cleared).toBe(1);
     });

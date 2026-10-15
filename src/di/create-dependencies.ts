@@ -6,10 +6,16 @@ import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlit
 import type { TableChanges } from '@/data/db/table-changes';
 import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
+import NetInfo from '@react-native-community/netinfo';
+import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
 import { AppState } from 'react-native';
 
-import { createSupabaseAuth, UnconfiguredAuthGateway } from '@/data/auth/create-supabase-auth';
+import {
+  createSupabaseAuth,
+  UnconfiguredAuthGateway,
+  type SupabaseAuth,
+} from '@/data/auth/create-supabase-auth';
 import { expoSessionStorage } from '@/data/auth/expo-session-storage';
 import { NativeGoogleAccountPicker } from '@/data/auth/google-account-picker';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
@@ -21,10 +27,16 @@ import { SqliteRestTimerRepository } from '@/data/repositories/sqlite-rest-timer
 import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
+import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
+import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 import type { DevicePermissions } from '@/domain/repositories/device-permissions';
 import type { RestNotifier } from '@/domain/repositories/rest-notifier';
+import type { SyncEngine } from '@/domain/repositories/sync-engine';
+import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
+import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
@@ -81,7 +93,7 @@ import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
 import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
-import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SignUp } from '@/domain/usecases/sign-up';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
@@ -132,11 +144,16 @@ export function appDevice(): Device {
  * the foreground, as supabase-js recommends for React Native (spike #15).
  */
 export function appAuth(): AuthGateway {
-  cachedAuth ??= createAppAuth();
-  return cachedAuth;
+  return appSupabase()?.gateway ?? new UnconfiguredAuthGateway();
 }
 
-let cachedAuth: AuthGateway | null = null;
+/** One supabase-js client for auth and sync (spike #15), or null without a server configured. */
+function appSupabase(): SupabaseAuth | null {
+  if (cachedSupabase === undefined) cachedSupabase = createAppSupabase();
+  return cachedSupabase;
+}
+
+let cachedSupabase: SupabaseAuth | null | undefined;
 
 /**
  * The WEB client of Google (spike #16): public by design, it goes inside the app. It is also the
@@ -148,23 +165,48 @@ const GOOGLE_WEB_CLIENT_ID =
 /** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
 const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
 
-function createAppAuth(): AuthGateway {
+function createAppSupabase(): SupabaseAuth | null {
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !publishableKey) return new UnconfiguredAuthGateway();
-  if (!url.startsWith('https://') && !LOCAL_HOST.test(url)) return new UnconfiguredAuthGateway();
+  if (!url || !publishableKey) return null;
+  if (!url.startsWith('https://') && !LOCAL_HOST.test(url)) return null;
 
-  const { gateway, client } = createSupabaseAuth({
+  const supabase = createSupabaseAuth({
     url,
     publishableKey,
     storage: expoSessionStorage,
     google: new NativeGoogleAccountPicker(GOOGLE_WEB_CLIENT_ID),
   });
   AppState.addEventListener('change', (state) => {
-    if (state === 'active') client.auth.startAutoRefresh();
-    else client.auth.stopAutoRefresh();
+    if (state === 'active') supabase.client.auth.startAutoRefresh();
+    else supabase.client.auth.stopAutoRefresh();
   });
-  return gateway;
+  return supabase;
+}
+
+/** The automatic backup (RF-SYNC-01): the engine, what it would upload, and its triggers. */
+export interface Backup {
+  engine: SyncEngine;
+  countUploadable(): Promise<number>;
+  triggers: SyncTriggers;
+}
+
+/**
+ * The sync of 07 §4.1 against the configured server, triggered by the phone (RN-SYNC-06). Without
+ * a server there is nothing to back up to, like a guest's device.
+ */
+export function appBackup({ localDatabase, changes }: Storage): Backup {
+  const client = appSupabase()?.client;
+  const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
+  if (client === undefined) {
+    return { engine: { sync: async () => 'guest' }, countUploadable: async () => 0, triggers };
+  }
+  const engine = new SupabaseSyncEngine(
+    () => localDatabase.database,
+    client,
+    Constants.expoConfig?.version ?? '0.0.0',
+  );
+  return { engine, countUploadable: () => engine.countUploadable(), triggers };
 }
 
 /**
@@ -178,6 +220,7 @@ export function createDependencies(
   newId: () => Id = randomUUID,
   { notifier, permissions }: Device = appDevice(),
   auth: AuthGateway = appAuth(),
+  backup: Backup = appBackup({ localDatabase, changes }),
 ): Dependencies {
   const db = () => localDatabase.database;
   const now = () => new Date();
@@ -191,6 +234,7 @@ export function createDependencies(
   const restTimerRepository = new SqliteRestTimerRepository(db, changes);
   const rest = [restTimerRepository, notifier, permissions, now] as const;
   const stopRest = new SkipRest(restTimerRepository, notifier);
+  const syncScheduler = new SyncScheduler(backup.engine, () => backup.countUploadable());
 
   return {
     useCases: {
@@ -244,7 +288,9 @@ export function createDependencies(
       openRecoveryLink: new OpenRecoveryLink(auth, accountRepository),
       completePasswordRecovery: new CompletePasswordRecovery(auth, accountRepository),
       prepareSignOut: new PrepareSignOut(accountRepository),
+      backUpBeforeSignOut: new BackUpBeforeSignOut(syncScheduler, accountRepository),
       confirmSignOut: new ConfirmSignOut(auth, accountRepository),
+      keepBackedUp: new KeepBackedUp(syncScheduler, backup.triggers),
       updateProfile: new UpdateProfile(profileRepository, routineRepository),
       adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
       updateLoadSetting: new UpdateLoadSetting(profileRepository),

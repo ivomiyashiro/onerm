@@ -70,7 +70,8 @@ export function ProfileScreen({
   onIncrements,
   devEntry,
 }: ProfileScreenProps) {
-  const { state, account, signOutDialog, sheet, dialog, actions } = useProfileViewModel();
+  const { state, account, signOutDialog, backingUp, sheet, dialog, actions } =
+    useProfileViewModel();
   const insets = useSafeAreaInsets();
 
   return (
@@ -146,7 +147,13 @@ export function ProfileScreen({
               <Button variant="tertiary" label={auth.welcome.signIn} onPress={() => onSignIn()} />
             </>
           ) : (
-            <Button variant="danger" label={text.rows.signOut} onPress={actions.signOut} />
+            <Button
+              variant="danger"
+              label={text.rows.signOut}
+              onPress={actions.signOut}
+              loading={backingUp}
+              loadingLabel={text.rows.signingOutBackingUp}
+            />
           )}
           {devEntry}
         </View>

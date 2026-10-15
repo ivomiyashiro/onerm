@@ -34,6 +34,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Forgot your password: «Olvidé mi contraseña» sends a link to your email (the answer is the same whether the account exists or not); opening it on the phone lets you choose a new password and signs you in. An expired or used link says so and offers to ask for another one.
 - Continue with Google: from the sign-in and sign-up screens you can enter with your Google account. If that email already has an account with a password, the app tells you to use the password and never links the two.
 - Signing in or creating an account on a phone used as a guest keeps the phone's data as the guest's until the union with the account arrives with the sync: Profile keeps showing the guest. When the session of your account expires, Profile names it and «Volver a entrar» comes with your email filled in.
+- Automatic backup for accounts: what you change is uploaded on its own a few seconds later, when the app opens or comes back, and when the connection returns; without a connection nothing changes and it is retried later, never in the background. A workout in progress is uploaded when you finish it. Changes made on another phone of the same account arrive with the next sync, and a delete always wins. If the server rejects a change, the rest are uploaded anyway. Signing out first backs up your pending changes («Respaldando tus datos…») and only warns (D03) about the ones left. The exercise catalog updates from the server, for guests too.
 
 ### Changed
 

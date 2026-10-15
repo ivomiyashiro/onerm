@@ -27,6 +27,8 @@ export interface ProfileViewModel {
   /** The account block of S21 (RF-AUTH-01.AC4, RF-AUTH-06). */
   account: AccountState;
   signOutDialog: SignOutDialog | null;
+  /** RF-AUTH-07.AC2: the pending changes are being uploaded before signing out. */
+  backingUp: boolean;
   sheet: SettingSheet | null;
   /** D06 after a new goal or level (RF-PERF-03.AC2). */
   dialog: AdjustDialog | null;
@@ -40,7 +42,10 @@ export interface ProfileViewModel {
     /** D06 «Dejar como está». */
     keep(): void;
     retry(): void;
-    /** «Cerrar sesión»: D14 if a workout is in progress, D03 if changes would be lost, else out. */
+    /**
+     * «Cerrar sesión»: D14 if a workout is in progress; with pending changes, back them up first
+     * and D03 if some are left; else out.
+     */
     signOut(): Promise<void>;
     /** D03 «Cerrar sesión igual». */
     confirmSignOut(): Promise<void>;
@@ -63,11 +68,18 @@ const CURRENT: Record<Setting, (profile: Profile) => ProfileChanges> = {
 
 /** S21 · Perfil (RF-PERF-03..05): each setting is saved locally at once. */
 export function useProfileViewModel(): ProfileViewModel {
-  const { observeProfile, updateProfile, adjustActiveRoutine, prepareSignOut, confirmSignOut } =
-    useUseCases();
+  const {
+    observeProfile,
+    updateProfile,
+    adjustActiveRoutine,
+    prepareSignOut,
+    backUpBeforeSignOut,
+    confirmSignOut,
+  } = useUseCases();
   const account = useAppStore((s) => s.account);
   const setAccount = useAppStore((s) => s.setAccount);
   const [signOutDialog, setSignOutDialog] = useState<SignOutDialog | null>(null);
+  const [backingUp, setBackingUp] = useState(false);
   const [state, setState] = useState<ProfileState>({ status: 'loading' });
   const [sheet, setSheet] = useState<SettingSheet | null>(null);
   const [dialog, setDialog] = useState<ProfileViewModel['dialog']>(null);
@@ -75,6 +87,8 @@ export function useProfileViewModel(): ProfileViewModel {
   const [attempt, setAttempt] = useState(0);
   // A ref, not state: two taps in the same frame must save only once.
   const saving = useRef(false);
+  // The same for «Cerrar sesión»: a second tap while backing up must not start another.
+  const signingOut = useRef(false);
 
   useEffect(
     () =>
@@ -135,13 +149,25 @@ export function useProfileViewModel(): ProfileViewModel {
   }
 
   async function signOut() {
+    if (signingOut.current) return;
+    signingOut.current = true;
     try {
-      const plan = await prepareSignOut.execute();
+      let plan = await prepareSignOut.execute();
+      if (plan.kind === 'pending') {
+        setBackingUp(true);
+        try {
+          plan = await backUpBeforeSignOut.execute();
+        } finally {
+          setBackingUp(false);
+        }
+      }
       if (plan.kind === 'blockedByWorkout') setSignOutDialog({ kind: 'workoutInProgress' });
       else if (plan.kind === 'pending') setSignOutDialog({ kind: 'pending', count: plan.count });
       else await leave();
     } catch {
       // The plan couldn't be read: nothing is signed out.
+    } finally {
+      signingOut.current = false;
     }
   }
 
@@ -154,6 +180,7 @@ export function useProfileViewModel(): ProfileViewModel {
     state,
     account,
     signOutDialog,
+    backingUp,
     sheet,
     dialog,
     actions: {

@@ -7,7 +7,9 @@ import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
 import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
-import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { SignUp } from '@/domain/usecases/sign-up';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
@@ -166,9 +168,14 @@ function accountUseCases() {
     openRecoveryLink: new OpenRecoveryLink(gateway, account),
     completePasswordRecovery: new CompletePasswordRecovery(gateway, account),
     prepareSignOut: new PrepareSignOut(account),
+    backUpBeforeSignOut: new BackUpBeforeSignOut(offlineSync, account),
     confirmSignOut: new ConfirmSignOut(gateway, account),
+    keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
   };
 }
+
+/** A sync that never reaches a server, and never has anything to upload. */
+const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);
 
 /**
  * The routine and workout use cases over in-memory repositories: the test arranges the data and reads what

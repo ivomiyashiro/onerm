@@ -6,7 +6,7 @@ import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
 import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
 
 import { pullCatalog, pullChanges } from './pull';
-import { pushChanges } from './push';
+import { countUploadable, pushChanges } from './push';
 
 /**
  * The sync of 07 §4.1 against Supabase, straight from the client (ADR-0001): minimum version, then
@@ -44,6 +44,12 @@ export class SupabaseSyncEngine implements SyncEngine {
     } catch {
       return 'failed';
     }
+  }
+
+  /** What the next push would upload; nothing for a guest (RN-SYNC-08, RN-SYNC-09). */
+  async countUploadable(): Promise<number> {
+    const owner = currentUserId(this.db());
+    return owner === null ? 0 : countUploadable(this.db(), owner);
   }
 
   /** RN-SYNC-14: the server publishes the minimum version that can sync. */
