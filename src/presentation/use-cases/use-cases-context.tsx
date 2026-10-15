@@ -9,6 +9,7 @@ import type { ReadAccount } from '@/domain/usecases/read-account';
 import type { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
 import type { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
 import type { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
+import type { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
 import type { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
@@ -92,6 +93,7 @@ export interface UseCases {
   continueAfterAuth: ContinueAfterAuth;
   signUp: SignUp;
   signIn: SignIn;
+  continueWithGoogle: ContinueWithGoogle;
   requestPasswordReset: RequestPasswordReset;
   openRecoveryLink: OpenRecoveryLink;
   completePasswordRecovery: CompletePasswordRecovery;

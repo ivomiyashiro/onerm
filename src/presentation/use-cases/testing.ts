@@ -5,6 +5,7 @@ import { ReadAccount } from '@/domain/usecases/read-account';
 import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
 import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
 import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
+import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SignUp } from '@/domain/usecases/sign-up';
@@ -160,6 +161,7 @@ function accountUseCases() {
     answerAccountNudge: new AnswerAccountNudge(account, epoch),
     signUp: new SignUp(gateway, account),
     signIn: new SignIn(gateway, account),
+    continueWithGoogle: new ContinueWithGoogle(gateway, account),
     requestPasswordReset: new RequestPasswordReset(gateway),
     openRecoveryLink: new OpenRecoveryLink(gateway, account),
     completePasswordRecovery: new CompletePasswordRecovery(gateway, account),

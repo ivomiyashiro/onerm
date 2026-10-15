@@ -11,6 +11,7 @@ import { AppState } from 'react-native';
 
 import { createSupabaseAuth, UnconfiguredAuthGateway } from '@/data/auth/create-supabase-auth';
 import { expoSessionStorage } from '@/data/auth/expo-session-storage';
+import { NativeGoogleAccountPicker } from '@/data/auth/google-account-picker';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
@@ -78,6 +79,7 @@ import { ReadAccount } from '@/domain/usecases/read-account';
 import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
 import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
 import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
+import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SignUp } from '@/domain/usecases/sign-up';
@@ -136,6 +138,13 @@ export function appAuth(): AuthGateway {
 
 let cachedAuth: AuthGateway | null = null;
 
+/**
+ * The WEB client of Google (spike #16): public by design, it goes inside the app. It is also the
+ * `client_id` of the Google provider in Supabase.
+ */
+const GOOGLE_WEB_CLIENT_ID =
+  '190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com';
+
 /** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
 const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
 
@@ -149,6 +158,7 @@ function createAppAuth(): AuthGateway {
     url,
     publishableKey,
     storage: expoSessionStorage,
+    google: new NativeGoogleAccountPicker(GOOGLE_WEB_CLIENT_ID),
   });
   AppState.addEventListener('change', (state) => {
     if (state === 'active') client.auth.startAutoRefresh();
@@ -229,6 +239,7 @@ export function createDependencies(
       continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),
+      continueWithGoogle: new ContinueWithGoogle(auth, accountRepository),
       requestPasswordReset: new RequestPasswordReset(auth),
       openRecoveryLink: new OpenRecoveryLink(auth, accountRepository),
       completePasswordRecovery: new CompletePasswordRecovery(auth, accountRepository),

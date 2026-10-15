@@ -23,6 +23,8 @@ const config: ExpoConfig = {
   },
   plugins: [
     'expo-router',
+    // Native Google sign-in (RF-AUTH-04, spike #16): adds the Gradle plugin and the module.
+    '@react-native-google-signin/google-signin',
     // Embeds the fonts in the native build: no async loading or blank first frame.
     [
       'expo-font',

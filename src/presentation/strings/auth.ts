@@ -31,6 +31,7 @@ export const auth = {
       signIn: 'iniciar sesión',
       signUp: 'crear una cuenta',
       resetPassword: 'cambiar tu contraseña',
+      google: 'continuar con Google',
     },
     offline: (action: string) =>
       `Necesitás conexión para ${action}. Podés seguir entrenando sin cuenta.`,

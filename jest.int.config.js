@@ -7,6 +7,10 @@ const base = require('./jest.config');
  */
 module.exports = {
   ...base,
+  moduleNameMapper: {
+    ...base.moduleNameMapper,
+    '^@react-native-google-signin/google-signin$': '<rootDir>/tools/jest/google-signin-mock.js',
+  },
   testEnvironment: 'node',
   testMatch: ['**/*.int.test.{ts,tsx}'],
   testPathIgnorePatterns: ['/node_modules/', '/android/', '/ios/'],

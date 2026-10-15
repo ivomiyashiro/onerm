@@ -64,6 +64,7 @@ describe('SignInScreen (S02)', () => {
     expect(screen.getByLabelText(auth.form.emailLabel)).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: auth.form.noAccount })).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: auth.form.forgotPassword })).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: auth.form.continueWithGoogle })).toBeOnTheScreen();
   });
 
   it('the button is disabled until there is an email and a password', async () => {

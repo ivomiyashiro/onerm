@@ -54,6 +54,7 @@ describe('SignUpScreen (S03)', () => {
     expect(screen.getByRole('header', { name: auth.form.signUp })).toBeOnTheScreen();
     expect(screen.getByText(auth.form.signUpBody)).toBeOnTheScreen();
     expect(screen.getByText(auth.form.passwordHelp)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: auth.form.continueWithGoogle })).toBeOnTheScreen();
     expect(submit()).toBeDisabled();
   });
 
