@@ -7,7 +7,13 @@ import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway, AuthOutcome } from '@/domain/repositories/auth-gateway';
+import type {
+  AuthGateway,
+  AuthOutcome,
+  NewPasswordOutcome,
+  PasswordResetOutcome,
+  RecoveryLinkOutcome,
+} from '@/domain/repositories/auth-gateway';
 import type {
   DevicePermissions,
   NotificationPermission,
@@ -324,6 +330,13 @@ export class FakeAuthGateway implements AuthGateway {
   signedOut = 0;
   private readonly lossListeners = new Set<() => void>();
   readonly requests: { kind: 'signUp' | 'signIn'; email: string; password: string }[] = [];
+  /** The recovery flow (RF-AUTH-08): what each step answers, and what it was asked. */
+  resetOutcome: PasswordResetOutcome = 'sent';
+  linkOutcome: RecoveryLinkOutcome = { status: 'opened', userId: 'u1', email: 'ana@mail.com' };
+  newPasswordOutcome: NewPasswordOutcome = { status: 'done', userId: 'u1' };
+  readonly resetRequests: string[] = [];
+  readonly openedLinks: string[] = [];
+  readonly newPasswords: string[] = [];
 
   constructor(
     public outcome: AuthOutcome = { status: 'signedIn', userId: 'u1' },
@@ -338,6 +351,21 @@ export class FakeAuthGateway implements AuthGateway {
   async signIn(email: string, password: string): Promise<AuthOutcome> {
     this.requests.push({ kind: 'signIn', email, password });
     return this.outcome;
+  }
+
+  async requestPasswordReset(email: string): Promise<PasswordResetOutcome> {
+    this.resetRequests.push(email);
+    return this.resetOutcome;
+  }
+
+  async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {
+    this.openedLinks.push(url);
+    return this.linkOutcome;
+  }
+
+  async setNewPassword(password: string): Promise<NewPasswordOutcome> {
+    this.newPasswords.push(password);
+    return this.newPasswordOutcome;
   }
 
   /** The test plays the server refusing to renew the session. */

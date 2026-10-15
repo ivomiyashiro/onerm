@@ -75,6 +75,9 @@ import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-
 import { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
 import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { ReadAccount } from '@/domain/usecases/read-account';
+import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
+import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
+import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SignUp } from '@/domain/usecases/sign-up';
@@ -226,6 +229,9 @@ export function createDependencies(
       continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),
+      requestPasswordReset: new RequestPasswordReset(auth),
+      openRecoveryLink: new OpenRecoveryLink(auth, accountRepository),
+      completePasswordRecovery: new CompletePasswordRecovery(auth, accountRepository),
       prepareSignOut: new PrepareSignOut(accountRepository),
       confirmSignOut: new ConfirmSignOut(auth, accountRepository),
       updateProfile: new UpdateProfile(profileRepository, routineRepository),

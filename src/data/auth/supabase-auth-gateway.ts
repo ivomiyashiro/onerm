@@ -5,10 +5,20 @@ import {
 } from '@supabase/supabase-js';
 
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
-import type { AuthGateway, AuthOutcome } from '@/domain/repositories/auth-gateway';
+import { parseRecoveryLink } from '@/data/auth/recovery-link';
+import type {
+  AuthGateway,
+  AuthOutcome,
+  NewPasswordOutcome,
+  PasswordResetOutcome,
+  RecoveryLinkOutcome,
+} from '@/domain/repositories/auth-gateway';
 
 /** Where supabase-js keeps the session; read here too to know the user without a connection. */
 export const SESSION_STORAGE_KEY = 'onerm.auth.session';
+
+/** Where the recovery link opens the app (the scheme of `app.config.ts`, and the S24 route). */
+export const RECOVERY_REDIRECT = 'onerm://new-password';
 
 /** Supabase Auth behind the domain's port (ADR-0001). */
 export class SupabaseAuthGateway implements AuthGateway {
@@ -34,6 +44,35 @@ export class SupabaseAuthGateway implements AuthGateway {
     const { data, error } = await this.client.auth.signInWithPassword({ email, password });
     if (error) return failure(error);
     return { status: 'signedIn', userId: data.user.id };
+  }
+
+  async requestPasswordReset(email: string): Promise<PasswordResetOutcome> {
+    const { error } = await this.client.auth.resetPasswordForEmail(email, {
+      redirectTo: RECOVERY_REDIRECT,
+    });
+    if (!error) return 'sent';
+    return isAuthRetryableFetchError(error) ? 'offline' : 'failed';
+  }
+
+  async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {
+    const tokens = parseRecoveryLink(url);
+    if (tokens === null) return { status: 'invalidLink' };
+    const { data, error } = await this.client.auth.setSession({
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+    });
+    if (error) {
+      return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'invalidLink' };
+    }
+    if (!data.user) return { status: 'invalidLink' };
+    return { status: 'opened', userId: data.user.id, email: data.user.email ?? null };
+  }
+
+  async setNewPassword(password: string): Promise<NewPasswordOutcome> {
+    const { data, error } = await this.client.auth.updateUser({ password });
+    if (error)
+      return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'failed' };
+    return { status: 'done', userId: data.user.id };
   }
 
   async signOut(): Promise<void> {

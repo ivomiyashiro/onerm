@@ -6,6 +6,9 @@ import type { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/acc
 import type { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
 import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import type { ReadAccount } from '@/domain/usecases/read-account';
+import type { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
+import type { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
+import type { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
 import type { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
@@ -89,6 +92,9 @@ export interface UseCases {
   continueAfterAuth: ContinueAfterAuth;
   signUp: SignUp;
   signIn: SignIn;
+  requestPasswordReset: RequestPasswordReset;
+  openRecoveryLink: OpenRecoveryLink;
+  completePasswordRecovery: CompletePasswordRecovery;
   prepareSignOut: PrepareSignOut;
   confirmSignOut: ConfirmSignOut;
   updateProfile: UpdateProfile;
