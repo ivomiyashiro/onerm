@@ -2,11 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
-import { routines, syncState } from '@/data/db/schema';
+import { routines } from '@/data/db/schema';
 import { pullAction } from '@/domain/rules/sync/conflict-rules';
-import { pullStart, serverTimeMs, type PullCursor } from '@/domain/rules/sync/sync-timing';
+import { pullStart, serverTimeMs } from '@/domain/rules/sync/sync-timing';
 
 import { SyncNetworkError } from './push';
+import { readCursor, saveCursor } from './sync-state-table';
 import {
   CATALOG_TABLES,
   fromRemote,
@@ -106,17 +107,4 @@ async function pullTable(
     if (last !== undefined) from = { ts: last.server_updated_at, id: last.id };
     if (rows.length < pageSize) return;
   }
-}
-
-function readCursor(db: AppDatabase, name: string): PullCursor | null {
-  const stored = db.select().from(syncState).where(eq(syncState.tableName, name)).get()?.cursor;
-  return stored ? (JSON.parse(stored) as PullCursor) : null;
-}
-
-function saveCursor(db: AppDatabase, name: string, cursor: PullCursor) {
-  const value = JSON.stringify(cursor);
-  db.insert(syncState)
-    .values({ tableName: name, cursor: value })
-    .onConflictDoUpdate({ target: syncState.tableName, set: { cursor: value } })
-    .run();
 }

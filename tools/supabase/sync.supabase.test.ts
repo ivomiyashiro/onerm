@@ -28,6 +28,7 @@ import { softDelete, writeSyncRow, type SyncTable, type SyncValues } from '@/dat
 import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
+import { lastSyncedAt } from '@/data/sync/sync-state-table';
 
 const URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:55321';
 
@@ -434,6 +435,18 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(pending(a)).toEqual([]);
     expect(pending(b)).toEqual([]);
   });
+
+  it('RF-SYNC-06: a sync that ends well records when, and a failed one does not', async () => {
+    expect(await a.engine.sync()).toBe('synced');
+    expect(lastSyncedAt(a.db)).toEqual(expect.any(Date));
+
+    const unreachable = device(
+      createClient('http://127.0.0.1:9', PUBLISHABLE_KEY, { auth: { persistSession: false } }),
+      userId,
+    );
+    expect(await unreachable.engine.sync()).toBe('failed');
+    expect(lastSyncedAt(unreachable.db)).toBeNull();
+  }, 60_000);
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();
