@@ -117,6 +117,7 @@ describe('SqliteAccountRepository', () => {
       })
       .run();
     t.db.insert(syncState).values({ tableName: 'routines', cursor: 'c' }).run();
+    t.db.insert(syncState).values({ tableName: 'exercises', cursor: 'e' }).run();
     await profileRepository.save(defaultProfile());
     await routineRepository.save(aRoutine());
     await workoutRepository.save(finished('w1'));
@@ -130,8 +131,12 @@ describe('SqliteAccountRepository', () => {
 
     const rows = (table: typeof profiles | typeof workouts | typeof syncState | typeof exercises) =>
       t.db.select({ n: count() }).from(table).get()?.n;
-    expect([rows(profiles), rows(workouts), rows(syncState)]).toEqual([0, 0, 0]);
+    expect([rows(profiles), rows(workouts)]).toEqual([0, 0]);
     expect(rows(exercises)).toBe(1);
+    // The catalog's pull cursor stays with the catalog: it isn't downloaded again (RF-CAT-04).
+    expect(t.db.select().from(syncState).all()).toEqual([
+      expect.objectContaining({ tableName: 'exercises', cursor: 'e' }),
+    ]);
     expect(t.db.select().from(appState).where(eq(appState.id, 1)).get()).toMatchObject({
       owner: 'guest',
       onboardingStep: null,
