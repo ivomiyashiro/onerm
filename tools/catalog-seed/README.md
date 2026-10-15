@@ -7,7 +7,7 @@ bun run seed:catalog          # extract from wger, curate and regenerate src/dat
 bun run seed:catalog --load   # also publish the catalog to Supabase
 ```
 
-To publish to the cloud project without typing the keys each time, put them in `.env.seed.local`
+To publish to the cloud project without typing the keys each time, put them in `.seed.local`
 (ignored by git, and **not** in `.env.local`: `bun run` loads that one into every script, and the
 Supabase tests would then run against the cloud) and run `bun run seed:catalog:cloud`:
 
