@@ -51,6 +51,7 @@ describe('RNF-11 · layer rules', () => {
       ['supabase', "import { createClient } from '@supabase/supabase-js';"],
       ['expo-sqlite', "import * as SQLite from 'expo-sqlite';"],
       ['drizzle', "import { eq } from 'drizzle-orm';"],
+      ['netinfo', "import NetInfo from '@react-native-community/netinfo';"],
     ])('presentation → %s fails', async (_, code) => {
       expect(await boundaryErrors('src/presentation/probe.tsx', code)).not.toHaveLength(0);
     });

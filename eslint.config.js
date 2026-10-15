@@ -16,6 +16,8 @@ const INFRASTRUCTURE_SDKS = [
   'drizzle-orm/**',
   // Behind the RestNotifier and DevicePermissions ports (RN-ENT-07).
   'expo-notifications',
+  // Behind the SyncTriggers port (RN-SYNC-06 b).
+  '@react-native-community/netinfo',
 ];
 
 // Props (and object keys inside props, such as `action={{ label }}` or `options={{ title }}`) that
