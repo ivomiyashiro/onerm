@@ -6,6 +6,7 @@ import { Button } from '@/presentation/components/button/button';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TextField } from '@/presentation/components/input/text-field';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
+import { GoogleSignInSection } from '@/presentation/features/auth/google-sign-in-section';
 import { useSignInViewModel } from '@/presentation/features/auth/use-sign-in-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { common } from '@/presentation/strings/common';
@@ -18,11 +19,11 @@ interface SignInScreenProps {
   /** Signed in: leave the auth stack. */
   onDone: () => void;
   onSignUp: () => void;
-  /** S04, arrives with #44. */
-  onForgotPassword: () => void;
+  /** S04, with the email typed here. */
+  onForgotPassword: (email: string) => void;
 }
 
-/** S02 · Iniciar sesión (RF-AUTH-03). "Continuar con Google" arrives with #44. */
+/** S02 · Iniciar sesión (RF-AUTH-03). "Continuar con Google" (RF-AUTH-04) sits at the top. */
 export function SignInScreen({
   initialEmail,
   onBack,
@@ -43,6 +44,7 @@ export function SignInScreen({
     <View style={[styles.screen, { paddingTop: insets.top, paddingBottom: insets.bottom }]}>
       <TopBar title={auth.form.signIn} backLabel={common.back} onBack={onBack} />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+        <GoogleSignInSection onDone={onDone} disabled={submitting} />
         <TextField
           label={auth.form.emailLabel}
           value={state.email}
@@ -77,7 +79,11 @@ export function SignInScreen({
           onPress={actions.submit}
         />
         <View style={styles.links}>
-          <Button variant="tertiary" label={auth.form.forgotPassword} onPress={onForgotPassword} />
+          <Button
+            variant="tertiary"
+            label={auth.form.forgotPassword}
+            onPress={() => onForgotPassword(state.email.trim())}
+          />
           <Button variant="tertiary" label={auth.form.noAccount} onPress={onSignUp} />
         </View>
       </ScrollView>

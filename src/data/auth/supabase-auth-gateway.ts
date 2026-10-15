@@ -5,10 +5,22 @@ import {
 } from '@supabase/supabase-js';
 
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
-import type { AuthGateway, AuthOutcome } from '@/domain/repositories/auth-gateway';
+import type { GoogleAccountPicker } from '@/data/auth/google-account-picker';
+import { parseRecoveryLink } from '@/data/auth/recovery-link';
+import type {
+  AuthGateway,
+  AuthOutcome,
+  GoogleOutcome,
+  NewPasswordOutcome,
+  PasswordResetOutcome,
+  RecoveryLinkOutcome,
+} from '@/domain/repositories/auth-gateway';
 
 /** Where supabase-js keeps the session; read here too to know the user without a connection. */
 export const SESSION_STORAGE_KEY = 'onerm.auth.session';
+
+/** Where the recovery link opens the app (the scheme of `app.config.ts`, and the S24 route). */
+export const RECOVERY_REDIRECT = 'onerm://new-password';
 
 /** Supabase Auth behind the domain's port (ADR-0001). */
 export class SupabaseAuthGateway implements AuthGateway {
@@ -18,6 +30,8 @@ export class SupabaseAuthGateway implements AuthGateway {
   constructor(
     private readonly client: SupabaseClient,
     private readonly storage: Pick<SessionStorage, 'getItem'>,
+    /** Absent in a build without Google configured: «Continuar con Google» then fails. */
+    private readonly google: GoogleAccountPicker | null = null,
   ) {}
 
   async signUp(email: string, password: string): Promise<AuthOutcome> {
@@ -36,11 +50,65 @@ export class SupabaseAuthGateway implements AuthGateway {
     return { status: 'signedIn', userId: data.user.id };
   }
 
+  async signInWithGoogle(): Promise<GoogleOutcome> {
+    if (this.google === null) return { status: 'failed' };
+    const picked = await this.google.pick();
+    if (picked.status !== 'picked') return picked;
+
+    const { data, error } = await this.client.auth.signInWithIdToken({
+      provider: 'google',
+      token: picked.idToken,
+    });
+    if (!error) return { status: 'signedIn', userId: data.user.id, email: picked.email };
+    // Not signed in: forget the account Google just gave, so the picker offers the choice again.
+    await this.google.signOut();
+    if (isAuthRetryableFetchError(error)) return { status: 'offline' };
+    // Supabase links a verified Google identity to an account with the same email on its own; the
+    // trigger of RN-AUTH-03 refuses that and only a generic error comes back, so the email's
+    // method says whether that was the reason.
+    return (await this.methodOf(picked.email)) === 'email'
+      ? { status: 'useYourPassword' }
+      : { status: 'failed' };
+  }
+
+  async requestPasswordReset(email: string): Promise<PasswordResetOutcome> {
+    const { error } = await this.client.auth.resetPasswordForEmail(email, {
+      redirectTo: RECOVERY_REDIRECT,
+    });
+    if (!error) return 'sent';
+    return isAuthRetryableFetchError(error) ? 'offline' : 'failed';
+  }
+
+  async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {
+    const tokens = parseRecoveryLink(url);
+    if (tokens === null) return { status: 'invalidLink' };
+    const { data, error } = await this.client.auth.setSession({
+      access_token: tokens.accessToken,
+      refresh_token: tokens.refreshToken,
+    });
+    if (error) {
+      return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'invalidLink' };
+    }
+    if (!data.user) {
+      await this.signOut();
+      return { status: 'invalidLink' };
+    }
+    return { status: 'opened', userId: data.user.id, email: data.user.email ?? null };
+  }
+
+  async setNewPassword(password: string): Promise<NewPasswordOutcome> {
+    const { data, error } = await this.client.auth.updateUser({ password });
+    if (error)
+      return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'failed' };
+    return { status: 'done', userId: data.user.id };
+  }
+
   async signOut(): Promise<void> {
     // The local scope doesn't call the server: signing out works without a connection.
     this.signingOut = true;
     try {
       await this.client.auth.signOut({ scope: 'local' });
+      await this.google?.signOut();
     } finally {
       this.signingOut = false;
     }
@@ -71,8 +139,15 @@ export class SupabaseAuthGateway implements AuthGateway {
 
   /** RN-AUTH-03: an email of a Google account is told apart from one with a password. */
   private async takenBy(email: string): Promise<AuthOutcome> {
+    return (await this.methodOf(email)) === 'google'
+      ? { status: 'useGoogle' }
+      : { status: 'emailTaken' };
+  }
+
+  /** `email`, `google` or null: how the account of an email signs in (RN-AUTH-03). */
+  private async methodOf(email: string): Promise<unknown> {
     const { data } = await this.client.rpc('sign_in_method_for_email', { p_email: email });
-    return data === 'google' ? { status: 'useGoogle' } : { status: 'emailTaken' };
+    return data;
   }
 }
 

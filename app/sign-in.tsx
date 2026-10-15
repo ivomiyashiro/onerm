@@ -18,7 +18,9 @@ export default function S02Route() {
       onBack={() => router.back()}
       onDone={onDone}
       onSignUp={() => router.replace('/sign-up')}
-      onForgotPassword={() => router.push('/forgot-password')}
+      onForgotPassword={(typed) =>
+        router.push({ pathname: '/forgot-password', params: typed ? { email: typed } : {} })
+      }
     />
   );
 }
