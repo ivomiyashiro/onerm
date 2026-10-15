@@ -10,6 +10,8 @@ import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { SignInScreen } from '@/presentation/features/auth/sign-in-screen';
 import { auth } from '@/presentation/strings/auth';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -37,9 +39,11 @@ async function renderScreen(
   };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
-      <UseCasesProvider useCases={useCases}>
-        <SignInScreen initialEmail={initialEmail} {...callbacks} />
-      </UseCasesProvider>
+      <AppStoreProvider store={createAppStore()}>
+        <UseCasesProvider useCases={useCases}>
+          <SignInScreen initialEmail={initialEmail} {...callbacks} />
+        </UseCasesProvider>
+      </AppStoreProvider>
     </SafeAreaProvider>,
   );
   return { ...callbacks, gateway };

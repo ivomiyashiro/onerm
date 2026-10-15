@@ -5,10 +5,13 @@ import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { aRoutine } from '@/domain/testing/builders';
 import {
+  FakeAuthGateway,
   FakeDevicePermissions,
+  InMemoryAccountRepository,
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
@@ -16,6 +19,9 @@ import { ProfileScreen } from '@/presentation/features/profile/profile-screen';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { onboarding } from '@/presentation/strings/onboarding';
 import { profile as text } from '@/presentation/strings/profile';
+import type { AccountState } from '@/domain/models/account';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { restUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -29,11 +35,19 @@ const METRICS = {
 async function renderScreen(
   profile: Profile | null = defaultProfile(),
   permissions = new FakeDevicePermissions(),
+  accountState: AccountState = { kind: 'guest' },
 ) {
+  const store = createAppStore();
+  store.getState().setAccount(accountState);
+  const account = new InMemoryAccountRepository(
+    accountState.kind === 'user' ? { kind: 'user', userId: accountState.userId } : undefined,
+  );
   const profiles = new InMemoryProfileRepository(profile);
   const routines = new InMemoryRoutineRepository([aRoutine()]);
   const useCases = someUseCases({
     ...restUseCasesOver({ permissions }),
+    prepareSignOut: new PrepareSignOut(account),
+    confirmSignOut: new ConfirmSignOut(new FakeAuthGateway(), account),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),
@@ -42,16 +56,19 @@ async function renderScreen(
     onSignUp: jest.fn(),
     onSignIn: jest.fn(),
     onAbout: jest.fn(),
+    onGoToWorkout: jest.fn(),
     onIncrements: jest.fn(),
   };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
-      <UseCasesProvider useCases={useCases}>
-        <ProfileScreen {...callbacks} />
-      </UseCasesProvider>
+      <AppStoreProvider store={store}>
+        <UseCasesProvider useCases={useCases}>
+          <ProfileScreen {...callbacks} />
+        </UseCasesProvider>
+      </AppStoreProvider>
     </SafeAreaProvider>,
   );
-  return { profiles, ...callbacks };
+  return { profiles, account, store, ...callbacks };
 }
 
 describe('ProfileScreen (S21)', () => {
@@ -141,5 +158,62 @@ describe('ProfileScreen (S21)', () => {
 
     expect(screen.getByRole('button', { name: text.readError.retry })).toBeOnTheScreen();
     expect(within(screen.getByTestId('sync-status')).getByText(text.sync.guest)).toBeOnTheScreen();
+  });
+
+  describe('account (RF-AUTH-01.AC4, RF-AUTH-07)', () => {
+    const USER: AccountState = {
+      kind: 'user',
+      userId: 'u1',
+      email: 'ana@mail.com',
+      sessionExpired: false,
+    };
+
+    it('guest: says the data is only on this phone and offers to create an account', async () => {
+      const { onSignUp } = await renderScreen();
+
+      expect(screen.getByText(text.sync.guest)).toBeOnTheScreen();
+      expect(screen.queryByRole('button', { name: text.rows.signOut })).not.toBeOnTheScreen();
+      await userEvent.press(screen.getAllByRole('button', { name: text.sync.createAccount })[0]);
+      expect(onSignUp).toHaveBeenCalledTimes(1);
+    });
+
+    it("user: shows the email and «Cerrar sesión», not the guest's invitation", async () => {
+      await renderScreen(defaultProfile(), undefined, USER);
+
+      expect(screen.getByText('ana@mail.com')).toBeOnTheScreen();
+      expect(screen.queryByText(text.sync.guest)).not.toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: text.rows.signOut })).toBeOnTheScreen();
+    });
+
+    it("AC1: signing out with nothing pending leaves the device as a guest's", async () => {
+      const { store } = await renderScreen(defaultProfile(), undefined, USER);
+
+      await userEvent.press(screen.getByRole('button', { name: text.rows.signOut }));
+
+      expect(store.getState().account).toEqual({ kind: 'guest' });
+    });
+
+    it('AC3: pending changes show D03 with «Cancelar» first and the destructive action', async () => {
+      const { account, store } = await renderScreen(defaultProfile(), undefined, USER);
+      account.pendingChanges = 2;
+
+      await userEvent.press(screen.getByRole('button', { name: text.rows.signOut }));
+
+      expect(await screen.findByText(dialogs.D03.title(2))).toBeOnTheScreen();
+      expect(store.getState().account).toMatchObject({ kind: 'user' });
+      await userEvent.press(screen.getByRole('button', { name: dialogs.D03.signOutDestructive }));
+      expect(store.getState().account).toEqual({ kind: 'guest' });
+    });
+
+    it('AC4: a workout in progress shows D14 and goes to the workout', async () => {
+      const { account, onGoToWorkout } = await renderScreen(defaultProfile(), undefined, USER);
+      account.workoutInProgress = true;
+
+      await userEvent.press(screen.getByRole('button', { name: text.rows.signOut }));
+
+      expect(await screen.findByText(dialogs.D14.title)).toBeOnTheScreen();
+      await userEvent.press(screen.getByRole('button', { name: dialogs.D14.goToWorkout }));
+      expect(onGoToWorkout).toHaveBeenCalledTimes(1);
+    });
   });
 });

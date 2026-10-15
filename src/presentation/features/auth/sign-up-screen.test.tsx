@@ -10,6 +10,8 @@ import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { SignUp } from '@/domain/usecases/sign-up';
 import { SignUpScreen } from '@/presentation/features/auth/sign-up-screen';
 import { auth } from '@/presentation/strings/auth';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -28,9 +30,11 @@ async function renderScreen(outcome: AuthOutcome = { status: 'signedIn', userId:
   const callbacks = { onBack: jest.fn(), onDone: jest.fn(), onSignIn: jest.fn() };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
-      <UseCasesProvider useCases={useCases}>
-        <SignUpScreen {...callbacks} />
-      </UseCasesProvider>
+      <AppStoreProvider store={createAppStore()}>
+        <UseCasesProvider useCases={useCases}>
+          <SignUpScreen {...callbacks} />
+        </UseCasesProvider>
+      </AppStoreProvider>
     </SafeAreaProvider>,
   );
   return callbacks;

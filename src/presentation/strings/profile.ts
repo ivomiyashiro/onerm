@@ -5,6 +5,8 @@ export const profile = {
   title: 'Perfil',
   guest: 'Invitado',
   noAccount: 'Sin cuenta',
+  /** The account block when the email isn't known. */
+  account: 'Mi cuenta',
   sections: { training: 'Entrenamiento', preferences: 'Preferencias' },
   rows: {
     level: 'Nivel',

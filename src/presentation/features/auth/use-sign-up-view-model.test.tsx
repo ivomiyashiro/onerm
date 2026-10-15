@@ -12,6 +12,8 @@ import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { SignUp } from '@/domain/usecases/sign-up';
 import { useSignUpViewModel } from '@/presentation/features/auth/use-sign-up-view-model';
 import { auth } from '@/presentation/strings/auth';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -22,16 +24,19 @@ async function setup(
   const gateway = new FakeAuthGateway(outcome);
   const account = new InMemoryAccountRepository(owner);
   const profiles = new InMemoryProfileRepository(null);
+  const store = createAppStore();
   const useCases = someUseCases({
     signUp: new SignUp(gateway, account),
     continueAfterAuth: new ContinueAfterAuth(profiles, { saveStep: async () => {} }),
   });
   const hook = await renderHook(() => useSignUpViewModel(), {
     wrapper: ({ children }: { children: ReactNode }) => (
-      <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+      <AppStoreProvider store={store}>
+        <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+      </AppStoreProvider>
     ),
   });
-  return { ...hook, gateway, account };
+  return { ...hook, store, gateway, account };
 }
 
 type Hook = { current: ReturnType<typeof useSignUpViewModel> };

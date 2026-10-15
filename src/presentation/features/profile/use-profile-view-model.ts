@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react';
 
+import type { AccountState } from '@/domain/models/account';
 import type { Profile } from '@/domain/models/profile';
 import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
+import { useAppStore } from '@/presentation/state/app-store-context';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type ProfileState =
@@ -17,8 +19,14 @@ export interface SettingSheet {
   draft: ProfileChanges;
 }
 
+/** What the person has to decide before signing out (RF-AUTH-07): D14 or D03. */
+export type SignOutDialog = { kind: 'workoutInProgress' } | { kind: 'pending'; count: number };
+
 export interface ProfileViewModel {
   state: ProfileState;
+  /** The account block of S21 (RF-AUTH-01.AC4, RF-AUTH-06). */
+  account: AccountState;
+  signOutDialog: SignOutDialog | null;
   sheet: SettingSheet | null;
   /** D06 after a new goal or level (RF-PERF-03.AC2). */
   dialog: AdjustDialog | null;
@@ -32,6 +40,11 @@ export interface ProfileViewModel {
     /** D06 «Dejar como está». */
     keep(): void;
     retry(): void;
+    /** «Cerrar sesión»: D14 if a workout is in progress, D03 if changes would be lost, else out. */
+    signOut(): Promise<void>;
+    /** D03 «Cerrar sesión igual». */
+    confirmSignOut(): Promise<void>;
+    closeSignOutDialog(): void;
   };
 }
 
@@ -50,7 +63,11 @@ const CURRENT: Record<Setting, (profile: Profile) => ProfileChanges> = {
 
 /** S21 · Perfil (RF-PERF-03..05): each setting is saved locally at once. */
 export function useProfileViewModel(): ProfileViewModel {
-  const { observeProfile, updateProfile, adjustActiveRoutine } = useUseCases();
+  const { observeProfile, updateProfile, adjustActiveRoutine, prepareSignOut, confirmSignOut } =
+    useUseCases();
+  const account = useAppStore((s) => s.account);
+  const setAccount = useAppStore((s) => s.setAccount);
+  const [signOutDialog, setSignOutDialog] = useState<SignOutDialog | null>(null);
   const [state, setState] = useState<ProfileState>({ status: 'loading' });
   const [sheet, setSheet] = useState<SettingSheet | null>(null);
   const [dialog, setDialog] = useState<ProfileViewModel['dialog']>(null);
@@ -104,6 +121,30 @@ export function useProfileViewModel(): ProfileViewModel {
     }
   }
 
+  async function leave() {
+    try {
+      const result = await confirmSignOut.execute();
+      if (result.status === 'blockedByWorkout') setSignOutDialog({ kind: 'workoutInProgress' });
+      else {
+        setSignOutDialog(null);
+        setAccount({ kind: 'guest' });
+      }
+    } catch {
+      // A failed local step leaves the account as it was; «Cerrar sesión» tries again.
+    }
+  }
+
+  async function signOut() {
+    try {
+      const plan = await prepareSignOut.execute();
+      if (plan.kind === 'blockedByWorkout') setSignOutDialog({ kind: 'workoutInProgress' });
+      else if (plan.kind === 'pending') setSignOutDialog({ kind: 'pending', count: plan.count });
+      else await leave();
+    } catch {
+      // The plan couldn't be read: nothing is signed out.
+    }
+  }
+
   function retry() {
     setState({ status: 'loading' });
     setAttempt((n) => n + 1);
@@ -111,6 +152,8 @@ export function useProfileViewModel(): ProfileViewModel {
 
   return {
     state,
+    account,
+    signOutDialog,
     sheet,
     dialog,
     actions: {
@@ -121,6 +164,9 @@ export function useProfileViewModel(): ProfileViewModel {
       adjust,
       keep: () => setDialog(null),
       retry,
+      signOut,
+      confirmSignOut: leave,
+      closeSignOutDialog: () => setSignOutDialog(null),
     },
   };
 }

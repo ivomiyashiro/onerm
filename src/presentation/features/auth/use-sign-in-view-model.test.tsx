@@ -13,6 +13,8 @@ import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { useSignInViewModel } from '@/presentation/features/auth/use-sign-in-view-model';
 import { auth } from '@/presentation/strings/auth';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -25,6 +27,7 @@ async function setup(
   const account = new InMemoryAccountRepository(owner);
   const profiles = new InMemoryProfileRepository(null);
   const steps: unknown[] = [];
+  const store = createAppStore();
   const useCases = someUseCases({
     signIn: new SignIn(gateway, account),
     continueAfterAuth: new ContinueAfterAuth(profiles, {
@@ -33,10 +36,12 @@ async function setup(
   });
   const hook = await renderHook(() => useSignInViewModel(initialEmail), {
     wrapper: ({ children }: { children: ReactNode }) => (
-      <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+      <AppStoreProvider store={store}>
+        <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+      </AppStoreProvider>
     ),
   });
-  return { ...hook, gateway, account, profiles, steps };
+  return { ...hook, store, gateway, account, profiles, steps };
 }
 
 async function fill(
@@ -71,7 +76,7 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
   });
 
   it('AC1: done after signing in, and the onboarding begins on a new device', async () => {
-    const { result, account, profiles, steps } = await setup();
+    const { result, account, profiles, steps, store } = await setup();
     await fill(result, 'ana@mail.com', 'x');
 
     await act(() => result.current.actions.submit());
@@ -80,6 +85,12 @@ describe('useSignInViewModel (S02, RF-AUTH-03)', () => {
     expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
     expect(profiles.profile).toEqual(defaultProfile());
     expect(steps).toEqual(['level']);
+    expect(store.getState().account).toEqual({
+      kind: 'user',
+      userId: 'u1',
+      email: 'ana@mail.com',
+      sessionExpired: false,
+    });
   });
 
   it('shows the email problem next to the field and sends nothing', async () => {
