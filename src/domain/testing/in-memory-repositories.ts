@@ -10,6 +10,7 @@ import type { AccountRepository } from '@/domain/repositories/account-repository
 import type {
   AuthGateway,
   AuthOutcome,
+  GoogleOutcome,
   NewPasswordOutcome,
   PasswordResetOutcome,
   RecoveryLinkOutcome,
@@ -331,6 +332,8 @@ export class FakeAuthGateway implements AuthGateway {
   private readonly lossListeners = new Set<() => void>();
   readonly requests: { kind: 'signUp' | 'signIn'; email: string; password: string }[] = [];
   /** The recovery flow (RF-AUTH-08): what each step answers, and what it was asked. */
+  googleOutcome: GoogleOutcome = { status: 'signedIn', userId: 'u1', email: 'ana@gmail.com' };
+  googleRequests = 0;
   resetOutcome: PasswordResetOutcome = 'sent';
   linkOutcome: RecoveryLinkOutcome = { status: 'opened', userId: 'u1', email: 'ana@mail.com' };
   newPasswordOutcome: NewPasswordOutcome = { status: 'done', userId: 'u1' };
@@ -351,6 +354,11 @@ export class FakeAuthGateway implements AuthGateway {
   async signIn(email: string, password: string): Promise<AuthOutcome> {
     this.requests.push({ kind: 'signIn', email, password });
     return this.outcome;
+  }
+
+  async signInWithGoogle(): Promise<GoogleOutcome> {
+    this.googleRequests += 1;
+    return this.googleOutcome;
   }
 
   async requestPasswordReset(email: string): Promise<PasswordResetOutcome> {

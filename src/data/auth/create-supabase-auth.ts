@@ -1,10 +1,12 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
 import { SESSION_STORAGE_KEY, SupabaseAuthGateway } from '@/data/auth/supabase-auth-gateway';
+import type { GoogleAccountPicker } from '@/data/auth/google-account-picker';
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
 import type {
   AuthGateway,
   AuthOutcome,
+  GoogleOutcome,
   NewPasswordOutcome,
   PasswordResetOutcome,
   RecoveryLinkOutcome,
@@ -24,6 +26,8 @@ export function createSupabaseAuth(config: {
   url: string;
   publishableKey: string;
   storage: SessionStorage;
+  /** Without it «Continuar con Google» can't be used. */
+  google?: GoogleAccountPicker;
 }): SupabaseAuth {
   const client = createClient(config.url, config.publishableKey, {
     auth: {
@@ -34,7 +38,10 @@ export function createSupabaseAuth(config: {
       detectSessionInUrl: false,
     },
   });
-  return { client, gateway: new SupabaseAuthGateway(client, config.storage) };
+  return {
+    client,
+    gateway: new SupabaseAuthGateway(client, config.storage, config.google ?? null),
+  };
 }
 
 /** Without a server configured (a build without the Supabase variables), nothing can sign in. */
@@ -44,6 +51,10 @@ export class UnconfiguredAuthGateway implements AuthGateway {
   }
 
   async signIn(): Promise<AuthOutcome> {
+    return { status: 'offline' };
+  }
+
+  async signInWithGoogle(): Promise<GoogleOutcome> {
     return { status: 'offline' };
   }
 

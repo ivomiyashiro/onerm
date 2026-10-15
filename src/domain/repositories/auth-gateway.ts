@@ -12,6 +12,16 @@ export type AuthOutcome =
 /** What the server answered to a password reset request (RF-AUTH-08.AC1). */
 export type PasswordResetOutcome = 'sent' | 'offline' | 'failed';
 
+/** What «Continuar con Google» did (RF-AUTH-04). */
+export type GoogleOutcome =
+  | { status: 'signedIn'; userId: string; email: string }
+  /** The person closed Google's screen: nothing to tell (AC4). */
+  | { status: 'cancelled' }
+  /** The email already has a password account; nothing is linked or created (RN-AUTH-03, AC3). */
+  | { status: 'useYourPassword' }
+  | { status: 'offline' }
+  | { status: 'failed' };
+
 /** What opening the recovery link did (RF-AUTH-08.AC2, AC3). */
 export type RecoveryLinkOutcome =
   /** The link is good: a recovery session is open, only to set the new password. */
@@ -28,6 +38,8 @@ export type NewPasswordOutcome =
 export interface AuthGateway {
   signUp(email: string, password: string): Promise<AuthOutcome>;
   signIn(email: string, password: string): Promise<AuthOutcome>;
+  /** Google's account picker, then the sign-in with its ID token (RF-AUTH-04). */
+  signInWithGoogle(): Promise<GoogleOutcome>;
   /**
    * Sends the recovery email. It answers `sent` whether the account exists or not, so it never
    * tells (RN-AUTH-02).
