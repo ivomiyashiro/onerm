@@ -39,9 +39,11 @@ async function main(): Promise<void> {
   }
 
   const previous = readJson<ExercisesFile>(snapshotFile);
+  const now = new Date();
   const file = buildExercisesFile(
     report.exercises.map(({ exercise }) => exercise),
     previous,
+    now,
   );
   if (file !== previous) writeFileSync(snapshotFile, `${JSON.stringify(file, null, 2)}\n`);
   console.log(
