@@ -14,9 +14,13 @@ export class ObserveSessionLoss {
   execute(listener: () => void): () => void {
     let active = true;
     const stop = this.gateway.onSessionLost(() => {
-      void this.account.readOwner().then((owner) => {
-        if (active && owner.kind === 'user') listener();
-      });
+      this.account.readOwner().then(
+        (owner) => {
+          if (active && owner.kind === 'user') listener();
+        },
+        // If the owner can't be read, nothing is told: the next start reads the stored session.
+        () => undefined,
+      );
     });
     return () => {
       active = false;
