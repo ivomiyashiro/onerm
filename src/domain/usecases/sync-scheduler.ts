@@ -17,7 +17,8 @@ export class SyncScheduler {
   private writeTimer: ReturnType<typeof setTimeout> | null = null;
   private retryTimer: ReturnType<typeof setTimeout> | null = null;
   private failures = 0;
-  private foreground = true;
+  /** False in the background or once stopped: nothing waits to run, a trigger brings it back. */
+  private active = true;
 
   constructor(
     private readonly engine: SyncEngine,
@@ -30,7 +31,7 @@ export class SyncScheduler {
    * sets of a workout in progress (RN-SYNC-13) also change the tables, and must not trigger it.
    */
   afterWrite(): void {
-    if (!this.foreground) return;
+    if (!this.active) return;
     this.clear('write');
     this.writeTimer = setTimeout(() => {
       this.writeTimer = null;
@@ -38,6 +39,7 @@ export class SyncScheduler {
         (count) => {
           if (count > 0) void this.syncNow();
         },
+        // The count failed to read: no sync now, the next trigger tries again.
         () => undefined,
       );
     }, WRITE_GROUPING_MS);
@@ -61,17 +63,21 @@ export class SyncScheduler {
 
   /** RN-SYNC-06 (c). */
   enterForeground(): void {
-    this.foreground = true;
+    this.active = true;
     void this.syncNow();
   }
 
   /** RNF-22: in the background nothing waits to run; the next foreground syncs. */
   enterBackground(): void {
-    this.foreground = false;
     this.stop();
   }
 
+  /**
+   * Cancels what is waiting, and a sync in flight that fails leaves no retry behind. `syncNow`
+   * still runs when asked (signing out backs up first).
+   */
   stop(): void {
+    this.active = false;
     this.clear('write');
     this.clear('retry');
   }
@@ -94,7 +100,7 @@ export class SyncScheduler {
 
   private async scheduleRetry(): Promise<void> {
     const pending = await this.countPending().catch(() => 0);
-    if (!this.foreground || pending === 0) return;
+    if (!this.active || pending === 0) return;
     this.retryTimer = setTimeout(() => {
       this.retryTimer = null;
       void this.syncNow();

@@ -156,4 +156,16 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
 
     expect(fake.runs()).toBe(1);
   });
+
+  it('stop during a sync leaves no retry behind when that sync fails', async () => {
+    const fake = manualEngine();
+    const scheduler = new SyncScheduler(fake.engine, async () => 1);
+
+    void scheduler.syncNow();
+    scheduler.stop();
+    await fake.finish('failed');
+    await jest.advanceTimersByTimeAsync(600_000);
+
+    expect(fake.runs()).toBe(1);
+  });
 });

@@ -2,11 +2,11 @@
 const RETRY_DELAYS_MS = [5_000, 15_000, 60_000, 300_000];
 
 /**
- * How long to wait before retrying after `failures` failed syncs in a row (1 = the first). The
+ * How long to wait before retrying after `failures` failed syncs in a row (1 or more). The
  * retries only run in the foreground and with pending changes (RNF-22): the scheduler decides that.
  */
 export function retryDelayMs(failures: number): number {
-  return RETRY_DELAYS_MS[Math.min(failures, RETRY_DELAYS_MS.length) - 1];
+  return RETRY_DELAYS_MS[Math.min(Math.max(failures, 1), RETRY_DELAYS_MS.length) - 1];
 }
 
 /**
