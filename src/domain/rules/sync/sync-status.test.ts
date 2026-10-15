@@ -36,7 +36,11 @@ describe('syncStatusOf (RF-SYNC-06)', () => {
       count: 3,
       online: false,
     });
-    expect(syncStatusOf(input({ pending: 3 }))).toEqual({ kind: 'pending', count: 3, online: true });
+    expect(syncStatusOf(input({ pending: 3 }))).toEqual({
+      kind: 'pending',
+      count: 3,
+      online: true,
+    });
   });
 
   it('network error: the last sync failed while online', () => {
