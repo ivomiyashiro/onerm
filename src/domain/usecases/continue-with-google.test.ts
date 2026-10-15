@@ -13,16 +13,18 @@ function setup(owner: 'guest' | string = 'guest') {
 }
 
 describe('ContinueWithGoogle (RF-AUTH-04)', () => {
-  it('AC1, AC2: signs in and the device now belongs to the account', async () => {
+  it('AC1, AC2: signs in; a guest device waits for the union (07 §4.3)', async () => {
     const { google, account } = setup();
 
     await expect(google.execute()).resolves.toEqual({
       status: 'done',
       userId: 'u1',
       email: 'ana@gmail.com',
+      pendingMerge: true,
     });
 
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
+    expect(account.owner).toEqual({ kind: 'guest' });
   });
 
   it.each([

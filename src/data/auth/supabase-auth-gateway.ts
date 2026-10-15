@@ -100,7 +100,7 @@ export class SupabaseAuthGateway implements AuthGateway {
     const { data, error } = await this.client.auth.updateUser({ password });
     if (error)
       return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'failed' };
-    return { status: 'done', userId: data.user.id };
+    return { status: 'done', userId: data.user.id, email: data.user.email ?? null };
   }
 
   async signOut(): Promise<void> {

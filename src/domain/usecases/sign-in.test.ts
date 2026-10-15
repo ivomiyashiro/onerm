@@ -13,12 +13,17 @@ function setup() {
 const credentials = { email: 'ana@mail.com', password: 'x' };
 
 describe('SignIn (RF-AUTH-03)', () => {
-  it('AC1: signs in and the device belongs to the account', async () => {
+  it('AC1: signs in; a guest device waits for the union (07 §4.3)', async () => {
     const { signIn, account } = setup();
 
-    await expect(signIn.execute(credentials)).resolves.toEqual({ status: 'done', userId: 'u1' });
+    await expect(signIn.execute(credentials)).resolves.toEqual({
+      status: 'done',
+      userId: 'u1',
+      pendingMerge: true,
+    });
 
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
+    expect(account.owner).toEqual({ kind: 'guest' });
   });
 
   it('does not send an email without domain nor an empty password', async () => {
@@ -65,8 +70,13 @@ describe('SignIn (RF-AUTH-03)', () => {
     const { signIn, gateway, account } = setup();
     account.owner = { kind: 'user', userId: 'u1' };
 
-    await expect(signIn.execute(credentials)).resolves.toEqual({ status: 'done', userId: 'u1' });
+    await expect(signIn.execute(credentials)).resolves.toEqual({
+      status: 'done',
+      userId: 'u1',
+      pendingMerge: false,
+    });
 
     expect(gateway.signedOut).toBe(0);
+    expect(account.ownerEmail).toBe('ana@mail.com');
   });
 });

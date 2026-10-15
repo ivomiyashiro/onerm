@@ -292,6 +292,8 @@ export class InMemoryAccountRepository implements AccountRepository {
   workoutInProgress = false;
   cleared = 0;
   lastNudgeAt: Date | null = null;
+  pendingMigration: string | null = null;
+  ownerEmail: string | null = null;
 
   constructor(public owner: DataOwner = { kind: 'guest' }) {}
 
@@ -301,6 +303,22 @@ export class InMemoryAccountRepository implements AccountRepository {
 
   async saveOwner(owner: DataOwner): Promise<void> {
     this.owner = owner;
+  }
+
+  async readPendingMigration(): Promise<string | null> {
+    return this.pendingMigration;
+  }
+
+  async savePendingMigration(userId: string | null): Promise<void> {
+    this.pendingMigration = userId;
+  }
+
+  async readOwnerEmail(): Promise<string | null> {
+    return this.ownerEmail;
+  }
+
+  async saveOwnerEmail(email: string | null): Promise<void> {
+    this.ownerEmail = email;
   }
 
   async readLastNudgeAt(): Promise<Date | null> {
@@ -323,6 +341,8 @@ export class InMemoryAccountRepository implements AccountRepository {
     this.cleared += 1;
     this.owner = { kind: 'guest' };
     this.pendingChanges = 0;
+    this.pendingMigration = null;
+    this.ownerEmail = null;
   }
 }
 
@@ -336,7 +356,11 @@ export class FakeAuthGateway implements AuthGateway {
   googleRequests = 0;
   resetOutcome: PasswordResetOutcome = 'sent';
   linkOutcome: RecoveryLinkOutcome = { status: 'opened', userId: 'u1', email: 'ana@mail.com' };
-  newPasswordOutcome: NewPasswordOutcome = { status: 'done', userId: 'u1' };
+  newPasswordOutcome: NewPasswordOutcome = {
+    status: 'done',
+    userId: 'u1',
+    email: 'ana@mail.com',
+  };
   readonly resetRequests: string[] = [];
   readonly openedLinks: string[] = [];
   readonly newPasswords: string[] = [];

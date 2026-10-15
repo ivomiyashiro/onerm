@@ -33,6 +33,30 @@ export class SqliteAccountRepository implements AccountRepository {
       .run();
   }
 
+  async readPendingMigration(): Promise<string | null> {
+    return this.db().select().from(appState).get()?.pendingMigrationUid ?? null;
+  }
+
+  async savePendingMigration(userId: string | null): Promise<void> {
+    this.db()
+      .insert(appState)
+      .values({ pendingMigrationUid: userId })
+      .onConflictDoUpdate({ target: appState.id, set: { pendingMigrationUid: userId } })
+      .run();
+  }
+
+  async readOwnerEmail(): Promise<string | null> {
+    return this.db().select().from(appState).get()?.ownerEmail ?? null;
+  }
+
+  async saveOwnerEmail(email: string | null): Promise<void> {
+    this.db()
+      .insert(appState)
+      .values({ ownerEmail: email })
+      .onConflictDoUpdate({ target: appState.id, set: { ownerEmail: email } })
+      .run();
+  }
+
   async readLastNudgeAt(): Promise<Date | null> {
     const stored = this.db().select().from(appState).get()?.lastAccountNudgeAt ?? null;
     return stored === null ? null : new Date(stored);
@@ -119,6 +143,7 @@ export class SqliteAccountRepository implements AccountRepository {
           set: {
             owner: 'guest',
             pendingMigrationUid: null,
+            ownerEmail: null,
             onboardingStep: null,
             restTimerEndsAt: null,
             lastAccountNudgeAt: null,

@@ -4,6 +4,12 @@ import type { DataOwner } from '@/domain/models/data-owner';
 export interface AccountRepository {
   readOwner(): Promise<DataOwner>;
   saveOwner(owner: DataOwner): Promise<void>;
+  /** The account a guest's data waits to be united with (07 §4.3 step 0), or null. */
+  readPendingMigration(): Promise<string | null>;
+  savePendingMigration(userId: string | null): Promise<void>;
+  /** The email of the owner's account, kept for when its session is gone (RN-AUTH-07). */
+  readOwnerEmail(): Promise<string | null>;
+  saveOwnerEmail(email: string | null): Promise<void>;
   /** When the invitation to create an account was last answered (RF-AUTH-01.AC5), or null. */
   readLastNudgeAt(): Promise<Date | null>;
   saveLastNudgeAt(at: Date): Promise<void>;

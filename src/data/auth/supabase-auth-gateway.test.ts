@@ -172,6 +172,7 @@ describe('SupabaseAuthGateway.setNewPassword (RF-AUTH-08.AC2)', () => {
     await expect(gateway.setNewPassword('contraseña-nueva')).resolves.toEqual({
       status: 'done',
       userId: 'u1',
+      email: 'ana@mail.com',
     });
 
     expect(updateUser).toHaveBeenCalledWith({ password: 'contraseña-nueva' });

@@ -54,7 +54,7 @@ describe('useSignUpViewModel (S03, RF-AUTH-02)', () => {
     await act(() => result.current.actions.submit());
 
     expect(result.current.state.status).toBe('done');
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
   });
 
   it('AC2: each field shows its own problem and nothing is sent', async () => {

@@ -32,7 +32,9 @@ export type RecoveryLinkOutcome =
   | { status: 'failed' };
 
 export type NewPasswordOutcome =
-  { status: 'done'; userId: string } | { status: 'offline' } | { status: 'failed' };
+  | { status: 'done'; userId: string; email: string | null }
+  | { status: 'offline' }
+  | { status: 'failed' };
 
 /** The authentication provider (Supabase Auth). Everything here needs a connection unless noted. */
 export interface AuthGateway {

@@ -377,6 +377,8 @@ export const appState = sqliteTable(
     owner: text('owner').notNull().default('guest'),
     /** A guest merge that didn't finish (07 §4.3). */
     pendingMigrationUid: text('pending_migration_uid'),
+    /** The email of the owner's account, to tell which one «Volver a entrar» takes (RN-AUTH-07). */
+    ownerEmail: text('owner_email'),
     /** Where to resume the onboarding (RF-PERF-01 AC6). */
     onboardingStep: integer('onboarding_step'),
     catalogVersion: text('catalog_version'),

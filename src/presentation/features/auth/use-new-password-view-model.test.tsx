@@ -94,7 +94,7 @@ describe('useNewPasswordViewModel (S24, RF-AUTH-08.AC2, AC3)', () => {
     expect(result.current.state.message).toBe(auth.errors.otherAccount);
   });
 
-  it("AC2: the new password is saved, the account is the device's and the person is in", async () => {
+  it('AC2: the new password is saved; a guest device waits for the union (07 §4.3)', async () => {
     const { result, gateway, store, steps, account } = await setup();
     await waitFor(() => expect(result.current.state.status).toBe('editing'));
 
@@ -102,14 +102,23 @@ describe('useNewPasswordViewModel (S24, RF-AUTH-08.AC2, AC3)', () => {
 
     expect(result.current.state.status).toBe('done');
     expect(gateway.newPasswords).toEqual(['contraseña-nueva']);
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
+    expect(store.getState().account).toEqual({ kind: 'guest' });
+    expect(steps.length).toBeGreaterThan(0);
+  });
+
+  it('AC2: the account whose data is here is back in, with the email of the link', async () => {
+    const { result, store } = await setup(undefined, LINK, { kind: 'user', userId: 'u1' });
+    await waitFor(() => expect(result.current.state.status).toBe('editing'));
+
+    await save(result, 'contraseña-nueva');
+
     expect(store.getState().account).toEqual({
       kind: 'user',
       userId: 'u1',
       email: 'ana@mail.com',
       sessionExpired: false,
     });
-    expect(steps.length).toBeGreaterThan(0);
   });
 
   it('a short password says so next to the field and is not sent', async () => {

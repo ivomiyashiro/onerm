@@ -11,16 +11,18 @@ function setup() {
 }
 
 describe('CompletePasswordRecovery (RF-AUTH-08.AC2)', () => {
-  it('sets the new password, and the device now belongs to the account', async () => {
+  it('sets the new password; a guest device waits for the union (07 §4.3)', async () => {
     const { complete, gateway, account } = setup();
 
     await expect(complete.execute({ password: 'contraseña-nueva' })).resolves.toEqual({
       status: 'done',
       userId: 'u1',
+      pendingMerge: true,
     });
 
     expect(gateway.newPasswords).toEqual(['contraseña-nueva']);
-    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.pendingMigration).toBe('u1');
+    expect(account.owner).toEqual({ kind: 'guest' });
   });
 
   it('RN-AUTH-01: a short password is not sent', async () => {
