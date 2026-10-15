@@ -1,3 +1,7 @@
+import { ReadAccount } from '@/domain/usecases/read-account';
+import { SignIn } from '@/domain/usecases/sign-in';
+import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import { SignUp } from '@/domain/usecases/sign-up';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { AdoptTemplate } from '@/domain/usecases/adopt-template';
@@ -54,8 +58,10 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import {
+  FakeAuthGateway,
   FakeDevicePermissions,
   FakeRestNotifier,
+  InMemoryAccountRepository,
   InMemoryRestTimerRepository,
 } from '@/domain/testing/in-memory-repositories';
 import type {
@@ -106,6 +112,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
     observeRecommendation: new ObserveRecommendation(templates, profiles),
     observeProfile: new ObserveProfile(profiles),
+    ...accountUseCases(),
     updateProfile: new UpdateProfile(profiles, { observeById: never }),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),
@@ -132,6 +139,19 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
       utcDate,
     ),
     ...overrides,
+  };
+}
+
+/** The account use cases over a guest device and a provider that answers «signed in». */
+function accountUseCases() {
+  const gateway = new FakeAuthGateway();
+  const account = new InMemoryAccountRepository();
+  return {
+    readAccount: new ReadAccount(gateway, account),
+    signUp: new SignUp(gateway, account),
+    signIn: new SignIn(gateway, account),
+    prepareSignOut: new PrepareSignOut(account),
+    confirmSignOut: new ConfirmSignOut(gateway, account),
   };
 }
 

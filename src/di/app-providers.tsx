@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
 import { createDependencies, type Device, type Storage } from '@/di/create-dependencies';
+import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -12,12 +13,16 @@ export function AppProviders({
   children,
   storage,
   device,
+  auth,
 }: {
   children: ReactNode;
   storage?: Storage;
   device?: Device;
+  auth?: AuthGateway;
 }) {
-  const [{ useCases, appStore }] = useState(() => createDependencies(storage, undefined, device));
+  const [{ useCases, appStore }] = useState(() =>
+    createDependencies(storage, undefined, device, auth),
+  );
 
   return (
     <UseCasesProvider useCases={useCases}>

@@ -7,6 +7,11 @@ import type { TableChanges } from '@/data/db/table-changes';
 import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
 import { randomUUID } from 'expo-crypto';
+import { AppState } from 'react-native';
+
+import { createSupabaseAuth, UnconfiguredAuthGateway } from '@/data/auth/create-supabase-auth';
+import { expoSessionStorage } from '@/data/auth/expo-session-storage';
+import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
 import { SqliteOnboardingRepository } from '@/data/repositories/sqlite-onboarding-repository';
@@ -16,6 +21,7 @@ import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repo
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import type { Id } from '@/domain/models/vocabulary';
+import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 import type { DevicePermissions } from '@/domain/repositories/device-permissions';
 import type { RestNotifier } from '@/domain/repositories/rest-notifier';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
@@ -65,6 +71,10 @@ import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { ReadAccount } from '@/domain/usecases/read-account';
+import { SignIn } from '@/domain/usecases/sign-in';
+import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import { SignUp } from '@/domain/usecases/sign-up';
 import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
@@ -109,6 +119,28 @@ export function appDevice(): Device {
 }
 
 /**
+ * Supabase Auth with the session sealed in the Keystore (RNF-07). The server comes from the build's
+ * public variables; without them nothing can sign in. The token only refreshes with the app in
+ * the foreground, as supabase-js recommends for React Native (spike #15).
+ */
+export function appAuth(): AuthGateway {
+  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
+  const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
+  if (!url || !publishableKey) return new UnconfiguredAuthGateway();
+
+  const { gateway, client } = createSupabaseAuth({
+    url,
+    publishableKey,
+    storage: expoSessionStorage,
+  });
+  AppState.addEventListener('change', (state) => {
+    if (state === 'active') client.auth.startAutoRefresh();
+    else client.auth.stopAutoRefresh();
+  });
+  return gateway;
+}
+
+/**
  * Composition root (ADR-0011 §4): the only place that creates implementations from `data` and
  * hands them to the use cases. Swapping a repository only touches this file. The repositories
  * get the database lazily: it opens in `prepareLocalData`, before any screen mounts (StartupGate).
@@ -118,6 +150,7 @@ export function createDependencies(
   // Client-side UUIDs, so records are created offline (RN-SYNC-02).
   newId: () => Id = randomUUID,
   { notifier, permissions }: Device = appDevice(),
+  auth: AuthGateway = appAuth(),
 ): Dependencies {
   const db = () => localDatabase.database;
   const now = () => new Date();
@@ -127,6 +160,7 @@ export function createDependencies(
   const templateRepository = new SqliteRoutineTemplateRepository(db, changes);
   const profileRepository = new SqliteProfileRepository(db, changes, Date.now);
   const onboardingRepository = new SqliteOnboardingRepository(db, changes);
+  const accountRepository = new SqliteAccountRepository(db);
   const restTimerRepository = new SqliteRestTimerRepository(db, changes);
   const rest = [restTimerRepository, notifier, permissions, now] as const;
   const stopRest = new SkipRest(restTimerRepository, notifier);
@@ -171,6 +205,11 @@ export function createDependencies(
       answerOnboarding: new AnswerOnboarding(profileRepository, onboardingRepository),
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
       observeProfile: new ObserveProfile(profileRepository),
+      readAccount: new ReadAccount(auth, accountRepository),
+      signUp: new SignUp(auth, accountRepository),
+      signIn: new SignIn(auth, accountRepository),
+      prepareSignOut: new PrepareSignOut(accountRepository),
+      confirmSignOut: new ConfirmSignOut(auth, accountRepository),
       updateProfile: new UpdateProfile(profileRepository, routineRepository),
       adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
       updateLoadSetting: new UpdateLoadSetting(profileRepository),

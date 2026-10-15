@@ -2,6 +2,10 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 import type { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import type { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
+import type { ReadAccount } from '@/domain/usecases/read-account';
+import type { SignIn } from '@/domain/usecases/sign-in';
+import type { SignUp } from '@/domain/usecases/sign-up';
+import type { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import type { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import type { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import type { DeleteRoutine } from '@/domain/usecases/delete-routine';
@@ -75,6 +79,11 @@ export interface UseCases {
   observeRecommendation: ObserveRecommendation;
   finishOnboarding: FinishOnboarding;
   observeProfile: ObserveProfile;
+  readAccount: ReadAccount;
+  signUp: SignUp;
+  signIn: SignIn;
+  prepareSignOut: PrepareSignOut;
+  confirmSignOut: ConfirmSignOut;
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;
   updateLoadSetting: UpdateLoadSetting;
