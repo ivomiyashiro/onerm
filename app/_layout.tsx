@@ -2,6 +2,7 @@ import { Stack } from 'expo-router';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 
 import { AppProviders } from '@/di/app-providers';
+import { SessionWatcher } from '@/presentation/features/auth/session-watcher';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
@@ -27,6 +28,7 @@ export default function RootLayout() {
       <AppProviders>
         {/* The screens mount once the local database is migrated (07 §6). */}
         <StartupGate>
+          <SessionWatcher />
           <EntryGate>
             {(entry) => (
               <Stack

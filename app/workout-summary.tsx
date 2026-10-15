@@ -7,5 +7,11 @@ export default function S12Route() {
   // A link can repeat the param; a missing or unknown id shows nothing and goes back.
   const { id } = useLocalSearchParams<{ id?: string | string[] }>();
   const workoutId = (Array.isArray(id) ? id[0] : id) ?? '';
-  return <WorkoutSummaryScreen workoutId={workoutId} onDone={() => router.replace('/')} />;
+  return (
+    <WorkoutSummaryScreen
+      workoutId={workoutId}
+      onDone={() => router.replace('/')}
+      onCreateAccount={() => router.push('/sign-up')}
+    />
+  );
 }

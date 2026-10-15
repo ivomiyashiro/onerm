@@ -74,6 +74,14 @@ describe('SqliteAccountRepository', () => {
     await expect(account.readOwner()).resolves.toEqual({ kind: 'guest' });
   });
 
+  it('RF-AUTH-01.AC5: remembers when the invitation to create an account was answered', async () => {
+    await expect(account.readLastNudgeAt()).resolves.toBeNull();
+
+    await account.saveLastNudgeAt(new Date('2026-10-15T12:00:00Z'));
+
+    await expect(account.readLastNudgeAt()).resolves.toEqual(new Date('2026-10-15T12:00:00Z'));
+  });
+
   it('RN-SYNC-08: counts the pending rows of finished data, not the workout in progress', async () => {
     await expect(account.countPendingChanges()).resolves.toBe(0);
 

@@ -17,6 +17,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { WorkoutSummaryScreen } from '@/presentation/features/summary/workout-summary-screen';
+import { dialogs } from '@/presentation/strings/dialogs';
 import { workout as text } from '@/presentation/strings/workout';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
@@ -56,6 +57,7 @@ function done(id: string, finishedAt: string, loadKg: number): Workout {
 
 async function renderScreen(finished: Workout[], id = finished.at(-1)!.id) {
   const onDone = jest.fn();
+  const onCreateAccount = jest.fn();
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider
@@ -69,11 +71,11 @@ async function renderScreen(finished: Workout[], id = finished.at(-1)!.id) {
           }),
         )}
       >
-        <WorkoutSummaryScreen workoutId={id} onDone={onDone} />
+        <WorkoutSummaryScreen workoutId={id} onDone={onDone} onCreateAccount={onCreateAccount} />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
-  return { onDone, user: userEvent.setup() };
+  return { onDone, onCreateAccount, user: userEvent.setup() };
 }
 
 describe('WorkoutSummaryScreen (S12)', () => {
@@ -107,5 +109,23 @@ describe('WorkoutSummaryScreen (S12)', () => {
     const { onDone } = await renderScreen([done('w1', '2026-10-13T19:00:00Z', 100)], 'other');
 
     expect(onDone).toHaveBeenCalled();
+  });
+
+  it('RF-AUTH-01.AC5: a guest is invited to create an account (D13), and can say «Ahora no»', async () => {
+    const { user, onCreateAccount } = await renderScreen([done('w1', '2026-10-13T19:00:00Z', 100)]);
+
+    expect(await screen.findByText(dialogs.D13.title)).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D13.notNow }));
+
+    expect(screen.queryByText(dialogs.D13.title)).not.toBeOnTheScreen();
+    expect(onCreateAccount).not.toHaveBeenCalled();
+  });
+
+  it('D13 «Crear cuenta» opens the sign-up', async () => {
+    const { user, onCreateAccount } = await renderScreen([done('w1', '2026-10-13T19:00:00Z', 100)]);
+
+    await user.press(await screen.findByRole('button', { name: dialogs.D13.createAccount }));
+
+    expect(onCreateAccount).toHaveBeenCalledTimes(1);
   });
 });

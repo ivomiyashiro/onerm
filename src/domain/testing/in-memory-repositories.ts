@@ -284,6 +284,7 @@ export class InMemoryAccountRepository implements AccountRepository {
   pendingChanges = 0;
   workoutInProgress = false;
   cleared = 0;
+  lastNudgeAt: Date | null = null;
 
   constructor(public owner: DataOwner = { kind: 'guest' }) {}
 
@@ -293,6 +294,14 @@ export class InMemoryAccountRepository implements AccountRepository {
 
   async saveOwner(owner: DataOwner): Promise<void> {
     this.owner = owner;
+  }
+
+  async readLastNudgeAt(): Promise<Date | null> {
+    return this.lastNudgeAt;
+  }
+
+  async saveLastNudgeAt(at: Date): Promise<void> {
+    this.lastNudgeAt = at;
   }
 
   async countPendingChanges(): Promise<number> {
@@ -313,6 +322,7 @@ export class InMemoryAccountRepository implements AccountRepository {
 /** The provider, answering what the test says: `outcome` for sign-up and sign-in. */
 export class FakeAuthGateway implements AuthGateway {
   signedOut = 0;
+  private readonly lossListeners = new Set<() => void>();
   readonly requests: { kind: 'signUp' | 'signIn'; email: string; password: string }[] = [];
 
   constructor(
@@ -328,6 +338,17 @@ export class FakeAuthGateway implements AuthGateway {
   async signIn(email: string, password: string): Promise<AuthOutcome> {
     this.requests.push({ kind: 'signIn', email, password });
     return this.outcome;
+  }
+
+  /** The test plays the server refusing to renew the session. */
+  loseSession() {
+    this.stored = null;
+    this.lossListeners.forEach((listener) => listener());
+  }
+
+  onSessionLost(listener: () => void): () => void {
+    this.lossListeners.add(listener);
+    return () => this.lossListeners.delete(listener);
   }
 
   async signOut(): Promise<void> {
