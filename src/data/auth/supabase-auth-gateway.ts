@@ -6,7 +6,7 @@ import {
 
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
 import type { GoogleAccountPicker } from '@/data/auth/google-account-picker';
-import { parseRecoveryLink } from '@/data/auth/recovery-link';
+import { parseRecoveryLink, recoveryLinkUserId } from '@/data/auth/recovery-link';
 import type {
   AuthGateway,
   AuthOutcome,
@@ -77,6 +77,10 @@ export class SupabaseAuthGateway implements AuthGateway {
     });
     if (!error) return 'sent';
     return isAuthRetryableFetchError(error) ? 'offline' : 'failed';
+  }
+
+  recoveryLinkUser(url: string): string | null {
+    return recoveryLinkUserId(url);
   }
 
   async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {

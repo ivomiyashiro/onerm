@@ -28,6 +28,8 @@ async function setup(
   const gateway = new FakeAuthGateway();
   gateway.linkOutcome = link;
   const account = new InMemoryAccountRepository(owner);
+  // A user device has that account's session alive.
+  if (owner.kind === 'user') gateway.stored = { userId: owner.userId, email: 'ana@mail.com' };
   const steps: unknown[] = [];
   const store = createAppStore();
   const useCases = someUseCases({

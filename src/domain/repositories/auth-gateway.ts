@@ -47,6 +47,11 @@ export interface AuthGateway {
    * tells (RN-AUTH-02).
    */
   requestPasswordReset(email: string): Promise<PasswordResetOutcome>;
+  /**
+   * The account a recovery link is for, read from the link without opening anything (null if it
+   * can't be read). The server still checks the link when it is opened.
+   */
+  recoveryLinkUser(url: string): string | null;
   /** Opens the session the recovery link carries; `url` is the link as the app received it. */
   openRecoveryLink(url: string): Promise<RecoveryLinkOutcome>;
   /** Sets the new password of the recovery session. */

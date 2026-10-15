@@ -361,6 +361,8 @@ export class FakeAuthGateway implements AuthGateway {
     userId: 'u1',
     email: 'ana@mail.com',
   };
+  /** Whose account the recovery link is for, as read from the link. */
+  linkUser: string | null = 'u1';
   readonly resetRequests: string[] = [];
   readonly openedLinks: string[] = [];
   readonly newPasswords: string[] = [];
@@ -388,6 +390,10 @@ export class FakeAuthGateway implements AuthGateway {
   async requestPasswordReset(email: string): Promise<PasswordResetOutcome> {
     this.resetRequests.push(email);
     return this.resetOutcome;
+  }
+
+  recoveryLinkUser(): string | null {
+    return this.linkUser;
   }
 
   async openRecoveryLink(url: string): Promise<RecoveryLinkOutcome> {
