@@ -3,4 +3,5 @@
  * whose session expired keeps their data and pending changes on the device (RN-AUTH-07).
  */
 export type AccountState =
-  { kind: 'guest' } | { kind: 'user'; userId: string; sessionExpired: boolean };
+  | { kind: 'guest' }
+  | { kind: 'user'; userId: string; email: string | null; sessionExpired: boolean };

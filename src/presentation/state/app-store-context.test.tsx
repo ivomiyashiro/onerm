@@ -22,7 +22,7 @@ describe('useAppStore', () => {
   it('fails with a clear error outside the provider', async () => {
     jest.spyOn(console, 'error').mockImplementation(() => {});
 
-    await expect(renderHook(() => useAppStore((state) => state.owner))).rejects.toThrow(
+    await expect(renderHook(() => useAppStore((state) => state.account))).rejects.toThrow(
       'useAppStore must be used inside AppStoreProvider',
     );
   });

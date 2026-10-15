@@ -5,13 +5,18 @@ import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { aRoutine } from '@/domain/testing/builders';
 import {
+  FakeAuthGateway,
+  InMemoryAccountRepository,
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { useProfileViewModel } from '@/presentation/features/profile/use-profile-view-model';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
@@ -20,23 +25,38 @@ const WITH_ROUTINE: Profile = { ...defaultProfile(), activeRoutineId: 'routine-1
 async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
   const profiles = new InMemoryProfileRepository(profile);
   const routines = new InMemoryRoutineRepository([aRoutine()]);
+  const store = createAppStore();
+  const gateway = new FakeAuthGateway();
+  const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+  store.getState().setAccount({
+    kind: 'user',
+    userId: 'u1',
+    email: 'ana@mail.com',
+    sessionExpired: false,
+  });
   const useCases = someUseCases({
+    prepareSignOut: new PrepareSignOut(account),
+    confirmSignOut: new ConfirmSignOut(gateway, account),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),
   });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+    <AppStoreProvider store={store}>
+      <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+    </AppStoreProvider>
   );
   const hook = await renderHook(() => useProfileViewModel(), { wrapper });
-  return { ...hook, profiles, routines };
+  return { ...hook, profiles, routines, store, account, gateway };
 }
 
 describe('useProfileViewModel', () => {
   it('is loading until the profile arrives', async () => {
     const { result } = await renderHook(() => useProfileViewModel(), {
       wrapper: ({ children }: { children: ReactNode }) => (
-        <UseCasesProvider useCases={someUseCases()}>{children}</UseCasesProvider>
+        <AppStoreProvider store={createAppStore()}>
+          <UseCasesProvider useCases={someUseCases()}>{children}</UseCasesProvider>
+        </AppStoreProvider>
       ),
     });
 
@@ -121,5 +141,56 @@ describe('useProfileViewModel', () => {
 
     await act(() => result.current.actions.retry());
     expect(result.current.state.status).toBe('content');
+  });
+
+  describe('sign out (RF-AUTH-07)', () => {
+    it("AC1: with nothing pending it signs out at once and the device is a guest's again", async () => {
+      const { result, store, account, gateway } = await renderViewModel();
+
+      await act(() => result.current.actions.signOut());
+
+      expect(result.current.signOutDialog).toBeNull();
+      expect(store.getState().account).toEqual({ kind: 'guest' });
+      expect(account.cleared).toBe(1);
+      expect(gateway.signedOut).toBe(1);
+    });
+
+    it('AC3: with pending changes it asks first (D03) and nothing is signed out yet', async () => {
+      const { result, store, account } = await renderViewModel();
+      account.pendingChanges = 3;
+
+      await act(() => result.current.actions.signOut());
+
+      expect(result.current.signOutDialog).toEqual({ kind: 'pending', count: 3 });
+      expect(store.getState().account).toMatchObject({ kind: 'user' });
+      expect(account.cleared).toBe(0);
+    });
+
+    it('AC3: «Cerrar sesión igual» signs out and «Cancelar» keeps everything', async () => {
+      const { result, store, account } = await renderViewModel();
+      account.pendingChanges = 3;
+      await act(() => result.current.actions.signOut());
+
+      await act(async () => result.current.actions.closeSignOutDialog());
+      expect(result.current.signOutDialog).toBeNull();
+      expect(account.cleared).toBe(0);
+
+      await act(() => result.current.actions.signOut());
+      await act(() => result.current.actions.confirmSignOut());
+      expect(result.current.signOutDialog).toBeNull();
+      expect(store.getState().account).toEqual({ kind: 'guest' });
+      expect(account.cleared).toBe(1);
+    });
+
+    it('AC4: a workout in progress asks to finish it first (D14)', async () => {
+      const { result, account } = await renderViewModel();
+      account.workoutInProgress = true;
+      account.pendingChanges = 3;
+
+      await act(() => result.current.actions.signOut());
+
+      expect(result.current.signOutDialog).toEqual({ kind: 'workoutInProgress' });
+      expect(account.cleared).toBe(0);
+    });
   });
 });

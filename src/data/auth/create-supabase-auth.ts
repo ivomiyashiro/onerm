@@ -43,7 +43,7 @@ export class UnconfiguredAuthGateway implements AuthGateway {
 
   async signOut(): Promise<void> {}
 
-  async storedUserId(): Promise<string | null> {
+  async storedSession(): Promise<null> {
     return null;
   }
 }

@@ -61,7 +61,7 @@ describe('SupabaseAuthGateway', () => {
     expect(outcome).toMatchObject({ status: 'signedIn' });
     expect(storage.files.has(SESSION_STORAGE_KEY)).toBe(true);
     if (outcome.status === 'signedIn') {
-      await expect(auth.storedUserId()).resolves.toBe(outcome.userId);
+      await expect(auth.storedSession()).resolves.toMatchObject({ userId: outcome.userId });
     }
   });
 
@@ -114,9 +114,10 @@ describe('SupabaseAuthGateway', () => {
       storage,
     );
 
-    await expect(offline.storedUserId()).resolves.toBe(
-      outcome.status === 'signedIn' ? outcome.userId : null,
-    );
+    await expect(offline.storedSession()).resolves.toMatchObject({
+      userId: outcome.status === 'signedIn' ? outcome.userId : null,
+      email: expect.stringContaining('@'),
+    });
   });
 
   it('signing out drops the stored session without a connection', async () => {
@@ -126,14 +127,14 @@ describe('SupabaseAuthGateway', () => {
     await auth.signOut();
 
     expect(storage.files.has(SESSION_STORAGE_KEY)).toBe(false);
-    await expect(auth.storedUserId()).resolves.toBeNull();
+    await expect(auth.storedSession()).resolves.toBeNull();
   });
 
   it('is null when there is no session, or the stored one is garbage', async () => {
     const { gateway: auth, storage } = gateway();
-    await expect(auth.storedUserId()).resolves.toBeNull();
+    await expect(auth.storedSession()).resolves.toBeNull();
 
     storage.files.set(SESSION_STORAGE_KEY, 'not json');
-    await expect(auth.storedUserId()).resolves.toBeNull();
+    await expect(auth.storedSession()).resolves.toBeNull();
   });
 });

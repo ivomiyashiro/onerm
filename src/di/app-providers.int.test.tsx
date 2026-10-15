@@ -12,10 +12,10 @@ import { useAppStore } from '@/presentation/state/app-store-context';
 
 function Probe() {
   const { state } = useExerciseSearchViewModel();
-  const owner = useAppStore((s) => s.owner);
+  const account = useAppStore((s) => s.account);
   return (
     <>
-      <Text testID="owner">{owner.kind}</Text>
+      <Text testID="owner">{account.kind}</Text>
       {state.status === 'content' &&
         state.exercises.map((exercise) => <Text key={exercise.id}>{exercise.name}</Text>)}
     </>

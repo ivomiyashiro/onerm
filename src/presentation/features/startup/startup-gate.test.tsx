@@ -4,6 +4,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { strings } from '@/presentation/strings';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
@@ -19,11 +21,13 @@ async function renderGate(prepare: () => Promise<void>) {
   const useCases = someUseCases({ prepareLocalData: new PrepareLocalData({ prepare }) });
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
-      <UseCasesProvider useCases={useCases}>
-        <StartupGate>
-          <Text>App</Text>
-        </StartupGate>
-      </UseCasesProvider>
+      <AppStoreProvider store={createAppStore()}>
+        <UseCasesProvider useCases={useCases}>
+          <StartupGate>
+            <Text>App</Text>
+          </StartupGate>
+        </UseCasesProvider>
+      </AppStoreProvider>
     </SafeAreaProvider>,
   );
 }

@@ -37,6 +37,8 @@ interface ProfileScreenProps {
   onSignUp: () => void;
   onSignIn: () => void;
   onAbout: () => void;
+  /** D14 «Ir al entrenamiento». */
+  onGoToWorkout: () => void;
   /** RF-PERF-06: the increments and the bar weight. */
   onIncrements: () => void;
   /** Only in development builds: the screen list and the component gallery. */
@@ -63,10 +65,11 @@ export function ProfileScreen({
   onSignUp,
   onSignIn,
   onAbout,
+  onGoToWorkout,
   onIncrements,
   devEntry,
 }: ProfileScreenProps) {
-  const { state, sheet, dialog, actions } = useProfileViewModel();
+  const { state, account, signOutDialog, sheet, dialog, actions } = useProfileViewModel();
   const insets = useSafeAreaInsets();
 
   return (
@@ -82,18 +85,24 @@ export function ProfileScreen({
             <Icon name="user" size={22} color={colors.textPrimary} />
           </View>
           <View style={styles.accountText}>
-            <Text style={[typography.titleM, { color: colors.textPrimary }]}>{text.guest}</Text>
-            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {text.noAccount}
+            <Text style={[typography.titleM, { color: colors.textPrimary }]}>
+              {account.kind === 'user' ? (account.email ?? text.account) : text.guest}
             </Text>
+            {account.kind === 'guest' && (
+              <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+                {text.noAccount}
+              </Text>
+            )}
           </View>
         </View>
         {/* RF-AUTH-01.AC4: the guest knows the data lives only on this phone. */}
-        <SyncStatusCard
-          status={{ kind: 'guest' }}
-          message={text.sync.guest}
-          action={{ label: text.sync.createAccount, onPress: onSignUp }}
-        />
+        {account.kind === 'guest' && (
+          <SyncStatusCard
+            status={{ kind: 'guest' }}
+            message={text.sync.guest}
+            action={{ label: text.sync.createAccount, onPress: onSignUp }}
+          />
+        )}
         {state.status === 'content' && (
           <Settings
             values={{
@@ -119,8 +128,14 @@ export function ProfileScreen({
           <SettingsRow label={text.rows.about} onPress={onAbout} />
         </SettingsGroup>
         <View style={styles.accountActions}>
-          <Button variant="secondary" label={text.sync.createAccount} onPress={onSignUp} />
-          <Button variant="tertiary" label={auth.welcome.signIn} onPress={onSignIn} />
+          {account.kind === 'guest' ? (
+            <>
+              <Button variant="secondary" label={text.sync.createAccount} onPress={onSignUp} />
+              <Button variant="tertiary" label={auth.welcome.signIn} onPress={onSignIn} />
+            </>
+          ) : (
+            <Button variant="danger" label={text.rows.signOut} onPress={actions.signOut} />
+          )}
           {devEntry}
         </View>
       </ScrollView>
@@ -140,6 +155,38 @@ export function ProfileScreen({
           { label: dialogs.D06.keep, kind: 'plain', onPress: actions.keep },
         ]}
         onDismiss={actions.keep}
+      />
+      {/* D14 and D03 (RF-AUTH-07): a workout in progress blocks it, pending changes are warned. */}
+      <Dialog
+        visible={signOutDialog?.kind === 'workoutInProgress'}
+        title={dialogs.D14.title}
+        body={dialogs.D14.body('signOut')}
+        actions={[
+          {
+            label: dialogs.D14.goToWorkout,
+            kind: 'advance',
+            onPress: () => {
+              actions.closeSignOutDialog();
+              onGoToWorkout();
+            },
+          },
+          { label: dialogs.D14.cancel, kind: 'plain', onPress: actions.closeSignOutDialog },
+        ]}
+        onDismiss={actions.closeSignOutDialog}
+      />
+      <Dialog
+        visible={signOutDialog?.kind === 'pending'}
+        title={dialogs.D03.title(signOutDialog?.kind === 'pending' ? signOutDialog.count : 0)}
+        body={dialogs.D03.body}
+        actions={[
+          { label: dialogs.D03.cancel, kind: 'safe', onPress: actions.closeSignOutDialog },
+          {
+            label: dialogs.D03.signOutDestructive,
+            kind: 'destructive',
+            onPress: actions.confirmSignOut,
+          },
+        ]}
+        onDismiss={actions.closeSignOutDialog}
       />
     </View>
   );

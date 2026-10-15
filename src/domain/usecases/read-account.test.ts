@@ -13,11 +13,15 @@ describe('ReadAccount (RF-AUTH-06)', () => {
 
   it('AC1: a user with a stored session is signed in, with or without a connection', async () => {
     const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
-    const read = new ReadAccount(new FakeAuthGateway(undefined, 'u1'), account);
+    const read = new ReadAccount(
+      new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' }),
+      account,
+    );
 
     await expect(read.execute()).resolves.toEqual({
       kind: 'user',
       userId: 'u1',
+      email: 'ana@mail.com',
       sessionExpired: false,
     });
   });
@@ -29,13 +33,17 @@ describe('ReadAccount (RF-AUTH-06)', () => {
     await expect(read.execute()).resolves.toEqual({
       kind: 'user',
       userId: 'u1',
+      email: null,
       sessionExpired: true,
     });
   });
 
   it('a stored session of another user counts as expired for this data', async () => {
     const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
-    const read = new ReadAccount(new FakeAuthGateway(undefined, 'u2'), account);
+    const read = new ReadAccount(
+      new FakeAuthGateway(undefined, { userId: 'u2', email: 'otra@mail.com' }),
+      account,
+    );
 
     await expect(read.execute()).resolves.toMatchObject({ sessionExpired: true });
   });
