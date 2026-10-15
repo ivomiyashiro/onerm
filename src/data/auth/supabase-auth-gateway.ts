@@ -64,7 +64,10 @@ export class SupabaseAuthGateway implements AuthGateway {
     if (error) {
       return isAuthRetryableFetchError(error) ? { status: 'offline' } : { status: 'invalidLink' };
     }
-    if (!data.user) return { status: 'invalidLink' };
+    if (!data.user) {
+      await this.signOut();
+      return { status: 'invalidLink' };
+    }
     return { status: 'opened', userId: data.user.id, email: data.user.email ?? null };
   }
 

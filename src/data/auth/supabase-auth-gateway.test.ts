@@ -142,6 +142,18 @@ describe('SupabaseAuthGateway.openRecoveryLink (RF-AUTH-08.AC2, AC3)', () => {
     await expect(gateway.openRecoveryLink(LINK)).resolves.toEqual({ status: 'invalidLink' });
   });
 
+  it('a session without a user is closed, not left open', async () => {
+    const signOut = jest.fn(async () => ({ error: null }));
+    const gateway = recoveryGateway({
+      setSession: async () => ({ data: { user: null, session: {} }, error: null }),
+      signOut,
+    });
+
+    await expect(gateway.openRecoveryLink(LINK)).resolves.toEqual({ status: 'invalidLink' });
+
+    expect(signOut).toHaveBeenCalledWith({ scope: 'local' });
+  });
+
   it('says «offline» when there is no connection', async () => {
     const gateway = recoveryGateway({
       setSession: async () => ({ data: { user: null, session: null }, error: OFFLINE }),

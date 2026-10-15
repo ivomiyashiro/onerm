@@ -2,7 +2,8 @@ import type { AccountRepository } from '@/domain/repositories/account-repository
 import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 
 export type OpenRecoveryLinkResult =
-  | { status: 'ready'; email: string | null }
+  /** `alreadyIn`: the device was already signed in to this account, so leaving must not sign out. */
+  | { status: 'ready'; email: string | null; alreadyIn: boolean }
   | { status: 'invalidLink' }
   /** RN-AUTH-07: the device has the data of another account. */
   | { status: 'otherAccount' }
@@ -27,6 +28,10 @@ export class OpenRecoveryLink {
       await this.gateway.signOut();
       return { status: 'otherAccount' };
     }
-    return { status: 'ready', email: outcome.email };
+    return {
+      status: 'ready',
+      email: outcome.email,
+      alreadyIn: owner.kind === 'user' && owner.userId === outcome.userId,
+    };
   }
 }

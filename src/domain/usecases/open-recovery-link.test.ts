@@ -21,6 +21,7 @@ describe('OpenRecoveryLink (RF-AUTH-08.AC2, AC3)', () => {
     await expect(open.execute({ url: LINK })).resolves.toEqual({
       status: 'ready',
       email: 'ana@mail.com',
+      alreadyIn: false,
     });
 
     expect(gateway.openedLinks).toEqual([LINK]);
@@ -52,7 +53,10 @@ describe('OpenRecoveryLink (RF-AUTH-08.AC2, AC3)', () => {
   it('RN-AUTH-07: the link of the account whose data is here goes through', async () => {
     const { open, gateway } = setup('u1');
 
-    await expect(open.execute({ url: LINK })).resolves.toMatchObject({ status: 'ready' });
+    await expect(open.execute({ url: LINK })).resolves.toMatchObject({
+      status: 'ready',
+      alreadyIn: true,
+    });
 
     expect(gateway.signedOut).toBe(0);
   });

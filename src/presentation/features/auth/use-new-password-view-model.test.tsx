@@ -148,6 +148,26 @@ describe('useNewPasswordViewModel (S24, RF-AUTH-08.AC2, AC3)', () => {
     expect(gateway.signedOut).toBe(1);
   });
 
+  it('leaving without saving keeps the session the device already had in this account', async () => {
+    const { result, gateway } = await setup(undefined, LINK, { kind: 'user', userId: 'u1' });
+    await waitFor(() => expect(result.current.state.status).toBe('editing'));
+
+    await act(async () => result.current.actions.leave());
+
+    expect(gateway.signedOut).toBe(0);
+  });
+
+  it('a second link opens again, starting from checking', async () => {
+    const { result, gateway, rerender } = await setup({ status: 'invalidLink' });
+    await waitFor(() => expect(result.current.state.status).toBe('invalidLink'));
+    gateway.linkOutcome = { status: 'opened', userId: 'u1', email: 'ana@mail.com' };
+
+    await rerender({ url: `${LINK}&second=1` });
+
+    await waitFor(() => expect(result.current.state.status).toBe('editing'));
+    expect(gateway.openedLinks).toHaveLength(2);
+  });
+
   it('leaving after saving does not sign out', async () => {
     const { result, gateway } = await setup();
     await waitFor(() => expect(result.current.state.status).toBe('editing'));

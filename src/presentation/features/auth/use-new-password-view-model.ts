@@ -58,12 +58,14 @@ export function useNewPasswordViewModel(url: string | null): NewPasswordViewMode
     if (url === null || opened.current === url) return;
     opened.current = url;
     let active = true;
+    setForm((f) => (f.status === 'checking' ? f : { ...f, status: 'checking', message: null }));
     openRecoveryLink.execute({ url }).then(
       (result: OpenRecoveryLinkResult) => {
         if (!active) return;
         if (result.status === 'ready') {
           email.current = result.email;
-          sessionOpen.current = true;
+          // Already in this account: leaving without saving must not end that session.
+          sessionOpen.current = !result.alreadyIn;
           setForm((f) => ({ ...f, status: 'editing' }));
         } else if (result.status === 'invalidLink') {
           setForm((f) => ({ ...f, status: 'invalidLink' }));
