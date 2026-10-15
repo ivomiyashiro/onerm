@@ -38,6 +38,17 @@ describe('ReadAccount (RF-AUTH-06)', () => {
     });
   });
 
+  it('RN-AUTH-07: without a session, the kept email still says which account comes back in', async () => {
+    const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+    account.ownerEmail = 'ana@mail.com';
+    const read = new ReadAccount(new FakeAuthGateway(undefined, null), account);
+
+    await expect(read.execute()).resolves.toMatchObject({
+      email: 'ana@mail.com',
+      sessionExpired: true,
+    });
+  });
+
   it('a stored session of another user counts as expired for this data', async () => {
     const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
     const read = new ReadAccount(
