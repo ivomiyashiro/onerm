@@ -71,6 +71,8 @@ import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
+import { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
 import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { ReadAccount } from '@/domain/usecases/read-account';
 import { SignIn } from '@/domain/usecases/sign-in';
@@ -218,6 +220,9 @@ export function createDependencies(
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
       observeProfile: new ObserveProfile(profileRepository),
       readAccount: new ReadAccount(auth, accountRepository),
+      observeSessionLoss: new ObserveSessionLoss(auth, accountRepository),
+      readAccountNudge: new ReadAccountNudge(accountRepository, now),
+      answerAccountNudge: new AnswerAccountNudge(accountRepository, now),
       continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),

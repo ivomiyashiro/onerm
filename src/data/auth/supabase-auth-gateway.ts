@@ -12,6 +12,9 @@ export const SESSION_STORAGE_KEY = 'onerm.auth.session';
 
 /** Supabase Auth behind the domain's port (ADR-0001). */
 export class SupabaseAuthGateway implements AuthGateway {
+  /** Our own sign out also emits SIGNED_OUT, and that is not a loss. */
+  private signingOut = false;
+
   constructor(
     private readonly client: SupabaseClient,
     private readonly storage: Pick<SessionStorage, 'getItem'>,
@@ -35,7 +38,21 @@ export class SupabaseAuthGateway implements AuthGateway {
 
   async signOut(): Promise<void> {
     // The local scope doesn't call the server: signing out works without a connection.
-    await this.client.auth.signOut({ scope: 'local' });
+    this.signingOut = true;
+    try {
+      await this.client.auth.signOut({ scope: 'local' });
+    } finally {
+      this.signingOut = false;
+    }
+  }
+
+  onSessionLost(listener: () => void): () => void {
+    // supabase-js emits SIGNED_OUT when the server refuses to renew or has revoked the session. A
+    // failed renewal for lack of connection emits nothing: it retries later (RF-AUTH-06.AC2).
+    const { data } = this.client.auth.onAuthStateChange((event) => {
+      if (event === 'SIGNED_OUT' && !this.signingOut) listener();
+    });
+    return () => data.subscription.unsubscribe();
   }
 
   async storedSession(): Promise<{ userId: string; email: string | null } | null> {

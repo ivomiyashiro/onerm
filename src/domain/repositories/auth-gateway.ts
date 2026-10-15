@@ -15,6 +15,11 @@ export interface AuthGateway {
   signIn(email: string, password: string): Promise<AuthOutcome>;
   /** Drops the session on this device. It doesn't need a connection. */
   signOut(): Promise<void>;
+  /**
+   * Tells when the server refused to renew the session or revoked it (RF-AUTH-06.AC4). Signing out
+   * on purpose doesn't count, and neither does a failed renewal for lack of connection.
+   */
+  onSessionLost(listener: () => void): () => void;
   /** The session stored on the device, read without a connection (RF-AUTH-06.AC1). */
   storedSession(): Promise<{ userId: string; email: string | null } | null>;
 }

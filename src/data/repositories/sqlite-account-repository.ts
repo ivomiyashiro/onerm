@@ -33,6 +33,20 @@ export class SqliteAccountRepository implements AccountRepository {
       .run();
   }
 
+  async readLastNudgeAt(): Promise<Date | null> {
+    const stored = this.db().select().from(appState).get()?.lastAccountNudgeAt ?? null;
+    return stored === null ? null : new Date(stored);
+  }
+
+  async saveLastNudgeAt(at: Date): Promise<void> {
+    const value = at.getTime();
+    this.db()
+      .insert(appState)
+      .values({ lastAccountNudgeAt: value })
+      .onConflictDoUpdate({ target: appState.id, set: { lastAccountNudgeAt: value } })
+      .run();
+  }
+
   async hasWorkoutInProgress(): Promise<boolean> {
     return (
       this.db().select({ id: workouts.id }).from(workouts).where(inProgress()).get() !== undefined

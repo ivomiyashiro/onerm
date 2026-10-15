@@ -1,3 +1,5 @@
+import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
+import { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
 import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { ReadAccount } from '@/domain/usecases/read-account';
 import { SignIn } from '@/domain/usecases/sign-in';
@@ -150,6 +152,9 @@ function accountUseCases() {
   const account = new InMemoryAccountRepository();
   return {
     readAccount: new ReadAccount(gateway, account),
+    observeSessionLoss: new ObserveSessionLoss(gateway, account),
+    readAccountNudge: new ReadAccountNudge(account, epoch),
+    answerAccountNudge: new AnswerAccountNudge(account, epoch),
     signUp: new SignUp(gateway, account),
     signIn: new SignIn(gateway, account),
     prepareSignOut: new PrepareSignOut(account),

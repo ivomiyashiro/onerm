@@ -12,6 +12,8 @@ export interface AppState {
   account: AccountState;
   syncStatus: SyncStatus;
   setAccount(account: AccountState): void;
+  /** RF-AUTH-06.AC4: the server ended the session; the data stays. */
+  markSessionExpired(): void;
   setSyncStatus(syncStatus: SyncStatus): void;
 }
 
@@ -23,6 +25,10 @@ export function createAppStore() {
     account: { kind: 'guest' },
     syncStatus: { kind: 'guest' },
     setAccount: (account) => set({ account }),
+    markSessionExpired: () =>
+      set(({ account }) =>
+        account.kind === 'user' ? { account: { ...account, sessionExpired: true } } : {},
+      ),
     setSyncStatus: (syncStatus) => set({ syncStatus }),
   }));
 }

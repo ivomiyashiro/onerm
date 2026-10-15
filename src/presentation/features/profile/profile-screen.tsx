@@ -96,6 +96,14 @@ export function ProfileScreen({
           </View>
         </View>
         {/* RF-AUTH-01.AC4: the guest knows the data lives only on this phone. */}
+        {/* RF-AUTH-06.AC4: the data and the pending changes stay; the same account can come back. */}
+        {account.kind === 'user' && account.sessionExpired && (
+          <SyncStatusCard
+            status={{ kind: 'sessionExpired' }}
+            message={text.sync.sessionExpired}
+            action={{ label: text.sync.signInAgain, onPress: onSignIn }}
+          />
+        )}
         {account.kind === 'guest' && (
           <SyncStatusCard
             status={{ kind: 'guest' }}
