@@ -330,7 +330,8 @@ client_id = "190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleuserconten
 secret = "env(SUPABASE_AUTH_EXTERNAL_GOOGLE_SECRET)"
 redirect_uri = ""
 url = ""
-# Local only: the CLI requires it for Google. The cloud project checks the nonce.
+# Local only: the CLI requires it for Google. The app sends no nonce in the cloud either: the
+# library doesn't support one (accepted limitation, F7 phase review).
 skip_nonce_check = true
 
 [auth.external.apple]

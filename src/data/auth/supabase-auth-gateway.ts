@@ -121,8 +121,11 @@ export class SupabaseAuthGateway implements AuthGateway {
   onSessionLost(listener: () => void): () => void {
     // supabase-js emits SIGNED_OUT when the server refuses to renew or has revoked the session. A
     // failed renewal for lack of connection emits nothing: it retries later (RF-AUTH-06.AC2).
-    const { data } = this.client.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_OUT' && !this.signingOut) listener();
+    // Subscribing also replays INITIAL_SESSION: a start that ends without a session means the
+    // server refused it before this listener existed, and that SIGNED_OUT was missed.
+    const { data } = this.client.auth.onAuthStateChange((event, session) => {
+      if (this.signingOut) return;
+      if (event === 'SIGNED_OUT' || (event === 'INITIAL_SESSION' && session === null)) listener();
     });
     return () => data.subscription.unsubscribe();
   }

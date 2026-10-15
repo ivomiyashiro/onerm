@@ -9,6 +9,8 @@ import {
 export type GooglePick =
   | { status: 'picked'; idToken: string; email: string }
   | { status: 'cancelled' }
+  /** Google couldn't be reached (RF-AUTH-04.AC5). */
+  | { status: 'offline' }
   | { status: 'failed' };
 
 /** Google's native sign-in, behind a port so the gateway can be tested without a device. */
@@ -36,14 +38,22 @@ export class NativeGoogleAccountPicker implements GoogleAccountPicker {
       const { idToken, user } = response.data;
       return idToken ? { status: 'picked', idToken, email: user.email } : { status: 'failed' };
     } catch (error) {
-      if (isErrorWithCode(error) && error.code === statusCodes.SIGN_IN_CANCELLED) {
-        return { status: 'cancelled' };
-      }
-      return { status: 'failed' };
+      return pickError(error);
     }
   }
 
   async signOut(): Promise<void> {
     await GoogleSignin.signOut().catch(() => undefined);
   }
+}
+
+/** Play Services' CommonStatusCodes.NETWORK_ERROR, which the module passes through as the code. */
+const NETWORK_ERROR = '7';
+
+/** What a failed pick means for the person. */
+export function pickError(error: unknown): GooglePick {
+  if (!isErrorWithCode(error)) return { status: 'failed' };
+  if (error.code === statusCodes.SIGN_IN_CANCELLED) return { status: 'cancelled' };
+  if (error.code === NETWORK_ERROR) return { status: 'offline' };
+  return { status: 'failed' };
 }

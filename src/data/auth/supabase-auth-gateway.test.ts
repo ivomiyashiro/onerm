@@ -9,23 +9,24 @@ import { SupabaseAuthGateway } from '@/data/auth/supabase-auth-gateway';
 
 /** The part of the client the gateway listens to, driven by the test. */
 function fakeClient() {
-  const listeners = new Set<(event: AuthChangeEvent) => void>();
+  const listeners = new Set<(event: AuthChangeEvent, session: unknown) => void>();
   const client = {
     auth: {
-      onAuthStateChange: (listener: (event: AuthChangeEvent) => void) => {
+      onAuthStateChange: (listener: (event: AuthChangeEvent, session: unknown) => void) => {
         listeners.add(listener);
         return { data: { subscription: { unsubscribe: () => listeners.delete(listener) } } };
       },
       signOut: async () => {
         // supabase-js emits SIGNED_OUT also when we sign out ourselves.
-        listeners.forEach((listener) => listener('SIGNED_OUT'));
+        listeners.forEach((listener) => listener('SIGNED_OUT', null));
         return { error: null };
       },
     },
   } as unknown as SupabaseClient;
   return {
     gateway: new SupabaseAuthGateway(client, { getItem: async () => null }),
-    emit: (event: AuthChangeEvent) => listeners.forEach((listener) => listener(event)),
+    emit: (event: AuthChangeEvent, session: unknown = null) =>
+      listeners.forEach((listener) => listener(event, session)),
     listeners,
   };
 }
@@ -41,13 +42,24 @@ describe('SupabaseAuthGateway.onSessionLost (RF-AUTH-06.AC4)', () => {
     expect(lost).toHaveBeenCalledTimes(1);
   });
 
-  it('ignores the other events, a renewal included', () => {
+  it('a start that finds no session counts too: the server may have refused it just before', () => {
     const { gateway, emit } = fakeClient();
     const lost = jest.fn();
     gateway.onSessionLost(lost);
 
-    emit('TOKEN_REFRESHED');
-    emit('SIGNED_IN');
+    emit('INITIAL_SESSION', null);
+
+    expect(lost).toHaveBeenCalledTimes(1);
+  });
+
+  it('ignores the other events, a renewal and a start with a session included', () => {
+    const { gateway, emit } = fakeClient();
+    const lost = jest.fn();
+    gateway.onSessionLost(lost);
+
+    emit('TOKEN_REFRESHED', {});
+    emit('SIGNED_IN', {});
+    emit('INITIAL_SESSION', {});
 
     expect(lost).not.toHaveBeenCalled();
   });
@@ -231,6 +243,15 @@ describe('SupabaseAuthGateway.signInWithGoogle (RF-AUTH-04)', () => {
     const { gateway } = googleGateway({ status: 'cancelled' }, { signInWithIdToken });
 
     await expect(gateway.signInWithGoogle()).resolves.toEqual({ status: 'cancelled' });
+
+    expect(signInWithIdToken).not.toHaveBeenCalled();
+  });
+
+  it('AC5: says «offline» when Google cannot be reached', async () => {
+    const signInWithIdToken = jest.fn();
+    const { gateway } = googleGateway({ status: 'offline' }, { signInWithIdToken });
+
+    await expect(gateway.signInWithGoogle()).resolves.toEqual({ status: 'offline' });
 
     expect(signInWithIdToken).not.toHaveBeenCalled();
   });
