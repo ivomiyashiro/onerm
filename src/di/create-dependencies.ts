@@ -193,13 +193,13 @@ export interface Backup {
 
 /**
  * The sync of 07 §4.1 against the configured server, triggered by the phone (RN-SYNC-06). Without
- * a server there is nothing to back up to: every attempt fails quietly.
+ * a server there is nothing to back up to, like a guest's device.
  */
 export function appBackup({ localDatabase, changes }: Storage): Backup {
   const client = appSupabase()?.client;
   const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
   if (client === undefined) {
-    return { engine: { sync: async () => 'failed' }, countUploadable: async () => 0, triggers };
+    return { engine: { sync: async () => 'guest' }, countUploadable: async () => 0, triggers };
   }
   const engine = new SupabaseSyncEngine(
     () => localDatabase.database,

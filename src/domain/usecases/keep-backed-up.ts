@@ -18,7 +18,7 @@ export class KeepBackedUp {
       localWrite: () => scheduler.afterWrite(),
       foreground: () => scheduler.enterForeground(),
       background: () => scheduler.enterBackground(),
-      reconnected: () => void scheduler.syncNow(),
+      reconnected: () => scheduler.afterReconnect(),
     });
     // RN-SYNC-06 (c): opening the app is a trigger too.
     scheduler.enterForeground();

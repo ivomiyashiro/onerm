@@ -45,7 +45,12 @@ export class SyncScheduler {
     }, WRITE_GROUPING_MS);
   }
 
-  /** RN-SYNC-06 (b), (c) and (d). Resolves with the result of a run that started after asking. */
+  /** RN-SYNC-06 (b). In the background it waits for the next foreground (RNF-22). */
+  afterReconnect(): void {
+    if (this.active) void this.syncNow();
+  }
+
+  /** RN-SYNC-06 (c) and (d), and signing out. Resolves with the result of a run that started after asking. */
   syncNow(): Promise<SyncResult> {
     if (this.running !== null) {
       this.queued ??= this.running.then(() => {

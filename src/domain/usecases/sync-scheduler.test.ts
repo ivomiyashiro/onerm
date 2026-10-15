@@ -115,6 +115,22 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
     expect(fake.runs()).toBe(2);
   });
 
+  it('RN-SYNC-06 (b): getting the connection back syncs, but not in the background (RNF-22)', async () => {
+    const fake = answeringEngine('synced');
+    const scheduler = new SyncScheduler(fake.engine, async () => 0);
+
+    scheduler.enterBackground();
+    scheduler.afterReconnect();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(fake.runs()).toBe(0);
+
+    scheduler.enterForeground();
+    await jest.advanceTimersByTimeAsync(0);
+    scheduler.afterReconnect();
+    await jest.advanceTimersByTimeAsync(0);
+    expect(fake.runs()).toBe(2);
+  });
+
   it('a sync that succeeds resets the backoff', async () => {
     let result: SyncResult = 'failed';
     let runs = 0;

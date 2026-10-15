@@ -87,6 +87,8 @@ export function useProfileViewModel(): ProfileViewModel {
   const [attempt, setAttempt] = useState(0);
   // A ref, not state: two taps in the same frame must save only once.
   const saving = useRef(false);
+  // The same for «Cerrar sesión»: a second tap while backing up must not start another.
+  const signingOut = useRef(false);
 
   useEffect(
     () =>
@@ -147,7 +149,8 @@ export function useProfileViewModel(): ProfileViewModel {
   }
 
   async function signOut() {
-    if (backingUp) return;
+    if (signingOut.current) return;
+    signingOut.current = true;
     try {
       let plan = await prepareSignOut.execute();
       if (plan.kind === 'pending') {
@@ -163,6 +166,8 @@ export function useProfileViewModel(): ProfileViewModel {
       else await leave();
     } catch {
       // The plan couldn't be read: nothing is signed out.
+    } finally {
+      signingOut.current = false;
     }
   }
 
