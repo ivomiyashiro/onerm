@@ -35,14 +35,22 @@ function assertKeyAttributesKept(exercises: readonly Exercise[], previous: Exerc
 
 /**
  * The same exercises give the same file, version included, so running the seed twice changes
- * nothing; a change in any exercise bumps the version by one.
+ * nothing; a change in any exercise bumps the version by one. A retired exercise keeps the date it
+ * was retired on, so it doesn't change the file again.
  */
 export function buildExercisesFile(
   exercises: readonly Exercise[],
   previous: ExercisesFile,
+  now: Date,
 ): ExercisesFile {
   assertKeyAttributesKept(exercises, previous);
-  const records = exercises.map(toRecord);
+  // RN-CAT-01: an exercise is never deleted. One that left the curation stays in the snapshot,
+  // marked as obsolete, so a history that refers to it still resolves without a connection.
+  const current = new Set(exercises.map((exercise) => exercise.id));
+  const retired = previous.exercises
+    .filter((record) => !current.has(record.id))
+    .map((record) => ({ ...record, deprecatedAt: record.deprecatedAt ?? now.toISOString() }));
+  const records = [...exercises.map(toRecord), ...retired];
   const contentHash = createHash('sha256')
     .update(JSON.stringify(records))
     .digest('hex')
