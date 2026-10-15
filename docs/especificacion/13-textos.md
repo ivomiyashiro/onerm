@@ -187,6 +187,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Enlace de recuperación inválido | Este enlace ya no es válido. **Pedir uno nuevo** |
 | Sync: respaldado | Respaldado · hace {tiempo} |
 | Sync: sincronizando | Respaldando… |
+| Cerrar sesión con pendientes, mientras se suben (RF-AUTH-07.AC2) | Respaldando tus datos… |
 | Sync: pendiente sin conexión | {n} cambios sin respaldar · sin conexión |
 | Sync: pendiente con conexión | {n} cambios por respaldar… |
 | Sync: entrenamiento en curso | Tu entrenamiento se respalda al finalizarlo. |

@@ -11,7 +11,8 @@ import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import type { SyncResult } from '@/domain/repositories/sync-engine';
+import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
@@ -36,6 +37,8 @@ async function renderScreen(
   profile: Profile | null = defaultProfile(),
   permissions = new FakeDevicePermissions(),
   accountState: AccountState = { kind: 'guest' },
+  /** The backup before signing out; by default it can't reach the server. */
+  syncNow: () => Promise<SyncResult> = async () => 'failed',
 ) {
   const store = createAppStore();
   store.getState().setAccount(accountState);
@@ -47,6 +50,7 @@ async function renderScreen(
   const useCases = someUseCases({
     ...restUseCasesOver({ permissions }),
     prepareSignOut: new PrepareSignOut(account),
+    backUpBeforeSignOut: new BackUpBeforeSignOut({ syncNow }, account),
     confirmSignOut: new ConfirmSignOut(new FakeAuthGateway(), account),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
@@ -204,7 +208,19 @@ describe('ProfileScreen (S21)', () => {
       expect(store.getState().account).toEqual({ kind: 'guest' });
     });
 
-    it('AC3: pending changes show D03 with «Cancelar» first and the destructive action', async () => {
+    it('AC2: while the pending changes go up the button says so and is busy', async () => {
+      const backingUp = () => new Promise<SyncResult>(() => {});
+      const { account } = await renderScreen(defaultProfile(), undefined, USER, backingUp);
+      account.pendingChanges = 2;
+
+      await userEvent.press(screen.getByRole('button', { name: text.rows.signOut }));
+
+      expect(
+        await screen.findByRole('button', { name: text.rows.signingOutBackingUp, busy: true }),
+      ).toBeOnTheScreen();
+    });
+
+    it('AC3: changes the backup could not upload show D03 with «Cancelar» first and the destructive action', async () => {
       const { account, store } = await renderScreen(defaultProfile(), undefined, USER);
       account.pendingChanges = 2;
 

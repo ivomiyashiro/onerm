@@ -2,7 +2,8 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import type { SyncResult } from '@/domain/repositories/sync-engine';
+import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 
 function setup() {
   const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
@@ -50,5 +51,36 @@ describe('Sign out (RF-AUTH-07)', () => {
 
     expect(gateway.signedOut).toBe(0);
     expect(account.cleared).toBe(0);
+  });
+});
+
+describe('Back up before signing out (RF-AUTH-07.AC2, AC3)', () => {
+  function backUpWith(account: InMemoryAccountRepository, result: SyncResult, leftPending: number) {
+    return new BackUpBeforeSignOut(
+      {
+        syncNow: async () => {
+          account.pendingChanges = leftPending;
+          return result;
+        },
+      },
+      account,
+    );
+  }
+
+  it('AC2: when the sync uploads everything, it is ready to sign out', async () => {
+    const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+    account.pendingChanges = 4;
+
+    await expect(backUpWith(account, 'synced', 0).execute()).resolves.toEqual({ kind: 'ready' });
+  });
+
+  it('AC3: when changes are left (no connection, a rejected one), D03 counts them', async () => {
+    const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+    account.pendingChanges = 4;
+
+    await expect(backUpWith(account, 'failed', 4).execute()).resolves.toEqual({
+      kind: 'pending',
+      count: 4,
+    });
   });
 });

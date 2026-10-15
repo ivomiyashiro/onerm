@@ -12,7 +12,12 @@ import type { RequestPasswordReset } from '@/domain/usecases/request-password-re
 import type { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
-import type { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
+import type { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import type {
+  BackUpBeforeSignOut,
+  ConfirmSignOut,
+  PrepareSignOut,
+} from '@/domain/usecases/sign-out';
 import type { AdoptTemplate } from '@/domain/usecases/adopt-template';
 import type { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import type { DeleteRoutine } from '@/domain/usecases/delete-routine';
@@ -98,6 +103,9 @@ export interface UseCases {
   openRecoveryLink: OpenRecoveryLink;
   completePasswordRecovery: CompletePasswordRecovery;
   prepareSignOut: PrepareSignOut;
+  backUpBeforeSignOut: BackUpBeforeSignOut;
+  /** RF-SYNC-01: the automatic backup while the app runs. */
+  keepBackedUp: KeepBackedUp;
   confirmSignOut: ConfirmSignOut;
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;
