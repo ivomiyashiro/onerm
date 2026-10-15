@@ -34,10 +34,12 @@ export class DeviceSyncTriggers implements SyncTriggers {
       if (state === 'active') listener.foreground();
       else if (state === 'background') listener.background();
     });
-    // (b) Only a real reconnection: the first report and a repeated "online" are not one.
+    // (b) Only a real reconnection: the first report and a repeated "online" are not one. Losing
+    // the connection is reported once, also when the app starts offline.
     let wasConnected: boolean | null = null;
     const stopNetwork = this.network.addEventListener(({ isConnected }) => {
       if (wasConnected === false && isConnected === true) listener.reconnected();
+      if (wasConnected !== false && isConnected === false) listener.disconnected();
       if (isConnected !== null) wasConnected = isConnected;
     });
     return () => {
