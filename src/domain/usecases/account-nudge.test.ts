@@ -1,7 +1,4 @@
-import {
-  FakeAuthGateway,
-  InMemoryAccountRepository,
-} from '@/domain/testing/in-memory-repositories';
+import { InMemoryAccountRepository } from '@/domain/testing/in-memory-repositories';
 import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
 
 const NOW = new Date('2026-10-15T12:00:00Z');

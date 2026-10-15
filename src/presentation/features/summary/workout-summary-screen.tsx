@@ -8,9 +8,12 @@ import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
+import { Dialog } from '@/presentation/components/overlay/dialog';
+import { useAccountNudgeViewModel } from '@/presentation/features/summary/use-account-nudge-view-model';
 import { loadText, RecordCard } from '@/presentation/features/summary/record-card';
 import { useWorkoutSummaryViewModel } from '@/presentation/features/summary/use-workout-summary-view-model';
 import { reasonIcon } from '@/presentation/features/workout/reason-text';
+import { dialogs } from '@/presentation/strings/dialogs';
 import { catalog } from '@/presentation/strings/catalog';
 import { home } from '@/presentation/strings/home';
 import { workout as text } from '@/presentation/strings/workout';
@@ -22,11 +25,18 @@ interface WorkoutSummaryScreenProps {
   workoutId: string;
   /** «Listo», or the workout is gone: back to the tabs. */
   onDone: () => void;
+  /** D13 «Crear cuenta». */
+  onCreateAccount: () => void;
 }
 
 /** S12 · Resumen del entrenamiento (RF-ENT-11.AC1, Figma «S12 · Resumen con récords»). */
-export function WorkoutSummaryScreen({ workoutId, onDone }: WorkoutSummaryScreenProps) {
+export function WorkoutSummaryScreen({
+  workoutId,
+  onDone,
+  onCreateAccount,
+}: WorkoutSummaryScreenProps) {
   const state = useWorkoutSummaryViewModel(workoutId);
+  const nudge = useAccountNudgeViewModel(state.status === 'content', onCreateAccount);
   const insets = useSafeAreaInsets();
 
   // The route's callback is a new function on every render: only the status matters.
@@ -98,6 +108,21 @@ export function WorkoutSummaryScreen({ workoutId, onDone }: WorkoutSummaryScreen
           <Button variant="primary" size="xl" label={strings.ready} onPress={onDone} />
         </View>
       )}
+      {/* D13 (RF-AUTH-01.AC5): a guest is invited to back up, at most once every 7 days. */}
+      <Dialog
+        visible={nudge.visible}
+        title={dialogs.D13.title}
+        body={dialogs.D13.body}
+        actions={[
+          {
+            label: dialogs.D13.createAccount,
+            kind: 'advance',
+            onPress: nudge.actions.createAccount,
+          },
+          { label: dialogs.D13.notNow, kind: 'plain', onPress: nudge.actions.notNow },
+        ]}
+        onDismiss={nudge.actions.notNow}
+      />
     </View>
   );
 }
