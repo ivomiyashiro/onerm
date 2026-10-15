@@ -1,3 +1,4 @@
+import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { ReadAccount } from '@/domain/usecases/read-account';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
@@ -113,6 +114,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeRecommendation: new ObserveRecommendation(templates, profiles),
     observeProfile: new ObserveProfile(profiles),
     ...accountUseCases(),
+    continueAfterAuth: new ContinueAfterAuth(profiles, onboarding),
     updateProfile: new UpdateProfile(profiles, { observeById: never }),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),

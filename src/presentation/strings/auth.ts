@@ -21,11 +21,13 @@ export const auth = {
     passwordHelp: 'Al menos 8 caracteres.',
     passwordTooShort: 'Tiene que tener al menos 8 caracteres.',
     emailMissingDomain: 'Revisá el email: falta el dominio (por ejemplo, .com).',
+    emailInvalid: 'Revisá el email: no parece válido.',
   },
   errors: {
     offline: (action: string) =>
       `Necesitás conexión para ${action}. Podés seguir entrenando sin cuenta.`,
     wrongCredentials: 'Email o contraseña incorrectos.',
+    unexpected: 'No pudimos completarlo. Probá de nuevo.',
     emailTaken: 'Ya existe una cuenta con este email.',
     emailTakenAction: 'Iniciar sesión',
     useYourPassword: 'Ya tenés una cuenta con este email. Entrá con tu contraseña.',

@@ -71,6 +71,7 @@ import { ObserveRoutines } from '@/domain/usecases/observe-routines';
 import { ObserveTemplate } from '@/domain/usecases/observe-template';
 import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import { ReadAccount } from '@/domain/usecases/read-account';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
@@ -217,6 +218,7 @@ export function createDependencies(
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
       observeProfile: new ObserveProfile(profileRepository),
       readAccount: new ReadAccount(auth, accountRepository),
+      continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),
       prepareSignOut: new PrepareSignOut(accountRepository),

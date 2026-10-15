@@ -2,6 +2,7 @@ import { createContext, useContext, type ReactNode } from 'react';
 
 import type { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import type { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
+import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
 import type { ReadAccount } from '@/domain/usecases/read-account';
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
@@ -80,6 +81,7 @@ export interface UseCases {
   finishOnboarding: FinishOnboarding;
   observeProfile: ObserveProfile;
   readAccount: ReadAccount;
+  continueAfterAuth: ContinueAfterAuth;
   signUp: SignUp;
   signIn: SignIn;
   prepareSignOut: PrepareSignOut;

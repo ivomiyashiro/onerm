@@ -179,6 +179,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 |---|---|
 | Sin conexión para acciones de cuenta | Necesitás conexión para {acción}. Podés seguir entrenando sin cuenta. |
 | Credenciales incorrectas | Email o contraseña incorrectos. |
+| Otro error al crear la cuenta o iniciar sesión | No pudimos completarlo. Probá de nuevo. |
 | Email existente (registro) | Ya existe una cuenta con este email. **Iniciar sesión** |
 | Google con un email que tiene contraseña (RN-AUTH-03) | Ya tenés una cuenta con este email. Entrá con tu contraseña. |
 | Registro con un email de Google (RN-AUTH-03) | Ya tenés una cuenta con este email. Entrá con Google. |
@@ -268,7 +269,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S25 | Cambios sin respaldar · No pudimos respaldar estos cambios. Tocá uno para ver qué pasó y qué podés hacer. · Todo respaldado · No hay cambios pendientes. |
 | S16 | Buscar ejercicio · Mismo músculo |
 | S15 | Series · Reps mín. · Reps máx. · Repeticiones en reserva (en avanzado puede decir "Esfuerzo objetivo (RIR)") · Descanso · Agregar ejercicio |
-| S02 / S03 | Continuar con Google · o con tu email · Iniciar sesión · Olvidé mi contraseña · Mostrar contraseña · Ingresando… · No tengo cuenta · Crear cuenta · Ya tengo cuenta · Iniciar sesión · Respaldá tus entrenamientos y usalos en otro teléfono. · Al menos 8 caracteres. · Tiene que tener al menos 8 caracteres. · Revisá el email: falta el dominio (por ejemplo, .com). |
+| S02 / S03 | Continuar con Google · o con tu email · Iniciar sesión · Olvidé mi contraseña · Mostrar contraseña · Ingresando… · No tengo cuenta · Crear cuenta · Ya tengo cuenta · Iniciar sesión · Respaldá tus entrenamientos y usalos en otro teléfono. · Al menos 8 caracteres. · Tiene que tener al menos 8 caracteres. · Revisá el email: falta el dominio (por ejemplo, .com). · Revisá el email: no parece válido. |
 | S04 / S24 | Recuperar contraseña · Te mandamos un enlace para crear una nueva. · Enviar enlace · Revisá tu correo · Enlace enviado · Volver a iniciar sesión · Nueva contraseña · Elegí una contraseña de al menos 8 caracteres. · Guardar y entrar · Los enlaces vencen después de un tiempo o cuando ya se usaron. |
 | S09 hoja "Ajustar serie" | Tocá para ajustar · Serie {n} de {total} · Es una serie de calentamiento · ¿Cuántas más podías hacer? · Distinto por lado · Hecho |
 | S09 descanso | Descanso · de 2:00 · +15 s · Reiniciar · Saltear descanso · Minimizar · Abrir temporizador · Siguiente: serie {n} de {total} · {carga} × {reps} · ¡Descanso terminado! · Listo para la serie {n} · Ir a la serie {n} · Serie {n} · {carga} × {reps} (tarjeta de la serie hecha) · Siguiente: {carga} × {reps} (barra minimizada) |
