@@ -60,6 +60,8 @@ Nunca se guarda en texto plano (RNF-07).
 
 `exercises` (modelo canónico, ADR-0004), `routine_templates`, `template_days`, `template_exercises`. Solo el seed las escribe, con la `service_role`. En la app, el snapshot incluido las carga en la primera ejecución.
 
+**Limitación conocida de las plantillas** (decidido el 2026-10-15): una plantilla publicada no se puede editar ni retirar. El seed solo agrega o actualiza filas y nunca borra; la versión del snapshot incluido solo sube cuando cambian los ejercicios; y el pull incremental no ve borrados. Cuando haga falta cambiar una, se resuelve entonces con plantillas inmutables (una versión nueva con otro id y la anterior marcada como obsoleta con un `deprecated_at`, igual que los ejercicios), que requiere una migración aditiva.
+
 `exercise_source_refs(exercise_id, source, external_id)`, con clave única `(source, external_id)`, existe **solo en el servidor**.
 
 `app_config(min_app_version)` es de lectura pública (RN-SYNC-14).
@@ -126,7 +128,11 @@ sync():
       upsert remoto, pidiendo que devuelva las filas
       por cada fila devuelta:
         aplicarla localmente (reconciliar); _dirty = 0 si updated_at local no cambió mientras tanto
-      rechazo por validación → _conflict = motivo; la fila y sus hijos quedan retenidos
+      rechazo por validación (23xxx o 42501) → el servidor rechaza el lote entero y no dice qué fila falló:
+        partir el lote en dos mitades y reintentar cada una, recursivamente, hasta aislar la o las filas
+        rechazadas (una fila sola que falla es la culpable); el resto del lote se sube (RN-SYNC-11)
+        _conflict = motivo en cada fila aislada; la fila y sus hijos quedan retenidos
+        (el reintento es idempotente: reenviar filas ya aceptadas no cambia nada, RNF-04)
       error de red → abortar; reintentar con backoff (5 s, 15 s, 60 s, máx. 5 min) o con el próximo disparador
 
   PULL, en el mismo orden, con paginación por keyset:

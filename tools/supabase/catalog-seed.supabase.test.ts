@@ -77,6 +77,8 @@ describe('catalog seed: load into Supabase', () => {
   const idB = randomUUID();
   const templateId = `SEED-TEST-${idA.slice(0, 8)}`;
   const templates = [template(templateId, idA)];
+  // Only these may be deprecated: the stack is shared with the seeded catalog.
+  const own = new Set([idA, idB]);
 
   async function remote(id: string) {
     const { data } = await admin.from('exercises').select().eq('id', id).single();
@@ -93,7 +95,7 @@ describe('catalog seed: load into Supabase', () => {
 
   it('writes the catalog, and running it again changes nothing', async () => {
     const both = [seeded(idA, 'Uno'), seeded(idB, 'Dos')];
-    const first = await loadCatalog(admin, both, templates, NOW);
+    const first = await loadCatalog(admin, both, templates, NOW, own);
     expect(first.written).toMatchObject({
       routine_templates: 1,
       template_days: 1,
@@ -102,7 +104,7 @@ describe('catalog seed: load into Supabase', () => {
     expect(first.written.exercises).toBeGreaterThanOrEqual(2);
     const before = await remote(idA);
 
-    const second = await loadCatalog(admin, both, templates, NOW);
+    const second = await loadCatalog(admin, both, templates, NOW, own);
     expect(second.written).toEqual({
       exercises: 0,
       exercise_source_refs: 0,
@@ -123,6 +125,7 @@ describe('catalog seed: load into Supabase', () => {
       [seeded(idA, 'Uno'), seeded(idB, 'Dos (nuevo nombre)')],
       templates,
       NOW,
+      own,
     );
 
     expect(report.written.exercises).toBe(1);
@@ -135,7 +138,7 @@ describe('catalog seed: load into Supabase', () => {
   });
 
   it('deprecates an exercise that left the catalog instead of deleting it (RN-CAT-01)', async () => {
-    await loadCatalog(admin, [seeded(idA, 'Uno')], templates, NOW);
+    await loadCatalog(admin, [seeded(idA, 'Uno')], templates, NOW, own);
     const gone = await remote(idB);
     expect(gone).not.toBeNull();
     expect(new Date(gone.deprecated_at).toISOString()).toBe(NOW.toISOString());

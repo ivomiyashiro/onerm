@@ -40,6 +40,8 @@ yarn-error.*
 
 # local environment variables
 .env*.local
+# Not named .env*: Expo's dev bundle would pick it up (require.context over .env*), service_role key included.
+.seed.local
 
 # TypeScript
 *.tsbuildinfo

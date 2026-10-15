@@ -103,4 +103,5 @@ El detalle y la prioridad de cada RF están en `03-requisitos/`.
 | Apropiación previa de cuentas sin email confirmado | No se vinculan identidades (RN-AUTH-03): un trigger en `auth.identities` rechaza la vinculación automática de Supabase (spike #16) | ADR-0001 R10 |
 | Temporizador con la pantalla bloqueada impreciso en algunos Android | Hora de fin absoluta; se pide el permiso de alarmas exactas y, sin él, no se programa el aviso (spike #14) | RNF-23 |
 | Pérdida del entrenamiento en curso si se rompe o se pierde el teléfono durante el entrenamiento | Riesgo aceptado: el entrenamiento en curso vive solo en el dispositivo y se respalda al finalizarlo. Sobrevive a cierres de la app y reinicios | RN-SYNC-13 |
+| Las plantillas publicadas no se pueden editar ni retirar | Limitación conocida: hoy son 3 y nadie las edita. Si hace falta, plantillas inmutables con `deprecated_at` (decidido el 2026-10-15) | 07 §2.3 |
 | Fuerza sin ejercicios con barra en las plantillas | Limitación declarada en S06 y S14; el usuario puede crear su rutina | 11 §7 |
