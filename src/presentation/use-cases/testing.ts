@@ -8,6 +8,9 @@ import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
+import { SyncNow } from '@/domain/usecases/sync-now';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { SignUp } from '@/domain/usecases/sign-up';
@@ -64,6 +67,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
+import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import {
@@ -171,8 +175,36 @@ function accountUseCases() {
     backUpBeforeSignOut: new BackUpBeforeSignOut(offlineSync, account),
     confirmSignOut: new ConfirmSignOut(gateway, account),
     keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
+    observeSyncStatus: syncStatusOver(BACKED_UP),
+    observeBackupNotice: backupNoticeOver(BACKED_UP),
+    syncNow: new SyncNow(offlineSync),
   };
 }
+
+/**
+ * The backup status over a fixed local state, without a workout in progress and with a scheduler
+ * that never synced. Used by tests only.
+ */
+export function syncStatusOver(
+  local: LocalSyncState,
+  scheduler: Pick<SyncScheduler, 'observeActivity'> = offlineSync,
+): ObserveSyncStatus {
+  return new ObserveSyncStatus(
+    { observe: (observer) => (observer.next(local), () => {}) },
+    { observeInProgress: (observer) => (observer.next(null), () => {}) },
+    scheduler,
+  );
+}
+
+/** The backup notice of S07 over a fixed local state. Used by tests only. */
+export function backupNoticeOver(local: LocalSyncState): ObserveBackupNotice {
+  return new ObserveBackupNotice(
+    { observe: (observer) => (observer.next(local), () => {}) },
+    offlineSync,
+  );
+}
+
+const BACKED_UP: LocalSyncState = { pending: 0, conflicts: 0, lastSyncedAt: null };
 
 /** A sync that never reaches a server, and never has anything to upload. */
 const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);

@@ -13,6 +13,9 @@ import type { ContinueWithGoogle } from '@/domain/usecases/continue-with-google'
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
 import type { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
+import type { SyncNow } from '@/domain/usecases/sync-now';
 import type {
   BackUpBeforeSignOut,
   ConfirmSignOut,
@@ -106,6 +109,9 @@ export interface UseCases {
   backUpBeforeSignOut: BackUpBeforeSignOut;
   /** RF-SYNC-01: the automatic backup while the app runs. */
   keepBackedUp: KeepBackedUp;
+  observeSyncStatus: ObserveSyncStatus;
+  observeBackupNotice: ObserveBackupNotice;
+  syncNow: SyncNow;
   confirmSignOut: ConfirmSignOut;
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;

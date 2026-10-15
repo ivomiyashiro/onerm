@@ -6,6 +6,7 @@ import type { LoadUnit } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
+import { Notice } from '@/presentation/components/feedback/notice';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Icon } from '@/presentation/components/icons/icon';
@@ -39,7 +40,7 @@ const SHORT_DAY_NAME = 6;
  * exercise (RF-SUG-01). The week strip waits for its AC (marca §8, «pendiente de especificar»).
  */
 export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: HomeScreenProps) {
-  const { state, inProgressSince, actions } = useHomeViewModel();
+  const { state, inProgressSince, backupNotice, actions } = useHomeViewModel();
   const insets = useSafeAreaInsets();
 
   return (
@@ -52,6 +53,18 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
         </Text>
       </View>
       <ScrollView contentContainerStyle={styles.content}>
+        {backupNotice !== null && (
+          <Notice
+            message={
+              backupNotice.kind === 'conflict'
+                ? profile.sync.conflict(backupNotice.count)
+                : backupNotice.online
+                  ? profile.sync.pendingOnline(backupNotice.count)
+                  : profile.sync.pendingOffline(backupNotice.count)
+            }
+            tone={backupNotice.kind === 'conflict' ? 'warn' : 'info'}
+          />
+        )}
         {state.status === 'loading' &&
           Array.from({ length: SKELETON_ROWS }, (_, i) => (
             <SkeletonRow key={i} testID="home-skeleton" />

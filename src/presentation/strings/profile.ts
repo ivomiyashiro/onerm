@@ -82,6 +82,11 @@ export const profile = {
   /** Backup status (RF-SYNC-06, 13 §9). */
   sync: {
     synced: (time: string) => `Respaldado · hace ${time}`,
+    /** {tiempo} of «Respaldado · hace {tiempo}», in the largest whole unit. */
+    lessThanAMinute: 'menos de 1 min',
+    minutes: (n: number) => `${n} min`,
+    hours: (n: number) => `${n} h`,
+    days: (n: number) => count(n, 'día', 'días'),
     syncing: 'Respaldando…',
     pendingOffline: (n: number) => `${count(n, 'cambio', 'cambios')} sin respaldar · sin conexión`,
     pendingOnline: (n: number) => `${count(n, 'cambio', 'cambios')} por respaldar…`,

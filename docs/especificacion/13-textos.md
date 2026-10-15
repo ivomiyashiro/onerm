@@ -185,7 +185,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Registro con un email de Google (RN-AUTH-03) | Ya tenés una cuenta con este email. Entrá con Google. |
 | Recuperación enviada | Si existe una cuenta con ese email, te enviamos un enlace. |
 | Enlace de recuperación inválido | Este enlace ya no es válido. **Pedir uno nuevo** |
-| Sync: respaldado | Respaldado · hace {tiempo} |
+| Sync: respaldado | Respaldado · hace {tiempo} · {tiempo}: «menos de 1 min», «{n} min», «{n} h» o «{n} días», la mayor unidad entera (decidido en #46) |
 | Sync: sincronizando | Respaldando… |
 | Cerrar sesión con pendientes, mientras se suben (RF-AUTH-07.AC2) | Respaldando tus datos… |
 | Sync: pendiente sin conexión | {n} cambios sin respaldar · sin conexión |
