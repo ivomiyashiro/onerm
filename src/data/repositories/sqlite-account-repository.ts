@@ -12,6 +12,7 @@ import {
   workouts,
   workoutSets,
 } from '@/data/db/schema';
+import { USER_TABLES } from '@/data/sync/sync-tables';
 import type { DataOwner } from '@/domain/models/data-owner';
 import type { AccountRepository } from '@/domain/repositories/account-repository';
 
@@ -134,7 +135,15 @@ export class SqliteAccountRepository implements AccountRepository {
       tx.delete(routineDays).run();
       tx.delete(routines).run();
       tx.delete(profiles).run();
-      tx.delete(syncState).run();
+      // The user's pull cursors go; the catalog's stay with the catalog (RF-CAT-04).
+      tx.delete(syncState)
+        .where(
+          inArray(
+            syncState.tableName,
+            USER_TABLES.map((sync) => sync.name),
+          ),
+        )
+        .run();
       // The catalog and its version stay; the rest of app_state goes back to a fresh guest.
       tx.insert(appState)
         .values({ owner: 'guest' })
