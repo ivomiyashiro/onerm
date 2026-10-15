@@ -128,6 +128,15 @@ describe('SignInScreen (S02)', () => {
     await userEvent.press(screen.getByRole('button', { name: auth.form.forgotPassword }));
 
     expect(onSignUp).toHaveBeenCalledTimes(1);
-    expect(onForgotPassword).toHaveBeenCalledTimes(1);
+    expect(onForgotPassword).toHaveBeenCalledWith('');
+  });
+
+  it('RF-AUTH-08: the email typed travels to the password recovery', async () => {
+    const { onForgotPassword } = await renderScreen();
+    await userEvent.type(screen.getByLabelText(auth.form.emailLabel), ' ana@mail.com ');
+
+    await userEvent.press(screen.getByRole('button', { name: auth.form.forgotPassword }));
+
+    expect(onForgotPassword).toHaveBeenCalledWith('ana@mail.com');
   });
 });

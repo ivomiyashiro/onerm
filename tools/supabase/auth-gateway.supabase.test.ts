@@ -138,3 +138,83 @@ describe('SupabaseAuthGateway', () => {
     await expect(auth.storedSession()).resolves.toBeNull();
   });
 });
+
+const MAIL = process.env.MAILPIT_URL ?? 'http://127.0.0.1:55324';
+
+/** The button of the recovery email the local stack caught (Mailpit). */
+async function verifyUrlInEmailTo(email: string): Promise<string> {
+  for (let attempt = 0; attempt < 40; attempt++) {
+    const found = (await (
+      await fetch(`${MAIL}/api/v1/search?query=${encodeURIComponent(`to:${email}`)}`)
+    ).json()) as { messages: { ID: string }[] };
+    if (found.messages.length > 0) {
+      const message = (await (
+        await fetch(`${MAIL}/api/v1/message/${found.messages[0].ID}`)
+      ).json()) as { HTML: string };
+      const href = message.HTML.match(/href="([^"]+)"/)?.[1];
+      if (!href) throw new Error('no link in the recovery email');
+      return href.replaceAll('&amp;', '&');
+    }
+    await new Promise((resolve) => setTimeout(resolve, 250));
+  }
+  throw new Error('the recovery email never arrived');
+}
+
+/** What the phone does with the button: GoTrue checks the token and redirects to the app. */
+async function followToTheApp(verifyUrl: string): Promise<string> {
+  const response = await fetch(verifyUrl, { redirect: 'manual' });
+  const location = response.headers.get('location');
+  if (!location) throw new Error(`the verify URL answered ${response.status}, not a redirect`);
+  return location;
+}
+
+describe('SupabaseAuthGateway: password recovery (RF-AUTH-08)', () => {
+  it('AC1, RN-AUTH-02: asking for a link answers the same for an unknown email', async () => {
+    const { gateway: auth } = gateway();
+
+    await expect(auth.requestPasswordReset(newEmail())).resolves.toBe('sent');
+  });
+
+  it('AC1: without a connection it says so', async () => {
+    const { gateway: auth } = gateway('http://127.0.0.1:1');
+
+    await expect(auth.requestPasswordReset(newEmail())).resolves.toBe('offline');
+  });
+
+  it('AC2: the link opens a session, the new password replaces the old one', async () => {
+    const email = newEmail();
+    await gateway().gateway.signUp(email, PASSWORD);
+    const { gateway: phone } = gateway();
+
+    await phone.requestPasswordReset(email);
+    const link = await followToTheApp(await verifyUrlInEmailTo(email));
+
+    expect(link.startsWith('onerm://new-password#')).toBe(true);
+    await expect(phone.openRecoveryLink(link)).resolves.toMatchObject({ status: 'opened', email });
+    await expect(phone.setNewPassword('contraseña-nueva')).resolves.toMatchObject({
+      status: 'done',
+    });
+    await expect(gateway().gateway.signIn(email, PASSWORD)).resolves.toEqual({
+      status: 'wrongCredentials',
+    });
+    await expect(gateway().gateway.signIn(email, 'contraseña-nueva')).resolves.toMatchObject({
+      status: 'signedIn',
+    });
+  });
+
+  it('AC3: a link that was already used is not valid', async () => {
+    const email = newEmail();
+    await gateway().gateway.signUp(email, PASSWORD);
+    const { gateway: phone } = gateway();
+    await phone.requestPasswordReset(email);
+    const verifyUrl = await verifyUrlInEmailTo(email);
+
+    await followToTheApp(verifyUrl);
+    // The server consumed the token the first time: following the same button again is an error.
+    const again = await followToTheApp(verifyUrl);
+
+    await expect(gateway().gateway.openRecoveryLink(again)).resolves.toEqual({
+      status: 'invalidLink',
+    });
+  });
+});

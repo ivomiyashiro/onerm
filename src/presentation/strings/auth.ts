@@ -27,7 +27,11 @@ export const auth = {
   },
   errors: {
     /** The actions that need a connection, for `offline`. */
-    actions: { signIn: 'iniciar sesión', signUp: 'crear una cuenta' },
+    actions: {
+      signIn: 'iniciar sesión',
+      signUp: 'crear una cuenta',
+      resetPassword: 'cambiar tu contraseña',
+    },
     offline: (action: string) =>
       `Necesitás conexión para ${action}. Podés seguir entrenando sin cuenta.`,
     wrongCredentials: 'Email o contraseña incorrectos.',

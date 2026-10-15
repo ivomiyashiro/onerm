@@ -18,11 +18,11 @@ interface SignInScreenProps {
   /** Signed in: leave the auth stack. */
   onDone: () => void;
   onSignUp: () => void;
-  /** S04, arrives with #44. */
-  onForgotPassword: () => void;
+  /** S04, with the email typed here. */
+  onForgotPassword: (email: string) => void;
 }
 
-/** S02 · Iniciar sesión (RF-AUTH-03). "Continuar con Google" arrives with #44. */
+/** S02 · Iniciar sesión (RF-AUTH-03). "Continuar con Google" arrives in the next PR of #44. */
 export function SignInScreen({
   initialEmail,
   onBack,
@@ -77,7 +77,11 @@ export function SignInScreen({
           onPress={actions.submit}
         />
         <View style={styles.links}>
-          <Button variant="tertiary" label={auth.form.forgotPassword} onPress={onForgotPassword} />
+          <Button
+            variant="tertiary"
+            label={auth.form.forgotPassword}
+            onPress={() => onForgotPassword(state.email.trim())}
+          />
           <Button variant="tertiary" label={auth.form.noAccount} onPress={onSignUp} />
         </View>
       </ScrollView>
