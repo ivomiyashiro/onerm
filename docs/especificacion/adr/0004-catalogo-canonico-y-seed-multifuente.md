@@ -78,7 +78,7 @@ extract → map → normalize → validate → curate → dedupe → load → ex
 
 - Los ejercicios **nunca se eliminan**: se marcan con `deprecatedAt`. Las rutinas y el historial que los referencian siguen siendo válidos.
 - El `id` es nuestro. Si una fuente cambia su ID o desaparece, nuestro catálogo no se rompe.
-- **El snapshot incluido conserva los obsoletos** (decidido el 2026-10-15). Un ejercicio que sale de la curaduría se arrastra desde el snapshot anterior con `deprecatedAt` (la fecha en que se retiró, que no cambia en las corridas siguientes). Así el servidor y el snapshot coinciden, y un historial que lo referencia se resuelve sin conexión (RN-CAT-01, RF-CAT-03 AC1). Para retirar un ejercicio se borra su entrada de `curation.json`; si la fuente lo perdió, el seed avisa y se hace lo mismo.
+- **El snapshot incluido conserva los obsoletos** (decidido el 2026-10-15). Un ejercicio que sale de la curaduría se arrastra desde el snapshot anterior con `deprecatedAt` (la fecha en que se retiró, que no cambia en las corridas siguientes). Así el servidor y el snapshot coinciden, y un historial que lo referencia se resuelve sin conexión (RN-CAT-01, RF-CAT-03 AC1). Para retirar un ejercicio se borra su entrada de `curation.json`; si la fuente lo perdió, el seed falla indicando el ejercicio y se hace lo mismo. Si un ejercicio retirado vuelve a la curaduría, vuelve a estar vigente (`deprecatedAt` nulo, también en el servidor).
 - **Lo que no cambia para un `id` publicado:** `loadType`, `isUnilateral` y `primaryEquipment` (RN-CAT-05). El seed falla si cambian; hace falta un ejercicio nuevo.
 
 ## Alternativas consideradas

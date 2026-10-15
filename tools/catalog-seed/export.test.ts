@@ -71,6 +71,14 @@ describe('snapshot export (ADR-0004 §3)', () => {
       expect(again).toBe(retired);
     });
 
+    it('one that comes back to the curation is current again', () => {
+      const retired = buildExercisesFile([exercise], published, LATER);
+
+      const back = buildExercisesFile([exercise, other], retired, LATER);
+
+      expect(back.exercises.map((e) => e.deprecatedAt)).toEqual([null, null]);
+    });
+
     it('does not retire what is still curated', () => {
       expect(buildExercisesFile([exercise, other], published, LATER)).toBe(published);
     });
