@@ -8,15 +8,21 @@ import type { AuthGateway } from '@/domain/repositories/auth-gateway';
  */
 export class ReadAccount {
   constructor(
-    private readonly gateway: Pick<AuthGateway, 'storedUserId'>,
+    private readonly gateway: Pick<AuthGateway, 'storedSession'>,
     private readonly account: Pick<AccountRepository, 'readOwner'>,
   ) {}
 
   async execute(): Promise<AccountState> {
     const owner = await this.account.readOwner();
     if (owner.kind === 'guest') return { kind: 'guest' };
-    const stored = await this.gateway.storedUserId();
+    const stored = await this.gateway.storedSession();
     // No session, or the session of someone else: the data stays, the person has to come back in.
-    return { kind: 'user', userId: owner.userId, sessionExpired: stored !== owner.userId };
+    const alive = stored !== null && stored.userId === owner.userId;
+    return {
+      kind: 'user',
+      userId: owner.userId,
+      email: alive ? stored.email : null,
+      sessionExpired: !alive,
+    };
   }
 }

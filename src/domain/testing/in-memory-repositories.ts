@@ -317,7 +317,7 @@ export class FakeAuthGateway implements AuthGateway {
 
   constructor(
     public outcome: AuthOutcome = { status: 'signedIn', userId: 'u1' },
-    public stored: string | null = null,
+    public stored: { userId: string; email: string | null } | null = null,
   ) {}
 
   async signUp(email: string, password: string): Promise<AuthOutcome> {
@@ -335,7 +335,7 @@ export class FakeAuthGateway implements AuthGateway {
     this.stored = null;
   }
 
-  async storedUserId(): Promise<string | null> {
+  async storedSession(): Promise<{ userId: string; email: string | null } | null> {
     return this.stored;
   }
 }

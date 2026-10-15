@@ -1,8 +1,12 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
+import type { AccountState } from '@/domain/models/account';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import type { ReadAccount } from '@/domain/usecases/read-account';
 import { useStartupViewModel } from '@/presentation/features/startup/use-startup-view-model';
+import { createAppStore } from '@/presentation/state/app-store';
+import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 
@@ -20,12 +24,28 @@ function fakeDatabase() {
   };
 }
 
-async function renderViewModel(database: { prepare(): Promise<void> }) {
-  const useCases = someUseCases({ prepareLocalData: new PrepareLocalData(database) });
+async function renderViewModel(
+  database: { prepare(): Promise<void> },
+  account?: AccountState | 'fails',
+) {
+  const store = createAppStore();
+  const useCases = someUseCases({
+    prepareLocalData: new PrepareLocalData(database),
+    ...(account !== undefined && {
+      readAccount: {
+        execute: async () => {
+          if (account === 'fails') throw new Error('unreadable');
+          return account;
+        },
+      } as unknown as ReadAccount,
+    }),
+  });
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+    <AppStoreProvider store={store}>
+      <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+    </AppStoreProvider>
   );
-  return renderHook(() => useStartupViewModel(), { wrapper });
+  return { ...(await renderHook(() => useStartupViewModel(), { wrapper })), store };
 }
 
 describe('useStartupViewModel (07 §6)', () => {
@@ -67,5 +87,31 @@ describe('useStartupViewModel (07 §6)', () => {
     expect(fake.prepare).toHaveBeenCalledTimes(2);
     await fake.succeed();
     expect(result.current.state).toEqual({ status: 'ready' });
+  });
+
+  it('RF-AUTH-06.AC1: the account is read before the app shows, and kept in the store', async () => {
+    const fake = fakeDatabase();
+    const user = {
+      kind: 'user',
+      userId: 'u1',
+      email: 'ana@mail.com',
+      sessionExpired: false,
+    } as const;
+    const { result, store } = await renderViewModel(fake.database, user);
+
+    await fake.succeed();
+
+    expect(result.current.state).toEqual({ status: 'ready' });
+    expect(store.getState().account).toEqual(user);
+  });
+
+  it("an unreadable account does not block the app: it opens as a guest's", async () => {
+    const fake = fakeDatabase();
+    const { result, store } = await renderViewModel(fake.database, 'fails');
+
+    await fake.succeed();
+
+    expect(result.current.state).toEqual({ status: 'ready' });
+    expect(store.getState().account).toEqual({ kind: 'guest' });
   });
 });

@@ -38,14 +38,15 @@ export class SupabaseAuthGateway implements AuthGateway {
     await this.client.auth.signOut({ scope: 'local' });
   }
 
-  async storedUserId(): Promise<string | null> {
+  async storedSession(): Promise<{ userId: string; email: string | null } | null> {
     // Not `auth.getSession()`: with an expired token it tries to renew it, and offline that would
     // look like a lost session (RF-AUTH-06.AC2).
     const stored = await this.storage.getItem(SESSION_STORAGE_KEY);
     if (stored === null) return null;
     try {
-      const id = (JSON.parse(stored) as { user?: { id?: unknown } }).user?.id;
-      return typeof id === 'string' ? id : null;
+      const user = (JSON.parse(stored) as { user?: { id?: unknown; email?: unknown } }).user;
+      if (typeof user?.id !== 'string') return null;
+      return { userId: user.id, email: typeof user.email === 'string' ? user.email : null };
     } catch {
       return null;
     }

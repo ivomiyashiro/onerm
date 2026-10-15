@@ -5,7 +5,7 @@ import {
 import { ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 
 function setup() {
-  const gateway = new FakeAuthGateway(undefined, 'u1');
+  const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
   const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
   return {
     gateway,

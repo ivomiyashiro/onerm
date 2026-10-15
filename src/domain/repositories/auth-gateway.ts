@@ -15,6 +15,6 @@ export interface AuthGateway {
   signIn(email: string, password: string): Promise<AuthOutcome>;
   /** Drops the session on this device. It doesn't need a connection. */
   signOut(): Promise<void>;
-  /** The user of the session stored on the device, read without a connection (RF-AUTH-06.AC1). */
-  storedUserId(): Promise<string | null>;
+  /** The session stored on the device, read without a connection (RF-AUTH-06.AC1). */
+  storedSession(): Promise<{ userId: string; email: string | null } | null>;
 }
