@@ -124,9 +124,20 @@ export function appDevice(): Device {
  * the foreground, as supabase-js recommends for React Native (spike #15).
  */
 export function appAuth(): AuthGateway {
+  cachedAuth ??= createAppAuth();
+  return cachedAuth;
+}
+
+let cachedAuth: AuthGateway | null = null;
+
+/** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
+const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
+
+function createAppAuth(): AuthGateway {
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !publishableKey) return new UnconfiguredAuthGateway();
+  if (!url.startsWith('https://') && !LOCAL_HOST.test(url)) return new UnconfiguredAuthGateway();
 
   const { gateway, client } = createSupabaseAuth({
     url,
