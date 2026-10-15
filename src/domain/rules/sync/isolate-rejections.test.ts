@@ -1,4 +1,7 @@
-import { uploadIsolatingRejections, type UploadOutcome } from '@/domain/rules/sync/isolate-rejections';
+import {
+  uploadIsolatingRejections,
+  type UploadOutcome,
+} from '@/domain/rules/sync/isolate-rejections';
 
 /**
  * A fake server that, like PostgREST, rejects the whole batch when any row is invalid, without
