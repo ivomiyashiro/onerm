@@ -267,6 +267,23 @@ describe('SupabaseAuthGateway.signInWithGoogle (RF-AUTH-04)', () => {
     expect(rpc).toHaveBeenCalledWith('sign_in_method_for_email', { p_email: 'ana@mail.com' });
   });
 
+  it('a refused sign-in forgets the Google account, so the picker shows again', async () => {
+    const { gateway, picker } = googleGateway(
+      PICKED,
+      {
+        signInWithIdToken: async () => ({
+          data: { user: null, session: null },
+          error: new Error('Error creating identity'),
+        }),
+      },
+      async () => ({ data: 'email' }),
+    );
+
+    await gateway.signInWithGoogle();
+
+    expect(picker.signOut).toHaveBeenCalledTimes(1);
+  });
+
   it('another error is «failed»', async () => {
     const { gateway } = googleGateway(
       PICKED,

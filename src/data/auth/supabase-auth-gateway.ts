@@ -60,6 +60,8 @@ export class SupabaseAuthGateway implements AuthGateway {
       token: picked.idToken,
     });
     if (!error) return { status: 'signedIn', userId: data.user.id, email: picked.email };
+    // Not signed in: forget the account Google just gave, so the picker offers the choice again.
+    await this.google.signOut();
     if (isAuthRetryableFetchError(error)) return { status: 'offline' };
     // Supabase links a verified Google identity to an account with the same email on its own; the
     // trigger of RN-AUTH-03 refuses that and only a generic error comes back, so the email's
