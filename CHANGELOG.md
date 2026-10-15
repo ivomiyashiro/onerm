@@ -33,6 +33,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Optional account: create it with an email and a password, or sign in, from the welcome screen or from Profile; the session is kept encrypted on the phone, also without a connection. Profile shows your email and «Cerrar sesión», which warns about changes not backed up (D03) and asks you to finish your workout first (D14). Backing up and restoring your data comes with the sync. If the server ends your session, Profile says so and lets you sign back in (only with the same account); your data stays. After your first finished workout as a guest, and then at most once a week, the summary invites you to create an account.
 - Forgot your password: «Olvidé mi contraseña» sends a link to your email (the answer is the same whether the account exists or not); opening it on the phone lets you choose a new password and signs you in. An expired or used link says so and offers to ask for another one.
 - Continue with Google: from the sign-in and sign-up screens you can enter with your Google account. If that email already has an account with a password, the app tells you to use the password and never links the two.
+- Signing in or creating an account on a phone used as a guest keeps the phone's data as the guest's until the union with the account arrives with the sync: Profile keeps showing the guest. When the session of your account expires, Profile names it and «Volver a entrar» comes with your email filled in.
 
 ### Changed
 

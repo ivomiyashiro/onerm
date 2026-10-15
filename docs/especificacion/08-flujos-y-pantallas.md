@@ -83,8 +83,8 @@ flowchart TD
     S01 -- "Crear cuenta / Iniciar sesión" --> AUTH
     S21G["S21 Perfil (invitado) · Crear cuenta"] --> AUTH
     S12G["S12 Resumen · D13"] --> AUTH
-    AUTH{¿Conexión?} -- no --> OFFMSG["'Necesitás conexión…'"]
-    AUTH -- sí --> S02[S02/S03 Auth]
+    AUTH[S02/S03 Auth] --> S02[S02/S03 Auth]
+    S02 -- "sin conexión al confirmar o al elegir Google" --> OFFMSG["'Necesitás conexión…' (se conserva lo escrito)"] --> S02
     S02 -- "email ya usado con otro método" --> METHODMSG["'Ya tenés una cuenta… entrá con …' (RN-AUTH-03)"] --> S02
     S02 -- "otra cuenta con datos de A en el dispositivo" --> OTHER["'Para entrar con otra cuenta, primero cerrá sesión' (RN-AUTH-07)"] --> S02
     S21V["S21 · Sesión vencida · Volver a entrar"] --> S02
@@ -116,6 +116,8 @@ flowchart TD
     PEND -- "sí, sin red o con error" --> D03{{D03}}
     PEND -- no --> S01
 ```
+
+**Sin conexión en auth (decisión F7, D3):** la app no consulta la conectividad antes de abrir S02/S03. El aviso «Necesitás conexión para {acción}» aparece cuando la persona intenta la acción (confirmar el formulario o elegir Google), como dicen los AC de RF-AUTH-02/03/04, y lo escrito se conserva.
 
 ## 4. Flujo crítico: registrar un entrenamiento (caso de uso principal)
 
