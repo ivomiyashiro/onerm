@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { Icon } from '@/presentation/components/icons/icon';
-import { colors, elevation, radius, typography } from '@/presentation/theme';
+import { colors, elevation, radius, size, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
 
 interface TextFieldProps extends Pick<
@@ -93,6 +93,7 @@ const styles = StyleSheet.create({
   focused: { borderColor: colors.borderAccent, ...elevation.focusAccent },
   error: { borderColor: colors.borderErr, ...elevation.focusError },
   disabled: { borderStyle: 'dashed', backgroundColor: 'transparent' },
-  input: { padding: 0 },
+  // The whole box is tappable, not only the line of text (RNF-16).
+  input: { padding: 0, minHeight: size.targetMin },
   message: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

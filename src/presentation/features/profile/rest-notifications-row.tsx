@@ -1,6 +1,7 @@
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/presentation/components/button/button';
+import { SwitchRow } from '@/presentation/components/choice/switch-row';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { useRestPermissionsSetting } from '@/presentation/features/profile/use-rest-permissions-setting';
@@ -24,22 +25,18 @@ export function RestNotificationsRow() {
 
   return (
     <View style={styles.row}>
-      <View style={styles.line}>
-        <View style={styles.texts}>
-          <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>
-            {text.rows.restNotifications}
-          </Text>
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{help}</Text>
-        </View>
-        <Switch
-          accessibilityLabel={text.rows.restNotifications}
-          value={state.status === 'ready' && missing === null}
-          disabled={state.status !== 'ready'}
-          onValueChange={() => void actions.toggle()}
-          trackColor={{ false: colors.bgRaised, true: colors.bgAccent }}
-          thumbColor={colors.textPrimary}
-        />
-      </View>
+      <SwitchRow
+        label={text.rows.restNotifications}
+        help={help}
+        value={state.status === 'ready' && missing === null}
+        disabled={state.status !== 'ready'}
+        onChange={() => void actions.toggle()}
+      >
+        <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>
+          {text.rows.restNotifications}
+        </Text>
+        <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{help}</Text>
+      </SwitchRow>
       {missing === 'notifications' && (
         <Button
           variant="tertiary"
@@ -80,6 +77,4 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
-  line: { flexDirection: 'row', alignItems: 'center', gap: space.s12 },
-  texts: { flex: 1, gap: 2 },
 });

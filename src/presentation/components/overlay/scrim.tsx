@@ -11,7 +11,11 @@ export function Scrim({ onPress, testID }: { onPress?: () => void; testID?: stri
     <Pressable
       testID={testID}
       onPress={onPress}
+      // Out of the accessibility tree: TalkBack focused it as a button with no name (RNF-18).
+      // The sheet or dialog closes with its own button or with Back.
       accessible={false}
+      importantForAccessibility="no"
+      accessibilityElementsHidden
       style={[StyleSheet.absoluteFill, { backgroundColor: colors.bgScrim }]}
     />
   );

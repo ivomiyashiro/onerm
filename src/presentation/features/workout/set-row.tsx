@@ -45,11 +45,29 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
       : text.set.timesReps(done.reps)
     : text.set.timesReps(row.kind === 'done' ? 0 : row.values.reps);
   const valueColor = muted ? colors.textSecondary : colors.textPrimary;
+  const effort = done && !asking && !missing ? effortLabel(done, effortMode) : '';
+  // RNF-18: the check and the «C» say nothing to TalkBack, and «5», «kg» would be read apart.
+  const name = [
+    done
+      ? warmUp
+        ? text.set.rowName.warmUpDone
+        : text.set.rowName.done(row.number)
+      : text.set.rowName.set(row.number),
+    unit !== null &&
+      loadKg !== null &&
+      `${loadNumber(toUnit(loadKg, unit), unit)} ${common.units[unit]}`,
+    reps,
+    missing && text.calibration.missingEffort,
+    effort,
+  ]
+    .filter(Boolean)
+    .join(', ');
 
   return (
     <View style={[styles.wrap, asking && styles.asking]}>
       <Pressable
         accessibilityRole="button"
+        accessibilityLabel={name}
         accessibilityHint={current ? text.set.tapToAdjust : undefined}
         disabled={muted}
         onPress={onPress}
@@ -99,10 +117,8 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
             {text.calibration.missingEffort}
           </Text>
         )}
-        {done && !asking && !missing && (
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {effortLabel(done, effortMode)}
-          </Text>
+        {effort !== '' && (
+          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{effort}</Text>
         )}
       </Pressable>
       {done && asking && (

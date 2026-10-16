@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent } from '@testing-library/react-native';
 import { Vibration } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -144,14 +144,7 @@ describe('WorkoutScreen (S09)', () => {
     await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
     await user.press(screen.getByRole('button', { name: text.set.increaseLoad }));
     expect(screen.getByText('por mancuerna')).toBeOnTheScreen();
-    // A native switch: pressing it in Jest doesn't change its value.
-    await act(() =>
-      fireEvent(
-        screen.getByRole('switch', { name: text.set.differentPerSide }),
-        'valueChange',
-        true,
-      ),
-    );
+    await user.press(screen.getByRole('switch', { name: text.set.differentPerSide }));
     await user.press(screen.getAllByRole('button', { name: text.set.decreaseReps })[0]);
     await user.press(screen.getAllByRole('button', { name: text.primaryAction.done }).at(-1)!);
 
@@ -351,6 +344,8 @@ describe('WorkoutScreen (S09)', () => {
 
       expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
       expect(screen.getByRole('button', { name: text.rest.openTimer })).toBeOnTheScreen();
+      // RNF-18: the time is also a button, and TalkBack says so.
+      expect(screen.getByRole('button', { name: /^\d\d:\d\d/ })).toBeOnTheScreen();
     });
 
     it('AC4: «Saltear descanso» closes it', async () => {

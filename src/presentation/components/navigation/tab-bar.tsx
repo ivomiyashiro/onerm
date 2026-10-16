@@ -15,6 +15,8 @@ export interface TabItem {
 export interface TabAction {
   kind: 'start' | 'continue' | 'disabled';
   label: string;
+  /** What TalkBack reads (13 §10): «Empezar Día A», «Continuar entrenamiento, 18:42». */
+  accessibilityLabel: string;
   /** «Continuar» shows the time of the workout in progress. */
   time?: string;
   onPress: () => void;
@@ -52,7 +54,9 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
           {active && <View testID="tab-pill" style={styles.pillActive} />}
           <Icon name={tab.icon} size={21} color={color} />
         </View>
-        <Text style={[typography.tab, { color }]}>{tab.label}</Text>
+        <Text {...BAR_TEXT} style={[typography.tab, { color }]}>
+          {tab.label}
+        </Text>
       </Pressable>
     );
   };
@@ -77,6 +81,13 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
   );
 }
 
+/**
+ * The bar has a fixed height: with the system font at 150 % «Continuar» and «Progreso» broke in
+ * two lines and the disc cut the time (RNF-18). Its texts grow up to 1.2× and stay in one line;
+ * TalkBack still reads them whole.
+ */
+const BAR_TEXT = { numberOfLines: 1, maxFontSizeMultiplier: 1.2 } as const;
+
 /** The label under the disc, also pressable; the disc carries the accessibility. */
 function ActionLabel({ action }: { action: TabAction }) {
   const disabled = action.kind === 'disabled';
@@ -90,6 +101,7 @@ function ActionLabel({ action }: { action: TabAction }) {
     >
       <View style={styles.pill} />
       <Text
+        {...BAR_TEXT}
         style={[typography.tab, { color: disabled ? colors.textTertiary : colors.textPrimary }]}
       >
         {action.label}
@@ -105,7 +117,7 @@ function ActionDisc({ action }: { action: TabAction }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={action.time ? `${action.label}, ${action.time}` : action.label}
+      accessibilityLabel={action.accessibilityLabel}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={action.onPress}
@@ -127,7 +139,9 @@ function ActionDisc({ action }: { action: TabAction }) {
       {action.time ? (
         <>
           <Icon name="dumbbell" size={22} color={ink} />
-          <Text style={[typography.monoS, { color: ink }]}>{action.time}</Text>
+          <Text {...BAR_TEXT} style={[typography.monoS, { color: ink }]}>
+            {action.time}
+          </Text>
         </>
       ) : (
         <Icon name="dumbbell" size={30} color={ink} />

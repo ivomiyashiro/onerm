@@ -3,7 +3,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { common } from '@/presentation/strings/common';
-import { colors, space, typography } from '@/presentation/theme';
+import { colors, size, space, typography } from '@/presentation/theme';
 
 interface ReasonRowProps {
   line: string;
@@ -20,7 +20,7 @@ export function ReasonRow({ line, icon, onWhy }: ReasonRowProps) {
         <Icon name={icon} size={16} color={colors.textPrimary} />
       </View>
       <Text style={[typography.bodyM, styles.line]}>{line}</Text>
-      <Pressable accessibilityRole="button" onPress={onWhy} style={styles.why} hitSlop={4}>
+      <Pressable accessibilityRole="button" onPress={onWhy} style={styles.why}>
         <Text style={[typography.bodyMStrong, styles.link]}>{common.why}</Text>
       </Pressable>
     </View>
@@ -50,6 +50,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   line: { flex: 1, color: colors.textPrimary },
-  why: { minHeight: 44, justifyContent: 'center', paddingHorizontal: space.s10 },
+  why: { minHeight: size.targetMin, justifyContent: 'center', paddingHorizontal: space.s10 },
   link: { color: colors.textPrimary, textDecorationLine: 'underline' },
 });

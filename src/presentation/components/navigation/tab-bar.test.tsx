@@ -47,23 +47,34 @@ describe('TabBar', () => {
     const { rerender } = await render(
       <TabBar
         tabs={TABS}
-        action={{ kind: 'continue', label: 'Continuar', time: '18:42', onPress }}
+        action={{
+          kind: 'continue',
+          label: 'Continuar',
+          accessibilityLabel: 'Continuar entrenamiento, 18:42',
+          time: '18:42',
+          onPress,
+        }}
         activeKey="index"
         onSelect={jest.fn()}
       />,
     );
 
-    await user.press(screen.getByRole('button', { name: 'Continuar, 18:42' }));
+    await user.press(screen.getByRole('button', { name: 'Continuar entrenamiento, 18:42' }));
     expect(onPress).toHaveBeenCalled();
 
     await rerender(
       <TabBar
         tabs={TABS}
-        action={{ kind: 'disabled', label: 'Empezar', onPress }}
+        action={{
+          kind: 'disabled',
+          label: 'Empezar',
+          accessibilityLabel: 'Empezar, no disponible',
+          onPress,
+        }}
         activeKey="index"
         onSelect={jest.fn()}
       />,
     );
-    expect(screen.getByRole('button', { name: 'Empezar' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Empezar, no disponible' })).toBeDisabled();
   });
 });

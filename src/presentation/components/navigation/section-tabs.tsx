@@ -11,7 +11,7 @@ interface SectionTabsProps<K extends string> {
 
 /**
  * Figma «Tabs»: the sections of a screen (Mis rutinas / Plantillas, Historial / Volumen), with a
- * lime indicator under the selected one and a 1 dp line. 48 dp high (RNF-16).
+ * lime indicator under the selected one and a 1 dp line. Each tab is 48 dp high (RNF-16).
  */
 export function SectionTabs<K extends string>({
   tabs,
@@ -49,11 +49,11 @@ export function SectionTabs<K extends string>({
 const styles = StyleSheet.create({
   tabs: {
     flexDirection: 'row',
-    height: size.targetMin,
     borderBottomWidth: 1,
     borderBottomColor: colors.borderHair,
   },
-  tab: { flex: 1, alignItems: 'center', justifyContent: 'center' },
+  // The 48 dp go on the tab: the line below is outside them.
+  tab: { flex: 1, height: size.targetMin, alignItems: 'center', justifyContent: 'center' },
   indicator: {
     position: 'absolute',
     left: 0,

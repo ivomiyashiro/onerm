@@ -50,7 +50,8 @@ const styles = StyleSheet.create({
   group: {
     flexDirection: 'row',
     height: 56,
-    padding: 4,
+    // 56 − 2 × 3 − 2 of the border leaves 48 dp segments (RNF-16).
+    padding: 3,
     borderRadius: 16,
     borderWidth: 1,
     borderColor: colors.borderHair,

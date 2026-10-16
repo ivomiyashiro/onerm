@@ -1,4 +1,4 @@
-import { StyleSheet, Switch, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import type { EffortMode } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
@@ -7,6 +7,7 @@ import { Button } from '@/presentation/components/button/button';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { LoadStepper } from '@/presentation/components/stepper/load-stepper';
+import { SwitchRow } from '@/presentation/components/choice/switch-row';
 import { Text } from '@/presentation/components/text';
 import {
   EFFORT_VALUES,
@@ -166,14 +167,14 @@ export function SetSheet({
             </View>
           )}
           {planned.isUnilateral && (
-            <Toggle
+            <SwitchRow
               label={text.set.differentPerSide}
               value={form.split}
               onChange={(split) => onChange((f) => ({ ...f, split }))}
             />
           )}
           {!isCalibrating(exercise) && (
-            <Toggle
+            <SwitchRow
               label={text.set.warmUp}
               value={form.isWarmup}
               onChange={(isWarmup) => onChange((f) => ({ ...f, isWarmup }))}
@@ -220,29 +221,6 @@ function isCalibrating(view: SetSheetExercise): boolean {
   return view.suggestion !== undefined && CALIBRATION_CODES.has(view.suggestion.reason.code);
 }
 
-function Toggle({
-  label,
-  value,
-  onChange,
-}: {
-  label: string;
-  value: boolean;
-  onChange: (value: boolean) => void;
-}) {
-  return (
-    <View style={styles.toggle}>
-      <Text style={[typography.bodyM, styles.flex, { color: colors.textSecondary }]}>{label}</Text>
-      <Switch
-        accessibilityLabel={label}
-        value={value}
-        onValueChange={onChange}
-        trackColor={{ false: colors.bgRaised, true: colors.bgAccent }}
-        thumbColor={colors.textPrimary}
-      />
-    </View>
-  );
-}
-
 export function effortTitle(mode: EffortMode): string {
   return mode === 'simple' ? text.effort.simpleQuestion : text.effort.rirTitle;
 }
@@ -268,5 +246,4 @@ const styles = StyleSheet.create({
   effortRow: { flexDirection: 'row', alignItems: 'center', gap: space.s8 },
   side: { width: 32, color: colors.textSecondary },
   flex: { flex: 1 },
-  toggle: { flexDirection: 'row', alignItems: 'center', gap: space.s10, minHeight: 48 },
 });

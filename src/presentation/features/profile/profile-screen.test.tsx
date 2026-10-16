@@ -109,10 +109,19 @@ describe('ProfileScreen (S21)', () => {
     await renderScreen();
 
     expect(await screen.findByText(text.rows.restNotificationsHelp)).toBeOnTheScreen();
-    expect(screen.getByRole('switch', { name: text.rows.restNotifications })).toHaveProp(
-      'value',
-      true,
-    );
+    expect(screen.getByRole('switch', { name: text.rows.restNotifications })).toBeChecked();
+  });
+
+  it('RNF-16: the whole row is the switch, so a tap anywhere asks the permission', async () => {
+    const permissions = new FakeDevicePermissions('undetermined');
+    const user = userEvent.setup();
+    await renderScreen(defaultProfile(), permissions);
+
+    const toggle = await screen.findByRole('switch', { name: text.rows.restNotifications });
+    expect(toggle).not.toBeChecked();
+    await user.press(toggle);
+
+    expect(await screen.findByRole('switch', { checked: true })).toBeOnTheScreen();
   });
 
   it('RF-ENT-06.AC7: blocked notifications say so and open the phone settings', async () => {
