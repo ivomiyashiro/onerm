@@ -7,6 +7,7 @@ import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import {
   InMemoryOnboardingRepository,
   InMemoryProfileRepository,
+  FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
 import { ObserveEntry } from '@/domain/usecases/observe-entry';
@@ -21,7 +22,7 @@ async function renderViewModel(
   const profiles = new InMemoryProfileRepository(profile);
   const onboarding = new InMemoryOnboardingRepository(step);
   const useCases = someUseCases({
-    observeEntry: new ObserveEntry(profiles, onboarding),
+    observeEntry: new ObserveEntry(profiles, onboarding, new FixedSyncStateRepository()),
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
   });
   const wrapper = ({ children }: { children: ReactNode }) => (

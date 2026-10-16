@@ -1,4 +1,6 @@
 import type { Profile } from '@/domain/models/profile';
+import type { Observer } from '@/domain/repositories/observer';
+import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import {
   InMemoryOnboardingRepository,
   InMemoryProfileRepository,
@@ -10,12 +12,25 @@ import { StartAsGuest } from '@/domain/usecases/start-as-guest';
 
 const ONBOARDED: Profile = { ...defaultProfile(), onboardingCompletedAt: new Date(0) };
 
-function setUp(profile: Profile | null = null, step: InMemoryOnboardingRepository['step'] = null) {
+function setUp(
+  profile: Profile | null = null,
+  step: InMemoryOnboardingRepository['step'] = null,
+  restoreCompleted = true,
+) {
   const profiles = new InMemoryProfileRepository(profile);
   const onboarding = new InMemoryOnboardingRepository(step);
   const entries: Entry[] = [];
   const error = jest.fn();
-  new ObserveEntry(profiles, onboarding).execute({ next: (e) => entries.push(e), error });
+  const syncState = {
+    observe: (observer: Observer<LocalSyncState>) => (
+      observer.next({ pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted }),
+      () => {}
+    ),
+  };
+  new ObserveEntry(profiles, onboarding, syncState).execute({
+    next: (e) => entries.push(e),
+    error,
+  });
   return {
     profiles,
     onboarding,
@@ -27,6 +42,18 @@ function setUp(profile: Profile | null = null, step: InMemoryOnboardingRepositor
 }
 
 describe('ObserveEntry (08 §3)', () => {
+  it('RF-SYNC-03.AC1: an account being restored without its profile yet: S23', () => {
+    const { entry } = setUp(null, null, false);
+
+    expect(entry()).toEqual({ kind: 'restoring' });
+  });
+
+  it('RF-SYNC-03: once the account profile arrives the app opens, while the rest downloads', () => {
+    const { entry } = setUp(ONBOARDED, null, false);
+
+    expect(entry()).toEqual({ kind: 'app' });
+  });
+
   it('without a local profile: the welcome (S01)', () => {
     expect(setUp().entry()).toEqual({ kind: 'welcome' });
   });

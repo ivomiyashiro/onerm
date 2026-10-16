@@ -1,3 +1,7 @@
+import type {
+  LocalSyncState,
+  SyncStateRepository,
+} from '@/domain/repositories/sync-state-repository';
 import type { DataOwner } from '@/domain/models/data-owner';
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
@@ -431,5 +435,22 @@ export class FakeAuthGateway implements AuthGateway {
 
   async storedSession(): Promise<{ userId: string; email: string | null } | null> {
     return this.stored;
+  }
+}
+
+/** The backup state of a device, fixed: by default nothing to back up and nothing to restore. */
+export class FixedSyncStateRepository implements SyncStateRepository {
+  constructor(
+    public state: LocalSyncState = {
+      pending: 0,
+      conflicts: 0,
+      lastSyncedAt: null,
+      restoreCompleted: true,
+    },
+  ) {}
+
+  observe(observer: Observer<LocalSyncState>): Unsubscribe {
+    observer.next(this.state);
+    return () => {};
   }
 }

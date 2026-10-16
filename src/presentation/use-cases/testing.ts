@@ -127,7 +127,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     activateRoutine: new ActivateRoutine(profiles, workouts),
     deleteRoutine: new DeleteRoutine(routines, profiles, workouts),
     prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
-    observeEntry: new ObserveEntry(profiles, onboarding),
+    observeEntry: new ObserveEntry(profiles, onboarding, restoredSyncState),
     startAsGuest: new StartAsGuest(profiles, onboarding),
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
     observeRecommendation: new ObserveRecommendation(templates, profiles),

@@ -294,7 +294,7 @@ export function createDependencies(
       activateRoutine: new ActivateRoutine(profileRepository, workoutRepository),
       deleteRoutine: new DeleteRoutine(routineRepository, profileRepository, workoutRepository),
       prepareLocalData: new PrepareLocalData(localDatabase),
-      observeEntry: new ObserveEntry(profileRepository, onboardingRepository),
+      observeEntry: new ObserveEntry(profileRepository, onboardingRepository, syncState),
       startAsGuest: new StartAsGuest(profileRepository, onboardingRepository),
       answerOnboarding: new AnswerOnboarding(profileRepository, onboardingRepository),
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),

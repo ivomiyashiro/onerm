@@ -5,6 +5,7 @@ import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import {
   InMemoryOnboardingRepository,
   InMemoryProfileRepository,
+  FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { useEntryViewModel } from '@/presentation/features/entry/use-entry-view-model';
@@ -20,7 +21,11 @@ async function renderViewModel(useCases = someUseCases()) {
 
 function over(profiles: InMemoryProfileRepository) {
   return someUseCases({
-    observeEntry: new ObserveEntry(profiles, new InMemoryOnboardingRepository('goal')),
+    observeEntry: new ObserveEntry(
+      profiles,
+      new InMemoryOnboardingRepository('goal'),
+      new FixedSyncStateRepository(),
+    ),
   });
 }
 
