@@ -33,10 +33,11 @@ export class SqliteProfileRepository implements ProfileRepository {
   /** Saving onto a deleted profile does nothing: a deleted row never comes back (RN-SYNC-15). */
   async save(profile: Profile): Promise<void> {
     this.db().transaction((tx) => {
-      writeSyncRow(tx, profiles, fromProfile(profile), {
-        now: this.now(),
-        userId: currentUserId(tx),
-      });
+      const userId = currentUserId(tx);
+      // RN-AUTH-06: an account's profile is id = user_id, so there can't be two; the domain
+      // creates it with the guest id, the only one it knows.
+      const values = { ...fromProfile(profile), id: userId ?? profile.id };
+      writeSyncRow(tx, profiles, values, { now: this.now(), userId });
     });
   }
 }
