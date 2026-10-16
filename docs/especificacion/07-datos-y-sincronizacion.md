@@ -133,7 +133,8 @@ sync():
         rechazadas (una fila sola que falla es la culpable); el resto del lote se sube (RN-SYNC-11)
         _conflict = motivo en cada fila aislada; la fila y sus hijos quedan retenidos
         (el reintento es idempotente: reenviar filas ya aceptadas no cambia nada, RNF-04)
-      error de red → abortar; reintentar con backoff (5 s, 15 s, 60 s, máx. 5 min) o con el próximo disparador
+      error de red, o un pedido sin respuesta en 15 s (#175) → abortar; reintentar con backoff (5 s, 15 s, 60 s, máx. 5 min)
+        o con el próximo disparador
 
   PULL, en el mismo orden, con paginación por keyset:
     desde = (cursor.ts − 5 s, id mínimo)          ← el solapamiento se aplica UNA vez, al inicio del pull
