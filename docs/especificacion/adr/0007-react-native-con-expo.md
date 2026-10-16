@@ -16,7 +16,7 @@
 Usar **Expo** con un **development build** propio, no Expo Go:
 
 - **Expo Router** para la navegación.
-- **Módulos de Expo** para las capacidades del dispositivo: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-haptics`, `expo-secure-store`.
+- **Módulos de Expo** para las capacidades del dispositivo: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-secure-store`. La vibración usa `Vibration` de React Native, sin `expo-haptics` (revisión de F5).
 - **Config plugins** y *prebuild* para generar el proyecto nativo. No se edita `android/` a mano.
 - Build local con `npx expo run:android`, usando el Android SDK que ya existe por Flutter. EAS Build (en la nube) es opcional.
 

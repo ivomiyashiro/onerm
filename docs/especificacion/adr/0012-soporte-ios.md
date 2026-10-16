@@ -13,7 +13,7 @@ El TPO pide Android. El equipo quiere, además, que la app **se pueda ejecutar e
 - **Android es la plataforma de referencia:** la demo, la defensa y las pruebas completas se hacen en Android.
 - **iOS es Should:** la app compila y corre en el **simulador de iOS** con todas las funciones del MVP. Antes de cada entrega se hace una **prueba de humo** en iOS.
 - **No se publica** en la App Store.
-- Se evitan las APIs exclusivas de Android. Todo se hace con módulos de Expo que soportan las dos plataformas: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-haptics`, `expo-secure-store`.
+- Se evitan las APIs exclusivas de Android. Todo se hace con módulos de Expo que soportan las dos plataformas: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-secure-store`, y `Vibration` de React Native.
 
 ## Consecuencias e implicancias
 
