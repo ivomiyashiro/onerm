@@ -30,9 +30,11 @@ export async function pullChanges(
   client: SupabaseClient,
   userId: string,
   pageSize = PULL_PAGE,
+  /** Called after each page with how many rows it brought (S23's progress). */
+  onRows: (count: number) => void = () => {},
 ): Promise<void> {
   for (const sync of USER_TABLES) {
-    await pullTable(db, client, sync, { userId, pageSize }, (tx, remote) => {
+    await pullTable(db, client, sync, { userId, pageSize, onRows }, (tx, remote) => {
       const table = sync.table as typeof routines;
       const row = remote as RemoteSyncRow;
       const current = tx.select().from(table).where(eq(table.id, row.id)).get() ?? null;
@@ -52,8 +54,12 @@ export async function pullChanges(
  */
 export async function pullCatalog(db: AppDatabase, client: SupabaseClient): Promise<void> {
   for (const sync of CATALOG_TABLES) {
-    await pullTable(db, client, sync, { userId: null, pageSize: PULL_PAGE }, (tx, remote) =>
-      writeRemoteRow(tx, sync, remote),
+    await pullTable(
+      db,
+      client,
+      sync,
+      { userId: null, pageSize: PULL_PAGE, onRows: () => {} },
+      (tx, remote) => writeRemoteRow(tx, sync, remote),
     );
   }
 }
@@ -75,7 +81,11 @@ async function pullTable(
   db: AppDatabase,
   client: SupabaseClient,
   sync: TableSync,
-  { userId, pageSize }: { userId: string | null; pageSize: number },
+  {
+    userId,
+    pageSize,
+    onRows,
+  }: { userId: string | null; pageSize: number; onRows: (count: number) => void },
   apply: (tx: AppDatabase, remote: RemoteRow) => void,
 ): Promise<void> {
   let from = pullStart(readCursor(db, sync.name));
@@ -105,6 +115,31 @@ async function pullTable(
       }
     });
     if (last !== undefined) from = { ts: last.server_updated_at, id: last.id };
+    onRows(rows.length);
     if (rows.length < pageSize) return;
   }
+}
+
+/**
+ * How many of the user's rows the pull still has to download (S23's total): those after each
+ * table's cursor, without the overlap, which only re-reads rows already here.
+ */
+export async function countToPull(
+  db: AppDatabase,
+  client: SupabaseClient,
+  userId: string,
+): Promise<number> {
+  let total = 0;
+  for (const sync of USER_TABLES) {
+    const cursor = readCursor(db, sync.name);
+    let query = client
+      .from(sync.name)
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+    if (cursor !== null) query = query.gt('server_updated_at', cursor.ts);
+    const { count, error } = await query;
+    if (error !== null) throw new SyncNetworkError(error.message);
+    total += count ?? 0;
+  }
+  return total;
 }

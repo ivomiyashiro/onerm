@@ -11,7 +11,14 @@ export type SyncResult =
   /** The server asks for a newer app: the sync pauses (RN-SYNC-14). */
   | 'appOutdated';
 
+/** How far the restoration of the account went (RF-SYNC-03, S23): records downloaded of the total. */
+export interface RestoreProgress {
+  done: number;
+  total: number;
+}
+
 /** One run of the sync of 07 §4.1: catalog, then push, then pull. */
 export interface SyncEngine {
-  sync(): Promise<SyncResult>;
+  /** `onRestore` hears the progress while the account is not restored yet (07 §4.2). */
+  sync(onRestore?: (progress: RestoreProgress) => void): Promise<SyncResult>;
 }
