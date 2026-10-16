@@ -23,11 +23,11 @@ export interface GoogleAccountPicker {
 /**
  * The picker over `@react-native-google-signin`. `webClientId` is the WEB client: it makes Google
  * issue an ID token whose audience Supabase accepts (spike #16). The Android client is found by
- * package and SHA-1, so it isn't in the code.
+ * package and SHA-1, so it isn't in the code; iOS needs its own client id (ADR-0012).
  */
 export class NativeGoogleAccountPicker implements GoogleAccountPicker {
-  constructor(webClientId: string) {
-    GoogleSignin.configure({ webClientId });
+  constructor(clients: { webClientId: string; iosClientId?: string }) {
+    GoogleSignin.configure(clients);
   }
 
   async pick(): Promise<GooglePick> {

@@ -20,7 +20,7 @@ El TPO pide Android. El equipo quiere, además, que la app **se pueda ejecutar e
 | Tema | Implicancia en iOS |
 |---|---|
 | Build | Necesita **macOS + Xcode** para el development build (`npx expo run:ios`). El simulador es gratis. En un **dispositivo físico** alcanza con un Apple ID gratuito (firma por 7 días). TestFlight requiere la cuenta paga de desarrollador. |
-| Google Sign-In | Requiere un **client ID de iOS** y un URL scheme propios en la configuración (config plugin). |
+| Google Sign-In | Requiere un **client ID de iOS** y un URL scheme propios en la configuración (config plugin). Se lee de `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, que es público como el client ID web. Sin él, iOS no ofrece el selector de Google (#49). |
 | Sign in with Apple | ⚠️ Si la app **se publicara** en la App Store con login de Google, Apple exige ofrecer también Sign in with Apple o una alternativa equivalente (App Review Guidelines 4.8). **No aplica** porque no se publica. Queda como limitación conocida. |
 | Notificaciones del temporizador | Las notificaciones locales programadas funcionan igual. El permiso se pide también en iOS (RF-ENT-06 AC9). |
 | Pantalla encendida y hápticos | Soportados por los módulos de Expo. La intensidad háptica varía según el dispositivo. |
