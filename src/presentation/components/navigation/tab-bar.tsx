@@ -139,7 +139,13 @@ function ActionDisc({ action }: { action: TabAction }) {
       {action.time ? (
         <>
           <Icon name="dumbbell" size={22} color={ink} />
-          <Text {...BAR_TEXT} style={[typography.monoS, { color: ink }]}>
+          {/* The disc is 64 dp: past an hour («1:08:23») the time goes one size down, and it
+              doesn't grow with the system font (TalkBack reads it in the button's name). */}
+          <Text
+            numberOfLines={1}
+            maxFontSizeMultiplier={1}
+            style={[action.time.length > 5 ? typography.monoXs : typography.monoS, { color: ink }]}
+          >
             {action.time}
           </Text>
         </>
