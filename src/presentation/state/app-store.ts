@@ -11,7 +11,10 @@ export interface AppState {
   /** Whose data this is and whether the session is alive (RF-AUTH-06). */
   account: AccountState;
   syncStatus: SyncStatus;
+  /** Bumped when an account was entered on a guest device: the union has to run (07 §4.3). */
+  unionRequests: number;
   setAccount(account: AccountState): void;
+  requestUnion(): void;
   /** RF-AUTH-06.AC4: the server ended the session; the data stays. */
   markSessionExpired(): void;
   setSyncStatus(syncStatus: SyncStatus): void;
@@ -24,7 +27,9 @@ export function createAppStore() {
   return createStore<AppState>()((set) => ({
     account: { kind: 'guest' },
     syncStatus: { kind: 'guest' },
+    unionRequests: 0,
     setAccount: (account) => set({ account }),
+    requestUnion: () => set(({ unionRequests }) => ({ unionRequests: unionRequests + 1 })),
     markSessionExpired: () =>
       set(({ account }) =>
         account.kind === 'user' ? { account: { ...account, sessionExpired: true } } : {},

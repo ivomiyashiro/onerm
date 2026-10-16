@@ -8,6 +8,12 @@ import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import {
+  CancelGuestUnion,
+  FinishGuestUnion,
+  ReadPendingUnion,
+  StartGuestUnion,
+} from '@/domain/usecases/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
@@ -75,6 +81,7 @@ import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import type { RejectedChange } from '@/domain/models/rejected-change';
+import type { GuestSummary, GuestUnion } from '@/domain/repositories/guest-union';
 import type { Observer } from '@/domain/repositories/observer';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
@@ -183,6 +190,7 @@ function accountUseCases() {
     backUpBeforeSignOut: new BackUpBeforeSignOut(offlineSync, account),
     confirmSignOut: new ConfirmSignOut(gateway, account),
     keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
+    ...guestUnionOver(account, gateway),
     observeSyncStatus: syncStatusOver(BACKED_UP),
     observeBackupNotice: backupNoticeOver(BACKED_UP),
     observeRestoration: new ObserveRestoration(offlineSync),
@@ -251,6 +259,34 @@ const BACKED_UP: LocalSyncState = {
   lastSyncedAt: null,
   restoreCompleted: true,
 };
+
+/**
+ * The guest union over a fake that records what was united. By default the guest has nothing,
+ * so starting unites at once. Used by tests only.
+ */
+export function guestUnionOver(
+  account: InMemoryAccountRepository = new InMemoryAccountRepository(),
+  gateway: FakeAuthGateway = new FakeAuthGateway(),
+  summary: GuestSummary = { workouts: 0, routines: 0, workoutInProgress: false },
+  accountHasData: boolean | 'offline' = false,
+) {
+  const united: { userId: string; keepGuestData: boolean }[] = [];
+  const union: GuestUnion = {
+    guestSummary: async () => summary,
+    accountHasData: async () => accountHasData,
+    unite: async ({ userId, keepGuestData }) => {
+      united.push({ userId, keepGuestData });
+      return 'done';
+    },
+  };
+  return {
+    readPendingUnion: new ReadPendingUnion(gateway, account),
+    startGuestUnion: new StartGuestUnion(union),
+    finishGuestUnion: new FinishGuestUnion(union),
+    cancelGuestUnion: new CancelGuestUnion(gateway, account),
+    united,
+  };
+}
 
 /** A sync that never reaches a server, and never has anything to upload. */
 const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);

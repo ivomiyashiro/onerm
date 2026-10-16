@@ -28,6 +28,7 @@ import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repo
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
+import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
@@ -38,6 +39,13 @@ import type { RestNotifier } from '@/domain/repositories/rest-notifier';
 import type { SyncEngine } from '@/domain/repositories/sync-engine';
 import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import {
+  CancelGuestUnion,
+  FinishGuestUnion,
+  ReadPendingUnion,
+  StartGuestUnion,
+} from '@/domain/usecases/guest-union';
+import type { GuestUnion } from '@/domain/repositories/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
@@ -202,6 +210,7 @@ export interface Backup {
   countUploadable(): Promise<number>;
   triggers: SyncTriggers;
   rejected: RejectedChangeRepository;
+  union: GuestUnion;
 }
 
 /**
@@ -216,12 +225,14 @@ export function appBackup({ localDatabase, changes }: Storage): Backup {
     changes,
     client ?? null,
   );
+  const union = new SqliteGuestUnion(() => localDatabase.database, client ?? null);
   if (client === undefined) {
     return {
       engine: { sync: async () => 'guest' },
       countUploadable: async () => 0,
       triggers,
       rejected,
+      union,
     };
   }
   const engine = new SupabaseSyncEngine(
@@ -229,7 +240,13 @@ export function appBackup({ localDatabase, changes }: Storage): Backup {
     client,
     Constants.expoConfig?.version ?? '0.0.0',
   );
-  return { engine, countUploadable: () => engine.countUploadable(), triggers, rejected };
+  return {
+    engine,
+    countUploadable: () => engine.countUploadable(),
+    triggers,
+    rejected,
+    union,
+  };
 }
 
 /**
@@ -315,6 +332,10 @@ export function createDependencies(
       backUpBeforeSignOut: new BackUpBeforeSignOut(syncScheduler, accountRepository),
       confirmSignOut: new ConfirmSignOut(auth, accountRepository),
       keepBackedUp: new KeepBackedUp(syncScheduler, backup.triggers),
+      readPendingUnion: new ReadPendingUnion(auth, accountRepository),
+      startGuestUnion: new StartGuestUnion(backup.union),
+      finishGuestUnion: new FinishGuestUnion(backup.union),
+      cancelGuestUnion: new CancelGuestUnion(auth, accountRepository),
       observeSyncStatus: new ObserveSyncStatus(syncState, workoutRepository, syncScheduler),
       observeBackupNotice: new ObserveBackupNotice(syncState, syncScheduler),
       observeRestoration: new ObserveRestoration(syncScheduler),
