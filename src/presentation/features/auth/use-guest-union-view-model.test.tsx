@@ -128,6 +128,50 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
     expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false });
   });
 
+  it('D3: a sync that ends with no union waiting asks nothing again', async () => {
+    let asked = 0;
+    const startGuestUnion = new StartGuestUnion({
+      guestSummary: async () => {
+        asked++;
+        return SOME;
+      },
+      accountHasData: async () => false,
+      unite: async () => 'done',
+    });
+    let emit: (activity: SyncActivity) => void = () => {};
+    const observeSyncActivity = new ObserveSyncActivity({
+      observeActivity: (listener) => {
+        emit = listener;
+        return () => {};
+      },
+    });
+    const account = new InMemoryAccountRepository();
+    account.pendingMigration = 'u1';
+    const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
+    await renderHook(() => useGuestUnionViewModel(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <AppStoreProvider store={createAppStore()}>
+          <UseCasesProvider
+            useCases={someUseCases({
+              ...guestUnionOver(account, gateway),
+              startGuestUnion,
+              observeSyncActivity,
+            })}
+          >
+            {children}
+          </UseCasesProvider>
+        </AppStoreProvider>
+      ),
+    });
+    expect(asked).toBe(1);
+
+    const idle = { lastResult: 'synced', online: true, restoring: null } as const;
+    await act(async () => emit({ ...idle, running: true }));
+    await act(async () => emit({ ...idle, running: false }));
+
+    expect(asked).toBe(1);
+  });
+
   it('D3: a union that found no connection retries when a sync ends (reconnection, foreground)', async () => {
     const account = new InMemoryAccountRepository();
     account.pendingMigration = 'u1';
