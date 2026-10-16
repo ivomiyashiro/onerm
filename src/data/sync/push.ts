@@ -104,6 +104,19 @@ export function countUploadable(db: AppDatabase, userId: string): number {
   }, 0);
 }
 
+/** The rows of this owner the server rejected (RN-SYNC-11). */
+export function countConflicts(db: AppDatabase, userId: string): number {
+  return USER_TABLES.reduce((total, sync) => {
+    const table = sync.table as typeof routines;
+    const row = db
+      .select({ n: count() })
+      .from(table)
+      .where(and(isNotNull(table.conflict), eq(table.userId, userId)))
+      .get();
+    return total + (row?.n ?? 0);
+  }, 0);
+}
+
 /** Pending, of this owner, not in conflict and not held back. */
 function uploadable(db: AppDatabase, sync: UserTableSync, userId: string): SQL | undefined {
   const table = sync.table as typeof routines;

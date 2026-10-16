@@ -1,5 +1,15 @@
+import type { Unsubscribe } from '@/domain/repositories/observer';
 import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
 import { retryDelayMs } from '@/domain/rules/sync/sync-timing';
+
+/** What the backup status needs from the scheduler (RF-SYNC-06). */
+export interface SyncActivity {
+  running: boolean;
+  /** How the last sync ended; null before the first one. */
+  lastResult: SyncResult | null;
+  /** The connection the device reported; null until it does. */
+  online: boolean | null;
+}
 
 /** RN-SYNC-06 (a): how long after a local write the push goes, grouping the writes around it. */
 const WRITE_GROUPING_MS = 3_000;
@@ -19,6 +29,8 @@ export class SyncScheduler {
   private failures = 0;
   /** False in the background or once stopped: nothing waits to run, a trigger brings it back. */
   private active = true;
+  private activity: SyncActivity = { running: false, lastResult: null, online: null };
+  private readonly activityListeners = new Set<(activity: SyncActivity) => void>();
 
   constructor(
     private readonly engine: SyncEngine,
@@ -47,7 +59,21 @@ export class SyncScheduler {
 
   /** RN-SYNC-06 (b). In the background it waits for the next foreground (RNF-22). */
   afterReconnect(): void {
+    this.setActivity({ online: true });
     if (this.active) void this.syncNow();
+  }
+
+  disconnected(): void {
+    this.setActivity({ online: false });
+  }
+
+  /** The current activity at once, and then each change. */
+  observeActivity(listener: (activity: SyncActivity) => void): Unsubscribe {
+    this.activityListeners.add(listener);
+    listener(this.activity);
+    return () => {
+      this.activityListeners.delete(listener);
+    };
   }
 
   /** RN-SYNC-06 (c) and (d), and signing out. Resolves with the result of a run that started after asking. */
@@ -89,11 +115,13 @@ export class SyncScheduler {
 
   private async run(): Promise<SyncResult> {
     let result: SyncResult;
+    this.setActivity({ running: true });
     try {
       result = await this.engine.sync();
     } catch {
       result = 'failed';
     }
+    this.setActivity({ running: false, lastResult: result });
     if (result === 'failed') {
       this.failures++;
       await this.scheduleRetry();
@@ -110,6 +138,11 @@ export class SyncScheduler {
       this.retryTimer = null;
       void this.syncNow();
     }, retryDelayMs(this.failures));
+  }
+
+  private setActivity(change: Partial<SyncActivity>): void {
+    this.activity = { ...this.activity, ...change };
+    this.activityListeners.forEach((listener) => listener(this.activity));
   }
 
   private clear(timer: 'write' | 'retry'): void {

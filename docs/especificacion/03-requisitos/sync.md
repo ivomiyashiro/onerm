@@ -241,6 +241,8 @@ Escenario: AC4 — Convergencia
 | Invitado | "Sin respaldo: tus datos solo están en este teléfono" | "Crear cuenta" |
 | App desactualizada | "Actualizá la app para respaldar tus datos" | — |
 
+**Si se dan varios estados a la vez** (decidido el 2026-10-15, #46), se muestra el primero de esta lista: invitado › sesión vencida › app desactualizada › sincronizando › conflicto › pendiente sin conexión › error de red › pendiente con conexión › entrenamiento en curso › sincronizado. Primero lo que impide respaldar, después lo que está pasando, lo que necesita a la persona y lo que espera. Mientras no terminó la primera sincronización, se muestra "Respaldando…".
+
 ```gherkin
 Escenario: AC1 — Consultar el estado
   Dado que estoy autenticado

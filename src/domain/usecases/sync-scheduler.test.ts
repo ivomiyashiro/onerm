@@ -184,4 +184,34 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
 
     expect(fake.runs()).toBe(1);
   });
+
+  describe('activity (RF-SYNC-06)', () => {
+    it('tells when a sync runs and how it ended', async () => {
+      const fake = manualEngine();
+      const scheduler = new SyncScheduler(fake.engine, async () => 0);
+      const seen: unknown[] = [];
+      scheduler.observeActivity((activity) => seen.push(activity));
+
+      void scheduler.syncNow();
+      await fake.finish('failed');
+
+      expect(seen).toEqual([
+        { running: false, lastResult: null, online: null },
+        { running: true, lastResult: null, online: null },
+        { running: false, lastResult: 'failed', online: null },
+      ]);
+    });
+
+    it('follows the connection the device reports', () => {
+      const scheduler = new SyncScheduler(answeringEngine('synced').engine, async () => 0);
+      const seen: unknown[] = [];
+      const stop = scheduler.observeActivity((activity) => seen.push(activity.online));
+
+      scheduler.disconnected();
+      stop();
+      scheduler.afterReconnect();
+
+      expect(seen).toEqual([null, false]);
+    });
+  });
 });

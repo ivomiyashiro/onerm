@@ -11,7 +11,11 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { useHomeViewModel } from '@/presentation/features/home/use-home-view-model';
-import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
+import {
+  backupNoticeOver,
+  routineUseCasesOver,
+  someUseCases,
+} from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 async function renderViewModel(
@@ -79,5 +83,21 @@ describe('useHomeViewModel', () => {
 
     await act(() => workouts.fail());
     expect(result.current.inProgressSince).toBeNull();
+  });
+
+  it('RF-SYNC-06.AC2: a discreet notice of the changes waiting to be backed up', async () => {
+    const { result } = await renderHook(() => useHomeViewModel(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <UseCasesProvider
+          useCases={someUseCases({
+            observeBackupNotice: backupNoticeOver({ pending: 3, conflicts: 0, lastSyncedAt: null }),
+          })}
+        >
+          {children}
+        </UseCasesProvider>
+      ),
+    });
+
+    expect(result.current.backupNotice).toEqual({ kind: 'pending', count: 3, online: true });
   });
 });

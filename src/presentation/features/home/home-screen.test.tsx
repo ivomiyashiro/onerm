@@ -18,7 +18,12 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import { HomeScreen } from '@/presentation/features/home/home-screen';
 import { home } from '@/presentation/strings/home';
-import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
+import {
+  backupNoticeOver,
+  routineUseCasesOver,
+  someUseCases,
+} from '@/presentation/use-cases/testing';
+import { profile as profileText } from '@/presentation/strings/profile';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
@@ -165,5 +170,15 @@ describe('HomeScreen (S07)', () => {
     await user.press(screen.getByRole('button', { name: home.readError.retry }));
 
     expect(screen.getByRole('header', { name: 'Día A' })).toBeOnTheScreen();
+  });
+
+  it('RF-SYNC-06.AC2: a discreet notice of the changes not backed up, never a dialog', async () => {
+    await renderScreen({
+      useCases: someUseCases({
+        observeBackupNotice: backupNoticeOver({ pending: 2, conflicts: 0, lastSyncedAt: null }),
+      }),
+    });
+
+    expect(screen.getByText(profileText.sync.pendingOnline(2))).toBeOnTheScreen();
   });
 });

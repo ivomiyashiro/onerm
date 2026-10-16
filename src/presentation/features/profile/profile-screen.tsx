@@ -19,6 +19,7 @@ import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { RestNotificationsRow } from '@/presentation/features/profile/rest-notifications-row';
+import { syncStatusText } from '@/presentation/features/profile/sync-status-text';
 import {
   useProfileViewModel,
   type ProfileViewModel,
@@ -61,7 +62,7 @@ const SHEET_TITLE: Record<Setting, string> = {
   effort: text.sheets.effort,
 };
 
-/** S21 · Perfil y ajustes (RF-PERF-03..05, the rest notifications of 08 §6). Sync and account arrive in F7 and F8. */
+/** S21 · Perfil y ajustes (RF-PERF-03..05, the rest notifications of 08 §6), the account and its backup. */
 export function ProfileScreen({
   onSignUp,
   onSignIn,
@@ -70,8 +71,21 @@ export function ProfileScreen({
   onIncrements,
   devEntry,
 }: ProfileScreenProps) {
-  const { state, account, signOutDialog, backingUp, sheet, dialog, actions } =
+  const { state, account, signOutDialog, syncStatus, backingUp, sheet, dialog, actions } =
     useProfileViewModel();
+  // The action each status offers (RF-SYNC-06 table).
+  const syncAction =
+    syncStatus?.kind === 'guest'
+      ? { label: text.sync.createAccount, onPress: onSignUp }
+      : syncStatus?.kind === 'sessionExpired'
+        ? {
+            label: text.sync.signInAgain,
+            onPress: () =>
+              onSignIn(account.kind === 'user' ? (account.email ?? undefined) : undefined),
+          }
+        : syncStatus?.kind === 'networkError'
+          ? { label: text.sync.retry, onPress: () => void actions.retrySync() }
+          : undefined;
   const insets = useSafeAreaInsets();
 
   return (
@@ -97,23 +111,13 @@ export function ProfileScreen({
             )}
           </View>
         </View>
-        {/* RF-AUTH-01.AC4: the guest knows the data lives only on this phone. */}
-        {/* RF-AUTH-06.AC4: the data and the pending changes stay; the same account can come back. */}
-        {account.kind === 'user' && account.sessionExpired && (
+        {/* RF-SYNC-06.AC1: the backup status. RF-AUTH-01.AC4: the guest knows the data lives only on
+          this phone. RF-AUTH-06.AC4: with the session expired the data stays. */}
+        {syncStatus !== null && (
           <SyncStatusCard
-            status={{ kind: 'sessionExpired' }}
-            message={text.sync.sessionExpired}
-            action={{
-              label: text.sync.signInAgain,
-              onPress: () => onSignIn(account.email ?? undefined),
-            }}
-          />
-        )}
-        {account.kind === 'guest' && (
-          <SyncStatusCard
-            status={{ kind: 'guest' }}
-            message={text.sync.guest}
-            action={{ label: text.sync.createAccount, onPress: onSignUp }}
+            status={syncStatus}
+            message={syncStatusText(syncStatus, new Date())}
+            action={syncAction}
           />
         )}
         {state.status === 'content' && (

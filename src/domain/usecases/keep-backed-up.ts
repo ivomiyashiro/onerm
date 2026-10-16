@@ -19,6 +19,7 @@ export class KeepBackedUp {
       foreground: () => scheduler.enterForeground(),
       background: () => scheduler.enterBackground(),
       reconnected: () => scheduler.afterReconnect(),
+      disconnected: () => scheduler.disconnected(),
     });
     // RN-SYNC-06 (c): opening the app is a trigger too.
     scheduler.enterForeground();

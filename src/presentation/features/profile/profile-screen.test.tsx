@@ -12,6 +12,9 @@ import {
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
 import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
+import { SyncNow } from '@/domain/usecases/sync-now';
+import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
@@ -23,7 +26,7 @@ import { profile as text } from '@/presentation/strings/profile';
 import type { AccountState } from '@/domain/models/account';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
-import { restUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
+import { restUseCasesOver, someUseCases, syncStatusOver } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
@@ -39,6 +42,8 @@ async function renderScreen(
   accountState: AccountState = { kind: 'guest' },
   /** The backup before signing out; by default it can't reach the server. */
   syncNow: () => Promise<SyncResult> = async () => 'failed',
+  /** The backup status; by default nothing pending and never synced. */
+  backup: { local?: LocalSyncState; activity?: SyncActivity } = {},
 ) {
   const store = createAppStore();
   store.getState().setAccount(accountState);
@@ -51,6 +56,16 @@ async function renderScreen(
     ...restUseCasesOver({ permissions }),
     prepareSignOut: new PrepareSignOut(account),
     backUpBeforeSignOut: new BackUpBeforeSignOut({ syncNow }, account),
+    observeSyncStatus: syncStatusOver(
+      backup.local ?? { pending: 0, conflicts: 0, lastSyncedAt: null },
+      {
+        observeActivity: (listener) => {
+          listener(backup.activity ?? { running: false, lastResult: null, online: true });
+          return () => {};
+        },
+      },
+    ),
+    syncNow: new SyncNow({ syncNow }),
     confirmSignOut: new ConfirmSignOut(new FakeAuthGateway(), account),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
@@ -198,6 +213,43 @@ describe('ProfileScreen (S21)', () => {
       expect(screen.getByText('ana@mail.com')).toBeOnTheScreen();
       expect(screen.queryByText(text.sync.guest)).not.toBeOnTheScreen();
       expect(screen.getByRole('button', { name: text.rows.signOut })).toBeOnTheScreen();
+    });
+
+    it('RF-SYNC-06.AC1: backed up, with how long ago', async () => {
+      await renderScreen(defaultProfile(), undefined, USER, undefined, {
+        local: { pending: 0, conflicts: 0, lastSyncedAt: new Date(Date.now() - 2 * 60_000) },
+      });
+
+      expect(screen.getByText(text.sync.synced(text.sync.minutes(2)))).toBeOnTheScreen();
+    });
+
+    it('RF-SYNC-06.AC5: after a network error «Reintentar» syncs right away', async () => {
+      let asked = 0;
+      await renderScreen(
+        defaultProfile(),
+        undefined,
+        USER,
+        async () => {
+          asked++;
+          return 'synced';
+        },
+        {
+          local: { pending: 1, conflicts: 0, lastSyncedAt: null },
+          activity: { running: false, lastResult: 'failed', online: true },
+        },
+      );
+
+      expect(screen.getByText(text.sync.networkError)).toBeOnTheScreen();
+      await userEvent.press(screen.getByRole('button', { name: text.sync.retry }));
+      expect(asked).toBe(1);
+    });
+
+    it('RN-SYNC-11: the rejected changes are counted apart', async () => {
+      await renderScreen(defaultProfile(), undefined, USER, undefined, {
+        local: { pending: 3, conflicts: 2, lastSyncedAt: null },
+      });
+
+      expect(screen.getByText(text.sync.conflict(2))).toBeOnTheScreen();
     });
 
     it("AC1: signing out with nothing pending leaves the device as a guest's", async () => {

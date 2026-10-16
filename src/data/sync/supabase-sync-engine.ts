@@ -7,6 +7,7 @@ import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
 
 import { pullCatalog, pullChanges } from './pull';
 import { countUploadable, pushChanges } from './push';
+import { markSynced } from './sync-state-table';
 
 /**
  * The sync of 07 §4.1 against Supabase, straight from the client (ADR-0001): minimum version, then
@@ -19,6 +20,7 @@ export class SupabaseSyncEngine implements SyncEngine {
     private readonly client: SupabaseClient,
     /** The installed app's version (`app.json`), compared with the server's minimum. */
     private readonly appVersion: string,
+    private readonly now: () => Date = () => new Date(),
   ) {}
 
   async sync(): Promise<SyncResult> {
@@ -40,6 +42,7 @@ export class SupabaseSyncEngine implements SyncEngine {
 
       await pushChanges(this.db(), this.client, owner);
       await pullChanges(this.db(), this.client, owner);
+      markSynced(this.db(), this.now());
       return 'synced';
     } catch {
       return 'failed';

@@ -28,6 +28,7 @@ function setUp() {
     foreground: () => calls.push('foreground'),
     background: () => calls.push('background'),
     reconnected: () => calls.push('reconnected'),
+    disconnected: () => calls.push('disconnected'),
   };
   const unsubscribe = new DeviceSyncTriggers(changes, appState, network).subscribe(listener);
   return {
@@ -65,9 +66,18 @@ describe('DeviceSyncTriggers (RN-SYNC-06)', () => {
     t.network(true);
     t.network(true);
     t.network(false);
+    t.network(false);
     t.network(true);
 
-    expect(t.calls).toEqual(['reconnected']);
+    expect(t.calls).toEqual(['disconnected', 'reconnected']);
+  });
+
+  it('starting offline is reported (RF-SYNC-06: «sin conexión»)', () => {
+    const t = setUp();
+
+    t.network(false);
+
+    expect(t.calls).toEqual(['disconnected']);
   });
 
   it('unsubscribing stops every source', () => {

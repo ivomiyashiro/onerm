@@ -1,3 +1,4 @@
+import type { BackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { useEffect, useState } from 'react';
 
 import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
@@ -16,12 +17,15 @@ export interface HomeViewModel {
   state: HomeState;
   /** The start of the workout in progress: the card says «En curso · 18:42» (RF-ENT-01.AC4). */
   inProgressSince: Date | null;
+  /** RF-SYNC-06.AC2: changes waiting to be backed up, or null. */
+  backupNotice: BackupNotice | null;
   actions: { retry(): void };
 }
 
 /** S07 · Inicio: the next day of the active routine (RN-RUT-01), from the local database. */
 export function useHomeViewModel(): HomeViewModel {
-  const { observeNextDay, observeWorkoutInProgress } = useUseCases();
+  const { observeNextDay, observeWorkoutInProgress, observeBackupNotice } = useUseCases();
+  const [backupNotice, setBackupNotice] = useState<BackupNotice | null>(null);
   const [inProgressSince, setInProgressSince] = useState<Date | null>(null);
   const [state, setState] = useState<HomeState>({ status: 'loading' });
   // Changing it re-runs the effect, which subscribes again.
@@ -51,10 +55,20 @@ export function useHomeViewModel(): HomeViewModel {
     [observeWorkoutInProgress],
   );
 
+  useEffect(
+    () =>
+      observeBackupNotice.execute({
+        next: setBackupNotice,
+        // Only a notice: without it S07 shows the same.
+        error: () => setBackupNotice(null),
+      }),
+    [observeBackupNotice],
+  );
+
   function retry() {
     setState({ status: 'loading' });
     setAttempt((n) => n + 1);
   }
 
-  return { state, inProgressSince, actions: { retry } };
+  return { state, inProgressSince, backupNotice, actions: { retry } };
 }

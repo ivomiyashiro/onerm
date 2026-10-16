@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { AccountState } from '@/domain/models/account';
 import type { Profile } from '@/domain/models/profile';
+import type { SyncStatus } from '@/domain/models/sync-status';
 import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
 import { useAppStore } from '@/presentation/state/app-store-context';
@@ -27,6 +28,8 @@ export interface ProfileViewModel {
   /** The account block of S21 (RF-AUTH-01.AC4, RF-AUTH-06). */
   account: AccountState;
   signOutDialog: SignOutDialog | null;
+  /** The backup status (RF-SYNC-06); null until it is read. */
+  syncStatus: SyncStatus | null;
   /** RF-AUTH-07.AC2: the pending changes are being uploaded before signing out. */
   backingUp: boolean;
   sheet: SettingSheet | null;
@@ -50,6 +53,8 @@ export interface ProfileViewModel {
     /** D03 «Cerrar sesión igual». */
     confirmSignOut(): Promise<void>;
     closeSignOutDialog(): void;
+    /** RF-SYNC-06.AC5: «Reintentar» after a failed backup. */
+    retrySync(): Promise<void>;
   };
 }
 
@@ -75,11 +80,16 @@ export function useProfileViewModel(): ProfileViewModel {
     prepareSignOut,
     backUpBeforeSignOut,
     confirmSignOut,
+    observeSyncStatus,
+    syncNow,
   } = useUseCases();
   const account = useAppStore((s) => s.account);
   const setAccount = useAppStore((s) => s.setAccount);
   const [signOutDialog, setSignOutDialog] = useState<SignOutDialog | null>(null);
   const [backingUp, setBackingUp] = useState(false);
+  const [syncStatus, setSyncStatus] = useState<SyncStatus | null>(null);
+  const owner = account.kind;
+  const sessionExpired = account.kind === 'user' && account.sessionExpired;
   const [state, setState] = useState<ProfileState>({ status: 'loading' });
   const [sheet, setSheet] = useState<SettingSheet | null>(null);
   const [dialog, setDialog] = useState<ProfileViewModel['dialog']>(null);
@@ -99,6 +109,16 @@ export function useProfileViewModel(): ProfileViewModel {
         error: () => setState({ status: 'error' }),
       }),
     [observeProfile, attempt],
+  );
+
+  useEffect(
+    () =>
+      observeSyncStatus.execute(
+        { owner, sessionExpired },
+        // A failed read leaves the last status shown: the backup itself is not affected.
+        { next: setSyncStatus, error: () => undefined },
+      ),
+    [observeSyncStatus, owner, sessionExpired],
   );
 
   function open(setting: Setting) {
@@ -180,6 +200,7 @@ export function useProfileViewModel(): ProfileViewModel {
     state,
     account,
     signOutDialog,
+    syncStatus,
     backingUp,
     sheet,
     dialog,
@@ -194,6 +215,9 @@ export function useProfileViewModel(): ProfileViewModel {
       signOut,
       confirmSignOut: leave,
       closeSignOutDialog: () => setSignOutDialog(null),
+      retrySync: async () => {
+        await syncNow.execute();
+      },
     },
   };
 }

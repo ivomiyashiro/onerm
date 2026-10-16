@@ -10,6 +10,8 @@ export interface SyncTriggerListener {
   background(): void;
   /** (b) The device got its connection back. */
   reconnected(): void;
+  /** The device lost its connection: the status says so (RF-SYNC-06). */
+  disconnected(): void;
 }
 
 /** Where the triggers come from: the local database, the app's state and the network. */

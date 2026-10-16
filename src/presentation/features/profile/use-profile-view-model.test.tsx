@@ -13,6 +13,9 @@ import {
 import type { SyncResult } from '@/domain/repositories/sync-engine';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
+import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
+import { SyncNow } from '@/domain/usecases/sync-now';
+import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { ObserveProfile } from '@/domain/usecases/observe-profile';
 import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { useProfileViewModel } from '@/presentation/features/profile/use-profile-view-model';
@@ -44,7 +47,32 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
     email: 'ana@mail.com',
     sessionExpired: false,
   });
+  // The backup: two changes waiting, and a count of the syncs asked for.
+  const syncs = { asked: 0 };
+  const scheduler = new SyncScheduler(
+    {
+      sync: async () => {
+        syncs.asked++;
+        return 'synced';
+      },
+    },
+    async () => 0,
+  );
+  const local = {
+    observe: (observer: {
+      next(value: { pending: number; conflicts: number; lastSyncedAt: null }): void;
+    }) => {
+      observer.next({ pending: 2, conflicts: 0, lastSyncedAt: null });
+      return () => {};
+    },
+  };
   const useCases = someUseCases({
+    observeSyncStatus: new ObserveSyncStatus(
+      local,
+      { observeInProgress: (o) => (o.next(null), () => {}) },
+      scheduler,
+    ),
+    syncNow: new SyncNow(scheduler),
     prepareSignOut: new PrepareSignOut(account),
     backUpBeforeSignOut: new BackUpBeforeSignOut(sync, account),
     confirmSignOut: new ConfirmSignOut(gateway, account),
@@ -58,7 +86,7 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
     </AppStoreProvider>
   );
   const hook = await renderHook(() => useProfileViewModel(), { wrapper });
-  return { ...hook, profiles, routines, store, account, gateway, backup };
+  return { ...hook, profiles, routines, store, account, gateway, backup, syncs };
 }
 
 describe('useProfileViewModel', () => {
@@ -152,6 +180,30 @@ describe('useProfileViewModel', () => {
 
     await act(() => result.current.actions.retry());
     expect(result.current.state.status).toBe('content');
+  });
+
+  describe('backup status (RF-SYNC-06)', () => {
+    it('AC1: shows the status of the backup of the account', async () => {
+      const { result } = await renderViewModel();
+
+      expect(result.current.syncStatus).toEqual({ kind: 'pending', count: 2, online: true });
+    });
+
+    it('AC5: «Reintentar» syncs right away', async () => {
+      const { result, syncs } = await renderViewModel();
+
+      await act(() => result.current.actions.retrySync());
+
+      expect(syncs.asked).toBe(1);
+    });
+
+    it('a guest has no backup (RF-AUTH-01.AC4)', async () => {
+      const { result, store } = await renderViewModel();
+
+      await act(async () => store.getState().setAccount({ kind: 'guest' }));
+
+      expect(result.current.syncStatus).toEqual({ kind: 'guest' });
+    });
   });
 
   describe('sign out (RF-AUTH-07)', () => {
