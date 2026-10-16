@@ -1,11 +1,13 @@
 import { eq } from 'drizzle-orm';
 
 import { openTestDatabase } from '@/data/db/open-test-database';
-import { appState, routines, workouts } from '@/data/db/schema';
+import { appState, routines, workoutExercises, workouts, workoutSets } from '@/data/db/schema';
 import { writeSyncRow } from '@/data/db/sync-writes';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import { markRestored, markSynced } from '@/data/sync/sync-state-table';
+import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
+import { aBilateralSet, aWorkout, aWorkoutExercise } from '@/domain/testing/builders';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 
 const USER = 'u1';
@@ -108,5 +110,76 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     expect(seen).toEqual([
       { owner: 'guest', pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
     ]);
+  });
+
+  describe('observePendingWorkouts (RF-PROG-01.AC2)', () => {
+    async function withWorkouts(owner = USER) {
+      const { db, changes } = setUp(owner);
+      const repository = new SqliteWorkoutRepository(
+        () => db,
+        changes,
+        () => 1_760_000_000_000,
+      );
+      const workout = (id: string, status: 'finished' | 'in_progress' = 'finished') =>
+        repository.save(
+          aWorkout({
+            id,
+            routineId: null,
+            routineDayId: null,
+            status,
+            finishedAt: status === 'finished' ? new Date('2026-10-05T12:00:00Z') : null,
+            exercises: [
+              aWorkoutExercise({
+                id: `${id}-we`,
+                workoutId: id,
+                sets: [aBilateralSet({ id: `${id}-s`, workoutExerciseId: `${id}-we` })],
+              }),
+            ],
+          }),
+        );
+      await workout('backed-up');
+      await workout('edited');
+      await workout('rejected');
+      await workout('new');
+      await workout('running', 'in_progress');
+      // Everything went up, then a set of «edited» changed and «rejected» came back rejected.
+      for (const table of [workouts, workoutExercises, workoutSets]) {
+        db.update(table).set({ dirty: false }).run();
+      }
+      db.update(workoutSets).set({ dirty: true }).where(eq(workoutSets.id, 'edited-s')).run();
+      db.update(workouts).set({ conflict: '23514' }).where(eq(workouts.id, 'rejected')).run();
+      db.update(workouts).set({ dirty: true }).where(eq(workouts.id, 'new')).run();
+      db.update(workouts).set({ dirty: true }).where(eq(workouts.id, 'running')).run();
+
+      let pending: ReadonlySet<string> = new Set();
+      new SqliteSyncStateRepository(() => db, changes).observePendingWorkouts({
+        next: (ids) => (pending = ids),
+        error: () => {},
+      });
+      return { db, changes, pending: () => [...pending].sort() };
+    }
+
+    it('the finished workouts with a row of their own, an exercise or a set not backed up', async () => {
+      const { pending } = await withWorkouts();
+
+      expect(pending()).toEqual(['edited', 'new', 'rejected']);
+    });
+
+    it('a workout leaves the list once it is backed up', async () => {
+      const { db, changes, pending } = await withWorkouts();
+
+      db.update(workoutSets).set({ dirty: false }).run();
+      db.update(workouts).set({ dirty: false, conflict: null }).run();
+      changes.emit('workout_sets');
+      await flush();
+
+      expect(pending()).toEqual([]);
+    });
+
+    it('a guest backs up nothing, so nothing is pending', async () => {
+      const { pending } = await withWorkouts('guest');
+
+      expect(pending()).toEqual([]);
+    });
   });
 });

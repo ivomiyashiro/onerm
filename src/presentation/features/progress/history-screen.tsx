@@ -6,6 +6,7 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { HistoryItem } from '@/domain/usecases/observe-history';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
+import { Badge } from '@/presentation/components/badge/badge';
 import { Icon } from '@/presentation/components/icons/icon';
 import { SectionTabs } from '@/presentation/components/navigation/section-tabs';
 import { Text } from '@/presentation/components/text';
@@ -105,7 +106,10 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
   );
 }
 
-/** A workout of the history: its date, day and routine, duration, sets and records. */
+/**
+ * A workout of the history: its date, day and routine, duration, sets and records, and «Pendiente»
+ * while an account's workout is not backed up yet (RF-PROG-01.AC2).
+ */
 const HistoryRow = memo(function HistoryRow({
   item,
   first,
@@ -122,7 +126,7 @@ const HistoryRow = memo(function HistoryRow({
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={title}
+      accessibilityLabel={item.pending ? `${title}, ${text.overview.pending}` : title}
       onPress={() => onOpen(item.id)}
       style={({ pressed }) => [
         styles.row,
@@ -154,6 +158,7 @@ const HistoryRow = memo(function HistoryRow({
               </Text>
             </View>
           )}
+          {item.pending && <Badge label={text.overview.pending} />}
         </View>
       </View>
       <Icon name="chevron" size={20} color={colors.textPrimary} />
