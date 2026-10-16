@@ -40,8 +40,9 @@ export class ObserveSyncStatus {
         next: ([local, workout, { running, lastResult, online }]) =>
           observer.next(
             syncStatusOf({
-              ...account,
               ...local,
+              // The account the app keeps decides the owner and the session (RF-AUTH-06).
+              ...account,
               running,
               lastResult,
               online,

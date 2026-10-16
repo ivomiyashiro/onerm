@@ -1,4 +1,4 @@
-import { and, count, eq, inArray, ne } from 'drizzle-orm';
+import { and, count, eq, inArray, isNull, ne } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import {
@@ -70,6 +70,22 @@ export class SqliteAccountRepository implements AccountRepository {
       .values({ lastAccountNudgeAt: value })
       .onConflictDoUpdate({ target: appState.id, set: { lastAccountNudgeAt: value } })
       .run();
+  }
+
+  /**
+   * RN-AUTH-05: nothing of a guest here, neither a profile nor a routine or a finished workout
+   * (deleted ones don't count). A workout in progress needs a routine, so it is covered.
+   */
+  async isEmptyDevice(): Promise<boolean> {
+    const db = this.db();
+    const any = (table: typeof profiles | typeof routines) =>
+      db.select({ id: table.id }).from(table).where(isNull(table.deletedAt)).get() !== undefined;
+    const finished = db
+      .select({ id: workouts.id })
+      .from(workouts)
+      .where(and(eq(workouts.status, 'finished'), isNull(workouts.deletedAt)))
+      .get();
+    return !any(profiles) && !any(routines) && finished === undefined;
   }
 
   async hasWorkoutInProgress(): Promise<boolean> {

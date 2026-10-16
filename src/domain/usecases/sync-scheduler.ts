@@ -1,5 +1,5 @@
 import type { Unsubscribe } from '@/domain/repositories/observer';
-import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
 import { retryDelayMs } from '@/domain/rules/sync/sync-timing';
 
 /** What the backup status needs from the scheduler (RF-SYNC-06). */
@@ -9,6 +9,8 @@ export interface SyncActivity {
   lastResult: SyncResult | null;
   /** The connection the device reported; null until it does. */
   online: boolean | null;
+  /** The restoration running now (RF-SYNC-03, S23), or null. */
+  restoring: RestoreProgress | null;
 }
 
 /** RN-SYNC-06 (a): how long after a local write the push goes, grouping the writes around it. */
@@ -29,7 +31,12 @@ export class SyncScheduler {
   private failures = 0;
   /** False in the background or once stopped: nothing waits to run, a trigger brings it back. */
   private active = true;
-  private activity: SyncActivity = { running: false, lastResult: null, online: null };
+  private activity: SyncActivity = {
+    running: false,
+    lastResult: null,
+    online: null,
+    restoring: null,
+  };
   private readonly activityListeners = new Set<(activity: SyncActivity) => void>();
 
   constructor(
@@ -117,11 +124,11 @@ export class SyncScheduler {
     let result: SyncResult;
     this.setActivity({ running: true });
     try {
-      result = await this.engine.sync();
+      result = await this.engine.sync((restoring) => this.setActivity({ restoring }));
     } catch {
       result = 'failed';
     }
-    this.setActivity({ running: false, lastResult: result });
+    this.setActivity({ running: false, lastResult: result, restoring: null });
     if (result === 'failed') {
       this.failures++;
       await this.scheduleRetry();

@@ -82,6 +82,16 @@ describe('SqliteProfileRepository', () => {
     expect(t.db.select().from(profiles).get()).toMatchObject({ id: 'u1', userId: 'u1' });
   });
 
+  it('RN-AUTH-06: the profile of an account is always id = user_id, also one made with the guest id', async () => {
+    t.db.insert(appState).values({ owner: 'u1' }).run();
+
+    await repository.save(PROFILE);
+
+    expect(t.db.select().from(profiles).all()).toEqual([
+      expect.objectContaining({ id: 'u1', userId: 'u1' }),
+    ]);
+  });
+
   it('an edit updates the same row with a later updated_at (RN-GEN-03)', async () => {
     await repository.save(PROFILE);
     now = T0 + 1_000;

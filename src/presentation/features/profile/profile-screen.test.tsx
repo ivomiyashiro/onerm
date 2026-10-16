@@ -57,10 +57,18 @@ async function renderScreen(
     prepareSignOut: new PrepareSignOut(account),
     backUpBeforeSignOut: new BackUpBeforeSignOut({ syncNow }, account),
     observeSyncStatus: syncStatusOver(
-      backup.local ?? { pending: 0, conflicts: 0, lastSyncedAt: null },
+      backup.local ?? {
+        owner: 'guest',
+        pending: 0,
+        conflicts: 0,
+        lastSyncedAt: null,
+        restoreCompleted: true,
+      },
       {
         observeActivity: (listener) => {
-          listener(backup.activity ?? { running: false, lastResult: null, online: true });
+          listener(
+            backup.activity ?? { running: false, lastResult: null, online: true, restoring: null },
+          );
           return () => {};
         },
       },
@@ -218,7 +226,13 @@ describe('ProfileScreen (S21)', () => {
 
     it('RF-SYNC-06.AC1: backed up, with how long ago', async () => {
       await renderScreen(defaultProfile(), undefined, USER, undefined, {
-        local: { pending: 0, conflicts: 0, lastSyncedAt: new Date(Date.now() - 2 * 60_000) },
+        local: {
+          owner: 'guest',
+          pending: 0,
+          conflicts: 0,
+          lastSyncedAt: new Date(Date.now() - 2 * 60_000),
+          restoreCompleted: true,
+        },
       });
 
       expect(screen.getByText(text.sync.synced(text.sync.minutes(2)))).toBeOnTheScreen();
@@ -235,8 +249,14 @@ describe('ProfileScreen (S21)', () => {
           return 'synced';
         },
         {
-          local: { pending: 1, conflicts: 0, lastSyncedAt: null },
-          activity: { running: false, lastResult: 'failed', online: true },
+          local: {
+            owner: 'guest',
+            pending: 1,
+            conflicts: 0,
+            lastSyncedAt: null,
+            restoreCompleted: true,
+          },
+          activity: { running: false, lastResult: 'failed', online: true, restoring: null },
         },
       );
 
@@ -247,7 +267,13 @@ describe('ProfileScreen (S21)', () => {
 
     it('RN-SYNC-11: the rejected changes are counted apart', async () => {
       await renderScreen(defaultProfile(), undefined, USER, undefined, {
-        local: { pending: 3, conflicts: 2, lastSyncedAt: null },
+        local: {
+          owner: 'guest',
+          pending: 3,
+          conflicts: 2,
+          lastSyncedAt: null,
+          restoreCompleted: true,
+        },
       });
 
       expect(screen.getByText(text.sync.conflict(2))).toBeOnTheScreen();
@@ -260,7 +286,13 @@ describe('ProfileScreen (S21)', () => {
         USER,
         undefined,
         {
-          local: { pending: 0, conflicts: 1, lastSyncedAt: null },
+          local: {
+            owner: 'guest',
+            pending: 0,
+            conflicts: 1,
+            lastSyncedAt: null,
+            restoreCompleted: true,
+          },
         },
       );
 

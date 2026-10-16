@@ -12,19 +12,28 @@ export type EnterAccountResult =
 /**
  * The single way into an account, once the provider has authenticated the person (sign-up,
  * sign-in, Google, a recovery link). The device only becomes the account's at the end of the
- * union (07 §4.3 step 6), so here a guest device only notes which account it waits for (step 0).
+ * union (07 §4.3 step 6), so here a guest device only notes which account it waits for (step 0),
+ * unless it has nothing of a guest: then it is the account's at once, to be restored.
  */
 export class EnterAccount {
   constructor(
     private readonly gateway: Pick<AuthGateway, 'signOut'>,
     private readonly account: Pick<
       AccountRepository,
-      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail'
+      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail' | 'saveOwner' | 'isEmptyDevice'
     >,
   ) {}
 
   async execute(input: { userId: string; email: string | null }): Promise<EnterAccountResult> {
     const owner = await this.account.readOwner();
+    if (owner.kind === 'guest' && (await this.account.isEmptyDevice())) {
+      // Nothing of a guest to unite (07 §4.3 step 3 → 6): the device is the account's, and the
+      // sync restores it (RF-SYNC-03).
+      await this.account.saveOwner({ kind: 'user', userId: input.userId });
+      if (input.email !== null) await this.account.saveOwnerEmail(input.email);
+      await this.account.savePendingMigration(null);
+      return { status: 'entered' };
+    }
     if (owner.kind === 'guest') {
       await this.account.savePendingMigration(input.userId);
       return { status: 'pendingMerge' };

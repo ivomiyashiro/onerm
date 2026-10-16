@@ -14,6 +14,7 @@ import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
 import type { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import type { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import type { SyncNow } from '@/domain/usecases/sync-now';
 import type {
@@ -116,6 +117,7 @@ export interface UseCases {
   keepBackedUp: KeepBackedUp;
   observeSyncStatus: ObserveSyncStatus;
   observeBackupNotice: ObserveBackupNotice;
+  observeRestoration: ObserveRestoration;
   syncNow: SyncNow;
   observeRejectedChanges: ObserveRejectedChanges;
   discardRejectedChange: DiscardRejectedChange;

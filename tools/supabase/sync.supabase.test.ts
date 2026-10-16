@@ -28,7 +28,7 @@ import { softDelete, writeSyncRow, type SyncTable, type SyncValues } from '@/dat
 import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
-import { lastSyncedAt } from '@/data/sync/sync-state-table';
+import { isRestored, lastSyncedAt } from '@/data/sync/sync-state-table';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import type { RejectedChange } from '@/domain/models/rejected-change';
@@ -474,6 +474,41 @@ describe('sync engine against Supabase (07 §4.1)', () => {
 
     expect(a.row(routineExercises, e)).toMatchObject({ notes: null, dirty: false, conflict: null });
   });
+
+  it('RF-SYNC-03.AC1: a device without data restores everything, with its progress', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    a.write(routineDays, day(randomUUID(), r));
+    finishedWorkout(a);
+    await a.push();
+    const progress: { done: number; total: number }[] = [];
+
+    expect(await b.engine.sync((p) => progress.push(p))).toBe('synced');
+
+    expect(progress[0]).toEqual({ done: 0, total: 5 });
+    expect(progress.at(-1)).toEqual({ done: 5, total: 5 });
+    expect(isRestored(b.db)).toBe(true);
+    expect(b.snapshot()).toEqual(a.snapshot());
+  });
+
+  it('RF-SYNC-03.AC2: a restoration cut short is not complete, and the next sync finishes it', async () => {
+    finishedWorkout(a);
+    await a.push();
+    const cut = device(
+      createClient('http://127.0.0.1:9', PUBLISHABLE_KEY, { auth: { persistSession: false } }),
+      userId,
+    );
+    expect(await cut.engine.sync()).toBe('failed');
+    expect(isRestored(cut.db)).toBe(false);
+
+    await b.engine.sync();
+    expect(isRestored(b.db)).toBe(true);
+
+    // Once restored, a sync reports no progress.
+    const later: unknown[] = [];
+    await b.engine.sync((p) => later.push(p));
+    expect(later).toEqual([]);
+  }, 60_000);
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();

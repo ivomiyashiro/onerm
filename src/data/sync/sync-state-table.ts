@@ -39,3 +39,28 @@ export function lastSyncedAt(db: AppDatabase): Date | null {
   const times = rows.map(({ at }) => at).filter((at): at is number => at !== null);
   return times.length === 0 ? null : new Date(Math.max(...times));
 }
+
+/** RF-SYNC-03: every user table was pulled to the end (07 §4.2). */
+export function markRestored(db: AppDatabase) {
+  db.transaction((tx) => {
+    for (const { name } of USER_TABLES) {
+      tx.insert(syncState)
+        .values({ tableName: name, restoreCompleted: true })
+        .onConflictDoUpdate({ target: syncState.tableName, set: { restoreCompleted: true } })
+        .run();
+    }
+  });
+}
+
+/** Whether the restoration ended: every user table marked. */
+export function isRestored(db: AppDatabase): boolean {
+  const done = new Set(
+    db
+      .select({ name: syncState.tableName })
+      .from(syncState)
+      .where(eq(syncState.restoreCompleted, true))
+      .all()
+      .map(({ name }) => name),
+  );
+  return USER_TABLES.every(({ name }) => done.has(name));
+}

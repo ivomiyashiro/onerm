@@ -1,5 +1,6 @@
 import type { SyncStatus } from '@/domain/models/sync-status';
 import type { BackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { home } from '@/presentation/strings/home';
 import { profile } from '@/presentation/strings/profile';
 
 const { sync } = profile;
@@ -41,7 +42,8 @@ export function syncStatusText(status: SyncStatus, now: Date): string {
   }
 }
 
-/** The discreet notice of S07: the same sentences as S21 (RF-SYNC-06.AC2). */
+/** The discreet notice of S07: the same sentences as S21 (RF-SYNC-06.AC2), or the restoration's. */
 export function backupNoticeText(notice: BackupNotice): string {
+  if (notice.kind === 'restoreIncomplete') return home.restoreIncomplete;
   return syncStatusText(notice, new Date(0));
 }

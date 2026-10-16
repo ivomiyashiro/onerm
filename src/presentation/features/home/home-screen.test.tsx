@@ -175,10 +175,32 @@ describe('HomeScreen (S07)', () => {
   it('RF-SYNC-06.AC2: a discreet notice of the changes not backed up, never a dialog', async () => {
     await renderScreen({
       useCases: someUseCases({
-        observeBackupNotice: backupNoticeOver({ pending: 2, conflicts: 0, lastSyncedAt: null }),
+        observeBackupNotice: backupNoticeOver({
+          owner: 'guest',
+          pending: 2,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: true,
+        }),
       }),
     });
 
     expect(screen.getByText(profileText.sync.pendingOnline(2))).toBeOnTheScreen();
+  });
+
+  it('RF-SYNC-03.AC2: a restoration not finished says the suggestions may lack data', async () => {
+    await renderScreen({
+      useCases: someUseCases({
+        observeBackupNotice: backupNoticeOver({
+          owner: 'user',
+          pending: 0,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: false,
+        }),
+      }),
+    });
+
+    expect(screen.getByText(home.restoreIncomplete)).toBeOnTheScreen();
   });
 });

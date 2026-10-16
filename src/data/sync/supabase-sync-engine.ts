@@ -2,12 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { currentUserId } from '@/data/db/sync-writes';
-import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
 import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
 
-import { pullCatalog, pullChanges } from './pull';
+import { countToPull, pullCatalog, pullChanges } from './pull';
 import { countUploadable, pushChanges } from './push';
-import { markSynced } from './sync-state-table';
+import { isRestored, markRestored, markSynced } from './sync-state-table';
 
 /**
  * The sync of 07 §4.1 against Supabase, straight from the client (ADR-0001): minimum version, then
@@ -23,7 +23,7 @@ export class SupabaseSyncEngine implements SyncEngine {
     private readonly now: () => Date = () => new Date(),
   ) {}
 
-  async sync(): Promise<SyncResult> {
+  async sync(onRestore?: (progress: RestoreProgress) => void): Promise<SyncResult> {
     try {
       if (await this.isOutdated()) return 'appOutdated';
       // Catalog first (RN-SYNC-06): a pulled row may name an exercise that only it brings
@@ -41,12 +41,34 @@ export class SupabaseSyncEngine implements SyncEngine {
       if (data.session?.user.id !== owner) return 'sessionExpired';
 
       await pushChanges(this.db(), this.client, owner);
-      await pullChanges(this.db(), this.client, owner);
+      await this.pull(owner, onRestore);
       markSynced(this.db(), this.now());
       return 'synced';
     } catch {
       return 'failed';
     }
+  }
+
+  /**
+   * The pull of the user's tables. While the account is not restored yet, it counts first what is
+   * left to download and reports each page (RF-SYNC-03, S23); a full pull completes the
+   * restoration (07 §4.2). An interrupted one resumes from the cursors.
+   */
+  private async pull(owner: string, onRestore?: (progress: RestoreProgress) => void) {
+    const db = this.db();
+    if (isRestored(db)) {
+      await pullChanges(db, this.client, owner);
+      return;
+    }
+    const total = await countToPull(db, this.client, owner);
+    let done = 0;
+    onRestore?.({ done, total });
+    await pullChanges(db, this.client, owner, undefined, (count) => {
+      // The overlap re-reads a few rows: the count never goes past the total.
+      done = Math.min(total, done + count);
+      onRestore?.({ done, total });
+    });
+    markRestored(db);
   }
 
   /** What the next push would upload; nothing for a guest (RN-SYNC-08, RN-SYNC-09). */

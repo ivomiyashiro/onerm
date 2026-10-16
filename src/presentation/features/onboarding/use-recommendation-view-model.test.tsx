@@ -10,6 +10,7 @@ import {
   InMemoryRoutineRepository,
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
+  FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
 import { ObserveEntry } from '@/domain/usecases/observe-entry';
@@ -31,7 +32,7 @@ async function renderViewModel(profile: Profile = defaultProfile()) {
   const { profiles, templates } = repositories;
   const useCases = someUseCases({
     ...routineUseCasesOver({ ...repositories, newId: () => 'new-routine' }),
-    observeEntry: new ObserveEntry(profiles, onboarding),
+    observeEntry: new ObserveEntry(profiles, onboarding, new FixedSyncStateRepository()),
     observeRecommendation: new ObserveRecommendation(templates, profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => NOW),
   });

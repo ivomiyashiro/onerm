@@ -94,6 +94,19 @@ describe('SqliteAccountRepository', () => {
     await expect(account.countPendingChanges()).resolves.toBe(routineRows);
   });
 
+  it('RN-AUTH-05: a device is empty without a profile, a routine or a finished workout', async () => {
+    await expect(account.isEmptyDevice()).resolves.toBe(true);
+
+    await profileRepository.save(defaultProfile());
+    await expect(account.isEmptyDevice()).resolves.toBe(false);
+  });
+
+  it('RN-AUTH-05: a routine alone is guest data too', async () => {
+    await routineRepository.save(aRoutine());
+
+    await expect(account.isEmptyDevice()).resolves.toBe(false);
+  });
+
   it('RF-AUTH-07.AC4: knows when a workout is in progress', async () => {
     await expect(account.hasWorkoutInProgress()).resolves.toBe(false);
 

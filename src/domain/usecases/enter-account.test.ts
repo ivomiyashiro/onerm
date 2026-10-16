@@ -24,6 +24,17 @@ describe('EnterAccount (07 §4.3, RN-AUTH-07)', () => {
     expect(account.owner).toEqual({ kind: 'guest' });
   });
 
+  it("RF-SYNC-03: a device without a profile or a guest's data becomes the account's, to restore it (07 §4.3 steps 3 → 6)", async () => {
+    const { enter, account } = setup();
+    account.emptyDevice = true;
+
+    await expect(enter.execute(ANA)).resolves.toEqual({ status: 'entered' });
+
+    expect(account.owner).toEqual({ kind: 'user', userId: 'u1' });
+    expect(account.ownerEmail).toBe('ana@mail.com');
+    expect(account.pendingMigration).toBeNull();
+  });
+
   it('the account whose data is here comes back in, and its email is kept (RN-AUTH-07)', async () => {
     const { enter, account, gateway } = setup('u1');
 

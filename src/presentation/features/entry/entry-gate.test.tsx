@@ -5,6 +5,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import {
   InMemoryOnboardingRepository,
   InMemoryProfileRepository,
+  FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { ObserveEntry } from '@/domain/usecases/observe-entry';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
@@ -40,7 +41,11 @@ describe('EntryGate (08 §3)', () => {
     const profiles = new InMemoryProfileRepository(null);
     await renderGate(
       someUseCases({
-        observeEntry: new ObserveEntry(profiles, new InMemoryOnboardingRepository()),
+        observeEntry: new ObserveEntry(
+          profiles,
+          new InMemoryOnboardingRepository(),
+          new FixedSyncStateRepository(),
+        ),
       }),
     );
 

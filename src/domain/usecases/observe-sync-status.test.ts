@@ -10,7 +10,13 @@ function setUp() {
   const local = {
     observe: (observer: { next(state: LocalSyncState): void }) => {
       emit = (state) => observer.next(state);
-      emit({ pending: 0, conflicts: 0, lastSyncedAt: new Date('2026-10-15T12:00:00Z') });
+      emit({
+        owner: 'guest',
+        pending: 0,
+        conflicts: 0,
+        lastSyncedAt: new Date('2026-10-15T12:00:00Z'),
+        restoreCompleted: true,
+      });
       return () => {};
     },
   };
@@ -28,19 +34,28 @@ describe('ObserveSyncStatus (RF-SYNC-06.AC1)', () => {
   it('starts from what the device knows, before any sync', () => {
     const { seen } = setUp();
 
-    expect(seen.at(-1)).toEqual({ kind: 'synced', lastSyncedAt: new Date('2026-10-15T12:00:00Z') });
+    expect(seen.at(-1)).toEqual({
+      kind: 'synced',
+      lastSyncedAt: new Date('2026-10-15T12:00:00Z'),
+    });
   });
 
   it('follows the local changes, the workout in progress and the scheduler', async () => {
     const { seen, emit, workouts, scheduler } = setUp();
 
-    emit({ pending: 2, conflicts: 0, lastSyncedAt: null });
+    emit({ owner: 'guest', pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true });
     expect(seen.at(-1)).toEqual({ kind: 'pending', count: 2, online: true });
 
     scheduler.disconnected();
     expect(seen.at(-1)).toEqual({ kind: 'pending', count: 2, online: false });
 
-    emit({ pending: 0, conflicts: 0, lastSyncedAt: new Date('2026-10-15T12:00:00Z') });
+    emit({
+      owner: 'guest',
+      pending: 0,
+      conflicts: 0,
+      lastSyncedAt: new Date('2026-10-15T12:00:00Z'),
+      restoreCompleted: true,
+    });
     await workouts.save(aWorkout({ status: 'in_progress', finishedAt: null }));
     expect(seen.at(-1)).toEqual({ kind: 'workoutInProgress' });
   });

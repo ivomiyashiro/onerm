@@ -2,6 +2,7 @@ import type { Profile } from '@/domain/models/profile';
 import {
   InMemoryOnboardingRepository,
   InMemoryProfileRepository,
+  FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
@@ -13,7 +14,10 @@ function setUp(profile: Profile | null = null, step: InMemoryOnboardingRepositor
   const onboarding = new InMemoryOnboardingRepository(step);
   const entries: Entry[] = [];
   const error = jest.fn();
-  new ObserveEntry(profiles, onboarding).execute({ next: (e) => entries.push(e), error });
+  new ObserveEntry(profiles, onboarding, new FixedSyncStateRepository()).execute({
+    next: (e) => entries.push(e),
+    error,
+  });
   return {
     profiles,
     onboarding,

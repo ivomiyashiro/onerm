@@ -17,6 +17,11 @@ export interface AccountRepository {
   countPendingChanges(): Promise<number>;
   hasWorkoutInProgress(): Promise<boolean>;
   /**
+   * Nothing of a guest on the device: no profile and no data (RN-AUTH-05). Entering an account
+   * then skips the union and restores the account (07 §4.3 steps 3 → 6).
+   */
+  isEmptyDevice(): Promise<boolean>;
+  /**
    * 07 §4.4: empties the user tables and the sync state, keeps the catalog, and leaves the owner
    * as a guest without data.
    */

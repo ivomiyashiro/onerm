@@ -191,7 +191,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S24 Nueva contraseña | ✅ guardando | ✅ | — | ✅ contraseña inválida · enlace inválido o vencido | ✅ | — | — |
 | S05 Onboarding | — | ✅ pasos 1, 2 y 3 | — | — | ✅ igual | — | Retomar en el paso pendiente |
 | S06 Recomendación | — | ✅ recomendación + por qué | — | — | ✅ | — | Variante novato con 4 o más días · intermedio con 5–6 · aviso "fuerza sin barra" (objetivo fuerza) |
-| S23 Restaurando | ✅ indeterminado + cantidad de registros | — | — | ✅ se cortó: aviso + continuar usando | ✅ = error | — | — |
+| S23 Restaurando | ✅ «{hechos} de {total}» + porcentaje (07 §4.2) | — | — | ✅ se cortó: aviso + continuar usando | ✅ = error | — | — |
 | S07 Inicio | ✅ esqueleto | ✅ próximo día + sugerencias | ✅ sin rutina activa | ✅ error de lectura local: Reintentar | ✅ igual + indicador de pendientes | — | Restauración incompleta · entrenamiento en curso (botón central en "Continuar") |
 | S08 Elegir día | — | ✅ días con "hace N días" y el recomendado | — | — | ✅ | — | — |
 | S09 Entrenamiento | — | ✅ precargada · editando · calibración (subir y bajar) · unilateral dividido · calentamiento · descanso corriendo · descanso terminado · esfuerzo simple vs. RIR · **peso corporal** · repeticiones extra (EXTEND_REPS) | — | ✅ valor inválido (en el campo) | ✅ **idéntico** | ✅ notificaciones rechazadas · alarmas exactas no permitidas | Ejercicio salteado · sustituido · último ejercicio · **ejercicio no disponible todavía** |

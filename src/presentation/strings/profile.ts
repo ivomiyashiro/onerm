@@ -119,7 +119,9 @@ export const profile = {
     principlesHelp: 'Los principios detrás de las sugerencias y sus fuentes científicas.',
   },
   restoring: {
-    title: (percent: string) => `Restaurando tus datos… ${percent}`,
+    /** «{porcentaje}» once the total is known; before, the title alone. */
+    title: (percent: number | null) =>
+      percent === null ? 'Restaurando tus datos…' : `Restaurando tus datos… ${percent} %`,
     progress: (done: number, total: number) =>
       `${done} de ${count(total, 'registro', 'registros')}`,
     help: 'Si se corta la conexión, lo que ya bajó queda guardado y seguimos solos después.',

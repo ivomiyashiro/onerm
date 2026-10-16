@@ -9,6 +9,7 @@ import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -127,13 +128,13 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     activateRoutine: new ActivateRoutine(profiles, workouts),
     deleteRoutine: new DeleteRoutine(routines, profiles, workouts),
     prepareLocalData: new PrepareLocalData({ prepare: async () => {} }),
-    observeEntry: new ObserveEntry(profiles, onboarding),
+    observeEntry: new ObserveEntry(profiles, onboarding, restoredSyncState),
     startAsGuest: new StartAsGuest(profiles, onboarding),
     answerOnboarding: new AnswerOnboarding(profiles, onboarding),
     observeRecommendation: new ObserveRecommendation(templates, profiles),
     observeProfile: new ObserveProfile(profiles),
     ...accountUseCases(),
-    continueAfterAuth: new ContinueAfterAuth(profiles, onboarding),
+    continueAfterAuth: new ContinueAfterAuth(profiles, onboarding, restoredSyncState),
     updateProfile: new UpdateProfile(profiles, { observeById: never }),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),
@@ -184,6 +185,7 @@ function accountUseCases() {
     keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
     observeSyncStatus: syncStatusOver(BACKED_UP),
     observeBackupNotice: backupNoticeOver(BACKED_UP),
+    observeRestoration: new ObserveRestoration(offlineSync),
     syncNow: new SyncNow(offlineSync),
     ...rejectedChangesOver(),
   };
@@ -237,7 +239,18 @@ export function backupNoticeOver(local: LocalSyncState): ObserveBackupNotice {
   );
 }
 
-const BACKED_UP: LocalSyncState = { pending: 0, conflicts: 0, lastSyncedAt: null };
+/** A device with nothing to back up or restore. Used by tests only. */
+export const restoredSyncState = {
+  observe: (observer: Observer<LocalSyncState>) => (observer.next(BACKED_UP), () => {}),
+};
+
+const BACKED_UP: LocalSyncState = {
+  owner: 'guest',
+  pending: 0,
+  conflicts: 0,
+  lastSyncedAt: null,
+  restoreCompleted: true,
+};
 
 /** A sync that never reaches a server, and never has anything to upload. */
 const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);

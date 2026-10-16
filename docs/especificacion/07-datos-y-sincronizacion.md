@@ -158,7 +158,10 @@ sync():
 - Es el mismo pull con los cursores en 0, en el orden perfil → rutinas → entrenamientos.
 - Trae también los **tombstones**, que RN-RUT-01 y RN-SYNC-12 necesitan.
 - `restore_completed` se marca recién cuando terminan **todas** las tablas. Mientras tanto se muestra el aviso de restauración incompleta.
-- **Progreso:** S23 muestra un indicador **indeterminado** con la cantidad de registros descargados (no un porcentaje, porque el total no se conoce).
+- **Progreso** (decidido el 2026-10-16, #46): S23 muestra «{hechos} de {total} registros» y el porcentaje, como el diseño. El total se cuenta al empezar, con un conteo exacto por tabla de lo que queda después de cada cursor (sin el solapamiento, que solo relee filas que ya están).
+- **Cuándo se muestra S23:** mientras el dispositivo es de una cuenta y todavía no tiene perfil. Cuando llega el perfil de la cuenta, la app se abre y el resto sigue bajando; S07 muestra «Faltan datos por restaurar» hasta que una sincronización completa termina la restauración. Si la cuenta no tenía perfil, al terminar empieza el onboarding.
+- **Dispositivo vacío:** si al iniciar sesión no hay perfil ni datos de invitado (RN-AUTH-05), no hay nada que unir: se pasa directo al paso 6 de §4.3 (`owner = uid`) y se restaura.
+- **Limitación conocida:** si la restauración se corta antes de bajar el perfil y la persona elige «Continuar», hace el onboarding con un perfil nuevo; cuando llega el de la cuenta, el local (más nuevo) gana por LWW (RN-SYNC-03). El perfil es lo primero que se descarga, así que el caso requiere un corte en el primer pedido.
 
 **Onboarding después de autenticarse:** se repite **solo** si ni el perfil local ni el de la cuenta tienen `onboarding_completed_at`.
 

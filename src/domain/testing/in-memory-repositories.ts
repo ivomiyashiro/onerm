@@ -1,3 +1,7 @@
+import type {
+  LocalSyncState,
+  SyncStateRepository,
+} from '@/domain/repositories/sync-state-repository';
 import type { DataOwner } from '@/domain/models/data-owner';
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
@@ -337,6 +341,13 @@ export class InMemoryAccountRepository implements AccountRepository {
     return this.workoutInProgress;
   }
 
+  /** No profile and no guest data (RN-AUTH-05): a fresh device. */
+  emptyDevice = false;
+
+  async isEmptyDevice(): Promise<boolean> {
+    return this.emptyDevice;
+  }
+
   async clearUserData(): Promise<void> {
     this.cleared += 1;
     this.owner = { kind: 'guest' };
@@ -424,5 +435,23 @@ export class FakeAuthGateway implements AuthGateway {
 
   async storedSession(): Promise<{ userId: string; email: string | null } | null> {
     return this.stored;
+  }
+}
+
+/** The backup state of a device, fixed: by default nothing to back up and nothing to restore. */
+export class FixedSyncStateRepository implements SyncStateRepository {
+  constructor(
+    public state: LocalSyncState = {
+      owner: 'guest',
+      pending: 0,
+      conflicts: 0,
+      lastSyncedAt: null,
+      restoreCompleted: true,
+    },
+  ) {}
+
+  observe(observer: Observer<LocalSyncState>): Unsubscribe {
+    observer.next(this.state);
+    return () => {};
   }
 }

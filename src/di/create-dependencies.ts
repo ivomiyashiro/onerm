@@ -39,6 +39,7 @@ import type { SyncEngine } from '@/domain/repositories/sync-engine';
 import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -294,7 +295,7 @@ export function createDependencies(
       activateRoutine: new ActivateRoutine(profileRepository, workoutRepository),
       deleteRoutine: new DeleteRoutine(routineRepository, profileRepository, workoutRepository),
       prepareLocalData: new PrepareLocalData(localDatabase),
-      observeEntry: new ObserveEntry(profileRepository, onboardingRepository),
+      observeEntry: new ObserveEntry(profileRepository, onboardingRepository, syncState),
       startAsGuest: new StartAsGuest(profileRepository, onboardingRepository),
       answerOnboarding: new AnswerOnboarding(profileRepository, onboardingRepository),
       observeRecommendation: new ObserveRecommendation(templateRepository, profileRepository),
@@ -303,7 +304,7 @@ export function createDependencies(
       observeSessionLoss: new ObserveSessionLoss(auth, accountRepository),
       readAccountNudge: new ReadAccountNudge(accountRepository, now),
       answerAccountNudge: new AnswerAccountNudge(accountRepository, now),
-      continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
+      continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository, syncState),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),
       continueWithGoogle: new ContinueWithGoogle(auth, accountRepository),
@@ -316,6 +317,7 @@ export function createDependencies(
       keepBackedUp: new KeepBackedUp(syncScheduler, backup.triggers),
       observeSyncStatus: new ObserveSyncStatus(syncState, workoutRepository, syncScheduler),
       observeBackupNotice: new ObserveBackupNotice(syncState, syncScheduler),
+      observeRestoration: new ObserveRestoration(syncScheduler),
       syncNow: new SyncNow(syncScheduler),
       observeRejectedChanges: new ObserveRejectedChanges(backup.rejected),
       discardRejectedChange: new DiscardRejectedChange(backup.rejected),
