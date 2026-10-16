@@ -1,8 +1,11 @@
+import { and, eq, isNotNull, isNull, or } from 'drizzle-orm';
+
 import type { AppDatabase } from '@/data/db/app-database';
 import { observeQuery } from '@/data/db/observe-query';
-import { appState, syncState } from '@/data/db/schema';
+import { appState, syncState, workoutExercises, workouts, workoutSets } from '@/data/db/schema';
 import { currentUserId } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
+import type { Id } from '@/domain/models/vocabulary';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type {
   LocalSyncState,
@@ -38,4 +41,37 @@ export class SqliteSyncStateRepository implements SyncStateRepository {
       observer,
     );
   }
+
+  observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe {
+    return observeQuery(
+      this.changes,
+      [workouts, workoutExercises, workoutSets, appState],
+      () => {
+        const db = this.db();
+        const owner = currentUserId(db);
+        if (owner === null) return new Set<Id>();
+        const rows = db
+          .selectDistinct({ id: workouts.id })
+          .from(workouts)
+          .leftJoin(workoutExercises, eq(workoutExercises.workoutId, workouts.id))
+          .leftJoin(workoutSets, eq(workoutSets.workoutExerciseId, workoutExercises.id))
+          .where(
+            and(
+              eq(workouts.status, 'finished'),
+              isNull(workouts.deletedAt),
+              eq(workouts.userId, owner),
+              or(notBackedUp(workouts), notBackedUp(workoutExercises), notBackedUp(workoutSets)),
+            ),
+          )
+          .all();
+        return new Set(rows.map((row) => row.id));
+      },
+      observer,
+    );
+  }
+}
+
+/** Waiting for the push, or rejected by the server: either way, not on the server yet. */
+function notBackedUp(table: typeof workouts | typeof workoutExercises | typeof workoutSets) {
+  return or(eq(table.dirty, true), isNotNull(table.conflict));
 }

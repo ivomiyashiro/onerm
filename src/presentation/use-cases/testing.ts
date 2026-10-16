@@ -90,6 +90,7 @@ import {
   FakeAuthGateway,
   FakeDevicePermissions,
   FakeRestNotifier,
+  FixedSyncStateRepository,
   InMemoryAccountRepository,
   InMemoryRestTimerRepository,
 } from '@/domain/testing/in-memory-repositories';
@@ -377,7 +378,7 @@ function history(
       utcDate,
     ),
     observeWeeklyVolume: new ObserveWeeklyVolume(profiles, workouts, exercises, now, utcDate),
-    observeHistory: new ObserveHistory(workouts),
+    observeHistory: new ObserveHistory(workouts, new FixedSyncStateRepository()),
     observeWorkoutDetail: new ObserveWorkoutDetail(profiles, workouts, exercises),
     updatePastSet: new UpdatePastSet(workouts),
     addPastSet: new AddPastSet(workouts, newId),

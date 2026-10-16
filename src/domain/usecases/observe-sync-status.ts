@@ -22,7 +22,7 @@ export interface AccountForSync {
  */
 export class ObserveSyncStatus {
   constructor(
-    private readonly local: SyncStateRepository,
+    private readonly local: Pick<SyncStateRepository, 'observe'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
     private readonly scheduler: Pick<SyncScheduler, 'observeActivity'>,
   ) {}

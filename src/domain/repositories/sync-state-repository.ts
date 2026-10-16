@@ -1,3 +1,4 @@
+import type { Id } from '@/domain/models/vocabulary';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 
 /** What the device knows about its backup (07 §2.4). Local database only. */
@@ -19,4 +20,9 @@ export interface LocalSyncState {
 
 export interface SyncStateRepository {
   observe(observer: Observer<LocalSyncState>): Unsubscribe;
+  /**
+   * The finished workouts of the account with something not backed up yet: the workout, one of
+   * its exercises or one of its sets (RF-PROG-01.AC2). Empty for a guest, who backs up nothing.
+   */
+  observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe;
 }

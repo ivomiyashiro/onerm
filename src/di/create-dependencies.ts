@@ -398,7 +398,7 @@ export function createDependencies(
         now,
         deviceLocalDate,
       ),
-      observeHistory: new ObserveHistory(workoutRepository),
+      observeHistory: new ObserveHistory(workoutRepository, syncState),
       observeWorkoutDetail: new ObserveWorkoutDetail(
         profileRepository,
         workoutRepository,

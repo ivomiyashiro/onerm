@@ -450,8 +450,21 @@ export class FixedSyncStateRepository implements SyncStateRepository {
     },
   ) {}
 
+  private readonly pendingWorkouts$ = new Observable<ReadonlySet<Id>>(() => this.pendingWorkouts);
+  private pendingWorkouts: ReadonlySet<Id> = new Set();
+
   observe(observer: Observer<LocalSyncState>): Unsubscribe {
     observer.next(this.state);
     return () => {};
+  }
+
+  observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe {
+    return this.pendingWorkouts$.observe(observer);
+  }
+
+  /** The workouts a push would still upload, as the database changes. */
+  setPendingWorkouts(ids: Id[]): void {
+    this.pendingWorkouts = new Set(ids);
+    this.pendingWorkouts$.changed();
   }
 }
