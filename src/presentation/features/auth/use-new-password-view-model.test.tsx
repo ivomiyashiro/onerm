@@ -15,7 +15,7 @@ import { useNewPasswordViewModel } from '@/presentation/features/auth/use-new-pa
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { auth } from '@/presentation/strings/auth';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { restoredSyncState, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 const LINK = 'onerm://new-password#access_token=a&refresh_token=r&type=recovery';
@@ -35,9 +35,13 @@ async function setup(
   const useCases = someUseCases({
     openRecoveryLink: new OpenRecoveryLink(gateway, account),
     completePasswordRecovery: new CompletePasswordRecovery(gateway, account),
-    continueAfterAuth: new ContinueAfterAuth(new InMemoryProfileRepository(null), {
-      saveStep: async (s) => void steps.push(s),
-    }),
+    continueAfterAuth: new ContinueAfterAuth(
+      new InMemoryProfileRepository(null),
+      {
+        saveStep: async (s) => void steps.push(s),
+      },
+      restoredSyncState,
+    ),
   });
   const hook = await renderHook(({ url }: { url: string | null }) => useNewPasswordViewModel(url), {
     initialProps: { url },

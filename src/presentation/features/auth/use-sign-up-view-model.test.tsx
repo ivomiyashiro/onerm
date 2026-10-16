@@ -14,7 +14,7 @@ import { useSignUpViewModel } from '@/presentation/features/auth/use-sign-up-vie
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { restoredSyncState, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 async function setup(
@@ -27,7 +27,11 @@ async function setup(
   const store = createAppStore();
   const useCases = someUseCases({
     signUp: new SignUp(gateway, account),
-    continueAfterAuth: new ContinueAfterAuth(profiles, { saveStep: async () => {} }),
+    continueAfterAuth: new ContinueAfterAuth(
+      profiles,
+      { saveStep: async () => {} },
+      restoredSyncState,
+    ),
   });
   const hook = await renderHook(() => useSignUpViewModel(), {
     wrapper: ({ children }: { children: ReactNode }) => (

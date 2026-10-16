@@ -16,7 +16,7 @@ import { useSignInViewModel } from '@/presentation/features/auth/use-sign-in-vie
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { restoredSyncState, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 async function setup(
@@ -38,9 +38,13 @@ async function setup(
       },
     }),
     signIn: new SignIn(gateway, account),
-    continueAfterAuth: new ContinueAfterAuth(profiles, {
-      saveStep: async (s) => void steps.push(s),
-    }),
+    continueAfterAuth: new ContinueAfterAuth(
+      profiles,
+      {
+        saveStep: async (s) => void steps.push(s),
+      },
+      restoredSyncState,
+    ),
   });
   const hook = await renderHook(() => useSignInViewModel(initialEmail), {
     wrapper: ({ children }: { children: ReactNode }) => (

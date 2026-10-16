@@ -14,7 +14,7 @@ import { useGoogleSignInViewModel } from '@/presentation/features/auth/use-googl
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { auth } from '@/presentation/strings/auth';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { restoredSyncState, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 async function setup(
@@ -28,9 +28,13 @@ async function setup(
   const store = createAppStore();
   const useCases = someUseCases({
     continueWithGoogle: new ContinueWithGoogle(gateway, account),
-    continueAfterAuth: new ContinueAfterAuth(new InMemoryProfileRepository(null), {
-      saveStep: async (s) => void steps.push(s),
-    }),
+    continueAfterAuth: new ContinueAfterAuth(
+      new InMemoryProfileRepository(null),
+      {
+        saveStep: async (s) => void steps.push(s),
+      },
+      restoredSyncState,
+    ),
   });
   const hook = await renderHook(() => useGoogleSignInViewModel(), {
     wrapper: ({ children }: { children: ReactNode }) => (

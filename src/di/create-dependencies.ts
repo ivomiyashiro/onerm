@@ -303,7 +303,7 @@ export function createDependencies(
       observeSessionLoss: new ObserveSessionLoss(auth, accountRepository),
       readAccountNudge: new ReadAccountNudge(accountRepository, now),
       answerAccountNudge: new AnswerAccountNudge(accountRepository, now),
-      continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository),
+      continueAfterAuth: new ContinueAfterAuth(profileRepository, onboardingRepository, syncState),
       signUp: new SignUp(auth, accountRepository),
       signIn: new SignIn(auth, accountRepository),
       continueWithGoogle: new ContinueWithGoogle(auth, accountRepository),
