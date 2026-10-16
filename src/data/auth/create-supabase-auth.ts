@@ -1,5 +1,6 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js';
 
+import { fetchWithTimeout } from '@/data/auth/fetch-with-timeout';
 import { SESSION_STORAGE_KEY, SupabaseAuthGateway } from '@/data/auth/supabase-auth-gateway';
 import type { GoogleAccountPicker } from '@/data/auth/google-account-picker';
 import type { SessionStorage } from '@/data/auth/secure-session-storage';
@@ -11,6 +12,9 @@ import type {
   PasswordResetOutcome,
   RecoveryLinkOutcome,
 } from '@/domain/repositories/auth-gateway';
+
+/** A request without an answer in this time fails like a network error (07 §4.1, #175). */
+const NETWORK_TIMEOUT_MS = 15_000;
 
 export interface SupabaseAuth {
   gateway: AuthGateway;
@@ -37,6 +41,7 @@ export function createSupabaseAuth(config: {
       autoRefreshToken: true,
       detectSessionInUrl: false,
     },
+    global: { fetch: fetchWithTimeout(fetch, NETWORK_TIMEOUT_MS) },
   });
   return {
     client,
