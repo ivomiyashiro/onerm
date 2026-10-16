@@ -541,6 +541,33 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(lastSyncedAt(b.db)).toBeNull();
   });
 
+  it('RN-SYNC-15: discarding a row whose upload answer was lost goes back to the server copy, not deleted (F8 judge)', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r, 'En el servidor'));
+    await a.push();
+    // The answer of the push never arrived: locally it looks never uploaded, and it got rejected.
+    a.db
+      .update(routines)
+      .set({ serverUpdatedAt: null, conflict: '23514', dirty: true })
+      .where(eq(routines.id, r))
+      .run();
+    const rejected = new SqliteRejectedChangeRepository(
+      () => a.db,
+      new ManualTableChanges(),
+      a.client,
+    );
+    let changes: RejectedChange[] = [];
+    rejected.observe({ next: (list) => (changes = list), error: () => {} })();
+
+    await expect(rejected.discard(changes[0])).resolves.toBe('done');
+
+    expect(a.row(routines, r)).toMatchObject({
+      name: 'En el servidor',
+      dirty: false,
+      conflict: null,
+    });
+  });
+
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();
     writeSyncRow(a.db, routines, routine(r), { now: a.tick(), userId: randomUUID() });
