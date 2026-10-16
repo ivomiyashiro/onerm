@@ -1,4 +1,4 @@
-import type { TextStyle } from 'react-native';
+import { Platform, type TextStyle } from 'react-native';
 
 /**
  * Font files in assets/fonts (tools/fonts/build-fonts.py). Each one is a single weight and width,
@@ -45,8 +45,22 @@ function style({ font, size, lineHeight, tracking = 0, uppercase, tabular }: Sty
   };
 }
 
+/**
+ * iOS clips what a glyph draws above its line box, and the display styles' lines are tighter than
+ * the font: the accent of an uppercase «Í» was cut («DIA A», #49). Android draws it outside the
+ * box. On iOS the display lines are at least this tall.
+ */
+const IOS_DISPLAY_MIN_LINE_HEIGHT = 112;
+
 const display = (size: number, lineHeight: number, tracking: number) =>
-  style({ font: fonts.display, size, lineHeight, tracking, uppercase: true });
+  style({
+    font: fonts.display,
+    size,
+    lineHeight:
+      Platform.OS === 'ios' ? Math.max(lineHeight, IOS_DISPLAY_MIN_LINE_HEIGHT) : lineHeight,
+    tracking,
+    uppercase: true,
+  });
 const number = (size: number, lineHeight = 100, tracking = -1) =>
   style({ font: fonts.number, size, lineHeight, tracking, tabular: true });
 const mono = (size: number, lineHeight: number, tracking = 0) =>
