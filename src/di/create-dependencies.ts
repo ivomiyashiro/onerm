@@ -28,6 +28,7 @@ import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repo
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
+import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
@@ -40,6 +41,12 @@ import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
+import {
+  DiscardRejectedChange,
+  ObserveRejectedChanges,
+  RetryRejectedChange,
+} from '@/domain/usecases/rejected-changes';
+import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { ActivateRoutine } from '@/domain/usecases/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
@@ -193,6 +200,7 @@ export interface Backup {
   engine: SyncEngine;
   countUploadable(): Promise<number>;
   triggers: SyncTriggers;
+  rejected: RejectedChangeRepository;
 }
 
 /**
@@ -202,15 +210,25 @@ export interface Backup {
 export function appBackup({ localDatabase, changes }: Storage): Backup {
   const client = appSupabase()?.client;
   const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
+  const rejected = new SqliteRejectedChangeRepository(
+    () => localDatabase.database,
+    changes,
+    client ?? null,
+  );
   if (client === undefined) {
-    return { engine: { sync: async () => 'guest' }, countUploadable: async () => 0, triggers };
+    return {
+      engine: { sync: async () => 'guest' },
+      countUploadable: async () => 0,
+      triggers,
+      rejected,
+    };
   }
   const engine = new SupabaseSyncEngine(
     () => localDatabase.database,
     client,
     Constants.expoConfig?.version ?? '0.0.0',
   );
-  return { engine, countUploadable: () => engine.countUploadable(), triggers };
+  return { engine, countUploadable: () => engine.countUploadable(), triggers, rejected };
 }
 
 /**
@@ -299,6 +317,9 @@ export function createDependencies(
       observeSyncStatus: new ObserveSyncStatus(syncState, workoutRepository, syncScheduler),
       observeBackupNotice: new ObserveBackupNotice(syncState, syncScheduler),
       syncNow: new SyncNow(syncScheduler),
+      observeRejectedChanges: new ObserveRejectedChanges(backup.rejected),
+      discardRejectedChange: new DiscardRejectedChange(backup.rejected),
+      retryRejectedChange: new RetryRejectedChange(backup.rejected, syncScheduler),
       updateProfile: new UpdateProfile(profileRepository, routineRepository),
       adjustActiveRoutine: new AdjustActiveRoutine(profileRepository, routineRepository),
       updateLoadSetting: new UpdateLoadSetting(profileRepository),

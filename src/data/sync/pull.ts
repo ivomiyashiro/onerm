@@ -41,7 +41,7 @@ export async function pullChanges(
         deletedAt: row.deleted_at === null ? null : serverTimeMs(row.deleted_at),
       };
       if (pullAction(current, incoming) === 'keep') return;
-      write(tx, sync, row);
+      writeRemoteRow(tx, sync, row);
     });
   }
 }
@@ -53,13 +53,13 @@ export async function pullChanges(
 export async function pullCatalog(db: AppDatabase, client: SupabaseClient): Promise<void> {
   for (const sync of CATALOG_TABLES) {
     await pullTable(db, client, sync, { userId: null, pageSize: PULL_PAGE }, (tx, remote) =>
-      write(tx, sync, remote),
+      writeRemoteRow(tx, sync, remote),
     );
   }
 }
 
 /** Inserts the server's row, or replaces the local one with it. */
-function write(db: AppDatabase, sync: TableSync, remote: RemoteRow) {
+export function writeRemoteRow(db: AppDatabase, sync: TableSync, remote: RemoteRow) {
   const table = sync.table as typeof routines;
   const values = fromRemote(sync, remote) as typeof routines.$inferInsert;
   db.insert(table).values(values).onConflictDoUpdate({ target: table.id, set: values }).run();

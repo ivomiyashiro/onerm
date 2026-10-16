@@ -17,6 +17,11 @@ import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notic
 import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import type { SyncNow } from '@/domain/usecases/sync-now';
 import type {
+  DiscardRejectedChange,
+  ObserveRejectedChanges,
+  RetryRejectedChange,
+} from '@/domain/usecases/rejected-changes';
+import type {
   BackUpBeforeSignOut,
   ConfirmSignOut,
   PrepareSignOut,
@@ -112,6 +117,9 @@ export interface UseCases {
   observeSyncStatus: ObserveSyncStatus;
   observeBackupNotice: ObserveBackupNotice;
   syncNow: SyncNow;
+  observeRejectedChanges: ObserveRejectedChanges;
+  discardRejectedChange: DiscardRejectedChange;
+  retryRejectedChange: RetryRejectedChange;
   confirmSignOut: ConfirmSignOut;
   updateProfile: UpdateProfile;
   adjustActiveRoutine: AdjustActiveRoutine;

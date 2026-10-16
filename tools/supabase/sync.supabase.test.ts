@@ -29,6 +29,9 @@ import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import { lastSyncedAt } from '@/data/sync/sync-state-table';
+import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
+import { ManualTableChanges } from '@/data/db/table-changes';
+import type { RejectedChange } from '@/domain/models/rejected-change';
 
 const URL = process.env.SUPABASE_URL ?? 'http://127.0.0.1:55321';
 
@@ -447,6 +450,30 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(await unreachable.engine.sync()).toBe('failed');
     expect(lastSyncedAt(unreachable.db)).toBeNull();
   }, 60_000);
+
+  it('RF-SYNC-06.AC4: discarding a rejected edit of an uploaded row goes back to the server version', async () => {
+    const r = randomUUID();
+    const d = randomUUID();
+    const e = randomUUID();
+    a.write(routines, routine(r));
+    a.write(routineDays, day(d, r));
+    a.write(routineExercises, routineExercise(e, d));
+    await a.push();
+    a.write(routineExercises, routineExercise(e, d, 'x'.repeat(281)));
+    await a.push();
+    const rejected = new SqliteRejectedChangeRepository(
+      () => a.db,
+      new ManualTableChanges(),
+      a.client,
+    );
+    let changes: RejectedChange[] = [];
+    rejected.observe({ next: (list) => (changes = list), error: () => {} })();
+    expect(changes).toEqual([expect.objectContaining({ id: e, uploadedBefore: true })]);
+
+    await expect(rejected.discard(changes[0])).resolves.toBe('done');
+
+    expect(a.row(routineExercises, e)).toMatchObject({ notes: null, dirty: false, conflict: null });
+  });
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();
