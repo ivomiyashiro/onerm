@@ -50,14 +50,16 @@ function style({ font, size, lineHeight, tracking = 0, uppercase, tabular }: Sty
  * the font: the accent of an uppercase «Í» was cut («DIA A», #49). Android draws it outside the
  * box. On iOS the display lines are at least this tall.
  */
-const IOS_DISPLAY_MIN_LINE_HEIGHT = 112;
+const IOS_DISPLAY_MIN_LINE_HEIGHT_PERCENT = 112;
 
 const display = (size: number, lineHeight: number, tracking: number) =>
   style({
     font: fonts.display,
     size,
     lineHeight:
-      Platform.OS === 'ios' ? Math.max(lineHeight, IOS_DISPLAY_MIN_LINE_HEIGHT) : lineHeight,
+      Platform.OS === 'ios'
+        ? Math.max(lineHeight, IOS_DISPLAY_MIN_LINE_HEIGHT_PERCENT)
+        : lineHeight,
     tracking,
     uppercase: true,
   });
