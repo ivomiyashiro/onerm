@@ -161,6 +161,21 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
     await expect(scheduler.syncNow()).resolves.toBe('failed');
   });
 
+  it('whenIdle waits for the running sync and the one queued after it (RN-AUTH-07)', async () => {
+    const fake = manualEngine();
+    const scheduler = new SyncScheduler(fake.engine, async () => 0);
+    void scheduler.syncNow();
+    void scheduler.syncNow();
+    let idle = false;
+
+    void scheduler.whenIdle().then(() => (idle = true));
+    await fake.finish();
+    expect(idle).toBe(false);
+    await fake.finish();
+
+    expect(idle).toBe(true);
+  });
+
   it('stop cancels what was waiting', async () => {
     const fake = answeringEngine('failed');
     const scheduler = new SyncScheduler(fake.engine, async () => 1);

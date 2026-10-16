@@ -188,7 +188,7 @@ function accountUseCases() {
     completePasswordRecovery: new CompletePasswordRecovery(gateway, account),
     prepareSignOut: new PrepareSignOut(account),
     backUpBeforeSignOut: new BackUpBeforeSignOut(offlineSync, account),
-    confirmSignOut: new ConfirmSignOut(gateway, account),
+    confirmSignOut: new ConfirmSignOut(gateway, account, idleSync),
     keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
     ...guestUnionOver(account, gateway),
     observeSyncStatus: syncStatusOver(BACKED_UP),
@@ -289,6 +289,9 @@ export function guestUnionOver(
     united,
   };
 }
+
+/** A sync with nothing running, for signing out. Used by tests only. */
+export const idleSync = { whenIdle: async () => {} };
 
 /** A sync that never reaches a server, and never has anything to upload. */
 const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);

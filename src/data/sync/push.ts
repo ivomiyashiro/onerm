@@ -16,6 +16,7 @@ import {
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { routines, workouts } from '@/data/db/schema';
+import { currentUserId } from '@/data/db/sync-writes';
 import { adoptsServerRow } from '@/domain/rules/sync/conflict-rules';
 import {
   uploadIsolatingRejections,
@@ -35,6 +36,17 @@ const PUSH_BATCH = 200;
 
 /** Thrown when the network or the server fails: the sync aborts and is retried later. */
 export class SyncNetworkError extends Error {}
+
+/** Thrown when the device stopped being this account's mid-sync (signing out): it aborts. */
+export class OwnerChangedError extends Error {}
+
+/**
+ * RN-AUTH-07: nothing of an account is written once the device isn't its anymore. The sync checks
+ * the owner when it starts, but a sign-out can clear the device while a request is in flight.
+ */
+export function assertOwner(db: AppDatabase, userId: string) {
+  if (currentUserId(db) !== userId) throw new OwnerChangedError();
+}
 
 /**
  * The push of 07 §4.1: the pending rows go up in dependency order, in batches, and each row comes
@@ -72,6 +84,7 @@ export async function pushChanges(
       );
 
       db.transaction((tx) => {
+        assertOwner(tx, userId);
         for (const remote of accepted) {
           const current = tx.select().from(table).where(eq(table.id, remote.id)).get() ?? null;
           if (!adoptsServerRow(sent.get(remote.id)!, current)) continue;

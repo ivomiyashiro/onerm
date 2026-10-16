@@ -12,7 +12,7 @@ function setup() {
     gateway,
     account,
     prepare: new PrepareSignOut(account),
-    confirm: new ConfirmSignOut(gateway, account),
+    confirm: new ConfirmSignOut(gateway, account, { whenIdle: async () => {} }),
   };
 }
 
@@ -51,6 +51,39 @@ describe('Sign out (RF-AUTH-07)', () => {
 
     expect(gateway.signedOut).toBe(0);
     expect(account.cleared).toBe(0);
+  });
+});
+
+describe('ConfirmSignOut and a sync in flight (F8 judge, RN-AUTH-07)', () => {
+  it('closes the session, waits for the running sync, and only then clears the device', async () => {
+    const steps: string[] = [];
+    const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
+    const account = new InMemoryAccountRepository({ kind: 'user', userId: 'u1' });
+    let finishSync: () => void = () => {};
+    const sync = {
+      whenIdle: () =>
+        new Promise<void>((resolve) => {
+          steps.push('waiting for the sync');
+          finishSync = () => {
+            steps.push('sync ended');
+            resolve();
+          };
+        }),
+    };
+    const clear = account.clearUserData.bind(account);
+    account.clearUserData = async () => {
+      steps.push('cleared');
+      await clear();
+    };
+
+    const done = new ConfirmSignOut(gateway, account, sync).execute();
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    expect(gateway.signedOut).toBe(1);
+    expect(steps).toEqual(['waiting for the sync']);
+
+    finishSync();
+    await done;
+    expect(steps).toEqual(['waiting for the sync', 'sync ended', 'cleared']);
   });
 });
 

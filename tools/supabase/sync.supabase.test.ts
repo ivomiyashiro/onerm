@@ -29,6 +29,7 @@ import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import { isRestored, lastSyncedAt } from '@/data/sync/sync-state-table';
+import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
 import { ManualTableChanges } from '@/data/db/table-changes';
@@ -95,6 +96,12 @@ function device(client: SupabaseClient, userId: string | null) {
   };
 }
 type Device = ReturnType<typeof device>;
+
+const allRows = <T extends SyncTable>(on: { db: AppDatabase }, table: T) =>
+  on.db
+    .select()
+    .from(table as typeof routines)
+    .all() as unknown as T['$inferSelect'][];
 
 const USER_TABLES = [
   profiles,
@@ -510,6 +517,29 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     await b.engine.sync((p) => later.push(p));
     expect(later).toEqual([]);
   }, 60_000);
+
+  it('RF-AUTH-07: signing out while a restoration runs writes nothing of the account afterwards (F8 judge)', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    finishedWorkout(a);
+    await a.push();
+    const account = new SqliteAccountRepository(() => b.db);
+    let signedOut = false;
+
+    const result = await b.engine.sync(() => {
+      if (signedOut) return;
+      signedOut = true;
+      // The person signs out while the first pages are being written.
+      void account.clearUserData();
+    });
+
+    expect(result).toBe('failed');
+    expect(b.db.select().from(appState).get()?.owner).toBe('guest');
+    expect(allRows(b, routines)).toEqual([]);
+    expect(allRows(b, workouts)).toEqual([]);
+    expect(isRestored(b.db)).toBe(false);
+    expect(lastSyncedAt(b.db)).toBeNull();
+  });
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();
