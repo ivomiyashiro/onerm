@@ -1,5 +1,5 @@
 import { act, render, screen, userEvent } from '@testing-library/react-native';
-import { Vibration } from 'react-native';
+import { AppState, Vibration, type AppStateStatus } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Workout } from '@/domain/models/workout';
@@ -394,6 +394,28 @@ describe('WorkoutScreen (S09)', () => {
       expect(screen.getByRole('header', { name: text.rest.finished })).toBeOnTheScreen();
       expect(screen.getByRole('button', { name: text.rest.goToSet(2) })).toBeOnTheScreen();
       expect(vibrate).toHaveBeenCalledTimes(1);
+    });
+
+    it('AC6: a rest that ended in the background does not vibrate when the app comes back', async () => {
+      const listeners: ((status: AppStateStatus) => void)[] = [];
+      jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
+        listeners.push(listener);
+        return { remove: () => undefined };
+      });
+      const goTo = (status: AppStateStatus) =>
+        act(() => listeners.forEach((listener) => listener(status)));
+      const vibrate = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
+      const { user } = await renderRest();
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      vibrate.mockClear();
+
+      await goTo('background');
+      jest.setSystemTime(NOW.getTime() + 300_000);
+      await goTo('active');
+      await act(() => jest.advanceTimersByTime(1_000));
+
+      expect(screen.getByRole('header', { name: text.rest.finished })).toBeOnTheScreen();
+      expect(vibrate).not.toHaveBeenCalled();
     });
 
     it('AC9: D05 on the first set', async () => {

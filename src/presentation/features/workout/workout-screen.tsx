@@ -23,6 +23,7 @@ import { SetRow } from '@/presentation/features/workout/set-row';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import { SetSheet } from '@/presentation/features/workout/set-sheet';
 import { SubstituteSheet } from '@/presentation/features/workout/substitute-sheet';
+import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
 import { useCountdown } from '@/presentation/features/workout/use-countdown';
 import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
@@ -109,10 +110,12 @@ function Workout({
   const remaining = useCountdown(rest?.endsAt ?? null);
   const restEnded = remaining !== null && remaining <= 0;
 
-  // RF-ENT-06.AC6: once, when it ends with the app open (not when opening an old one).
+  // RF-ENT-06.AC6: once, when it ends with the app open (not when opening an old one, nor when
+  // coming back to one that ended in the background: the notification already said so).
+  const onScreen = useOnScreenSince() !== null;
   const wasRunning = useRef(false);
   useEffect(() => {
-    if (remaining === null) {
+    if (remaining === null || !onScreen) {
       wasRunning.current = false;
       return;
     }
@@ -121,7 +124,7 @@ function Workout({
       wasRunning.current = false;
       Vibration.vibrate(REST_END_VIBRATION);
     }
-  }, [remaining, restEnded]);
+  }, [remaining, restEnded, onScreen]);
   const { exercise, exercises, exerciseIndex, rows, effortMode } = content;
   const time = useElapsed(content.startedAt);
   const unit = exercise.grid?.unit ?? null;

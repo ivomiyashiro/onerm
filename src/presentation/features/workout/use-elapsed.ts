@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useAppActive } from '@/presentation/features/workout/use-app-active';
+import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
 
 import { elapsed } from '@/presentation/strings/numbers';
 
@@ -11,7 +11,8 @@ import { elapsed } from '@/presentation/strings/numbers';
  */
 export function useElapsed(startedAt: Date | null): string | null {
   const [now, setNow] = useState(() => Date.now());
-  const active = useAppActive();
+  const onScreenSince = useOnScreenSince();
+  const active = onScreenSince !== null;
   useEffect(() => {
     if (startedAt === null || !active) return;
     const tick = () => setNow(Date.now());
@@ -23,5 +24,7 @@ export function useElapsed(startedAt: Date | null): string | null {
       clearInterval(timer);
     };
   }, [startedAt, active]);
-  return startedAt === null ? null : elapsed(now - startedAt.getTime());
+  return startedAt === null
+    ? null
+    : elapsed(Math.max(now, onScreenSince ?? now) - startedAt.getTime());
 }
