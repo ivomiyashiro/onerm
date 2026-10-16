@@ -30,6 +30,7 @@ import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import { isRestored, lastSyncedAt } from '@/data/sync/sync-state-table';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
+import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import type { RejectedChange } from '@/domain/models/rejected-change';
 
@@ -590,5 +591,122 @@ describe('catalog pull (RF-CAT-04, RN-SYNC-09)', () => {
     await pullCatalog(guest.db, anonClient());
 
     expect(guest.db.select().from(exercises).all()).toHaveLength(before + 1);
+  });
+});
+
+describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
+  let userId: string;
+  let account: Device;
+  let guest: Device;
+  let union: SqliteGuestUnion;
+
+  beforeEach(async () => {
+    const email = `${randomUUID()}@test.local`;
+    const clientA = await signIn(email, true);
+    userId = (await clientA.auth.getUser()).data.user!.id;
+    account = device(clientA, userId);
+    // The guest's phone, already signed in to the same account (07 §4.3 step 0).
+    const clientG = await signIn(email);
+    guest = device(clientG, null);
+    union = new SqliteGuestUnion(() => guest.db, clientG);
+  });
+
+  const rows = <T extends SyncTable>(on: Device, table: T) =>
+    on.db
+      .select()
+      .from(table as typeof routines)
+      .all() as unknown as T['$inferSelect'][];
+
+  it('step 1: tells whether the account has data (RN-AUTH-05)', async () => {
+    await expect(union.accountHasData(userId)).resolves.toBe(false);
+
+    account.write(routines, routine(randomUUID()));
+    await account.push();
+
+    await expect(union.accountHasData(userId)).resolves.toBe(true);
+  });
+
+  it('AC3: «Sumar» adds the guest data to the account: no row duplicated or lost on any device', async () => {
+    account.write(profiles, { ...profile(userId), daysPerWeek: 5 });
+    const accountRoutine = randomUUID();
+    account.write(routines, routine(accountRoutine, 'De la cuenta'));
+    const accountWorkout = finishedWorkout(account);
+    await account.push();
+
+    guest.write(profiles, { ...profile('guest'), daysPerWeek: 2 });
+    const guestRoutine = randomUUID();
+    guest.write(routines, routine(guestRoutine, 'Del invitado'));
+    guest.write(routineDays, day(randomUUID(), guestRoutine));
+    const guestWorkout = finishedWorkout(guest);
+    const inProgress = finishedWorkout(guest, 'in_progress');
+
+    await expect(union.unite({ userId, email: null, keepGuestData: true })).resolves.toBe('done');
+    // The account's profile wins (RN-AUTH-04); the guest's is gone.
+    expect(rows(guest, profiles)).toEqual([
+      expect.objectContaining({ id: userId, daysPerWeek: 5, dirty: false }),
+    ]);
+    expect(await guest.engine.sync()).toBe('synced');
+    await account.engine.sync();
+
+    for (const on of [guest, account]) {
+      expect(
+        rows(on, routines)
+          .map((r) => r.name)
+          .sort(),
+      ).toEqual(['De la cuenta', 'Del invitado']);
+      expect(
+        rows(on, workouts)
+          .filter((w) => w.status === 'finished')
+          .map((w) => w.id)
+          .sort(),
+      ).toEqual([accountWorkout.workout, guestWorkout.workout].sort());
+    }
+    // AC8: the workout in progress stays on the guest's phone, the account's now, not uploaded.
+    expect(guest.row(workouts, inProgress.workout)).toMatchObject({ userId, dirty: true });
+    expect(account.row(workouts, inProgress.workout)).toBeUndefined();
+    const { count } = await guest.client
+      .from('routines')
+      .select('*', { count: 'exact', head: true })
+      .eq('user_id', userId);
+    expect(count).toBe(2);
+  });
+
+  it('AC7: an account without data takes the guest profile too (RN-AUTH-06)', async () => {
+    guest.write(profiles, { ...profile('guest'), daysPerWeek: 4 });
+    guest.write(routines, routine(randomUUID()));
+
+    await union.unite({ userId, email: 'ana@mail.com', keepGuestData: true });
+    await guest.engine.sync();
+
+    expect(rows(guest, profiles)).toEqual([
+      expect.objectContaining({ id: userId, userId, daysPerWeek: 4, dirty: false }),
+    ]);
+    const { data } = await guest.client.from('profiles').select('days_per_week').single();
+    expect(data).toEqual({ days_per_week: 4 });
+  });
+
+  it("RN-AUTH-04: the account without an active routine takes the guest's", async () => {
+    account.write(profiles, profile(userId));
+    await account.push();
+    const guestRoutine = randomUUID();
+    guest.write(routines, routine(guestRoutine));
+    guest.write(profiles, { ...profile('guest'), activeRoutineId: guestRoutine });
+
+    await union.unite({ userId, email: null, keepGuestData: true });
+
+    expect(rows(guest, profiles)[0]).toMatchObject({ activeRoutineId: guestRoutine, dirty: true });
+  });
+
+  it('AC4: «Descartar» deletes the guest data, the workout in progress too, and keeps the account', async () => {
+    account.write(routines, routine(randomUUID(), 'De la cuenta'));
+    await account.push();
+    guest.write(routines, routine(randomUUID(), 'Del invitado'));
+    finishedWorkout(guest, 'in_progress');
+
+    await union.unite({ userId, email: null, keepGuestData: false });
+    await guest.engine.sync();
+
+    expect(rows(guest, routines).map((r) => r.name)).toEqual(['De la cuenta']);
+    expect(rows(guest, workouts)).toEqual([]);
   });
 });
