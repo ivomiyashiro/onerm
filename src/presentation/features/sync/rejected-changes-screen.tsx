@@ -2,7 +2,6 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
-import { Notice } from '@/presentation/components/feedback/notice';
 import { SettingsGroup, SettingsRow } from '@/presentation/components/list/settings-row';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Dialog } from '@/presentation/components/overlay/dialog';
@@ -62,12 +61,17 @@ export function RejectedChangesScreen({ onBack }: RejectedChangesScreenProps) {
             body={conflicts.readError.body}
           />
         )}
-        {dialog?.offline && <Notice tone="warn" message={conflicts.discardOffline} />}
       </ScrollView>
       <Dialog
         visible={dialog !== null}
         title={dialogs.D12.title}
-        body={dialog === null ? undefined : rejectedChangeBody(dialog.change)}
+        body={
+          dialog === null
+            ? undefined
+            : dialog.offline
+              ? `${rejectedChangeBody(dialog.change)} ${conflicts.discardOffline}`
+              : rejectedChangeBody(dialog.change)
+        }
         actions={[
           { label: dialogs.D12.retry, kind: 'safe', onPress: () => void actions.retry() },
           {

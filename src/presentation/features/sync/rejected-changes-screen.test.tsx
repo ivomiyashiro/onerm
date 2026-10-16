@@ -78,6 +78,16 @@ describe('RejectedChangesScreen (S25)', () => {
     expect(rejected.calls.discarded).toEqual(['r1']);
   });
 
+  it('without connection, D12 says discarding needs it', async () => {
+    const uploaded = { ...ROUTINE, uploadedBefore: true };
+    await renderScreen(someUseCases(rejectedChangesOver([uploaded], 'offline')));
+
+    await userEvent.press(screen.getByRole('button', { name: 'Rutina «Fuerza»' }));
+    await userEvent.press(screen.getByRole('button', { name: dialogs.D12.discardDestructive }));
+
+    expect(screen.getByText(new RegExp(profile.conflicts.discardOffline))).toBeOnTheScreen();
+  });
+
   it('«Reintentar» retries it', async () => {
     const rejected = rejectedChangesOver([ROUTINE]);
     await renderScreen(someUseCases(rejected));

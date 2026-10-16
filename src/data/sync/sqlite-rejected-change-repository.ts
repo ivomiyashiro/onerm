@@ -13,18 +13,18 @@ import type { RejectedChangeRepository } from '@/domain/repositories/rejected-ch
 import { writeRemoteRow } from './pull';
 import { USER_TABLES, type RemoteRow, type UserTableSync } from './sync-tables';
 
-/** The kind of record each user table holds, in the order of USER_TABLES. */
-const KINDS: readonly RecordKind[] = [
-  'profile',
-  'routine',
-  'routineDay',
-  'routineExercise',
-  'workout',
-  'workoutExercise',
-  'workoutSet',
-];
+/** The kind of record each user table holds. */
+const KINDS: Readonly<Record<string, RecordKind>> = {
+  profiles: 'profile',
+  routines: 'routine',
+  routine_days: 'routineDay',
+  routine_exercises: 'routineExercise',
+  workouts: 'workout',
+  workout_exercises: 'workoutExercise',
+  workout_sets: 'workoutSet',
+};
 
-const syncOf = (kind: RecordKind) => USER_TABLES[KINDS.indexOf(kind)];
+const syncOf = (kind: RecordKind) => USER_TABLES.find((sync) => KINDS[sync.name] === kind)!;
 
 /** The name a record shows, for the tables whose rows have one. */
 const NAMES: Readonly<Record<string, (row: Record<string, unknown>) => string>> = {
@@ -83,7 +83,7 @@ export class SqliteRejectedChangeRepository implements RejectedChangeRepository 
     const db = this.db();
     const owner = currentUserId(db);
     if (owner === null) return [];
-    return USER_TABLES.flatMap((sync, index) => {
+    return USER_TABLES.flatMap((sync) => {
       const table = sync.table as typeof routines;
       const rows = db
         .select()
@@ -95,7 +95,7 @@ export class SqliteRejectedChangeRepository implements RejectedChangeRepository 
         serverUpdatedAt: number | null;
       })[];
       return rows.map((row) => ({
-        kind: KINDS[index],
+        kind: KINDS[sync.name],
         id: row.id,
         reason: row.conflict,
         name: NAMES[sync.name]?.(row) ?? null,
