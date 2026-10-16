@@ -88,6 +88,9 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
  */
 const BAR_TEXT = { numberOfLines: 1, maxFontSizeMultiplier: 1.2 } as const;
 
+/** «18:42» fits the disc in monoS; «1:08:23» needs one size down. */
+const SHORT_TIME = '00:00';
+
 /** The label under the disc, also pressable; the disc carries the accessibility. */
 function ActionLabel({ action }: { action: TabAction }) {
   const disabled = action.kind === 'disabled';
@@ -144,7 +147,10 @@ function ActionDisc({ action }: { action: TabAction }) {
           <Text
             numberOfLines={1}
             maxFontSizeMultiplier={1}
-            style={[action.time.length > 5 ? typography.monoXs : typography.monoS, { color: ink }]}
+            style={[
+              action.time.length > SHORT_TIME.length ? typography.monoXs : typography.monoS,
+              { color: ink },
+            ]}
           >
             {action.time}
           </Text>
