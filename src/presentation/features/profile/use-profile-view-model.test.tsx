@@ -61,13 +61,20 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
   const local = {
     observe: (observer: {
       next(value: {
+        owner: 'guest';
         pending: number;
         conflicts: number;
         lastSyncedAt: null;
         restoreCompleted: true;
       }): void;
     }) => {
-      observer.next({ pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true });
+      observer.next({
+        owner: 'guest',
+        pending: 2,
+        conflicts: 0,
+        lastSyncedAt: null,
+        restoreCompleted: true,
+      });
       return () => {};
     },
   };

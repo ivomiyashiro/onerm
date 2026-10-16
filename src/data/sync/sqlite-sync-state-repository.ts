@@ -28,6 +28,7 @@ export class SqliteSyncStateRepository implements SyncStateRepository {
         const db = this.db();
         const owner = currentUserId(db);
         return {
+          owner: owner === null ? 'guest' : 'user',
           pending: owner === null ? 0 : countUploadable(db, owner),
           conflicts: owner === null ? 0 : countConflicts(db, owner),
           lastSyncedAt: lastSyncedAt(db),

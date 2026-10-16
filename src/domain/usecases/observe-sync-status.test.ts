@@ -11,6 +11,7 @@ function setUp() {
     observe: (observer: { next(state: LocalSyncState): void }) => {
       emit = (state) => observer.next(state);
       emit({
+        owner: 'guest',
         pending: 0,
         conflicts: 0,
         lastSyncedAt: new Date('2026-10-15T12:00:00Z'),
@@ -42,13 +43,14 @@ describe('ObserveSyncStatus (RF-SYNC-06.AC1)', () => {
   it('follows the local changes, the workout in progress and the scheduler', async () => {
     const { seen, emit, workouts, scheduler } = setUp();
 
-    emit({ pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true });
+    emit({ owner: 'guest', pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true });
     expect(seen.at(-1)).toEqual({ kind: 'pending', count: 2, online: true });
 
     scheduler.disconnected();
     expect(seen.at(-1)).toEqual({ kind: 'pending', count: 2, online: false });
 
     emit({
+      owner: 'guest',
       pending: 0,
       conflicts: 0,
       lastSyncedAt: new Date('2026-10-15T12:00:00Z'),

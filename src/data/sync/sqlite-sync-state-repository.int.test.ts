@@ -36,7 +36,7 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     const { seen } = setUp();
 
     expect(seen).toEqual([
-      { pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: false },
+      { owner: 'user', pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: false },
     ]);
   });
 
@@ -59,7 +59,12 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     changes.emit('routines');
     await flush();
 
-    expect(seen.at(-1)).toMatchObject({ pending: 1, conflicts: 1, lastSyncedAt: null });
+    expect(seen.at(-1)).toMatchObject({
+      owner: 'user',
+      pending: 1,
+      conflicts: 1,
+      lastSyncedAt: null,
+    });
   });
 
   it('a workout in progress is not pending (RN-SYNC-13)', async () => {
@@ -101,7 +106,7 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     const { seen } = setUp('guest');
 
     expect(seen).toEqual([
-      { pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
+      { owner: 'guest', pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
     ]);
   });
 });

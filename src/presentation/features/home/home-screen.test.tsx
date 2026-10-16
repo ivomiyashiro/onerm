@@ -176,6 +176,7 @@ describe('HomeScreen (S07)', () => {
     await renderScreen({
       useCases: someUseCases({
         observeBackupNotice: backupNoticeOver({
+          owner: 'guest',
           pending: 2,
           conflicts: 0,
           lastSyncedAt: null,

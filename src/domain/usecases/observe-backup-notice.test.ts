@@ -15,20 +15,32 @@ function noticeFor(local: LocalSyncState, online: boolean | null = true): Backup
 describe('ObserveBackupNotice (RF-SYNC-06.AC2)', () => {
   it('nothing to say when everything is backed up', () => {
     expect(
-      noticeFor({ pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true }),
+      noticeFor({
+        owner: 'guest',
+        pending: 0,
+        conflicts: 0,
+        lastSyncedAt: null,
+        restoreCompleted: true,
+      }),
     ).toBeNull();
   });
 
   it('the pending changes, with or without connection', () => {
     expect(
-      noticeFor({ pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true }, false),
+      noticeFor(
+        { owner: 'guest', pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
+        false,
+      ),
     ).toEqual({
       kind: 'pending',
       count: 2,
       online: false,
     });
     expect(
-      noticeFor({ pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true }, null),
+      noticeFor(
+        { owner: 'guest', pending: 2, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
+        null,
+      ),
     ).toEqual({
       kind: 'pending',
       count: 2,
@@ -38,7 +50,13 @@ describe('ObserveBackupNotice (RF-SYNC-06.AC2)', () => {
 
   it('rejected changes come first (RN-SYNC-11)', () => {
     expect(
-      noticeFor({ pending: 2, conflicts: 1, lastSyncedAt: null, restoreCompleted: true }),
+      noticeFor({
+        owner: 'guest',
+        pending: 2,
+        conflicts: 1,
+        lastSyncedAt: null,
+        restoreCompleted: true,
+      }),
     ).toEqual({
       kind: 'conflict',
       count: 1,

@@ -91,6 +91,7 @@ describe('useHomeViewModel', () => {
         <UseCasesProvider
           useCases={someUseCases({
             observeBackupNotice: backupNoticeOver({
+              owner: 'guest',
               pending: 3,
               conflicts: 0,
               lastSyncedAt: null,

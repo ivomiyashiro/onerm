@@ -442,6 +442,7 @@ export class FakeAuthGateway implements AuthGateway {
 export class FixedSyncStateRepository implements SyncStateRepository {
   constructor(
     public state: LocalSyncState = {
+      owner: 'guest',
       pending: 0,
       conflicts: 0,
       lastSyncedAt: null,

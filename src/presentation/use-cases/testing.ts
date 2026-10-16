@@ -243,6 +243,7 @@ export const restoredSyncState = {
 };
 
 const BACKED_UP: LocalSyncState = {
+  owner: 'guest',
   pending: 0,
   conflicts: 0,
   lastSyncedAt: null,

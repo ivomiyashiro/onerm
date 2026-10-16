@@ -10,7 +10,13 @@ function setup(profile = defaultProfile(), restoreCompleted = true) {
   const onboarding = { saveStep: async (step: unknown) => void steps.push(step) };
   const syncState = {
     observe: (observer: Observer<LocalSyncState>) => (
-      observer.next({ pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted }),
+      observer.next({
+        owner: 'guest',
+        pending: 0,
+        conflicts: 0,
+        lastSyncedAt: null,
+        restoreCompleted,
+      }),
       () => {}
     ),
   };
@@ -48,5 +54,15 @@ describe('ContinueAfterAuth (RF-AUTH-02.AC1, RF-AUTH-03.AC1)', () => {
 
     expect(profiles.profile).toBeNull();
     expect(steps).toEqual([]);
+  });
+
+  it('RF-SYNC-03.AC2: after a cut restoration, «Continuar» goes on to the onboarding', async () => {
+    const { profiles, steps, continueAfterAuth } = setup(defaultProfile(), false);
+    profiles.profile = null;
+
+    await continueAfterAuth.execute({ evenIfRestoring: true });
+
+    expect(profiles.profile).toEqual(defaultProfile());
+    expect(steps).toEqual(['level']);
   });
 });

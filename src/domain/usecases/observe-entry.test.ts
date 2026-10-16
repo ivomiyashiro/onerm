@@ -15,7 +15,7 @@ const ONBOARDED: Profile = { ...defaultProfile(), onboardingCompletedAt: new Dat
 function setUp(
   profile: Profile | null = null,
   step: InMemoryOnboardingRepository['step'] = null,
-  restoreCompleted = true,
+  owner: 'guest' | 'user' = 'guest',
 ) {
   const profiles = new InMemoryProfileRepository(profile);
   const onboarding = new InMemoryOnboardingRepository(step);
@@ -23,7 +23,13 @@ function setUp(
   const error = jest.fn();
   const syncState = {
     observe: (observer: Observer<LocalSyncState>) => (
-      observer.next({ pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted }),
+      observer.next({
+        owner,
+        pending: 0,
+        conflicts: 0,
+        lastSyncedAt: null,
+        restoreCompleted: false,
+      }),
       () => {}
     ),
   };
@@ -42,14 +48,14 @@ function setUp(
 }
 
 describe('ObserveEntry (08 §3)', () => {
-  it('RF-SYNC-03.AC1: an account being restored without its profile yet: S23', () => {
-    const { entry } = setUp(null, null, false);
+  it('RF-SYNC-03.AC1: an account device without its profile yet: S23', () => {
+    const { entry } = setUp(null, null, 'user');
 
     expect(entry()).toEqual({ kind: 'restoring' });
   });
 
   it('RF-SYNC-03: once the account profile arrives the app opens, while the rest downloads', () => {
-    const { entry } = setUp(ONBOARDED, null, false);
+    const { entry } = setUp(ONBOARDED, null, 'user');
 
     expect(entry()).toEqual({ kind: 'app' });
   });

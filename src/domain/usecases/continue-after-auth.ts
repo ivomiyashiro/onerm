@@ -21,12 +21,16 @@ export class ContinueAfterAuth {
     private readonly syncState: Pick<SyncStateRepository, 'observe'>,
   ) {}
 
-  async execute(): Promise<void> {
+  /**
+   * `evenIfRestoring`: S23 «Continuar» after the restoration was cut short (RF-SYNC-03.AC2). If
+   * the account's profile arrives later, the newer local one wins LWW (known limitation, 07 §4.2).
+   */
+  async execute({ evenIfRestoring = false } = {}): Promise<void> {
     const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
     if (profile !== null) return;
     // The account's own profile may still be on its way (07 §4.2): a new one would win LWW.
     const { restoreCompleted } = await firstValue<LocalSyncState>((o) => this.syncState.observe(o));
-    if (!restoreCompleted) return;
+    if (!restoreCompleted && !evenIfRestoring) return;
     await this.profiles.save(defaultProfile());
     await this.onboarding.saveStep('level');
   }
