@@ -7,6 +7,7 @@ import { toUnit } from '@/domain/rules/units';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { Notice } from '@/presentation/components/feedback/notice';
+import { backupNoticeText } from '@/presentation/features/profile/sync-status-text';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Icon } from '@/presentation/components/icons/icon';
@@ -55,13 +56,7 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
       <ScrollView contentContainerStyle={styles.content}>
         {backupNotice !== null && (
           <Notice
-            message={
-              backupNotice.kind === 'conflict'
-                ? profile.sync.conflict(backupNotice.count)
-                : backupNotice.online
-                  ? profile.sync.pendingOnline(backupNotice.count)
-                  : profile.sync.pendingOffline(backupNotice.count)
-            }
+            message={backupNoticeText(backupNotice)}
             tone={backupNotice.kind === 'conflict' ? 'warn' : 'info'}
           />
         )}

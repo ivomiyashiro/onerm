@@ -6,8 +6,7 @@ import type { PullCursor } from '@/domain/rules/sync/sync-timing';
 
 import { USER_TABLES } from './sync-tables';
 
-/** `sync_state` (07 §2.4): one row per synced table, local only. */
-
+/** Where a table's pull resumes, from `sync_state` (07 §2.4): one row per synced table. */
 export function readCursor(db: AppDatabase, name: string): PullCursor | null {
   const stored = db.select().from(syncState).where(eq(syncState.tableName, name)).get()?.cursor;
   return stored ? (JSON.parse(stored) as PullCursor) : null;

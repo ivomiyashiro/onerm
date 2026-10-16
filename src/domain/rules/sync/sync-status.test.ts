@@ -49,6 +49,12 @@ describe('syncStatusOf (RF-SYNC-06)', () => {
     });
   });
 
+  it('network error also when only the pull failed, with nothing to upload (AC5: «Reintentar»)', () => {
+    expect(syncStatusOf(input({ lastResult: 'failed', pending: 0 }))).toEqual({
+      kind: 'networkError',
+    });
+  });
+
   it('without connection, pending changes say so rather than an error', () => {
     expect(syncStatusOf(input({ lastResult: 'failed', pending: 1, online: false }))).toEqual({
       kind: 'pending',

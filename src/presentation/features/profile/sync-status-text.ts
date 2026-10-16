@@ -1,4 +1,5 @@
 import type { SyncStatus } from '@/domain/models/sync-status';
+import type { BackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { profile } from '@/presentation/strings/profile';
 
 const { sync } = profile;
@@ -38,4 +39,9 @@ export function syncStatusText(status: SyncStatus, now: Date): string {
     case 'appOutdated':
       return sync.appOutdated;
   }
+}
+
+/** The discreet notice of S07: the same sentences as S21 (RF-SYNC-06.AC2). */
+export function backupNoticeText(notice: BackupNotice): string {
+  return syncStatusText(notice, new Date(0));
 }
