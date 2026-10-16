@@ -88,6 +88,9 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
  */
 const BAR_TEXT = { numberOfLines: 1, maxFontSizeMultiplier: 1.2 } as const;
 
+/** «18:42» fits the disc in monoS; «1:08:23» needs one size down. */
+const SHORT_TIME = '00:00';
+
 /** The label under the disc, also pressable; the disc carries the accessibility. */
 function ActionLabel({ action }: { action: TabAction }) {
   const disabled = action.kind === 'disabled';
@@ -139,7 +142,16 @@ function ActionDisc({ action }: { action: TabAction }) {
       {action.time ? (
         <>
           <Icon name="dumbbell" size={22} color={ink} />
-          <Text {...BAR_TEXT} style={[typography.monoS, { color: ink }]}>
+          {/* The disc is 64 dp: past an hour («1:08:23») the time goes one size down, and it
+              doesn't grow with the system font (TalkBack reads it in the button's name). */}
+          <Text
+            numberOfLines={1}
+            maxFontSizeMultiplier={1}
+            style={[
+              action.time.length > SHORT_TIME.length ? typography.monoXs : typography.monoS,
+              { color: ink },
+            ]}
+          >
             {action.time}
           </Text>
         </>

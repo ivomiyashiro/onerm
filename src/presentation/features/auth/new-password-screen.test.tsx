@@ -80,6 +80,16 @@ describe('NewPasswordScreen (S24)', () => {
     expect(onDone).toHaveBeenCalledTimes(1);
   });
 
+  it('saving (08 §6): the button is busy until the new password is saved', async () => {
+    const { gateway } = await renderScreen();
+    jest.spyOn(gateway, 'setNewPassword').mockReturnValue(new Promise(() => {}));
+    await userEvent.type(await screen.findByLabelText(auth.form.passwordLabel), 'contraseña-nueva');
+
+    await userEvent.press(save());
+
+    expect(screen.getByRole('button', { name: auth.form.signingIn })).toBeBusy();
+  });
+
   it('error: a short password is flagged next to the field', async () => {
     const { onDone } = await renderScreen();
     await userEvent.type(await screen.findByLabelText(auth.form.passwordLabel), '123');

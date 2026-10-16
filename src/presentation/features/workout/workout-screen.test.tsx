@@ -22,6 +22,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { WorkoutScreen } from '@/presentation/features/workout/workout-screen';
+import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
 import { suggestions } from '@/presentation/strings/suggestions';
@@ -121,6 +122,20 @@ describe('WorkoutScreen (S09)', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
+  it('RN-CAT-04 (08 §6): an exercise not in the catalog yet says so and how to go on', async () => {
+    await renderScreen({
+      inProgress: {
+        ...RUNNING,
+        exercises: [
+          aWorkoutExercise({ id: 'we-9', exerciseId: 'not-yet', plannedExerciseId: 'not-yet' }),
+        ],
+      },
+    });
+
+    expect(screen.getByRole('header', { name: catalog.detail.unavailable })).toBeOnTheScreen();
+    expect(screen.getByText(text.unavailable.body)).toBeOnTheScreen();
+  });
+
   it('error: says the data is still on the phone', async () => {
     const { workouts } = await renderScreen();
     await act(() => workouts.fail());
@@ -211,6 +226,16 @@ describe('WorkoutScreen (S09)', () => {
 
     expect(screen.getByRole('header', { name: CABLE_ROW.name })).toBeOnTheScreen();
     expect(screen.getByText(text.substitution.insteadOf(ROW.name))).toBeOnTheScreen();
+  });
+
+  it('S11 empty (08 §6): a search with no results says so', async () => {
+    const { user } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
+    await user.press(screen.getByRole('button', { name: text.exerciseMenu.substitute }));
+    await user.type(screen.getByLabelText(text.substitute.search), 'zzzz');
+
+    expect(screen.getByText(text.substitute.noResultsTitle)).toBeOnTheScreen();
   });
 
   it('RF-ENT-08: «Saltear ejercicio» goes to the next one; «Ver todos» marks it', async () => {

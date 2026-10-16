@@ -49,6 +49,7 @@ export const auth = {
     title: 'Recuperar contraseña',
     body: 'Te mandamos un enlace para crear una nueva.',
     send: 'Enviar enlace',
+    sending: 'Enviando…',
     checkEmail: 'Revisá tu correo',
     sent: 'Enlace enviado',
     sentBody: 'Si existe una cuenta con ese email, te enviamos un enlace.',

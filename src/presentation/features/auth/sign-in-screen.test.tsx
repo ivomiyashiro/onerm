@@ -57,6 +57,16 @@ async function typeCredentials(email: string, password: string) {
 const submit = () => screen.getByRole('button', { name: auth.form.signIn });
 
 describe('SignInScreen (S02)', () => {
+  it('loading (08 §6): while signing in the button says «Ingresando…» and is busy', async () => {
+    const { gateway } = await renderScreen();
+    jest.spyOn(gateway, 'signIn').mockReturnValue(new Promise(() => {}));
+    await typeCredentials('ana@mail.com', 'secreta123');
+
+    await userEvent.press(submit());
+
+    expect(screen.getByRole('button', { name: auth.form.signingIn })).toBeBusy();
+  });
+
   it('editing: the form with its two fields and the way to sign up', async () => {
     await renderScreen();
 
