@@ -12,7 +12,7 @@ interface SwitchRowProps {
   value: boolean;
   disabled?: boolean;
   onChange: (value: boolean) => void;
-  /** The visible texts, when they are more than the label. */
+  /** The visible texts, when they are more than the label: they must start with the label. */
   children?: ReactNode;
 }
 

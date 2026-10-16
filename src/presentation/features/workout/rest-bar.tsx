@@ -43,7 +43,12 @@ export function RestBar({ rest, remainingMs, onAdd, onExpand }: RestBarProps) {
   return (
     <View style={styles.bar}>
       <RestRing size={40} strokeWidth={4} progress={remainingMs / (rest.totalSeconds * 1000)} />
-      <Pressable accessibilityRole="button" onPress={onExpand} style={styles.flex}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityHint={text.rest.openTimer}
+        onPress={onExpand}
+        style={styles.flex}
+      >
         <Text style={[typography.monoL, { color: colors.textPrimary }]}>
           {countdown(remainingMs)}
         </Text>

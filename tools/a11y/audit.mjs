@@ -12,7 +12,9 @@ const MIN_DP = 48;
 
 const adb = (...args) => execFileSync('adb', args, { encoding: 'utf8' });
 
-const density = Number(/(\d+)\s*$/.exec(adb('shell', 'wm', 'density').trim())[1]) / 160;
+const densityMatch = /(\d+)\s*$/.exec(adb('shell', 'wm', 'density').trim());
+if (!densityMatch) throw new Error('could not read the screen density with `adb shell wm density`');
+const density = Number(densityMatch[1]) / 160;
 // The dump fails now and then while something animates (the workout clock): try again.
 function dump() {
   for (let attempt = 1; attempt <= 5; attempt++) {
