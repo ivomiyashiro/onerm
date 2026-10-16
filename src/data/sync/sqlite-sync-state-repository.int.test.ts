@@ -4,7 +4,7 @@ import { openTestDatabase } from '@/data/db/open-test-database';
 import { appState, routines, workouts } from '@/data/db/schema';
 import { writeSyncRow } from '@/data/db/sync-writes';
 import { ManualTableChanges } from '@/data/db/table-changes';
-import { markSynced } from '@/data/sync/sync-state-table';
+import { markRestored, markSynced } from '@/data/sync/sync-state-table';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 
@@ -35,7 +35,19 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
   it('nothing pending and never backed up on a fresh device', () => {
     const { seen } = setUp();
 
-    expect(seen).toEqual([{ pending: 0, conflicts: 0, lastSyncedAt: null }]);
+    expect(seen).toEqual([
+      { pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: false },
+    ]);
+  });
+
+  it('RF-SYNC-03: the restoration is complete once every user table was pulled to the end', async () => {
+    const { db, changes, seen } = setUp();
+
+    markRestored(db);
+    changes.emit('sync_state');
+    await flush();
+
+    expect(seen.at(-1)?.restoreCompleted).toBe(true);
   });
 
   it('RN-SYNC-08 and RN-SYNC-11: counts the pending changes and, apart, the rejected ones', async () => {
@@ -47,7 +59,7 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     changes.emit('routines');
     await flush();
 
-    expect(seen.at(-1)).toEqual({ pending: 1, conflicts: 1, lastSyncedAt: null });
+    expect(seen.at(-1)).toMatchObject({ pending: 1, conflicts: 1, lastSyncedAt: null });
   });
 
   it('a workout in progress is not pending (RN-SYNC-13)', async () => {
@@ -85,9 +97,11 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
     expect(seen.at(-1)?.lastSyncedAt).toEqual(new Date('2026-10-15T12:00:00Z'));
   });
 
-  it('a guest has nothing to back up (RN-SYNC-09)', () => {
+  it('a guest has nothing to back up or restore (RN-SYNC-09)', () => {
     const { seen } = setUp('guest');
 
-    expect(seen).toEqual([{ pending: 0, conflicts: 0, lastSyncedAt: null }]);
+    expect(seen).toEqual([
+      { pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
+    ]);
   });
 });

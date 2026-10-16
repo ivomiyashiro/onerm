@@ -237,7 +237,12 @@ export function backupNoticeOver(local: LocalSyncState): ObserveBackupNotice {
   );
 }
 
-const BACKED_UP: LocalSyncState = { pending: 0, conflicts: 0, lastSyncedAt: null };
+const BACKED_UP: LocalSyncState = {
+  pending: 0,
+  conflicts: 0,
+  lastSyncedAt: null,
+  restoreCompleted: true,
+};
 
 /** A sync that never reaches a server, and never has anything to upload. */
 const offlineSync = new SyncScheduler({ sync: async () => 'failed' }, async () => 0);

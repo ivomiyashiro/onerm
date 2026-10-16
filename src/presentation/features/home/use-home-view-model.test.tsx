@@ -90,7 +90,12 @@ describe('useHomeViewModel', () => {
       wrapper: ({ children }: { children: ReactNode }) => (
         <UseCasesProvider
           useCases={someUseCases({
-            observeBackupNotice: backupNoticeOver({ pending: 3, conflicts: 0, lastSyncedAt: null }),
+            observeBackupNotice: backupNoticeOver({
+              pending: 3,
+              conflicts: 0,
+              lastSyncedAt: null,
+              restoreCompleted: true,
+            }),
           })}
         >
           {children}

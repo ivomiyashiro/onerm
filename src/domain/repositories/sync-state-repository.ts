@@ -8,6 +8,11 @@ export interface LocalSyncState {
   conflicts: number;
   /** When a sync last ended well; null if never. */
   lastSyncedAt: Date | null;
+  /**
+   * Every table of the account was downloaded to the end at least once (RF-SYNC-03). Always true
+   * for a guest: there is nothing to restore.
+   */
+  restoreCompleted: boolean;
 }
 
 export interface SyncStateRepository {
