@@ -6,7 +6,7 @@ import { routines } from '@/data/db/schema';
 import { pullAction } from '@/domain/rules/sync/conflict-rules';
 import { pullStart, serverTimeMs } from '@/domain/rules/sync/sync-timing';
 
-import { SyncNetworkError } from './push';
+import { assertOwner, SyncNetworkError } from './push';
 import { readCursor, saveCursor } from './sync-state-table';
 import {
   CATALOG_TABLES,
@@ -109,6 +109,7 @@ async function pullTable(
     const rows = data as RemoteSyncRow[];
     const last = rows.at(-1);
     db.transaction((tx) => {
+      if (userId !== null) assertOwner(tx, userId);
       for (const remote of rows) apply(tx, remote);
       if (last !== undefined) {
         saveCursor(tx, sync.name, { ts: last.server_updated_at, id: last.id });

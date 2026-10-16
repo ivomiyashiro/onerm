@@ -330,7 +330,7 @@ export function createDependencies(
       completePasswordRecovery: new CompletePasswordRecovery(auth, accountRepository),
       prepareSignOut: new PrepareSignOut(accountRepository),
       backUpBeforeSignOut: new BackUpBeforeSignOut(syncScheduler, accountRepository),
-      confirmSignOut: new ConfirmSignOut(auth, accountRepository),
+      confirmSignOut: new ConfirmSignOut(auth, accountRepository, syncScheduler),
       keepBackedUp: new KeepBackedUp(syncScheduler, backup.triggers),
       readPendingUnion: new ReadPendingUnion(auth, accountRepository),
       startGuestUnion: new StartGuestUnion(backup.union),

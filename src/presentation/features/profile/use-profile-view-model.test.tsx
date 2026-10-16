@@ -21,7 +21,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { useProfileViewModel } from '@/presentation/features/profile/use-profile-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
-import { someUseCases } from '@/presentation/use-cases/testing';
+import { someUseCases, idleSync } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 const WITH_ROUTINE: Profile = { ...defaultProfile(), activeRoutineId: 'routine-1' };
@@ -87,7 +87,7 @@ async function renderViewModel(profile: Profile | null = WITH_ROUTINE) {
     syncNow: new SyncNow(scheduler),
     prepareSignOut: new PrepareSignOut(account),
     backUpBeforeSignOut: new BackUpBeforeSignOut(sync, account),
-    confirmSignOut: new ConfirmSignOut(gateway, account),
+    confirmSignOut: new ConfirmSignOut(gateway, account, idleSync),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),

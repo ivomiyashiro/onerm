@@ -104,6 +104,8 @@ export function softDelete(db: AppDatabase, table: SyncTable, where: SQL | undef
       deletedAt: now,
       updatedAt: sql`max(${now}, ${anyTable.updatedAt} + 1)`,
       dirty: true,
+      // A delete is a new attempt too: it goes up, and the delete always wins (RN-SYNC-04, 11).
+      conflict: null,
     })
     .where(and(where, isNull(anyTable.deletedAt)))
     .run();

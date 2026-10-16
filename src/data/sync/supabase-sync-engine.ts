@@ -6,7 +6,7 @@ import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/repositor
 import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
 
 import { countToPull, pullCatalog, pullChanges } from './pull';
-import { countUploadable, pushChanges } from './push';
+import { assertOwner, countUploadable, pushChanges } from './push';
 import { isRestored, markRestored, markSynced } from './sync-state-table';
 
 /**
@@ -42,7 +42,10 @@ export class SupabaseSyncEngine implements SyncEngine {
 
       await pushChanges(this.db(), this.client, owner);
       await this.pull(owner, onRestore);
-      markSynced(this.db(), this.now());
+      this.db().transaction((tx) => {
+        assertOwner(tx, owner);
+        markSynced(tx, this.now());
+      });
       return 'synced';
     } catch {
       return 'failed';
@@ -68,7 +71,10 @@ export class SupabaseSyncEngine implements SyncEngine {
       done = Math.min(total, done + count);
       onRestore?.({ done, total });
     });
-    markRestored(db);
+    db.transaction((tx) => {
+      assertOwner(tx, owner);
+      markRestored(tx);
+    });
   }
 
   /** What the next push would upload; nothing for a guest (RN-SYNC-08, RN-SYNC-09). */

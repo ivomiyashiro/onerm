@@ -29,6 +29,7 @@ import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import { isRestored, lastSyncedAt } from '@/data/sync/sync-state-table';
+import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
 import { ManualTableChanges } from '@/data/db/table-changes';
@@ -95,6 +96,12 @@ function device(client: SupabaseClient, userId: string | null) {
   };
 }
 type Device = ReturnType<typeof device>;
+
+const allRows = <T extends SyncTable>(on: { db: AppDatabase }, table: T) =>
+  on.db
+    .select()
+    .from(table as typeof routines)
+    .all() as unknown as T['$inferSelect'][];
 
 const USER_TABLES = [
   profiles,
@@ -492,24 +499,98 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(b.snapshot()).toEqual(a.snapshot());
   });
 
-  it('RF-SYNC-03.AC2: a restoration cut short is not complete, and the next sync finishes it', async () => {
+  it('RF-SYNC-03.AC2: a restoration cut short keeps what arrived, and the same device resumes it without downloading it again', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    a.write(routineDays, day(randomUUID(), r));
     finishedWorkout(a);
     await a.push();
-    const cut = device(
-      createClient('http://127.0.0.1:9', PUBLISHABLE_KEY, { auth: { persistSession: false } }),
-      userId,
-    );
-    expect(await cut.engine.sync()).toBe('failed');
-    expect(isRestored(cut.db)).toBe(false);
 
-    await b.engine.sync();
+    // The connection is cut right after the first page with data (the routine).
+    const cut = await b.engine.sync((progress) => {
+      if (progress.done > 0) throw new Error('connection cut');
+    });
+    expect(cut).toBe('failed');
+    expect(isRestored(b.db)).toBe(false);
+    expect(b.row(routines, r)).toBeDefined();
+
+    const progress: { done: number; total: number }[] = [];
+    expect(await b.engine.sync((p) => progress.push(p))).toBe('synced');
+
+    // Only what was left: the day, the workout, its exercise and its set.
+    expect(progress[0]).toEqual({ done: 0, total: 4 });
+    expect(progress.at(-1)).toEqual({ done: 4, total: 4 });
     expect(isRestored(b.db)).toBe(true);
+    expect(b.snapshot()).toEqual(a.snapshot());
 
     // Once restored, a sync reports no progress.
     const later: unknown[] = [];
     await b.engine.sync((p) => later.push(p));
     expect(later).toEqual([]);
-  }, 60_000);
+  });
+
+  it('RF-AUTH-07: signing out while a restoration runs writes nothing of the account afterwards (F8 judge)', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    finishedWorkout(a);
+    await a.push();
+    const account = new SqliteAccountRepository(() => b.db);
+    let signedOut = false;
+
+    const result = await b.engine.sync(() => {
+      if (signedOut) return;
+      signedOut = true;
+      // The person signs out while the first pages are being written.
+      void account.clearUserData();
+    });
+
+    expect(result).toBe('failed');
+    expect(b.db.select().from(appState).get()?.owner).toBe('guest');
+    expect(allRows(b, routines)).toEqual([]);
+    expect(allRows(b, workouts)).toEqual([]);
+    expect(isRestored(b.db)).toBe(false);
+    expect(lastSyncedAt(b.db)).toBeNull();
+  });
+
+  it('RN-SYNC-15: discarding a row whose upload answer was lost goes back to the server copy, not deleted (F8 judge)', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r, 'En el servidor'));
+    await a.push();
+    // The answer of the push never arrived: locally it looks never uploaded, and it got rejected.
+    a.db
+      .update(routines)
+      .set({ serverUpdatedAt: null, conflict: '23514', dirty: true })
+      .where(eq(routines.id, r))
+      .run();
+    const rejected = new SqliteRejectedChangeRepository(
+      () => a.db,
+      new ManualTableChanges(),
+      a.client,
+    );
+    let changes: RejectedChange[] = [];
+    rejected.observe({ next: (list) => (changes = list), error: () => {} })();
+
+    await expect(rejected.discard(changes[0])).resolves.toBe('done');
+
+    expect(a.row(routines, r)).toMatchObject({
+      name: 'En el servidor',
+      dirty: false,
+      conflict: null,
+    });
+  });
+
+  it('RN-SYNC-14: with an app older than the minimum the sync pauses and nothing goes up', async () => {
+    const service = createClient(URL, SECRET_KEY, { auth: { persistSession: false } });
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    await service.from('app_config').update({ min_app_version: '9.0.0' }).eq('id', 1);
+    try {
+      expect(await a.engine.sync()).toBe('appOutdated');
+      expect(a.row(routines, r)).toMatchObject({ dirty: true, serverUpdatedAt: null });
+    } finally {
+      await service.from('app_config').update({ min_app_version: '0.0.0' }).eq('id', 1);
+    }
+  });
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();

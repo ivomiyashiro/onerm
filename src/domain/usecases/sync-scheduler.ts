@@ -99,6 +99,13 @@ export class SyncScheduler {
     return this.running;
   }
 
+  /** Resolves when no sync is running or waiting to run (signing out waits for it, RN-AUTH-07). */
+  async whenIdle(): Promise<void> {
+    while (this.running !== null || this.queued !== null) {
+      await (this.queued ?? this.running);
+    }
+  }
+
   /** RN-SYNC-06 (c). */
   enterForeground(): void {
     this.active = true;

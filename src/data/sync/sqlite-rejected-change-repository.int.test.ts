@@ -1,3 +1,4 @@
+import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 
 import { openTestDatabase } from '@/data/db/open-test-database';
@@ -69,9 +70,21 @@ describe('SqliteRejectedChangeRepository (RN-SYNC-11)', () => {
     expect(db.select().from(routineExercises).all()).toEqual([]);
   });
 
-  it('discarding a change that reached the server needs the connection', async () => {
-    const { db, repository, list } = setUp();
-    db.update(routines).set({ serverUpdatedAt: 1 }).where(eq(routines.id, 'r1')).run();
+  it('discarding needs the server to say whether it has a copy: without connection nothing changes', async () => {
+    const { db, list } = setUp();
+    // A server that can't be reached: every read fails.
+    const unreachable = {
+      from: () => ({
+        select: () => ({
+          eq: () => ({ maybeSingle: async () => ({ data: null, error: { message: 'offline' } }) }),
+        }),
+      }),
+    } as unknown as SupabaseClient;
+    const repository = new SqliteRejectedChangeRepository(
+      () => db,
+      new ManualTableChanges(),
+      unreachable,
+    );
 
     await expect(repository.discard(list()[0])).resolves.toBe('offline');
     expect(db.select().from(routines).all()).toHaveLength(1);

@@ -26,7 +26,12 @@ import { profile as text } from '@/presentation/strings/profile';
 import type { AccountState } from '@/domain/models/account';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
-import { restUseCasesOver, someUseCases, syncStatusOver } from '@/presentation/use-cases/testing';
+import {
+  restUseCasesOver,
+  someUseCases,
+  syncStatusOver,
+  idleSync,
+} from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
@@ -74,7 +79,7 @@ async function renderScreen(
       },
     ),
     syncNow: new SyncNow({ syncNow }),
-    confirmSignOut: new ConfirmSignOut(new FakeAuthGateway(), account),
+    confirmSignOut: new ConfirmSignOut(new FakeAuthGateway(), account, idleSync),
     observeProfile: new ObserveProfile(profiles),
     updateProfile: new UpdateProfile(profiles, routines),
     adjustActiveRoutine: new AdjustActiveRoutine(profiles, routines),

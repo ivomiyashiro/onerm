@@ -51,12 +51,17 @@ export class ConfirmSignOut {
   constructor(
     private readonly gateway: Pick<AuthGateway, 'signOut'>,
     private readonly account: Pick<AccountRepository, 'hasWorkoutInProgress' | 'clearUserData'>,
+    /** The sync that may be running (RN-AUTH-07): the device is cleared once it ends. */
+    private readonly sync: { whenIdle(): Promise<void> },
   ) {}
 
   async execute(): Promise<{ status: 'done' } | { status: 'blockedByWorkout' }> {
     // Checked again: a workout may have started since the plan.
     if (await this.account.hasWorkoutInProgress()) return { status: 'blockedByWorkout' };
+    // Without the session no new sync touches the account's data; one already writing ends
+    // first, so nothing of it lands on the device after it is cleared.
     await this.gateway.signOut();
+    await this.sync.whenIdle();
     await this.account.clearUserData();
     return { status: 'done' };
   }

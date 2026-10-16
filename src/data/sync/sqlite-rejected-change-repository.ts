@@ -51,20 +51,24 @@ export class SqliteRejectedChangeRepository implements RejectedChangeRepository 
     );
   }
 
+  /**
+   * RN-SYNC-11 and RN-SYNC-15: back to the server's copy if it has one, or deleted with its
+   * dependents if it doesn't. The server decides, not `server_updated_at`: a push whose answer was
+   * lost reached the server without the device knowing. Without a server configured nothing
+   * could have gone up.
+   */
   async discard(change: RejectedChange): Promise<'done' | 'offline'> {
     const sync = syncOf(change.kind);
-    if (!change.uploadedBefore) {
+    if (this.client === null) {
       this.deleteWithDependents(sync, change.id);
       return 'done';
     }
-    if (this.client === null) return 'offline';
     const { data, error } = await this.client
       .from(sync.name)
       .select()
       .eq('id', change.id)
       .maybeSingle();
     if (error !== null) return 'offline';
-    // The server has no copy (it never stored it): nothing to go back to.
     if (data === null) this.deleteWithDependents(sync, change.id);
     else this.db().transaction((tx) => writeRemoteRow(tx, sync, data as RemoteRow));
     return 'done';
