@@ -230,6 +230,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: ejercicio no disponible | Lo podés sustituir por otro del mismo músculo o saltearlo. |
 | S09: editar serie | Eliminar serie · Guardar · Aceptar (teclado numérico) |
 | S09: paso de carga (nombre accesible) | {campo}: {valor} {unidad}. Tocá para escribir |
+| S09: fila de serie (nombre accesible, agregado en #48, 2026-10-16) | Serie {n}, {carga}, × {reps} · Serie {n}, hecha, … · Calentamiento, hecha, … (sigue el esfuerzo o «Falta esfuerzo»; «Tocá para ajustar» queda como indicación) |
 | S09: lista de ejercicios | Ejercicios de hoy · {hechas}/{total} · Salteado |
 | S09: unilateral dividido | Reps izq. · Reps der. · Izq · Der · Distinto por lado · Repeticiones en reserva (RIR) · 0 = no podías hacer ni una más. |
 | S09: peso corporal y cierre | Sin carga: peso corporal · Completo (ejercicio terminado) |

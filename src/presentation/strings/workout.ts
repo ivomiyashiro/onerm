@@ -35,6 +35,12 @@ export const workout = {
     unilateral: 'Unilateral',
     /** The index of a warm-up row (Figma «SetRow» Warmup). */
     warmUpIndex: 'C',
+    /** The start of a row's accessible name (13 §10): which set it is and whether it is done. */
+    rowName: {
+      set: (n: number) => `Serie ${n}`,
+      done: (n: number) => `Serie ${n}, hecha`,
+      warmUpDone: 'Calentamiento, hecha',
+    },
     prescription: (sets: number, range: string) => `${sets} × ${range}`,
     /** The values of a set row: «62,5 kg × 8», the unit apart. */
     timesReps: (n: number) => `× ${n}`,
