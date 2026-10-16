@@ -233,6 +233,9 @@ export interface Backup {
  */
 export function appBackup({ localDatabase, changes }: Storage): Backup {
   const client = appSupabase()?.client;
+  // Only `isConnected` is used: NetInfo's reachability check would poll a URL every minute,
+  // also in the background (RNF-22, #180).
+  NetInfo.configure({ reachabilityShouldRun: () => false });
   const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
   const rejected = new SqliteRejectedChangeRepository(
     () => localDatabase.database,
