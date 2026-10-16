@@ -56,6 +56,6 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Typing the load of a calibration set started after the «—» shown in the field, so the set could not be logged.
 - The estimated max shows one decimal, as an estimate.
 - Recovering a password says «Enviando…» while it sends, instead of «Enlace enviado» before the link was sent.
-- A backup request without an answer gives up after 15 s and is retried, so «Respaldando…» no longer stays for long after the connection comes back.
+- A backup request without an answer gives up after 15 s and is retried, so a request stuck when the network changes no longer holds the backup back.
 - The time of the central button past an hour fits its disc instead of ending in «…».
 - Accessibility: every touch target is at least 48 dp (section tabs, effort options, text fields, switches and «¿Por qué?»), and a switch toggles by tapping anywhere on its row. TalkBack no longer stops on the dark background behind sheets, reads which set a row is and whether it is done, names the day of «Empezar» and the time of «Continuar entrenamiento», and the rest's time is a button. With the system font at 150 % the tab bar and the load and reps labels stay in one line.
