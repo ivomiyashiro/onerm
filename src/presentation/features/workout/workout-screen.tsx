@@ -137,6 +137,42 @@ function Workout({
     if ((await actions.confirmAdjust()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
   }
 
+  // iOS shows no Modal over another one that is open: while the rest covers the screen, D05
+  // and D17 go inside its Modal (#49). Android stacks them either way.
+  const restShown = rest !== null && remaining !== null && !restMinimized;
+  const permissionDialogs = (
+    <>
+      <Dialog
+        visible={dialog === 'notifications'}
+        title={dialogs.D05.title}
+        body={dialogs.D05.body}
+        actions={[
+          {
+            label: dialogs.D05.allow,
+            kind: 'advance',
+            onPress: () => void actions.allowNotifications(),
+          },
+          { label: dialogs.D05.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
+        ]}
+        onDismiss={() => void actions.dismissDialog()}
+      />
+      <Dialog
+        visible={dialog === 'exactAlarms'}
+        title={dialogs.D17.title}
+        body={dialogs.D17.body}
+        actions={[
+          {
+            label: dialogs.D17.openSettings,
+            kind: 'advance',
+            onPress: () => void actions.openExactAlarmSettings(),
+          },
+          { label: dialogs.D17.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
+        ]}
+        onDismiss={() => void actions.dismissDialog()}
+      />
+    </>
+  );
+
   return (
     <>
       <View style={styles.header}>
@@ -307,36 +343,11 @@ function Workout({
           onSkip={() => void actions.skipRest()}
           onMinimize={actions.minimizeRest}
           onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
-        />
+        >
+          {restShown && permissionDialogs}
+        </RestScreen>
       )}
-      <Dialog
-        visible={dialog === 'notifications'}
-        title={dialogs.D05.title}
-        body={dialogs.D05.body}
-        actions={[
-          {
-            label: dialogs.D05.allow,
-            kind: 'advance',
-            onPress: () => void actions.allowNotifications(),
-          },
-          { label: dialogs.D05.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
-        ]}
-        onDismiss={() => void actions.dismissDialog()}
-      />
-      <Dialog
-        visible={dialog === 'exactAlarms'}
-        title={dialogs.D17.title}
-        body={dialogs.D17.body}
-        actions={[
-          {
-            label: dialogs.D17.openSettings,
-            kind: 'advance',
-            onPress: () => void actions.openExactAlarmSettings(),
-          },
-          { label: dialogs.D17.notNow, kind: 'plain', onPress: () => void actions.dismissDialog() },
-        ]}
-        onDismiss={() => void actions.dismissDialog()}
-      />
+      {!restShown && permissionDialogs}
       <BottomSheet
         visible={sheet?.kind === 'exercises'}
         title={text.exerciseList.title}

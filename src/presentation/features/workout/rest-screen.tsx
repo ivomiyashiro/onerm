@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Modal, Pressable, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -26,6 +27,8 @@ interface RestScreenProps {
   onSkip: () => void;
   onMinimize: () => void;
   onEffort: (set: WorkoutSet, field: RirField, rir: number) => void;
+  /** Dialogs shown over the rest: on iOS they have to be inside its Modal (#49). */
+  children?: ReactNode;
 }
 
 /**
@@ -43,6 +46,7 @@ export function RestScreen({
   onSkip,
   onMinimize,
   onEffort,
+  children,
 }: RestScreenProps) {
   const insets = useSafeAreaInsets();
   const finished = remainingMs <= 0;
@@ -130,6 +134,7 @@ export function RestScreen({
           )}
         </View>
       </View>
+      {children}
     </Modal>
   );
 }
