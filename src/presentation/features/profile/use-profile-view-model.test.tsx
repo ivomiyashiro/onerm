@@ -204,7 +204,7 @@ describe('useProfileViewModel', () => {
     it('AC5: «Reintentar» syncs right away', async () => {
       const { result, syncs } = await renderViewModel();
 
-      await act(() => result.current.actions.retrySync());
+      await act(() => result.current.actions.syncNow());
 
       expect(syncs.asked).toBe(1);
     });

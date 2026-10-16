@@ -82,7 +82,7 @@ export function ProfileScreen({
     createAccount: onSignUp,
     signInAgain: () => onSignIn(account.kind === 'user' ? (account.email ?? undefined) : undefined),
     see: onSeeRejectedChanges,
-    syncNow: () => void actions.retrySync(),
+    syncNow: () => void actions.syncNow(),
   });
   const insets = useSafeAreaInsets();
 

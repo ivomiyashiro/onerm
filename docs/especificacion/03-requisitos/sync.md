@@ -281,17 +281,20 @@ Escenario: AC5 — Reintentar
 |---|---|---|---|---|
 | Should | Borrador | Usuario registrado | RN-SYNC-06 | ADR-0002 |
 
+**Decidido el 2026-10-16 (#47):** el botón se llama «Respaldar ahora», como en 13-textos y en el diseño (`SyncStatus`), y aparece en la tarjeta de estado de S21 cuando hay conexión.
+
 **Historia:** Como usuario registrado, quiero forzar un respaldo, para quedarme tranquilo antes de cambiar de teléfono o después de un error.
 
 ```gherkin
-Escenario: AC1 — Sincronizar ahora
+Escenario: AC1 — Respaldar ahora
   Dado que estoy autenticado y tengo conexión
-  Cuando toco "Sincronizar ahora"
+  Cuando toco "Respaldar ahora" en el estado de sincronización (respaldado o con cambios por respaldar)
   Entonces se hace push y después pull
   Y el estado se actualiza al terminar
 
 Escenario: AC2 — Sin conexión
   Dado que no tengo conexión
-  Cuando toco "Sincronizar ahora"
-  Entonces veo que se va a sincronizar cuando haya conexión
+  Cuando veo el estado de sincronización
+  Entonces dice "N cambios sin respaldar · sin conexión" y no se ofrece "Respaldar ahora"
+  Y los cambios se suben solos cuando vuelve la conexión (RN-SYNC-06 b)
 ```
