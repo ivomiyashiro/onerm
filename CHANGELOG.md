@@ -57,6 +57,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - The estimated max shows one decimal, as an estimate.
 - Recovering a password says «Enviando…» while it sends, instead of «Enlace enviado» before the link was sent.
 - iOS: the display titles keep the accent of an uppercase letter («DÍA A»), the notification permission is asked over the rest screen, and the app no longer fails at startup without a Google client for iOS.
+- The rest countdown and the workout time stop ticking while the app is in the background, so Android no longer closes the app for using the CPU; and the app no longer checks the internet with periodic requests.
 - A backup request without an answer gives up after 15 s and is retried, so a request stuck when the network changes no longer holds the backup back.
 - The time of the central button past an hour fits its disc instead of ending in «…».
 - Accessibility: every touch target is at least 48 dp (section tabs, effort options, text fields, switches and «¿Por qué?»), and a switch toggles by tapping anywhere on its row. TalkBack no longer stops on the dark background behind sheets, reads which set a row is and whether it is done, names the day of «Empezar» and the time of «Continuar entrenamiento», and the rest's time is a button. With the system font at 150 % the tab bar and the load and reps labels stay in one line.
