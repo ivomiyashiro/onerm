@@ -4,7 +4,7 @@ import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
 
 function noticeFor(local: LocalSyncState, online: boolean | null = true): BackupNotice | null {
   let seen: BackupNotice | null | undefined;
-  const activity: SyncActivity = { running: false, lastResult: null, online };
+  const activity: SyncActivity = { running: false, lastResult: null, online, restoring: null };
   new ObserveBackupNotice(
     { observe: (observer) => (observer.next(local), () => {}) },
     { observeActivity: (listener) => (listener(activity), () => {}) },

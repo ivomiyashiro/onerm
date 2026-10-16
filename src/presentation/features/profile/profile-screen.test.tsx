@@ -60,7 +60,9 @@ async function renderScreen(
       backup.local ?? { pending: 0, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
       {
         observeActivity: (listener) => {
-          listener(backup.activity ?? { running: false, lastResult: null, online: true });
+          listener(
+            backup.activity ?? { running: false, lastResult: null, online: true, restoring: null },
+          );
           return () => {};
         },
       },
@@ -241,7 +243,7 @@ describe('ProfileScreen (S21)', () => {
         },
         {
           local: { pending: 1, conflicts: 0, lastSyncedAt: null, restoreCompleted: true },
-          activity: { running: false, lastResult: 'failed', online: true },
+          activity: { running: false, lastResult: 'failed', online: true, restoring: null },
         },
       );
 

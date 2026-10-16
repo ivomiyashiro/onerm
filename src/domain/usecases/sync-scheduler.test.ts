@@ -196,9 +196,9 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
       await fake.finish('failed');
 
       expect(seen).toEqual([
-        { running: false, lastResult: null, online: null },
-        { running: true, lastResult: null, online: null },
-        { running: false, lastResult: 'failed', online: null },
+        { running: false, lastResult: null, online: null, restoring: null },
+        { running: true, lastResult: null, online: null, restoring: null },
+        { running: false, lastResult: 'failed', online: null, restoring: null },
       ]);
     });
 
@@ -213,5 +213,28 @@ describe('SyncScheduler (RN-SYNC-06)', () => {
 
       expect(seen).toEqual([null, false]);
     });
+  });
+
+  it('RF-SYNC-03: tells the progress of a restoration while it runs', async () => {
+    let report: (progress: { done: number; total: number }) => void = () => {};
+    let finish: (result: SyncResult) => void = () => {};
+    const engine: SyncEngine = {
+      sync: (onRestore) =>
+        new Promise((resolve) => {
+          report = onRestore!;
+          finish = resolve;
+        }),
+    };
+    const scheduler = new SyncScheduler(engine, async () => 0);
+    const seen: unknown[] = [];
+    scheduler.observeActivity((activity) => seen.push(activity.restoring));
+
+    void scheduler.syncNow();
+    report({ done: 0, total: 8 });
+    report({ done: 8, total: 8 });
+    finish('synced');
+    await jest.advanceTimersByTimeAsync(0);
+
+    expect(seen).toEqual([null, null, { done: 0, total: 8 }, { done: 8, total: 8 }, null]);
   });
 });
