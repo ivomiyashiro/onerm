@@ -265,6 +265,58 @@ describe('ProfileScreen (S21)', () => {
       expect(asked).toBe(1);
     });
 
+    it('RF-SYNC-07.AC1: «Respaldar ahora» syncs right away, backed up or with changes waiting', async () => {
+      let asked = 0;
+      const syncNow = async () => {
+        asked++;
+        return 'synced' as const;
+      };
+      await renderScreen(defaultProfile(), undefined, USER, syncNow, {
+        local: {
+          owner: 'user',
+          pending: 2,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: true,
+        },
+      });
+
+      expect(screen.getByText(text.sync.pendingOnline(2))).toBeOnTheScreen();
+      await userEvent.press(screen.getByRole('button', { name: text.sync.backUpNow }));
+
+      expect(asked).toBe(1);
+    });
+
+    it('RF-SYNC-07.AC1: also when everything is backed up', async () => {
+      await renderScreen(defaultProfile(), undefined, USER, undefined, {
+        local: {
+          owner: 'user',
+          pending: 0,
+          conflicts: 0,
+          lastSyncedAt: new Date(),
+          restoreCompleted: true,
+        },
+      });
+
+      expect(screen.getByRole('button', { name: text.sync.backUpNow })).toBeOnTheScreen();
+    });
+
+    it('RF-SYNC-07.AC2: without connection it isn’t offered; the changes go up when it comes back', async () => {
+      await renderScreen(defaultProfile(), undefined, USER, undefined, {
+        local: {
+          owner: 'user',
+          pending: 2,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: true,
+        },
+        activity: { running: false, lastResult: null, online: false, restoring: null },
+      });
+
+      expect(screen.getByText(text.sync.pendingOffline(2))).toBeOnTheScreen();
+      expect(screen.queryByRole('button', { name: text.sync.backUpNow })).not.toBeOnTheScreen();
+    });
+
     it('RN-SYNC-11: the rejected changes are counted apart', async () => {
       await renderScreen(defaultProfile(), undefined, USER, undefined, {
         local: {

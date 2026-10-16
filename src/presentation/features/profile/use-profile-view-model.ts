@@ -53,8 +53,11 @@ export interface ProfileViewModel {
     /** D03 «Cerrar sesión igual». */
     confirmSignOut(): Promise<void>;
     closeSignOutDialog(): void;
-    /** RF-SYNC-06.AC5: «Reintentar» after a failed backup. */
-    retrySync(): Promise<void>;
+    /**
+     * A sync right now: «Reintentar» after a failed backup (RF-SYNC-06.AC5) and «Respaldar ahora»
+     * (RF-SYNC-07).
+     */
+    syncNow(): Promise<void>;
   };
 }
 
@@ -215,7 +218,7 @@ export function useProfileViewModel(): ProfileViewModel {
       signOut,
       confirmSignOut: leave,
       closeSignOutDialog: () => setSignOutDialog(null),
-      retrySync: async () => {
+      syncNow: async () => {
         await syncNow.execute();
       },
     },

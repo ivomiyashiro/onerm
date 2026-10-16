@@ -1,4 +1,6 @@
 import type { ReactNode } from 'react';
+
+import type { SyncStatus } from '@/domain/models/sync-status';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
@@ -76,21 +78,12 @@ export function ProfileScreen({
 }: ProfileScreenProps) {
   const { state, account, signOutDialog, syncStatus, backingUp, sheet, dialog, actions } =
     useProfileViewModel();
-  // The action each status offers (RF-SYNC-06 table).
-  const syncAction =
-    syncStatus?.kind === 'guest'
-      ? { label: text.sync.createAccount, onPress: onSignUp }
-      : syncStatus?.kind === 'sessionExpired'
-        ? {
-            label: text.sync.signInAgain,
-            onPress: () =>
-              onSignIn(account.kind === 'user' ? (account.email ?? undefined) : undefined),
-          }
-        : syncStatus?.kind === 'conflict'
-          ? { label: text.sync.see, onPress: onSeeRejectedChanges }
-          : syncStatus?.kind === 'networkError'
-            ? { label: text.sync.retry, onPress: () => void actions.retrySync() }
-            : undefined;
+  const syncAction = syncActionFor(syncStatus, {
+    createAccount: onSignUp,
+    signInAgain: () => onSignIn(account.kind === 'user' ? (account.email ?? undefined) : undefined),
+    see: onSeeRejectedChanges,
+    syncNow: () => void actions.syncNow(),
+  });
   const insets = useSafeAreaInsets();
 
   return (
@@ -218,6 +211,32 @@ export function ProfileScreen({
       />
     </View>
   );
+}
+
+/**
+ * The action each backup status offers (RF-SYNC-06 table). «Respaldar ahora» (RF-SYNC-07) goes
+ * where the design's «SyncStatus» has it: backed up, and changes waiting with a connection.
+ */
+function syncActionFor(
+  status: SyncStatus | null,
+  on: { createAccount(): void; signInAgain(): void; see(): void; syncNow(): void },
+): { label: string; onPress: () => void } | undefined {
+  switch (status?.kind) {
+    case 'guest':
+      return { label: text.sync.createAccount, onPress: on.createAccount };
+    case 'sessionExpired':
+      return { label: text.sync.signInAgain, onPress: on.signInAgain };
+    case 'conflict':
+      return { label: text.sync.see, onPress: on.see };
+    case 'networkError':
+      return { label: text.sync.retry, onPress: on.syncNow };
+    case 'synced':
+      return { label: text.sync.backUpNow, onPress: on.syncNow };
+    case 'pending':
+      return status.online ? { label: text.sync.backUpNow, onPress: on.syncNow } : undefined;
+    default:
+      return undefined;
+  }
 }
 
 function Settings({
