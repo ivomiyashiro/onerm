@@ -13,7 +13,7 @@ El TPO pide Android. El equipo quiere, además, que la app **se pueda ejecutar e
 - **Android es la plataforma de referencia:** la demo, la defensa y las pruebas completas se hacen en Android.
 - **iOS es Should:** la app compila y corre en el **simulador de iOS** con todas las funciones del MVP. Antes de cada entrega se hace una **prueba de humo** en iOS.
 - **No se publica** en la App Store.
-- Se evitan las APIs exclusivas de Android. Todo se hace con módulos de Expo que soportan las dos plataformas: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-haptics`, `expo-secure-store`.
+- Se evitan las APIs exclusivas de Android. Todo se hace con módulos de Expo que soportan las dos plataformas: `expo-sqlite`, `expo-notifications`, `expo-keep-awake`, `expo-secure-store`, y `Vibration` de React Native.
 
 ## Consecuencias e implicancias
 
@@ -23,7 +23,7 @@ El TPO pide Android. El equipo quiere, además, que la app **se pueda ejecutar e
 | Google Sign-In | Requiere un **client ID de iOS** y un URL scheme propios en la configuración (config plugin). Se lee de `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, que es público como el client ID web. Sin él, iOS no ofrece el selector de Google (#49). |
 | Sign in with Apple | ⚠️ Si la app **se publicara** en la App Store con login de Google, Apple exige ofrecer también Sign in with Apple o una alternativa equivalente (App Review Guidelines 4.8). **No aplica** porque no se publica. Queda como limitación conocida. |
 | Notificaciones del temporizador | Las notificaciones locales programadas funcionan igual. El permiso se pide también en iOS (RF-ENT-06 AC9). |
-| Pantalla encendida y hápticos | Soportados por los módulos de Expo. La intensidad háptica varía según el dispositivo. |
+| Pantalla encendida y vibración | `expo-keep-awake` y `Vibration` de React Native, en las dos plataformas. La intensidad de la vibración varía según el dispositivo. |
 | Almacenamiento seguro | Keychain en iOS, Keystore en Android (RNF-07). |
 | Diseño | Se respetan las áreas seguras (notch) y el gesto de "volver" de iOS. El diseño es único, sin variantes por plataforma en el MVP. |
 
