@@ -62,4 +62,16 @@ describe('ObserveBackupNotice (RF-SYNC-06.AC2)', () => {
       count: 1,
     });
   });
+
+  it('RF-SYNC-03.AC2: an account not restored to the end says so first (13 §9)', () => {
+    expect(
+      noticeFor({
+        owner: 'user',
+        pending: 2,
+        conflicts: 1,
+        lastSyncedAt: null,
+        restoreCompleted: false,
+      }),
+    ).toEqual({ kind: 'restoreIncomplete' });
+  });
 });

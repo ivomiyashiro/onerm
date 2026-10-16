@@ -8,7 +8,10 @@ import type { SyncActivity, SyncScheduler } from '@/domain/usecases/sync-schedul
 
 /** The discreet notice of S07 (08 §5): only what is waiting, never an error. */
 export type BackupNotice =
-  { kind: 'pending'; count: number; online: boolean } | { kind: 'conflict'; count: number };
+  /** RF-SYNC-03.AC2: the restoration didn't reach the end yet. */
+  | { kind: 'restoreIncomplete' }
+  | { kind: 'pending'; count: number; online: boolean }
+  | { kind: 'conflict'; count: number };
 
 export class ObserveBackupNotice {
   constructor(
@@ -17,7 +20,8 @@ export class ObserveBackupNotice {
   ) {}
 
   /**
-   * Rejected changes first (they need the person, RN-SYNC-11), then the pending ones. Until the
+   * A restoration not finished first (the suggestions may lack data), then the rejected changes
+   * (they need the person, RN-SYNC-11), then the pending ones. Until the
    * device reports its connection it counts as online: «por respaldar», not «sin conexión».
    */
   execute(observer: Observer<BackupNotice | null>): Unsubscribe {
@@ -27,8 +31,9 @@ export class ObserveBackupNotice {
         (next) => this.scheduler.observeActivity((activity) => next.next(activity)),
       ],
       {
-        next: ([{ pending, conflicts }, { online }]) => {
-          if (conflicts > 0) observer.next({ kind: 'conflict', count: conflicts });
+        next: ([{ owner, restoreCompleted, pending, conflicts }, { online }]) => {
+          if (owner === 'user' && !restoreCompleted) observer.next({ kind: 'restoreIncomplete' });
+          else if (conflicts > 0) observer.next({ kind: 'conflict', count: conflicts });
           else if (pending > 0)
             observer.next({ kind: 'pending', count: pending, online: online !== false });
           else observer.next(null);

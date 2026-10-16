@@ -39,6 +39,7 @@ import type { SyncEngine } from '@/domain/repositories/sync-engine';
 import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -316,6 +317,7 @@ export function createDependencies(
       keepBackedUp: new KeepBackedUp(syncScheduler, backup.triggers),
       observeSyncStatus: new ObserveSyncStatus(syncState, workoutRepository, syncScheduler),
       observeBackupNotice: new ObserveBackupNotice(syncState, syncScheduler),
+      observeRestoration: new ObserveRestoration(syncScheduler),
       syncNow: new SyncNow(syncScheduler),
       observeRejectedChanges: new ObserveRejectedChanges(backup.rejected),
       discardRejectedChange: new DiscardRejectedChange(backup.rejected),

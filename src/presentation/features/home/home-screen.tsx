@@ -57,7 +57,7 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
         {backupNotice !== null && (
           <Notice
             message={backupNoticeText(backupNotice)}
-            tone={backupNotice.kind === 'conflict' ? 'warn' : 'info'}
+            tone={backupNotice.kind === 'pending' ? 'info' : 'warn'}
           />
         )}
         {state.status === 'loading' &&

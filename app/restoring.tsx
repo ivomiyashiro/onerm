@@ -1,5 +1,5 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { RestoringScreen } from '@/presentation/features/sync/restoring-screen';
 
 export default function S23Route() {
-  return <ScreenPlaceholder id="S23" />;
+  return <RestoringScreen />;
 }

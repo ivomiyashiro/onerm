@@ -187,4 +187,20 @@ describe('HomeScreen (S07)', () => {
 
     expect(screen.getByText(profileText.sync.pendingOnline(2))).toBeOnTheScreen();
   });
+
+  it('RF-SYNC-03.AC2: a restoration not finished says the suggestions may lack data', async () => {
+    await renderScreen({
+      useCases: someUseCases({
+        observeBackupNotice: backupNoticeOver({
+          owner: 'user',
+          pending: 0,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: false,
+        }),
+      }),
+    });
+
+    expect(screen.getByText(home.restoreIncomplete)).toBeOnTheScreen();
+  });
 });

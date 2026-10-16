@@ -9,6 +9,7 @@ import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
 import { SignIn } from '@/domain/usecases/sign-in';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
+import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -184,6 +185,7 @@ function accountUseCases() {
     keepBackedUp: new KeepBackedUp(offlineSync, { subscribe: never }),
     observeSyncStatus: syncStatusOver(BACKED_UP),
     observeBackupNotice: backupNoticeOver(BACKED_UP),
+    observeRestoration: new ObserveRestoration(offlineSync),
     syncNow: new SyncNow(offlineSync),
     ...rejectedChangesOver(),
   };

@@ -44,6 +44,10 @@ export default function RootLayout() {
                 <Stack.Protected guard={entry.kind === 'app'}>
                   <Stack.Screen name="(tabs)" />
                 </Stack.Protected>
+                {/* S23: an account's device without its profile yet (RF-SYNC-03). */}
+                <Stack.Protected guard={entry.kind === 'restoring'}>
+                  <Stack.Screen name="restoring" />
+                </Stack.Protected>
                 <Stack.Protected guard={entry.kind === 'welcome'}>
                   <Stack.Screen name="welcome" />
                 </Stack.Protected>
