@@ -1,5 +1,8 @@
-import { ScreenPlaceholder } from '@/presentation/features/dev/screen-placeholder';
+import { useRouter } from 'expo-router';
+
+import { RejectedChangesScreen } from '@/presentation/features/sync/rejected-changes-screen';
 
 export default function S25Route() {
-  return <ScreenPlaceholder id="S25" />;
+  const router = useRouter();
+  return <RejectedChangesScreen onBack={() => router.back()} />;
 }

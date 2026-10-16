@@ -11,6 +11,11 @@ import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
+import {
+  DiscardRejectedChange,
+  ObserveRejectedChanges,
+  RetryRejectedChange,
+} from '@/domain/usecases/rejected-changes';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { SignUp } from '@/domain/usecases/sign-up';
@@ -68,6 +73,8 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
+import type { RejectedChange } from '@/domain/models/rejected-change';
+import type { Observer } from '@/domain/repositories/observer';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import {
@@ -178,6 +185,7 @@ function accountUseCases() {
     observeSyncStatus: syncStatusOver(BACKED_UP),
     observeBackupNotice: backupNoticeOver(BACKED_UP),
     syncNow: new SyncNow(offlineSync),
+    ...rejectedChangesOver(),
   };
 }
 
@@ -194,6 +202,31 @@ export function syncStatusOver(
     { observeInProgress: (observer) => (observer.next(null), () => {}) },
     scheduler,
   );
+}
+
+/**
+ * The rejected changes of S25 over a fixed list, recording what was discarded or retried. Used
+ * by tests only.
+ */
+export function rejectedChangesOver(
+  changes: RejectedChange[] = [],
+  discardResult: 'done' | 'offline' = 'done',
+) {
+  const calls = { discarded: [] as string[], retried: [] as string[] };
+  const repository = {
+    observe: (observer: Observer<RejectedChange[]>) => (observer.next(changes), () => {}),
+    discard: async (change: RejectedChange) => {
+      calls.discarded.push(change.id);
+      return discardResult;
+    },
+    retry: async (change: RejectedChange) => void calls.retried.push(change.id),
+  };
+  return {
+    observeRejectedChanges: new ObserveRejectedChanges(repository),
+    discardRejectedChange: new DiscardRejectedChange(repository),
+    retryRejectedChange: new RetryRejectedChange(repository, offlineSync),
+    calls,
+  };
 }
 
 /** The backup notice of S07 over a fixed local state. Used by tests only. */

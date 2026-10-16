@@ -13,6 +13,7 @@ export default function S21Route() {
       onAbout={() => router.push('/about')}
       onGoToWorkout={() => router.push('/workout')}
       onIncrements={() => router.push('/increments')}
+      onSeeRejectedChanges={() => router.push('/sync-conflicts')}
       devEntry={
         __DEV__ && (
           <Button variant="secondary" label={dev.menuEntry} onPress={() => router.push('/dev')} />

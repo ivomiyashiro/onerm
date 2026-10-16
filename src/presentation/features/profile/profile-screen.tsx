@@ -43,6 +43,8 @@ interface ProfileScreenProps {
   onGoToWorkout: () => void;
   /** RF-PERF-06: the increments and the bar weight. */
   onIncrements: () => void;
+  /** RF-SYNC-06.AC4: «Ver» the rejected changes (S25). */
+  onSeeRejectedChanges: () => void;
   /** Only in development builds: the screen list and the component gallery. */
   devEntry?: ReactNode;
 }
@@ -69,6 +71,7 @@ export function ProfileScreen({
   onAbout,
   onGoToWorkout,
   onIncrements,
+  onSeeRejectedChanges,
   devEntry,
 }: ProfileScreenProps) {
   const { state, account, signOutDialog, syncStatus, backingUp, sheet, dialog, actions } =
@@ -83,9 +86,11 @@ export function ProfileScreen({
             onPress: () =>
               onSignIn(account.kind === 'user' ? (account.email ?? undefined) : undefined),
           }
-        : syncStatus?.kind === 'networkError'
-          ? { label: text.sync.retry, onPress: () => void actions.retrySync() }
-          : undefined;
+        : syncStatus?.kind === 'conflict'
+          ? { label: text.sync.see, onPress: onSeeRejectedChanges }
+          : syncStatus?.kind === 'networkError'
+            ? { label: text.sync.retry, onPress: () => void actions.retrySync() }
+            : undefined;
   const insets = useSafeAreaInsets();
 
   return (

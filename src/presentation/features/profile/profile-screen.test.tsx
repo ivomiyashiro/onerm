@@ -77,6 +77,7 @@ async function renderScreen(
     onAbout: jest.fn(),
     onGoToWorkout: jest.fn(),
     onIncrements: jest.fn(),
+    onSeeRejectedChanges: jest.fn(),
   };
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
@@ -250,6 +251,22 @@ describe('ProfileScreen (S21)', () => {
       });
 
       expect(screen.getByText(text.sync.conflict(2))).toBeOnTheScreen();
+    });
+
+    it('RF-SYNC-06.AC4: «Ver» opens the rejected changes', async () => {
+      const { onSeeRejectedChanges } = await renderScreen(
+        defaultProfile(),
+        undefined,
+        USER,
+        undefined,
+        {
+          local: { pending: 0, conflicts: 1, lastSyncedAt: null },
+        },
+      );
+
+      await userEvent.press(screen.getByRole('button', { name: text.sync.see }));
+
+      expect(onSeeRejectedChanges).toHaveBeenCalledTimes(1);
     });
 
     it("AC1: signing out with nothing pending leaves the device as a guest's", async () => {

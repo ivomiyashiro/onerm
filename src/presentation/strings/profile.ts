@@ -132,5 +132,30 @@ export const profile = {
     title: 'Cambios sin respaldar',
     body: 'No pudimos respaldar estos cambios. Tocá uno para ver qué pasó y qué podés hacer.',
     empty: { title: 'Todo respaldado', body: 'No hay cambios pendientes.' },
+    /** The record each rejected change is about (decided in #46). */
+    record: {
+      profile: 'Tu perfil',
+      routine: (name: string | null) => (name ? `Rutina «${name}»` : 'Una rutina'),
+      routineDay: (name: string | null) =>
+        name ? `Día «${name}» de una rutina` : 'Un día de una rutina',
+      routineExercise: 'Un ejercicio de una rutina',
+      workout: (name: string | null) => (name ? `Entrenamiento del ${name}` : 'Un entrenamiento'),
+      workoutExercise: 'Un ejercicio de un entrenamiento',
+      workoutSet: 'Una serie de un entrenamiento',
+    },
+    /** D12 {detalle}: why the server rejected it, by its Postgres code (decided in #46). */
+    reason: {
+      outOfRange: 'Algún dato está fuera de los valores que acepta el servidor',
+      missingValue: 'Falta un dato obligatorio',
+      missingParent: 'Falta el registro del que depende',
+      duplicate: 'Ya existe un registro igual en el servidor',
+      notAllowed: 'El servidor no permite este cambio',
+      other: 'El servidor no aceptó este cambio',
+    },
+    discardOffline: 'Necesitás conexión para volver a la versión guardada.',
+    readError: {
+      title: 'No pudimos cargar los cambios',
+      body: 'Tus datos siguen guardados en este teléfono. Probá de nuevo.',
+    },
   },
 } as const;
