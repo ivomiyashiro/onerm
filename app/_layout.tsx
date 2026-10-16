@@ -65,6 +65,14 @@ export default function RootLayout() {
                 >
                   <Stack.Screen name="recommendation" />
                 </Stack.Protected>
+                {/* While the account is being restored only S23 exists: the sign-in that started
+                  it goes away, and nothing else can be opened over it (RF-SYNC-03). */}
+                <Stack.Protected guard={entry.kind !== 'restoring'}>
+                  <Stack.Screen name="sign-in" />
+                  <Stack.Screen name="sign-up" />
+                  <Stack.Screen name="forgot-password" />
+                  <Stack.Screen name="new-password" />
+                </Stack.Protected>
                 {SHEET_ROUTES.map((name) => (
                   <Stack.Screen key={name} name={name} options={SHEET} />
                 ))}
