@@ -19,7 +19,10 @@ export class SignIn {
 
   constructor(
     private readonly gateway: Pick<AuthGateway, 'signIn' | 'signOut'>,
-    account: Pick<AccountRepository, 'readOwner' | 'savePendingMigration' | 'saveOwnerEmail'>,
+    account: Pick<
+      AccountRepository,
+      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail' | 'saveOwner' | 'isEmptyDevice'
+    >,
   ) {
     this.enter = new EnterAccount(gateway, account);
   }

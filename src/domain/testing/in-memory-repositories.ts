@@ -337,6 +337,13 @@ export class InMemoryAccountRepository implements AccountRepository {
     return this.workoutInProgress;
   }
 
+  /** No profile and no guest data (RN-AUTH-05): a fresh device. */
+  emptyDevice = false;
+
+  async isEmptyDevice(): Promise<boolean> {
+    return this.emptyDevice;
+  }
+
   async clearUserData(): Promise<void> {
     this.cleared += 1;
     this.owner = { kind: 'guest' };

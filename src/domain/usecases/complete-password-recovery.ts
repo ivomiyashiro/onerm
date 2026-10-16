@@ -18,7 +18,10 @@ export class CompletePasswordRecovery {
 
   constructor(
     private readonly gateway: Pick<AuthGateway, 'setNewPassword' | 'signOut'>,
-    account: Pick<AccountRepository, 'readOwner' | 'savePendingMigration' | 'saveOwnerEmail'>,
+    account: Pick<
+      AccountRepository,
+      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail' | 'saveOwner' | 'isEmptyDevice'
+    >,
   ) {
     this.enter = new EnterAccount(gateway, account);
   }

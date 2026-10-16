@@ -30,7 +30,7 @@ export class SignUp {
     private readonly gateway: Pick<AuthGateway, 'signUp' | 'signOut'>,
     private readonly account: Pick<
       AccountRepository,
-      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail'
+      'readOwner' | 'savePendingMigration' | 'saveOwnerEmail' | 'saveOwner' | 'isEmptyDevice'
     >,
   ) {
     this.enter = new EnterAccount(gateway, account);
