@@ -17,7 +17,8 @@ const density = Number(/(\d+)\s*$/.exec(adb('shell', 'wm', 'density').trim())[1]
 function dump() {
   for (let attempt = 1; attempt <= 5; attempt++) {
     adb('shell', 'rm', '-f', '/sdcard/a11y.xml');
-    const out = adb('shell', 'uiautomator', 'dump', '/sdcard/a11y.xml');
+    // --compressed leaves out the views that aren't important for accessibility: what TalkBack sees.
+    const out = adb('shell', 'uiautomator', 'dump', '--compressed', '/sdcard/a11y.xml');
     if (out.includes('dumped to')) return adb('exec-out', 'cat', '/sdcard/a11y.xml');
   }
   throw new Error('uiautomator could not dump the screen');
