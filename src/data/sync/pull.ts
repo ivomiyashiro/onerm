@@ -2,12 +2,12 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 import { eq } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
-import { routines } from '@/data/db/schema';
+import { profiles, routines } from '@/data/db/schema';
 import { pullAction } from '@/domain/rules/sync/conflict-rules';
 import { pullStart, serverTimeMs } from '@/domain/rules/sync/sync-timing';
 
 import { assertOwner, SyncNetworkError } from './push';
-import { readCursor, saveCursor } from './sync-state-table';
+import { isRestored, readCursor, saveCursor } from './sync-state-table';
 import {
   CATALOG_TABLES,
   fromRemote,
@@ -42,7 +42,9 @@ export async function pullChanges(
         updatedAt: serverTimeMs(row.updated_at),
         deletedAt: row.deleted_at === null ? null : serverTimeMs(row.deleted_at),
       };
-      if (pullAction(current, incoming) === 'keep') return;
+      if (pullAction(current, incoming) === 'keep' && !accountProfileWins(tx, sync, current)) {
+        return;
+      }
       writeRemoteRow(tx, sync, row);
     });
   }
@@ -143,4 +145,17 @@ export async function countToPull(
     total += count ?? 0;
   }
   return total;
+}
+
+/**
+ * 07 §4.2 (D1): while the account is being restored, its profile replaces one made on the device
+ * that never reached the server («Continuar» after a cut restoration), whatever its updated_at:
+ * the account's settings and onboarding are never lost (RN-AUTH-04).
+ */
+function accountProfileWins(
+  db: AppDatabase,
+  sync: TableSync,
+  local: { serverUpdatedAt: number | null } | null,
+): boolean {
+  return sync.table === profiles && local?.serverUpdatedAt === null && !isRestored(db);
 }

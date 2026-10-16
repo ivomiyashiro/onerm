@@ -28,7 +28,7 @@ import { softDelete, writeSyncRow, type SyncTable, type SyncValues } from '@/dat
 import { pullCatalog, pullChanges } from '@/data/sync/pull';
 import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
-import { isRestored, lastSyncedAt } from '@/data/sync/sync-state-table';
+import { isRestored, lastSyncedAt, markRestored } from '@/data/sync/sync-state-table';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
 import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
@@ -65,11 +65,13 @@ async function signIn(email: string, signUp = false): Promise<SupabaseClient> {
 }
 
 /** A device of the user: its own database, owned by the account (07 §2.4). */
-function device(client: SupabaseClient, userId: string | null) {
+/** `restored`: a device of the account that already downloaded it (07 §4.2). */
+function device(client: SupabaseClient, userId: string | null, { restored = false } = {}) {
   const { db } = openTestDatabase();
   db.insert(appState)
     .values({ owner: userId ?? 'guest' })
     .run();
+  if (restored) markRestored(db);
   let clock = Date.now() - 60_000;
   const write = <T extends SyncTable>(table: T, values: SyncValues<T>, at = ++clock) =>
     writeSyncRow(db, table, values, { now: at, userId });
@@ -222,7 +224,7 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     const clientA = await signIn(email, true);
     const clientB = await signIn(email);
     userId = (await clientA.auth.getUser()).data.user!.id;
-    a = device(clientA, userId);
+    a = device(clientA, userId, { restored: true });
     b = device(clientB, userId);
   });
 
@@ -592,6 +594,30 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     }
   });
 
+  it("D1 (07 §4.2): a profile made while restoring never overwrites the account's; the account's wins", async () => {
+    a.write(profiles, { ...profile(userId), daysPerWeek: 5 });
+    await a.push();
+    // «Continuar» after a cut restoration: a new local profile, never uploaded.
+    b.write(profiles, { ...profile(userId), daysPerWeek: 2, onboardingCompletedAt: null });
+
+    await b.push();
+    const { data } = await b.client.from('profiles').select('days_per_week').single();
+    expect(data).toEqual({ days_per_week: 5 });
+
+    expect(await b.engine.sync()).toBe('synced');
+    expect(b.row(profiles, userId)).toMatchObject({ daysPerWeek: 5, dirty: false });
+  });
+
+  it('D1: an account without a profile takes the one made while restoring, in the sync that ends it', async () => {
+    b.write(profiles, { ...profile(userId), daysPerWeek: 2 });
+
+    // The same sync that ends the restoration uploads it.
+    await b.engine.sync();
+
+    const { data } = await b.client.from('profiles').select('days_per_week').single();
+    expect(data).toEqual({ days_per_week: 2 });
+  });
+
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
     const r = randomUUID();
     writeSyncRow(a.db, routines, routine(r), { now: a.tick(), userId: randomUUID() });
@@ -685,7 +711,7 @@ describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
     const email = `${randomUUID()}@test.local`;
     const clientA = await signIn(email, true);
     userId = (await clientA.auth.getUser()).data.user!.id;
-    account = device(clientA, userId);
+    account = device(clientA, userId, { restored: true });
     // The guest's phone, already signed in to the same account (07 §4.3 step 0).
     const clientG = await signIn(email);
     guest = device(clientG, null);

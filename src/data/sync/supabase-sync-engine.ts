@@ -40,8 +40,11 @@ export class SupabaseSyncEngine implements SyncEngine {
       if (error !== null) return 'failed';
       if (data.session?.user.id !== owner) return 'sessionExpired';
 
+      const wasRestored = isRestored(this.db());
       await pushChanges(this.db(), this.client, owner);
       await this.pull(owner, onRestore);
+      // A profile held back during the restoration goes up now that it ended (07 §4.2, D1).
+      if (!wasRestored) await pushChanges(this.db(), this.client, owner);
       this.db().transaction((tx) => {
         assertOwner(tx, owner);
         markSynced(tx, this.now());

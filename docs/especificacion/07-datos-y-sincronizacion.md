@@ -145,6 +145,7 @@ sync():
         si la local tiene deleted_at → conservarla borrada (nunca revive)
         si no existe local → insertar
         si la local tiene _dirty = 1 y local.updated_at > remota.updated_at → conservar la local (gana en el próximo push)
+        excepción (§4.2): durante la restauración, el perfil de la cuenta reemplaza a uno local que nunca se subió
         si no → reemplazar la local por la remota
       desde = (server_updated_at, id) de la última fila recibida
     hasta recibir menos de 500
@@ -161,7 +162,7 @@ sync():
 - **Progreso** (decidido el 2026-10-16, #46): S23 muestra «{hechos} de {total} registros» y el porcentaje, como el diseño. El total se cuenta al empezar, con un conteo exacto por tabla de lo que queda después de cada cursor (sin el solapamiento, que solo relee filas que ya están).
 - **Cuándo se muestra S23:** mientras el dispositivo es de una cuenta y todavía no tiene perfil. Cuando llega el perfil de la cuenta, la app se abre y el resto sigue bajando; S07 muestra «Faltan datos por restaurar» hasta que una sincronización completa termina la restauración. Si la cuenta no tenía perfil, al terminar empieza el onboarding.
 - **Dispositivo vacío:** si al iniciar sesión no hay perfil ni datos de invitado (RN-AUTH-05), no hay nada que unir: se pasa directo al paso 6 de §4.3 (`owner = uid`) y se restaura.
-- **Limitación conocida:** si la restauración se corta antes de bajar el perfil y la persona elige «Continuar», hace el onboarding con un perfil nuevo; cuando llega el de la cuenta, el local (más nuevo) gana por LWW (RN-SYNC-03). El perfil es lo primero que se descarga, así que el caso requiere un corte en el primer pedido.
+- **El perfil de la cuenta nunca se pisa** (decidido el 2026-10-16, D1 del juez de F8): si la restauración se corta antes de bajar el perfil y la persona elige «Continuar», hace el onboarding con un perfil local. Mientras la restauración no termine, ese perfil (que nunca llegó al servidor) no se sube, y si en el pull llega el de la cuenta, gana el de la cuenta aunque el local sea más nuevo (excepción a §4.1). Si la cuenta no tenía perfil, el local se sube en la misma sincronización que termina la restauración. Las respuestas del onboarding hecho sin conexión se pierden en ese caso.
 
 **Onboarding después de autenticarse:** se repite **solo** si ni el perfil local ni el de la cuenta tienen `onboarding_completed_at`.
 
