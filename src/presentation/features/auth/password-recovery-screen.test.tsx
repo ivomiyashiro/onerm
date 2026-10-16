@@ -34,6 +34,15 @@ async function renderScreen(outcome: PasswordResetOutcome = 'sent', initialEmail
 const send = () => screen.getByRole('button', { name: auth.recovery.send });
 
 describe('PasswordRecoveryScreen (S04)', () => {
+  it('sending (08 §6): the button says «Enviando…», not yet that it was sent', async () => {
+    const { gateway } = await renderScreen('sent', 'ana@mail.com');
+    jest.spyOn(gateway, 'requestPasswordReset').mockReturnValue(new Promise(() => {}));
+
+    await userEvent.press(send());
+
+    expect(screen.getByRole('button', { name: auth.recovery.sending })).toBeBusy();
+  });
+
   it('editing: the explanation, the email and the button, disabled until there is an email', async () => {
     await renderScreen();
 

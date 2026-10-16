@@ -66,7 +66,7 @@ export function PasswordRecoveryScreen({
               variant="primary"
               label={auth.recovery.send}
               loading={sending}
-              loadingLabel={auth.recovery.sent}
+              loadingLabel={auth.recovery.sending}
               disabled={!state.canSubmit}
               onPress={actions.submit}
             />
