@@ -195,7 +195,7 @@ al autenticarse con owner = guest:
 ### 4.4 Cierre de sesión y cambio de cuenta (RF-AUTH-07, RN-AUTH-07)
 
 - Se cuentan los **pendientes** (RN-SYNC-08) y los **conflictos**, y se sigue el flujo de ese RF. Un cambio rechazado conserva `_dirty = 1`, así que el número de D03 («cambios sin respaldar») ya incluye los conflictos (decisión F7, D4). El entrenamiento en curso bloquea el cierre (D14).
-- Al confirmar, se borran las tablas de usuario, `sync_state` y la sesión cifrada. El catálogo se conserva.
+- Al confirmar, se cierra la sesión, se espera a que termine la sincronización en curso y recién ahí se borran las tablas de usuario, `sync_state` (salvo los cursores del catálogo) y la sesión cifrada. El catálogo se conserva. Además, toda escritura de la sincronización verifica que el dispositivo siga siendo de esa cuenta, así nada de una cuenta queda en el dispositivo después de cerrar sesión (RN-AUTH-07; juez de F8).
 - Se vuelve a la bienvenida con `owner = guest` y sin datos.
 - **Cambio de cuenta:** con `owner = A`, el login solo acepta la cuenta A (RN-AUTH-07). Si se ingresa otra, se muestra "Para entrar con otra cuenta, primero cerrá sesión".
 - **Sesión vencida o revocada:** los datos y pendientes quedan en el dispositivo. S21 muestra el estado "Sesión vencida" con "Volver a entrar", que solo acepta la cuenta A.

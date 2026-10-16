@@ -154,7 +154,7 @@ export const profile = {
       notAllowed: 'El servidor no permite este cambio',
       other: 'El servidor no aceptó este cambio',
     },
-    discardOffline: 'Necesitás conexión para volver a la versión guardada.',
+    discardOffline: 'Necesitás conexión para descartarlo.',
     readError: {
       title: 'No pudimos cargar los cambios',
       body: 'Tus datos siguen guardados en este teléfono. Probá de nuevo.',
