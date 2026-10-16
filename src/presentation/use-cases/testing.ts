@@ -16,6 +16,7 @@ import {
 } from '@/domain/usecases/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
+import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -194,6 +195,7 @@ function accountUseCases() {
     observeSyncStatus: syncStatusOver(BACKED_UP),
     observeBackupNotice: backupNoticeOver(BACKED_UP),
     observeRestoration: new ObserveRestoration(offlineSync),
+    observeSyncActivity: new ObserveSyncActivity(offlineSync),
     syncNow: new SyncNow(offlineSync),
     ...rejectedChangesOver(),
   };
