@@ -62,7 +62,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgField,
   },
   focused: { borderColor: colors.borderAccent, ...elevation.focusAccent },
-  input: { flex: 1, padding: 0, color: colors.textPrimary },
+  // The whole height of the field is tappable, not only the line of text (RNF-16).
+  input: { flex: 1, alignSelf: 'stretch', padding: 0, color: colors.textPrimary },
   clear: {
     width: size.targetMin,
     height: size.targetMin,
