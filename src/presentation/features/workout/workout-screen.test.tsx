@@ -351,6 +351,8 @@ describe('WorkoutScreen (S09)', () => {
 
       expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
       expect(screen.getByRole('button', { name: text.rest.openTimer })).toBeOnTheScreen();
+      // RNF-18: the time is also a button, and TalkBack says so.
+      expect(screen.getByRole('button', { name: /^\d\d:\d\d/ })).toBeOnTheScreen();
     });
 
     it('AC4: «Saltear descanso» closes it', async () => {
