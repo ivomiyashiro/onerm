@@ -20,7 +20,10 @@ export class ObserveRestoration {
         const { done, total } = restoring;
         const percent = total === 0 ? 100 : Math.floor((done / total) * 100);
         listener({ status: 'restoring', done, total, percent });
-      } else if (!running && (lastResult === 'failed' || lastResult === 'sessionExpired')) {
+      } else if (
+        !running &&
+        (lastResult === 'failed' || lastResult === 'sessionExpired' || lastResult === 'appOutdated')
+      ) {
         listener({ status: 'interrupted' });
       } else if (!running && lastResult === 'synced') {
         listener({ status: 'finished' });

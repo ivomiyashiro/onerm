@@ -41,6 +41,8 @@ describe('ObserveRestoration (RF-SYNC-03, S23)', () => {
   it('AC2: a sync that failed cut the restoration short', () => {
     expect(restorationFor({ lastResult: 'failed' })).toEqual({ status: 'interrupted' });
     expect(restorationFor({ lastResult: 'sessionExpired' })).toEqual({ status: 'interrupted' });
+    // RN-SYNC-14: an outdated app can't sync, so it can't wait for the restoration either.
+    expect(restorationFor({ lastResult: 'appOutdated' })).toEqual({ status: 'interrupted' });
   });
 
   it('a sync that ended well finished it: S23 goes on', () => {
