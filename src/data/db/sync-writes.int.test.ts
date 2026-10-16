@@ -129,6 +129,15 @@ describe('writeSyncRow (RN-GEN-03, RN-SYNC-15)', () => {
 });
 
 describe('softDelete (RN-SYNC-15, RN-SYNC-04)', () => {
+  it('RN-SYNC-11 · deleting a rejected row clears its conflict, so the delete goes up (F8 judge)', () => {
+    writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0, userId: null });
+    t.db.update(routines).set({ conflict: '23514' }).run();
+
+    softDelete(t.db, routines, eq(routines.id, 'r1'), T0 + 10);
+
+    expect(routine()).toMatchObject({ deletedAt: T0 + 10, conflict: null, dirty: true });
+  });
+
   it('marks deleted_at, bumps updated_at and leaves the row pending push', () => {
     writeSyncRow(t.db, routines, { id: 'r1', name: 'Full body' }, { now: T0, userId: null });
     markPushed();
