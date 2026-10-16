@@ -42,7 +42,10 @@ export function LoadStepper({
         accessible={!onChangeText}
         accessibilityLabel={[label, value || placeholder, unit].filter(Boolean).join(' ')}
       >
-        <Text style={[typography.label, styles.label]}>{label}</Text>
+        {/* With the font at 150 % «REPETICIONES» broke in two lines: it shrinks to fit (RNF-18). */}
+        <Text style={[typography.label, styles.label]} numberOfLines={1} adjustsFontSizeToFit>
+          {label}
+        </Text>
         <View style={styles.value}>
           {onChangeText ? (
             <TextInput
