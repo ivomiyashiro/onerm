@@ -56,8 +56,8 @@ export class CancelGuestUnion {
   ) {}
 
   async execute(): Promise<void> {
-    await this.gateway.signOut();
     await this.account.savePendingMigration(null);
+    await this.gateway.signOut();
   }
 }
 

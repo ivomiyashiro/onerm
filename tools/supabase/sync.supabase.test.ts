@@ -617,6 +617,17 @@ describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
       .from(table as typeof routines)
       .all() as unknown as T['$inferSelect'][];
 
+  it('RN-AUTH-07: without the session of that account nothing is read or united', async () => {
+    guest.write(routines, routine(randomUUID()));
+    const anonymous = new SqliteGuestUnion(() => guest.db, anonClient());
+
+    await expect(anonymous.accountHasData(userId)).resolves.toBe('offline');
+    await expect(anonymous.unite({ userId, email: null, keepGuestData: true })).resolves.toBe(
+      'offline',
+    );
+    expect(rows(guest, routines)[0]).toMatchObject({ userId: null });
+  });
+
   it('step 1: tells whether the account has data (RN-AUTH-05)', async () => {
     await expect(union.accountHasData(userId)).resolves.toBe(false);
 

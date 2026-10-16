@@ -38,10 +38,11 @@ export class SqliteGuestUnion implements GuestUnion {
   }
 
   async accountHasData(userId: string): Promise<boolean | 'offline'> {
-    if (this.client === null) return 'offline';
+    const client = await this.clientOf(userId);
+    if (client === null) return 'offline';
     // RN-AUTH-05: a routine or a finished workout, not deleted. The server only has finished ones.
     for (const name of ['routines', 'workouts']) {
-      const { count: rows, error } = await this.client
+      const { count: rows, error } = await client
         .from(name)
         .select('id', { count: 'exact', head: true })
         .eq('user_id', userId)
@@ -61,14 +62,16 @@ export class SqliteGuestUnion implements GuestUnion {
     email: string | null;
     keepGuestData: boolean;
   }): Promise<'done' | 'offline'> {
-    if (this.client === null) return 'offline';
-    const { data, error } = await this.client
+    const client = await this.clientOf(userId);
+    if (client === null) return 'offline';
+    const { data, error } = await client
       .from('profiles')
       .select()
       .eq('user_id', userId)
       .maybeSingle();
     if (error !== null) return 'offline';
     const accountProfile = data as RemoteRow | null;
+    if (accountProfile !== null && accountProfile.user_id !== userId) return 'offline';
     const now = Date.now();
 
     this.db().transaction((tx) => {
@@ -85,6 +88,16 @@ export class SqliteGuestUnion implements GuestUnion {
         .run();
     });
     return 'done';
+  }
+
+  /**
+   * Only the session of that same account can read it and take the guest's data (RN-AUTH-07):
+   * without it, RLS would answer with nothing, which would look like an account without data.
+   */
+  private async clientOf(userId: string): Promise<SupabaseClient | null> {
+    if (this.client === null) return null;
+    const { data, error } = await this.client.auth.getSession();
+    return error === null && data.session?.user.id === userId ? this.client : null;
   }
 }
 
