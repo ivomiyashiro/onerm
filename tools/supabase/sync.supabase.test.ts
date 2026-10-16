@@ -499,24 +499,35 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     expect(b.snapshot()).toEqual(a.snapshot());
   });
 
-  it('RF-SYNC-03.AC2: a restoration cut short is not complete, and the next sync finishes it', async () => {
+  it('RF-SYNC-03.AC2: a restoration cut short keeps what arrived, and the same device resumes it without downloading it again', async () => {
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    a.write(routineDays, day(randomUUID(), r));
     finishedWorkout(a);
     await a.push();
-    const cut = device(
-      createClient('http://127.0.0.1:9', PUBLISHABLE_KEY, { auth: { persistSession: false } }),
-      userId,
-    );
-    expect(await cut.engine.sync()).toBe('failed');
-    expect(isRestored(cut.db)).toBe(false);
 
-    await b.engine.sync();
+    // The connection is cut right after the first page with data (the routine).
+    const cut = await b.engine.sync((progress) => {
+      if (progress.done > 0) throw new Error('connection cut');
+    });
+    expect(cut).toBe('failed');
+    expect(isRestored(b.db)).toBe(false);
+    expect(b.row(routines, r)).toBeDefined();
+
+    const progress: { done: number; total: number }[] = [];
+    expect(await b.engine.sync((p) => progress.push(p))).toBe('synced');
+
+    // Only what was left: the day, the workout, its exercise and its set.
+    expect(progress[0]).toEqual({ done: 0, total: 4 });
+    expect(progress.at(-1)).toEqual({ done: 4, total: 4 });
     expect(isRestored(b.db)).toBe(true);
+    expect(b.snapshot()).toEqual(a.snapshot());
 
     // Once restored, a sync reports no progress.
     const later: unknown[] = [];
     await b.engine.sync((p) => later.push(p));
     expect(later).toEqual([]);
-  }, 60_000);
+  });
 
   it('RF-AUTH-07: signing out while a restoration runs writes nothing of the account afterwards (F8 judge)', async () => {
     const r = randomUUID();
@@ -566,6 +577,19 @@ describe('sync engine against Supabase (07 §4.1)', () => {
       dirty: false,
       conflict: null,
     });
+  });
+
+  it('RN-SYNC-14: with an app older than the minimum the sync pauses and nothing goes up', async () => {
+    const service = createClient(URL, SECRET_KEY, { auth: { persistSession: false } });
+    const r = randomUUID();
+    a.write(routines, routine(r));
+    await service.from('app_config').update({ min_app_version: '9.0.0' }).eq('id', 1);
+    try {
+      expect(await a.engine.sync()).toBe('appOutdated');
+      expect(a.row(routines, r)).toMatchObject({ dirty: true, serverUpdatedAt: null });
+    } finally {
+      await service.from('app_config').update({ min_app_version: '0.0.0' }).eq('id', 1);
+    }
   });
 
   it('RN-AUTH-07: rows of another owner are never uploaded', async () => {
