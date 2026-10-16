@@ -1,5 +1,6 @@
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { useGuestUnionViewModel } from '@/presentation/features/auth/use-guest-union-view-model';
+import { auth } from '@/presentation/strings/auth';
 import { dialogs } from '@/presentation/strings/dialogs';
 
 /**
@@ -15,7 +16,15 @@ export function GuestUnionGate() {
       <Dialog
         visible={dialog?.kind === 'ask'}
         title={dialogs.D01.title}
-        body={summary && dialogs.D01.body(summary.workouts, summary.routines)}
+        body={
+          summary &&
+          [
+            dialogs.D01.body(summary.workouts, summary.routines),
+            dialog?.offline && auth.errors.offline(auth.errors.actions.uniteData),
+          ]
+            .filter(Boolean)
+            .join(' ')
+        }
         actions={[
           { label: dialogs.D01.merge, kind: 'advance', onPress: () => void actions.merge() },
           { label: dialogs.D01.discard, kind: 'plain', onPress: actions.discard },

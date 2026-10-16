@@ -5,9 +5,12 @@ import type { PendingUnion } from '@/domain/usecases/guest-union';
 import { useAppStore } from '@/presentation/state/app-store-context';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
-/** D01 or D01b, with what the guest has on the phone. */
-export type GuestUnionDialog =
-  { kind: 'ask'; summary: GuestSummary } | { kind: 'confirmDiscard'; summary: GuestSummary };
+/** D01 or D01b, with what the guest has on the phone; `offline` once a choice found no connection. */
+export interface GuestUnionDialog {
+  kind: 'ask' | 'confirmDiscard';
+  summary: GuestSummary;
+  offline: boolean;
+}
 
 export interface GuestUnionViewModel {
   dialog: GuestUnionDialog | null;
@@ -59,7 +62,9 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
       const start = await startGuestUnion.execute(waiting);
       if (!active) return;
       if (start.kind === 'united') united(waiting);
-      else if (start.kind === 'ask') setDialog({ kind: 'ask', summary: start.summary });
+      else if (start.kind === 'ask') {
+        setDialog({ kind: 'ask', summary: start.summary, offline: false });
+      }
     })().catch(() => undefined);
     return () => {
       active = false;
@@ -83,6 +88,8 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
     await act(async (waiting) => {
       const result = await finishGuestUnion.execute({ ...waiting, choice });
       if (result === 'done') united(waiting);
+      // The choice stays to retry; D01 says it needs the connection (13 §9).
+      else setDialog((d) => d && { kind: 'ask', summary: d.summary, offline: true });
     });
   }
 
@@ -90,9 +97,9 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
     dialog,
     actions: {
       merge: () => finish('merge'),
-      discard: () => setDialog((d) => d && { kind: 'confirmDiscard', summary: d.summary }),
+      discard: () => setDialog((d) => d && { ...d, kind: 'confirmDiscard', offline: false }),
       confirmDiscard: () => finish('discard'),
-      back: () => setDialog((d) => d && { kind: 'ask', summary: d.summary }),
+      back: () => setDialog((d) => d && { ...d, kind: 'ask', offline: false }),
       cancel: () =>
         act(async () => {
           await cancelGuestUnion.execute();

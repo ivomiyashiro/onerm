@@ -269,12 +269,14 @@ export function guestUnionOver(
   gateway: FakeAuthGateway = new FakeAuthGateway(),
   summary: GuestSummary = { workouts: 0, routines: 0, workoutInProgress: false },
   accountHasData: boolean | 'offline' = false,
+  uniteResult: 'done' | 'offline' = 'done',
 ) {
   const united: { userId: string; keepGuestData: boolean }[] = [];
   const union: GuestUnion = {
     guestSummary: async () => summary,
     accountHasData: async () => accountHasData,
     unite: async ({ userId, keepGuestData }) => {
+      if (uniteResult === 'offline') return 'offline';
       united.push({ userId, keepGuestData });
       return 'done';
     },
