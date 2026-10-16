@@ -15,7 +15,7 @@ import {
 } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
-import { routines, workouts } from '@/data/db/schema';
+import { profiles, routines, workouts } from '@/data/db/schema';
 import { currentUserId } from '@/data/db/sync-writes';
 import { adoptsServerRow } from '@/domain/rules/sync/conflict-rules';
 import {
@@ -30,6 +30,7 @@ import {
   type RemoteRow,
   type UserTableSync,
 } from './sync-tables';
+import { isRestored } from './sync-state-table';
 
 /** Rows per upsert (07 §4.1). */
 const PUSH_BATCH = 200;
@@ -138,6 +139,9 @@ function uploadable(db: AppDatabase, sync: UserTableSync, userId: string): SQL |
     isNull(table.conflict),
     eq(table.userId, userId),
     pushable(db, sync),
+    // 07 §4.2 (D1): while the account is being restored, a profile made on the device (never on
+    // the server) waits: the account's own may still be on its way, and it wins.
+    sync.table === profiles && !isRestored(db) ? isNotNull(profiles.serverUpdatedAt) : undefined,
   );
 }
 

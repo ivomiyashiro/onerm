@@ -6,7 +6,10 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { StartGuestUnion } from '@/domain/usecases/guest-union';
+import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
 import { SyncNow } from '@/domain/usecases/sync-now';
+import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
 import { useGuestUnionViewModel } from '@/presentation/features/auth/use-guest-union-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
@@ -121,6 +124,89 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
     account.pendingMigration = 'u1';
 
     await act(async () => store.getState().requestUnion());
+
+    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false });
+  });
+
+  it('D3: a sync that ends with no union waiting asks nothing again', async () => {
+    let asked = 0;
+    const startGuestUnion = new StartGuestUnion({
+      guestSummary: async () => {
+        asked++;
+        return SOME;
+      },
+      accountHasData: async () => false,
+      unite: async () => 'done',
+    });
+    let emit: (activity: SyncActivity) => void = () => {};
+    const observeSyncActivity = new ObserveSyncActivity({
+      observeActivity: (listener) => {
+        emit = listener;
+        return () => {};
+      },
+    });
+    const account = new InMemoryAccountRepository();
+    account.pendingMigration = 'u1';
+    const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
+    await renderHook(() => useGuestUnionViewModel(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <AppStoreProvider store={createAppStore()}>
+          <UseCasesProvider
+            useCases={someUseCases({
+              ...guestUnionOver(account, gateway),
+              startGuestUnion,
+              observeSyncActivity,
+            })}
+          >
+            {children}
+          </UseCasesProvider>
+        </AppStoreProvider>
+      ),
+    });
+    expect(asked).toBe(1);
+
+    const idle = { lastResult: 'synced', online: true, restoring: null } as const;
+    await act(async () => emit({ ...idle, running: true }));
+    await act(async () => emit({ ...idle, running: false }));
+
+    expect(asked).toBe(1);
+  });
+
+  it('D3: a union that found no connection retries when a sync ends (reconnection, foreground)', async () => {
+    const account = new InMemoryAccountRepository();
+    account.pendingMigration = 'u1';
+    const gateway = new FakeAuthGateway(undefined, { userId: 'u1', email: 'ana@mail.com' });
+    let online = false;
+    const union = guestUnionOver(account, gateway, SOME, true);
+    const startGuestUnion = new StartGuestUnion({
+      guestSummary: async () => SOME,
+      accountHasData: async () => (online ? true : 'offline'),
+      unite: async () => 'done',
+    });
+    let emit: (activity: SyncActivity) => void = () => {};
+    const observeSyncActivity = new ObserveSyncActivity({
+      observeActivity: (listener) => {
+        emit = listener;
+        return () => {};
+      },
+    });
+    const { result } = await renderHook(() => useGuestUnionViewModel(), {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <AppStoreProvider store={createAppStore()}>
+          <UseCasesProvider
+            useCases={someUseCases({ ...union, startGuestUnion, observeSyncActivity })}
+          >
+            {children}
+          </UseCasesProvider>
+        </AppStoreProvider>
+      ),
+    });
+    expect(result.current.dialog).toBeNull();
+
+    online = true;
+    const idle = { lastResult: 'guest', online: true, restoring: null } as const;
+    await act(async () => emit({ ...idle, running: true }));
+    await act(async () => emit({ ...idle, running: false }));
 
     expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false });
   });

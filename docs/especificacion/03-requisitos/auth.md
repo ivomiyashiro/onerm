@@ -243,7 +243,8 @@ Escenario: AC7 — Cuenta sin datos
   Dado que como invitado tengo datos
   Y la cuenta en la que inicio sesión no tiene datos
   Cuando inicio sesión
-  Entonces mis datos, perfil incluido, pasan a la cuenta sin preguntar
+  Entonces mis datos pasan a la cuenta sin preguntar
+  Y también mi perfil, si la cuenta no tenía uno; si lo tenía, se conserva el de la cuenta (RN-AUTH-04, decidido el 2026-10-16)
   Y no repito el onboarding
 
 Escenario: AC8 — Entrenamiento en curso del invitado

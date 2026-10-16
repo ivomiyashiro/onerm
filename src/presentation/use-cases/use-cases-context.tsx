@@ -21,6 +21,7 @@ import type {
 } from '@/domain/usecases/guest-union';
 import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import type { ObserveRestoration } from '@/domain/usecases/observe-restoration';
+import type { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
 import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import type { SyncNow } from '@/domain/usecases/sync-now';
 import type {
@@ -129,6 +130,7 @@ export interface UseCases {
   observeSyncStatus: ObserveSyncStatus;
   observeBackupNotice: ObserveBackupNotice;
   observeRestoration: ObserveRestoration;
+  observeSyncActivity: ObserveSyncActivity;
   syncNow: SyncNow;
   observeRejectedChanges: ObserveRejectedChanges;
   discardRejectedChange: DiscardRejectedChange;

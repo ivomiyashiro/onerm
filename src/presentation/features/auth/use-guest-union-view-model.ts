@@ -31,17 +31,27 @@ export interface GuestUnionViewModel {
 /**
  * The union of the guest's data with the account (RF-AUTH-05, 07 §4.3), wherever the person is:
  * after entering an account on a guest device, and when the app opens with a union left halfway
- * (AC10). Without connection it waits for the next try; the device stays the guest's.
+ * (AC10). Without connection it waits, and tries again after the next sync, which runs on
+ * reconnection and on the foreground (D3); meanwhile the device stays the guest's.
  */
 export function useGuestUnionViewModel(): GuestUnionViewModel {
-  const { readPendingUnion, startGuestUnion, finishGuestUnion, cancelGuestUnion, syncNow } =
-    useUseCases();
+  const {
+    readPendingUnion,
+    startGuestUnion,
+    finishGuestUnion,
+    cancelGuestUnion,
+    syncNow,
+    observeSyncActivity,
+  } = useUseCases();
   const unionRequests = useAppStore((s) => s.unionRequests);
   const setAccount = useAppStore((s) => s.setAccount);
   const [dialog, setDialog] = useState<GuestUnionDialog | null>(null);
   const pending = useRef<PendingUnion | null>(null);
   // A ref, not state: two taps in the same frame must act only once.
   const busy = useRef(false);
+  // D3: a union that found no connection retries after the next sync (reconnection, foreground).
+  const waitingConnection = useRef(false);
+  const [retries, setRetries] = useState(0);
 
   const united = useCallback(
     ({ userId, email }: PendingUnion) => {
@@ -61,6 +71,7 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
       pending.current = waiting;
       const start = await startGuestUnion.execute(waiting);
       if (!active) return;
+      waitingConnection.current = start.kind === 'offline';
       if (start.kind === 'united') united(waiting);
       else if (start.kind === 'ask') {
         setDialog({ kind: 'ask', summary: start.summary, offline: false });
@@ -69,7 +80,18 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
     return () => {
       active = false;
     };
-  }, [unionRequests, readPendingUnion, startGuestUnion, united]);
+  }, [unionRequests, retries, readPendingUnion, startGuestUnion, united]);
+
+  useEffect(() => {
+    let wasRunning = false;
+    return observeSyncActivity.execute(({ running }) => {
+      if (wasRunning && !running && waitingConnection.current) {
+        waitingConnection.current = false;
+        setRetries((n) => n + 1);
+      }
+      wasRunning = running;
+    });
+  }, [observeSyncActivity]);
 
   async function act(work: (waiting: PendingUnion) => Promise<void>) {
     const waiting = pending.current;

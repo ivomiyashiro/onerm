@@ -48,6 +48,7 @@ import {
 import type { GuestUnion } from '@/domain/repositories/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
+import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import {
@@ -339,6 +340,7 @@ export function createDependencies(
       observeSyncStatus: new ObserveSyncStatus(syncState, workoutRepository, syncScheduler),
       observeBackupNotice: new ObserveBackupNotice(syncState, syncScheduler),
       observeRestoration: new ObserveRestoration(syncScheduler),
+      observeSyncActivity: new ObserveSyncActivity(syncScheduler),
       syncNow: new SyncNow(syncScheduler),
       observeRejectedChanges: new ObserveRejectedChanges(backup.rejected),
       discardRejectedChange: new DiscardRejectedChange(backup.rejected),
