@@ -13,12 +13,13 @@ export interface AccountEntry {
 
 /**
  * After the person is in: the store follows whose the device is, and a device without a profile
- * starts the onboarding. A guest device stays the guest's until the union (07 §4.3, #43), so the
- * store keeps it as a guest.
+ * starts the onboarding. A guest device stays the guest's until the union (07 §4.3), which it
+ * asks for; meanwhile the store keeps it as a guest.
  */
 export function useAfterAuth(): (entry: AccountEntry) => Promise<void> {
   const { continueAfterAuth, syncNow } = useUseCases();
   const setAccount = useAppStore((s) => s.setAccount);
+  const requestUnion = useAppStore((s) => s.requestUnion);
   return useCallback(
     async (entry: AccountEntry) => {
       if (!entry.pendingMerge) {
@@ -30,9 +31,12 @@ export function useAfterAuth(): (entry: AccountEntry) => Promise<void> {
         });
         // The account's own session is back: what waited goes up now (RF-AUTH-06.AC4).
         void syncNow.execute();
+      } else {
+        // A guest device: the union with the account runs next (RF-AUTH-05, GuestUnionGate).
+        requestUnion();
       }
       await continueAfterAuth.execute().catch(() => undefined);
     },
-    [continueAfterAuth, setAccount, syncNow],
+    [continueAfterAuth, setAccount, syncNow, requestUnion],
   );
 }

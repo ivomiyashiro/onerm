@@ -190,6 +190,7 @@ al autenticarse con owner = guest:
 - **Punto de entrada (F7, D1):** todo ingreso (registro, inicio de sesión, Google, enlace de recuperación) pasa por un único caso de uso, `EnterAccount`. Con `owner = guest` solo ejecuta el paso 0 y el dispositivo **sigue siendo del invitado** hasta el paso 6; los pasos 1 a 6 llegan con la unión (#43). Con `owner = A` aplica RN-AUTH-07.
 - **Entrenamiento en curso del invitado:** se migra con el resto, pero no se sube hasta que se finaliza (RN-SYNC-13).
 - La unión es **local** y en **una sola transacción**. Si la red se corta después, los datos quedan como pendientes.
+- **Sin conexión en el paso 1** (decidido el 2026-10-16, #43): la unión espera; el dispositivo sigue siendo del invitado y se retoma al volver a abrir la app o al volver a entrar. Solo la sesión guardada de esa misma cuenta puede retomarla; sin ella se descarta la espera.
 
 ### 4.4 Cierre de sesión y cambio de cuenta (RF-AUTH-07, RN-AUTH-07)
 

@@ -32,6 +32,8 @@ export const auth = {
       signUp: 'crear una cuenta',
       resetPassword: 'cambiar tu contraseña',
       google: 'continuar con Google',
+      /** D01 «Sumar» or D01b «Descartar» without connection (#43). */
+      uniteData: 'sumar o descartar tus datos',
     },
     offline: (action: string) =>
       `Necesitás conexión para ${action}. Podés seguir entrenando sin cuenta.`,

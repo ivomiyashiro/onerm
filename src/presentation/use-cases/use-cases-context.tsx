@@ -13,6 +13,12 @@ import type { ContinueWithGoogle } from '@/domain/usecases/continue-with-google'
 import type { SignIn } from '@/domain/usecases/sign-in';
 import type { SignUp } from '@/domain/usecases/sign-up';
 import type { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import type {
+  CancelGuestUnion,
+  FinishGuestUnion,
+  ReadPendingUnion,
+  StartGuestUnion,
+} from '@/domain/usecases/guest-union';
 import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import type { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
@@ -115,6 +121,11 @@ export interface UseCases {
   backUpBeforeSignOut: BackUpBeforeSignOut;
   /** RF-SYNC-01: the automatic backup while the app runs. */
   keepBackedUp: KeepBackedUp;
+  /** RF-AUTH-05: the union of the guest's data with the account (07 §4.3). */
+  readPendingUnion: ReadPendingUnion;
+  startGuestUnion: StartGuestUnion;
+  finishGuestUnion: FinishGuestUnion;
+  cancelGuestUnion: CancelGuestUnion;
   observeSyncStatus: ObserveSyncStatus;
   observeBackupNotice: ObserveBackupNotice;
   observeRestoration: ObserveRestoration;

@@ -177,7 +177,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 
 | Situación | Texto |
 |---|---|
-| Sin conexión para acciones de cuenta | Necesitás conexión para {acción}. Podés seguir entrenando sin cuenta. · {acción}: «iniciar sesión», «crear una cuenta», «cambiar tu contraseña», «continuar con Google» |
+| Sin conexión para acciones de cuenta | Necesitás conexión para {acción}. Podés seguir entrenando sin cuenta. · {acción}: «iniciar sesión», «crear una cuenta», «cambiar tu contraseña», «continuar con Google», «sumar o descartar tus datos» (D01 sin conexión, #43) |
 | Credenciales incorrectas | Email o contraseña incorrectos. |
 | Otro error al crear la cuenta o iniciar sesión | No pudimos completarlo. Probá de nuevo. |
 | Email existente (registro) | Ya existe una cuenta con este email. **Iniciar sesión** |
