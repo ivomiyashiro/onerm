@@ -46,7 +46,7 @@ async function renderAction({
 describe('useWorkoutAction', () => {
   it('RF-ENT-01.AC1, AC2: «Empezar» starts the next day and opens the workout', async () => {
     const { result, workouts, onOpenWorkout } = await renderAction();
-    expect(result.current.action).toEqual({ kind: 'start' });
+    expect(result.current.action).toEqual({ kind: 'start', dayName: 'Día A' });
 
     await act(() => result.current.run());
 

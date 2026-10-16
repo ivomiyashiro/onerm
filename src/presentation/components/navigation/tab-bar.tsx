@@ -15,6 +15,8 @@ export interface TabItem {
 export interface TabAction {
   kind: 'start' | 'continue' | 'disabled';
   label: string;
+  /** What TalkBack reads (13 §10): «Empezar Día A», «Continuar entrenamiento, 18:42». */
+  accessibilityLabel: string;
   /** «Continuar» shows the time of the workout in progress. */
   time?: string;
   onPress: () => void;
@@ -105,7 +107,7 @@ function ActionDisc({ action }: { action: TabAction }) {
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={action.time ? `${action.label}, ${action.time}` : action.label}
+      accessibilityLabel={action.accessibilityLabel}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={action.onPress}
