@@ -5,11 +5,13 @@ import type { Workout } from '@/domain/models/workout';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { aBilateralSet, aRoutine, aWorkout, aWorkoutExercise } from '@/domain/testing/builders';
 import {
+  FixedSyncStateRepository,
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { ObserveHistory } from '@/domain/usecases/observe-history';
 import { HistoryScreen } from '@/presentation/features/progress/history-screen';
 import { principles } from '@/presentation/strings/principles';
 import { progress as text } from '@/presentation/strings/progress';
@@ -83,6 +85,21 @@ describe('HistoryScreen (S18)', () => {
     await user.press(screen.getAllByRole('button', { name: 'Día A · Cuerpo completo' })[0]);
 
     expect(onOpenWorkout).toHaveBeenCalledWith('w2');
+  });
+
+  it('RF-PROG-01.AC2: a workout not backed up yet says «Pendiente»', async () => {
+    const workouts = new InMemoryWorkoutRepository(null, [on('w1', 28, 100), on('w2', 30, 105)]);
+    const syncState = new FixedSyncStateRepository();
+    syncState.setPendingWorkouts(['w1']);
+    await renderScreen(
+      [],
+      someUseCases({ observeHistory: new ObserveHistory(workouts, syncState) }),
+    );
+
+    expect(screen.getAllByText(text.overview.pending)).toHaveLength(1);
+    expect(
+      screen.getByRole('button', { name: `Día A · Cuerpo completo, ${text.overview.pending}` }),
+    ).toBeOnTheScreen();
   });
 
   it('RF-PROG-01.AC3: empty, with «Empezar el próximo»', async () => {
