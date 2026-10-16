@@ -174,6 +174,7 @@ The pre-delivery (2026-10-02) committed RF01–RF04 and nine non-functional requ
 - **Out of scope** ([00 §6](docs/especificacion/00-vision-y-alcance.md)): weighted, assisted or timed exercises (plank); nutrition and body measurements; social features; AI chat or recommendations; wearables, sensors, GPS and camera; technique videos; advanced periodization; coach mode; cardio and supersets; light mode.
 - **Measured on emulators and the iOS simulator, not on a physical phone:** RNF-03 (< 100 ms to confirm a set on a mid-range phone) and the rest notice with battery saver on.
 - **iOS:** «Continuar con Google» needs an iOS OAuth client; VoiceOver doesn't announce the effort options as radio buttons ([49](docs/pruebas/49-ios.md)).
+- For the first minutes in the background, a frame loop of `react-native-worklets` (Reanimated, pulled in by the navigation and gesture libraries) still uses some CPU until Android freezes the app ([#182](https://github.com/ivomiyashiro/onerm/issues/182)).
 - The Supabase free tier pauses a project after a week without activity: it has to be woken up before using accounts.
 
 ## Team, roles and responsibilities
