@@ -39,6 +39,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Backup status in Profile: «Respaldado · hace 2 min», «Respaldando…», the changes waiting (with or without connection), the ones the server rejected, a network error with «Reintentar», a workout that is backed up when finished, an expired session and an outdated app. Inicio shows a discreet notice of the changes not backed up yet.
 - Changes the server rejected: «Ver» in Profile lists them, each by the record it is about; tapping one says why and offers «Reintentar» or «Descartar este cambio», which goes back to the saved version or, if it was never uploaded, deletes it together with the records that depend on it (and says how many).
 - Restoring your data: signing in on a phone without data downloads your account with «Restaurando tus datos…», how many records of the total and the percentage; the app opens as soon as your profile arrives and the rest keeps downloading, with «Faltan datos por restaurar» in Inicio until it ends. If the connection is cut, what arrived stays, «Continuar» goes on and the restoration finishes by itself. A new account goes on to the onboarding.
+- «Respaldar ahora» in Profile backs up and brings the other phone's changes at once, when backed up or with changes waiting and a connection. What you did on another phone appears when the app opens or comes back, and the history, next day and suggestions follow it.
 
 ### Changed
 
