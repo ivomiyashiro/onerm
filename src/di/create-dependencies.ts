@@ -9,7 +9,7 @@ import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/e
 import NetInfo from '@react-native-community/netinfo';
 import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
-import { AppState } from 'react-native';
+import { AppState, Platform } from 'react-native';
 
 import {
   createSupabaseAuth,
@@ -183,6 +183,19 @@ let cachedSupabase: SupabaseAuth | null | undefined;
 const GOOGLE_WEB_CLIENT_ID =
   '190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com';
 
+/**
+ * iOS needs its own Google client (ADR-0012), and without it `configure` throws at startup (#49).
+ * Until one is created, iOS has no Google picker: «Continuar con Google» fails like an error.
+ */
+function googlePicker(): NativeGoogleAccountPicker | undefined {
+  if (Platform.OS !== 'ios')
+    return new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID });
+  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
+  return iosClientId
+    ? new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId })
+    : undefined;
+}
+
 /** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
 const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
 
@@ -196,7 +209,7 @@ function createAppSupabase(): SupabaseAuth | null {
     url,
     publishableKey,
     storage: expoSessionStorage,
-    google: new NativeGoogleAccountPicker(GOOGLE_WEB_CLIENT_ID),
+    google: googlePicker(),
   });
   AppState.addEventListener('change', (state) => {
     if (state === 'active') supabase.client.auth.startAutoRefresh();
