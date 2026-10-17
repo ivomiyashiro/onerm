@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Moves cards in the «OneRM MVP» Project and shows the board.
+# Moves cards in the «OneRM» Project and shows the board.
 #   tools/board.sh move <issue> backlog|progress|done
 #   tools/board.sh wip            cards in progress
 #   tools/board.sh next [F3]      next Backlog cards (optionally of one phase)

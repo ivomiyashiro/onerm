@@ -18,7 +18,7 @@ Mobile app (React Native + Expo) that tells strength trainees what weight, sets 
 | Branches, commits, PRs, board, Definition of Done | `docs/convenciones.md` |
 | UI texts | `docs/especificacion/13-textos.md` |
 | Design | Figma (link in `docs/especificacion/09-trazabilidad.md` §3) and `docs/diseno/marca.md` |
-| Tasks and their status | GitHub Issues + Project «OneRM MVP» (`gh issue view N`) |
+| Tasks and their status | GitHub Issues + Project «OneRM» (`gh issue view N`) |
 
 If the code contradicts the specification, **don't invent**: flag the gap and fix the specification first (or write a new ADR).
 

@@ -2,7 +2,7 @@
 
 **Estado:** Vigente · **Fecha:** 2026-10-02
 **Entrada:** [especificación](especificacion/README.md) (RF, RN, RNF, ADR), [Etapa 2 del TPO](etapa-2-entrega-final.md).
-**Seguimiento:** [GitHub Project «OneRM MVP»](https://github.com/users/ivomiyashiro/projects/2) · [milestones](https://github.com/ivomiyashiro/onerm/milestones). Cómo se trabaja: [convenciones.md](convenciones.md).
+**Seguimiento:** [GitHub Project «OneRM»](https://github.com/users/ivomiyashiro/projects/2) · [milestones](https://github.com/ivomiyashiro/onerm/milestones). Cómo se trabaja: [convenciones.md](convenciones.md).
 
 > Este documento dice **qué** se hace en cada fase y **cómo se sabe que terminó**. El estado de cada tarea vive **solo** en GitHub (issues y milestones); acá no se marcan tareas como hechas.
 
@@ -27,6 +27,9 @@
 | F7 | [Auth](https://github.com/ivomiyashiro/onerm/milestone/8) | Cuenta opcional | RF-AUTH-* (salvo RF-AUTH-05) | Tests de integración y flujo manual de registro, login y logout |
 | F8 | [Sync](https://github.com/ivomiyashiro/onerm/milestone/9) | Respaldo, restauración, multidispositivo y unión de los datos del invitado | RF-SYNC-*, RF-AUTH-05 · RNF-04, 05, 10, 12 | Idempotencia, convergencia con dos clientes simulados, pull de más de 500 filas en la misma ventana y unión del invitado sin duplicar ni perder filas |
 | F9 | [Cierre](https://github.com/ivomiyashiro/onerm/milestone/10) | Should, accesibilidad, iOS y entrega | RNF-16..20, 22, 23 | Checklist de [etapa-2-entrega-final.md](etapa-2-entrega-final.md) completo y README según §7.4 |
+| F10 | [Pulido](https://github.com/ivomiyashiro/onerm/milestone/11) | Bugs y mejoras de UX encontrados al probar en dispositivos físicos | RF-ENT-04, RF-ENT-06 · RNF-23 | Las cards `tipo: fix` están cerradas y el recorrido principal funciona en un iPhone y un Android físicos sin los problemas reportados |
+
+Lo que queda fuera del MVP (los RF Could y las ideas nuevas) está en el milestone [Post-MVP](https://github.com/ivomiyashiro/onerm/milestone/12) (#51).
 
 ## 3. Desglose de F5 (orden del flujo principal)
 
@@ -71,3 +74,4 @@
 | 2026-10-02 | Revisión con dos jueces: dependencias en todas las cards, la unión del invitado pasa a F8 (necesita sync), el e1RM pasa a la primera card del motor, cards nuevas #52 (modo avión) y #53 (estados de UI), y `tools/board.sh`. |
 | 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#16 y #18–#53), sin sprints ni estimaciones. |
 | 2026-10-14 | Revisión de F5: el stack refleja lo construido (gráficos con `react-native-svg`, sin librería, y vibración con `Vibration`, sin `expo-haptics`). |
+| 2026-10-16 | Fase F10 Pulido (#187–#199), a partir de las pruebas en un iPhone físico. Milestone Post-MVP para lo que queda fuera (#51). El Project pasa a llamarse «OneRM». |
