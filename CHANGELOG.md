@@ -59,6 +59,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - iOS: the display titles keep the accent of an uppercase letter («DÍA A»), the notification permission is asked over the rest screen, and the app no longer fails at startup without a Google client for iOS.
 - The rest says «Siguiente: {ejercicio} · primera vez» when the next exercise has no load yet, instead of «· × 8».
 - On iOS without a Google client of its own, «Continuar con Google» is not shown instead of always failing.
+- Coming back to the app, the rest and the workout time are right from the first frame, and a rest that ended in the background no longer vibrates on return (its notification already said so).
 - The rest countdown and the workout time stop ticking while the app is in the background, so Android no longer closes the app for using the CPU; and the app no longer checks the internet with periodic requests.
 - A backup request without an answer gives up after 15 s and is retried, so a request stuck when the network changes no longer holds the backup back.
 - The time of the central button past an hour fits its disc instead of ending in «…».
