@@ -7,6 +7,7 @@ import { SessionWatcher } from '@/presentation/features/auth/session-watcher';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';
+import { OverlayHost } from '@/presentation/components/overlay/overlay-host';
 import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
 import { colors } from '@/presentation/theme';
 
@@ -28,60 +29,65 @@ export default function RootLayout() {
     // Gestures (the drag of S15) need a root view over the whole app.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProviders>
-        {/* The screens mount once the local database is migrated (07 §6). */}
-        <StartupGate>
-          <SessionWatcher />
-          <SyncWatcher />
-          <GuestUnionGate />
-          <EntryGate>
-            {(entry) => (
-              <Stack
-                screenOptions={{
-                  headerShown: false,
-                  contentStyle: { backgroundColor: colors.bgBase },
-                }}
-              >
-                {/* 08 §3: only the stage's screens exist, so each answer that is saved moves the
+        {/* Sheets and dialogs are drawn over the screen that opens them (#188, #193). */}
+        <OverlayHost>
+          {/* The screens mount once the local database is migrated (07 §6). */}
+          <StartupGate>
+            <SessionWatcher />
+            <SyncWatcher />
+            <GuestUnionGate />
+            <EntryGate>
+              {(entry) => (
+                <Stack
+                  screenOptions={{
+                    headerShown: false,
+                    contentStyle: { backgroundColor: colors.bgBase },
+                  }}
+                  // Each screen has its own host: an overlay of a route sheet stays above it.
+                  screenLayout={({ children }) => <OverlayHost>{children}</OverlayHost>}
+                >
+                  {/* 08 §3: only the stage's screens exist, so each answer that is saved moves the
                   app to the next one; the first available screen is where it opens. */}
-                <Stack.Protected guard={entry.kind === 'app'}>
-                  <Stack.Screen name="(tabs)" />
-                </Stack.Protected>
-                {/* S23: an account's device without its profile yet (RF-SYNC-03). */}
-                <Stack.Protected guard={entry.kind === 'restoring'}>
-                  <Stack.Screen name="restoring" />
-                </Stack.Protected>
-                <Stack.Protected guard={entry.kind === 'welcome'}>
-                  <Stack.Screen name="welcome" />
-                </Stack.Protected>
-                <Stack.Protected
-                  guard={entry.kind === 'onboarding' && entry.step !== 'recommendation'}
-                >
-                  <Stack.Screen name="onboarding" />
-                </Stack.Protected>
-                {/* S06 stays while its choice ends the onboarding, so it can navigate after. */}
-                <Stack.Protected
-                  guard={
-                    entry.kind === 'app' ||
-                    (entry.kind === 'onboarding' && entry.step === 'recommendation')
-                  }
-                >
-                  <Stack.Screen name="recommendation" />
-                </Stack.Protected>
-                {/* While the account is being restored only S23 exists: the sign-in that started
+                  <Stack.Protected guard={entry.kind === 'app'}>
+                    <Stack.Screen name="(tabs)" />
+                  </Stack.Protected>
+                  {/* S23: an account's device without its profile yet (RF-SYNC-03). */}
+                  <Stack.Protected guard={entry.kind === 'restoring'}>
+                    <Stack.Screen name="restoring" />
+                  </Stack.Protected>
+                  <Stack.Protected guard={entry.kind === 'welcome'}>
+                    <Stack.Screen name="welcome" />
+                  </Stack.Protected>
+                  <Stack.Protected
+                    guard={entry.kind === 'onboarding' && entry.step !== 'recommendation'}
+                  >
+                    <Stack.Screen name="onboarding" />
+                  </Stack.Protected>
+                  {/* S06 stays while its choice ends the onboarding, so it can navigate after. */}
+                  <Stack.Protected
+                    guard={
+                      entry.kind === 'app' ||
+                      (entry.kind === 'onboarding' && entry.step === 'recommendation')
+                    }
+                  >
+                    <Stack.Screen name="recommendation" />
+                  </Stack.Protected>
+                  {/* While the account is being restored only S23 exists: the sign-in that started
                   it goes away, and nothing else can be opened over it (RF-SYNC-03). */}
-                <Stack.Protected guard={entry.kind !== 'restoring'}>
-                  <Stack.Screen name="sign-in" />
-                  <Stack.Screen name="sign-up" />
-                  <Stack.Screen name="forgot-password" />
-                  <Stack.Screen name="new-password" />
-                </Stack.Protected>
-                {SHEET_ROUTES.map((name) => (
-                  <Stack.Screen key={name} name={name} options={SHEET} />
-                ))}
-              </Stack>
-            )}
-          </EntryGate>
-        </StartupGate>
+                  <Stack.Protected guard={entry.kind !== 'restoring'}>
+                    <Stack.Screen name="sign-in" />
+                    <Stack.Screen name="sign-up" />
+                    <Stack.Screen name="forgot-password" />
+                    <Stack.Screen name="new-password" />
+                  </Stack.Protected>
+                  {SHEET_ROUTES.map((name) => (
+                    <Stack.Screen key={name} name={name} options={SHEET} />
+                  ))}
+                </Stack>
+              )}
+            </EntryGate>
+          </StartupGate>
+        </OverlayHost>
       </AppProviders>
     </GestureHandlerRootView>
   );
