@@ -9,6 +9,7 @@ import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Snackbar } from '@/presentation/components/feedback/snackbar';
 import { Icon } from '@/presentation/components/icons/icon';
+import { SwipeRow, type SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
@@ -284,18 +285,45 @@ function Workout({
             </Text>
           )}
           <View style={styles.rows}>
-            {rows.map((row) => (
-              <SetRow
-                key={row.kind === 'done' ? row.set.id : `pending-${row.number}`}
-                row={row}
-                unit={unit}
-                effortMode={effortMode}
-                onPress={() =>
-                  row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
-                }
-                onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
-              />
-            ))}
+            {rows.map((row) => {
+              const setRow = (a11y?: SwipeA11y) => (
+                <SetRow
+                  row={row}
+                  unit={unit}
+                  effortMode={effortMode}
+                  onPress={() =>
+                    row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
+                  }
+                  onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+                  a11y={a11y}
+                />
+              );
+              if (row.kind !== 'done') return <View key={`pending-${row.number}`}>{setRow()}</View>;
+              // #198: a done set is edited or deleted (with «Deshacer») swiping it.
+              return (
+                <SwipeRow
+                  key={row.set.id}
+                  testID={`set ${row.number}`}
+                  actions={[
+                    {
+                      key: 'edit',
+                      label: common.swipe.edit,
+                      icon: 'edit',
+                      onPress: () => actions.openSet(row.set.id),
+                    },
+                    {
+                      key: 'delete',
+                      label: common.swipe.delete,
+                      icon: 'trash',
+                      destructive: true,
+                      onPress: () => void actions.deleteSet(row.set.id),
+                    },
+                  ]}
+                >
+                  {setRow}
+                </SwipeRow>
+              );
+            })}
           </View>
         </ScrollView>
       </GestureDetector>
@@ -359,7 +387,7 @@ function Workout({
         effortMode={effortMode}
         onChange={actions.editForm}
         onConfirm={() => void confirmSet()}
-        onDelete={() => void actions.deleteSet()}
+        onDelete={() => sheet?.kind === 'edit' && void actions.deleteSet(sheet.set.id)}
         onClose={actions.closeSheet}
       />
       <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />

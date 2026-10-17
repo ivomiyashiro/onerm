@@ -168,6 +168,21 @@ function Editor({
                   isLast={index === exercises.length - 1}
                   onPress={() => actions.openExercise(exercise.id)}
                   onMove={(offset) => actions.moveExercise(exercise.id, offset)}
+                  swipeActions={[
+                    {
+                      key: 'edit',
+                      label: common.swipe.edit,
+                      icon: 'edit',
+                      onPress: () => actions.openExercise(exercise.id),
+                    },
+                    {
+                      key: 'remove',
+                      label: common.swipe.remove,
+                      icon: 'trash',
+                      destructive: true,
+                      onPress: () => actions.removeExercise(exercise.id),
+                    },
+                  ]}
                   onLayout={(layout) => {
                     rowLayouts.current[index] = layout;
                   }}
@@ -205,7 +220,7 @@ function Editor({
         onChange={actions.editForm}
         onSave={actions.applyExercise}
         onReplace={actions.replaceExercise}
-        onRemove={actions.removeExercise}
+        onRemove={() => sheet && actions.removeExercise(sheet.exercise.id)}
         onClose={actions.closeExercise}
       />
       <DaySheet

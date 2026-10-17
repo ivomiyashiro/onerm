@@ -1,4 +1,6 @@
 import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Profile } from '@/domain/models/profile';
@@ -13,6 +15,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { RoutinesScreen } from '@/presentation/features/routines/routines-screen';
+import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
@@ -152,6 +155,28 @@ describe('RoutinesScreen (S13)', () => {
     await user.press(screen.getByRole('button', { name: dialogs.D11.deleteDestructive }));
 
     expect(screen.queryByText('Mi rutina de pierna')).not.toBeOnTheScreen();
+  });
+
+  it('#198: swiping a routine edits or deletes it (D11 first)', async () => {
+    const { user, onEditRoutine } = await renderScreen();
+    const swipe = () =>
+      act(() =>
+        fireGestureHandler(getByGestureTestId('swipe Mi rutina de pierna'), [
+          { state: State.BEGAN, translationX: 0 },
+          { state: State.ACTIVE, translationX: -100 },
+          { state: State.END, translationX: -200 },
+        ]),
+      );
+
+    await swipe();
+    await user.press(screen.getByRole('button', { name: common.swipe.edit }));
+    expect(onEditRoutine).toHaveBeenCalledWith('legs');
+    await swipe();
+    await user.press(screen.getByRole('button', { name: common.swipe.delete }));
+
+    expect(
+      screen.getByRole('header', { name: dialogs.D11.title('Mi rutina de pierna') }),
+    ).toBeOnTheScreen();
   });
 
   it('RF-RUT-07.AC2: with a workout in progress shows D14, which goes to the workout', async () => {

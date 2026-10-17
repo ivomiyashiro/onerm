@@ -11,6 +11,7 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { SectionTabs } from '@/presentation/components/navigation/section-tabs';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
+import { SwipeRow } from '@/presentation/components/list/swipe-row';
 import { RoutineCard } from '@/presentation/features/routines/routine-card';
 import { RoutineChangeDialog } from '@/presentation/features/routines/routine-change-dialog';
 import {
@@ -19,7 +20,7 @@ import {
 } from '@/presentation/features/routines/use-routines-view-model';
 import { common } from '@/presentation/strings/common';
 import { routines as text } from '@/presentation/strings/routines';
-import { colors, size, space, typography } from '@/presentation/theme';
+import { colors, radius, size, space, typography } from '@/presentation/theme';
 
 type Section = 'mine' | 'templates';
 
@@ -141,14 +142,37 @@ function MyRoutines({
   return (
     <>
       {overview.routines.map((routine) => (
-        <RoutineCard
+        // #198: swiped, edit and delete; the «⋯» keeps them for screen readers, with «Activar».
+        <SwipeRow
           key={routine.id}
-          name={routine.name}
-          summary={summaryOf(routine)}
-          highlighted={isActive(routine)}
-          label={isActive(routine) ? text.list.active : undefined}
-          menu={{ label: text.list.options(routine.name), onPress: () => setMenuFor(routine) }}
-        />
+          testID={routine.name}
+          borderRadius={radius.xl}
+          actions={[
+            {
+              key: 'edit',
+              label: common.swipe.edit,
+              icon: 'edit',
+              onPress: () => onEditRoutine(routine.id),
+            },
+            {
+              key: 'delete',
+              label: common.swipe.delete,
+              icon: 'trash',
+              destructive: true,
+              onPress: () => void actions.remove(routine.id),
+            },
+          ]}
+        >
+          {() => (
+            <RoutineCard
+              name={routine.name}
+              summary={summaryOf(routine)}
+              highlighted={isActive(routine)}
+              label={isActive(routine) ? text.list.active : undefined}
+              menu={{ label: text.list.options(routine.name), onPress: () => setMenuFor(routine) }}
+            />
+          )}
+        </SwipeRow>
       ))}
       {menuFor && (
         <RoutineMenu

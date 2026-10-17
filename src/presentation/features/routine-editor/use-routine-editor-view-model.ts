@@ -99,7 +99,8 @@ export interface RoutineEditorViewModel {
     editForm(changes: Partial<PrescriptionForm>): void;
     applyExercise(): void;
     replaceExercise(): void;
-    removeExercise(): void;
+    /** From its sheet or swiping its row (#198). */
+    removeExercise(routineExerciseId: Id): void;
     save(): Promise<void>;
     /** The top bar's back and the system back: D08 when there are changes (RF-RUT-03.AC5). */
     back(): void;
@@ -381,9 +382,7 @@ export function useRoutineEditorViewModel(
           dayName: sheet.dayName,
           routineExerciseId: sheet.exercise.id,
         }),
-      removeExercise: () => {
-        if (sheet === null) return;
-        const id = sheet.exercise.id;
+      removeExercise: (id) => {
         editRoutine((routine) => removeExercise(routine, id));
         setSheetFor(null);
       },

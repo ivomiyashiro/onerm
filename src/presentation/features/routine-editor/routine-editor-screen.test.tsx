@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -80,6 +80,12 @@ async function renderScreen({
   return { ...repositories, ...callbacks, user: userEvent.setup() };
 }
 
+/** A screen reader's action on an exercise row (RF-RUT-05.AC2, #198). */
+const rowAction = (row: string, actionName: string) =>
+  fireEvent(screen.getByRole('button', { name: row }), 'accessibilityAction', {
+    nativeEvent: { actionName },
+  });
+
 describe('RoutineEditorScreen', () => {
   it('loading: shows only the top bar', async () => {
     await renderScreen({ useCases: someUseCases() });
@@ -106,9 +112,23 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByRole('button', { name: 'Prensa de piernas' })).toBeOnTheScreen();
     expect(screen.getByText('3 × 8–12 · reserva 2 · 2 min')).toBeOnTheScreen();
     expect(screen.getByText('3 × 8–12 · reserva 2 · 90 s')).toBeOnTheScreen();
-    // RF-RUT-05.AC2: the first can't go up, the last can't go down.
-    expect(screen.getAllByRole('button', { name: text.editor.moveUp })[0]).toBeDisabled();
-    expect(screen.getAllByRole('button', { name: text.editor.moveDown })[1]).toBeDisabled();
+    // RF-RUT-05.AC2: «Subir» and «Bajar» are actions of the row; the first can't go up, the last
+    // can't go down. #198: no arrows on screen, the handle is the one control by touch.
+    const names = (row: string) =>
+      screen
+        .getByRole('button', { name: row })
+        .props.accessibilityActions.map((a: { label: string }) => a.label);
+    expect(names('Prensa de piernas')).toEqual([
+      text.editor.moveDown,
+      common.swipe.edit,
+      common.swipe.remove,
+    ]);
+    expect(names('Curl de bíceps')).toEqual([
+      text.editor.moveUp,
+      common.swipe.edit,
+      common.swipe.remove,
+    ]);
+    expect(screen.queryByRole('button', { name: text.editor.moveUp })).not.toBeOnTheScreen();
   });
 
   it('RF-RUT-04.AC2: with a workout in progress, tells that the changes apply from the next one', async () => {
@@ -118,10 +138,10 @@ describe('RoutineEditorScreen', () => {
   });
 
   it('RF-RUT-05.AC4: moving the accessory first shows the order help', async () => {
-    const { user } = await renderScreen();
+    await renderScreen();
     await screen.findByDisplayValue('Mi rutina de pierna');
 
-    await user.press(screen.getAllByRole('button', { name: text.editor.moveUp })[1]);
+    await act(() => rowAction('Curl de bíceps', 'moveUp'));
 
     expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
   });
@@ -141,7 +161,7 @@ describe('RoutineEditorScreen', () => {
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
     const { user, onClose } = await renderScreen();
     await screen.findByDisplayValue('Mi rutina de pierna');
-    await user.press(screen.getAllByRole('button', { name: text.editor.moveDown })[0]);
+    await act(() => rowAction('Prensa de piernas', 'moveDown'));
 
     await user.press(screen.getByRole('button', { name: common.back }));
     expect(screen.getByText(dialogs.D08.title)).toBeOnTheScreen();

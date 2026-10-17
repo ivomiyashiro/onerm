@@ -112,7 +112,8 @@ export interface WorkoutViewModel extends Pick<
     confirmAdjust(): Promise<'logged' | 'invalid'>;
     openSet(setId: Id): void;
     saveEdit(): Promise<void>;
-    deleteSet(): Promise<void>;
+    /** From its sheet or swiping its row (#198); «Deshacer» brings it back. */
+    deleteSet(setId: Id): Promise<void>;
     undo(): Promise<void>;
     dismissUndo(): void;
     chooseEffort(set: WorkoutSet, field: RirField, rir: number): Promise<void>;
@@ -328,10 +329,9 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         await updateSet.execute(sheet.set.id, toSetInput(sheet.form, content.exercise.exercise));
         setSheet(null);
       },
-      async deleteSet() {
-        if (sheet?.kind !== 'edit') return;
+      async deleteSet(setId) {
         setSheet(null);
-        setDeleted(await deleteSet.execute(sheet.set.id));
+        setDeleted(await deleteSet.execute(setId));
       },
       async undo() {
         if (deleted === null) return;
