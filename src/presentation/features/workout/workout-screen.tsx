@@ -1,6 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useRef } from 'react';
 import { Pressable, ScrollView, StyleSheet, Vibration, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/presentation/components/badge/badge';
@@ -44,6 +45,8 @@ import { colors, radius, space, typography } from '@/presentation/theme';
 const LOGGED_VIBRATION_MS = 30;
 /** The end of the rest with the app open (RF-ENT-06.AC6): longer, so it is felt in a pocket. */
 const REST_END_VIBRATION = [0, 400, 200, 400];
+/** How far the exercise has to be swiped to change it (08 §5). */
+const SWIPE_DISTANCE = 64;
 
 interface WorkoutScreenProps {
   /** No workout in progress any more: back to the tabs. */
@@ -132,6 +135,19 @@ function Workout({
   const { prescription } = exercise.exercise;
   const currentNumber = rows.find((r) => r.kind === 'current')?.number ?? rows.length;
 
+  // 08 §5: swiping changes the exercise, without wrapping; screen readers use «Ver todos». Horizontal
+  // only, so the list still scrolls. On the JS thread: it only ends in a state change.
+  const swipe = Gesture.Pan()
+    .runOnJS(true)
+    .withTestId('swipe exercise')
+    .activeOffsetX([-24, 24])
+    .failOffsetY([-12, 12])
+    .onEnd(({ translationX }) => {
+      if (Math.abs(translationX) < SWIPE_DISTANCE) return;
+      const to = exerciseIndex + (translationX < 0 ? 1 : -1);
+      if (to >= 0 && to < exercises.length) actions.goTo(to);
+    });
+
   async function done() {
     if ((await actions.done()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
   }
@@ -204,70 +220,82 @@ function Workout({
           />
         ))}
       </View>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.title}>
-          <Text
-            style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
-            accessibilityRole="header"
-          >
-            {name}
-          </Text>
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={text.exerciseMenu.title(name)}
-            onPress={actions.openExerciseMenu}
-            style={styles.iconButton}
-          >
-            <Icon name="dots" color={colors.textPrimary} />
-          </Pressable>
-        </View>
-        {exercise.plannedName !== null && (
-          <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-            {text.substitution.insteadOf(exercise.plannedName)}
-          </Text>
-        )}
-        <View style={styles.facts}>
-          <Badge
-            label={text.set.prescription(
-              prescription.sets,
-              routines.repRange(prescription.repRange),
-            )}
-            tone="inverse"
-          />
-          {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
-          {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
-          {content.skipped && <Badge label={text.exerciseList.skipped} />}
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
-          </Text>
-          <View style={styles.seeAll}>
-            <Button variant="tertiary" label={text.header.seeAll} onPress={actions.openExercises} />
+      <GestureDetector gesture={swipe}>
+        <ScrollView contentContainerStyle={styles.content}>
+          <View style={styles.title}>
+            <Text
+              style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
+              accessibilityRole="header"
+            >
+              {name}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={text.exerciseMenu.title(name)}
+              onPress={actions.openExerciseMenu}
+              style={styles.iconButton}
+            >
+              <Icon name="dots" color={colors.textPrimary} />
+            </Pressable>
           </View>
-        </View>
-        {exercise.notes && (
-          <Text style={[typography.bodyM, { color: colors.textSecondary }]}>{exercise.notes}</Text>
-        )}
-        <ReasonRow line={content.reason.line} icon={content.reason.icon} onWhy={actions.openWhy} />
-        {exercise.name === null && (
-          <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-            {text.unavailable.body}
-          </Text>
-        )}
-        <View style={styles.rows}>
-          {rows.map((row) => (
-            <SetRow
-              key={row.kind === 'done' ? row.set.id : `pending-${row.number}`}
-              row={row}
-              unit={unit}
-              effortMode={effortMode}
-              onPress={() =>
-                row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
-              }
-              onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+          {exercise.plannedName !== null && (
+            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+              {text.substitution.insteadOf(exercise.plannedName)}
+            </Text>
+          )}
+          <View style={styles.facts}>
+            <Badge
+              label={text.set.prescription(
+                prescription.sets,
+                routines.repRange(prescription.repRange),
+              )}
+              tone="inverse"
             />
-          ))}
-        </View>
-      </ScrollView>
+            {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
+            {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
+            {content.skipped && <Badge label={text.exerciseList.skipped} />}
+            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+              {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
+            </Text>
+            <View style={styles.seeAll}>
+              <Button
+                variant="tertiary"
+                label={text.header.seeAll}
+                onPress={actions.openExercises}
+              />
+            </View>
+          </View>
+          {exercise.notes && (
+            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+              {exercise.notes}
+            </Text>
+          )}
+          <ReasonRow
+            line={content.reason.line}
+            icon={content.reason.icon}
+            onWhy={actions.openWhy}
+          />
+          {exercise.name === null && (
+            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+              {text.unavailable.body}
+            </Text>
+          )}
+          <View style={styles.rows}>
+            {rows.map((row) => (
+              <SetRow
+                key={row.kind === 'done' ? row.set.id : `pending-${row.number}`}
+                row={row}
+                unit={unit}
+                effortMode={effortMode}
+                onPress={() =>
+                  row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
+                }
+                onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+              />
+            ))}
+          </View>
+        </ScrollView>
+      </GestureDetector>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
         {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}
         {rest && restMinimized && remaining !== null && (
