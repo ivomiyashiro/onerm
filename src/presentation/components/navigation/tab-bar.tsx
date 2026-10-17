@@ -201,11 +201,19 @@ const styles = StyleSheet.create({
     borderRadius: DISC / 2,
     borderWidth: 5,
     borderColor: colors.bgTabbar,
-    overflow: 'hidden',
+    // Not clipped: on iOS `overflow: hidden` cut its shadow (#194); the fill rounds itself.
     boxShadow: '0px 6px 16px 0px rgba(0, 0, 0, 0.45)',
   },
   discDisabled: { backgroundColor: colors.bgRaised, boxShadow: undefined },
-  discFill: { position: 'absolute', top: 0, right: 0, bottom: 0, left: 0 },
+  discFill: {
+    position: 'absolute',
+    top: 0,
+    right: 0,
+    bottom: 0,
+    left: 0,
+    borderRadius: DISC / 2,
+    overflow: 'hidden',
+  },
   // Its own view, mounted when the tab turns active: on Android (Fabric) a background added
   // later to a view with a border radius showed up square.
   pillActive: {

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react';
 import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { PrimaryPlate } from '@/presentation/components/button/primary-plate';
@@ -15,6 +16,8 @@ interface ButtonProps {
   /** xl: the workout actions ("Hecho"). Only primary and secondary have it. */
   size?: 'm' | 'xl';
   icon?: IconName;
+  /** Before the label, in its own colors: a logo such as Google's (#194). */
+  leading?: ReactNode;
   disabled?: boolean;
   loading?: boolean;
   /** Shown next to the spinner while loading (for example "Guardando…"). */
@@ -32,6 +35,7 @@ export function Button({
   onPress,
   size = 'm',
   icon,
+  leading,
   disabled = false,
   loading = false,
   loadingLabel,
@@ -56,7 +60,7 @@ export function Button({
       ]}
     >
       {variant === 'primary' && <PrimaryPlate size={size} disabled={disabled} />}
-      {loading && <Spinner color={foreground} />}
+      {loading ? <Spinner color={foreground} /> : leading}
       <View style={variant === 'tertiary' && styles.underlined}>
         <Text style={[labelStyle(variant, size), { color: foreground }]}>{text}</Text>
       </View>
@@ -103,20 +107,24 @@ function background(
   }
 }
 
-const full = (height: number, borderRadius: number): ViewStyle => ({
+// #194: one radius for every full-width button. The primary plate keeps its two cut corners and
+// rounds the other two with it.
+const BUTTON_RADIUS = radius.md;
+
+const full = (height: number): ViewStyle => ({
   minHeight: height,
   paddingHorizontal: 22,
-  borderRadius,
+  borderRadius: BUTTON_RADIUS,
   alignSelf: 'stretch',
 });
-const compact: ViewStyle = { minHeight: 48, paddingHorizontal: 14, borderRadius: radius.lg };
+const compact: ViewStyle = { minHeight: 48, paddingHorizontal: 14, borderRadius: BUTTON_RADIUS };
 
 const SHAPE: Record<ButtonVariant, Record<'m' | 'xl', ViewStyle>> = {
-  primary: { m: full(56, 0), xl: full(64, 0) },
-  secondary: { m: full(56, radius.lg), xl: full(64, 18) },
+  primary: { m: { ...full(56), overflow: 'hidden' }, xl: { ...full(64), overflow: 'hidden' } },
+  secondary: { m: full(56), xl: full(64) },
   tertiary: { m: compact, xl: compact },
   danger: { m: compact, xl: compact },
-  dangerSolid: { m: full(56, radius.lg), xl: full(56, radius.lg) },
+  dangerSolid: { m: full(56), xl: full(56) },
 };
 
 const styles = StyleSheet.create({

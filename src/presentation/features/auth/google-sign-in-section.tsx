@@ -2,6 +2,7 @@ import { useEffect } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { Button } from '@/presentation/components/button/button';
+import GoogleLogo from '@/presentation/features/auth/google-logo.svg';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { Text } from '@/presentation/components/text';
 import { useGoogleSignInViewModel } from '@/presentation/features/auth/use-google-sign-in-view-model';
@@ -35,6 +36,7 @@ export function GoogleSignInSection({ onDone, disabled = false }: GoogleSignInSe
         loadingLabel={auth.form.signingIn}
         disabled={disabled}
         onPress={actions.start}
+        leading={<GoogleLogo width={20} height={20} />}
       />
       {state.message !== null && <Notice tone="warn" message={state.message} />}
       <Text style={[typography.bodyM, styles.or]}>{auth.form.orWithEmail}</Text>
