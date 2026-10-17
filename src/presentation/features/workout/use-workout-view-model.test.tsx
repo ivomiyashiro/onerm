@@ -627,5 +627,43 @@ describe('useWorkoutViewModel', () => {
 
       expect(permissions.opened).toEqual(['notifications']);
     });
+
+    it('#190: after «Ahora no», «Activar» shows the system prompt, which iOS settings lack', async () => {
+      const permissions = new FakeDevicePermissions('undetermined');
+      const { result } = await renderViewModel({ permissions });
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.dismissDialog());
+      expect(result.current.notice).toBe('notifications');
+
+      await act(() => result.current.actions.openNotice());
+
+      expect(permissions.notificationState).toBe('granted');
+      expect(permissions.opened).toEqual([]);
+      expect(result.current.notice).toBeNull();
+    });
+
+    it('#190: granted at the prompt without exact alarms, «Activar» goes on to D17', async () => {
+      const permissions = new FakeDevicePermissions('undetermined', false);
+      const { result } = await renderViewModel({ permissions });
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.dismissDialog());
+
+      await act(() => result.current.actions.openNotice());
+
+      expect(result.current.dialog).toBe('exactAlarms');
+      expect(result.current.notice).toBe('exactAlarms');
+    });
+
+    it('#190: refused at the prompt, «Activar» goes on to the settings', async () => {
+      const permissions = new FakeDevicePermissions('undetermined', true, false);
+      const { result } = await renderViewModel({ permissions });
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.dismissDialog());
+
+      await act(() => result.current.actions.openNotice());
+
+      expect(permissions.opened).toEqual(['notifications']);
+      expect(result.current.notice).toBe('notifications');
+    });
   });
 });

@@ -148,8 +148,11 @@ export class FakeDevicePermissions implements DevicePermissions {
   }
 
   async requestNotifications(): Promise<boolean> {
-    this.notificationState = this.answer ? 'granted' : 'denied';
-    return this.answer;
+    // Like the system: once refused, the prompt doesn't show again.
+    if (this.notificationState === 'undetermined') {
+      this.notificationState = this.answer ? 'granted' : 'denied';
+    }
+    return this.notificationState === 'granted';
   }
 
   async canScheduleExactAlarms(): Promise<boolean> {
