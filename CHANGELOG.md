@@ -41,6 +41,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Restoring your data: signing in on a phone without data downloads your account with «Restaurando tus datos…», how many records of the total and the percentage; the app opens as soon as your profile arrives and the rest keeps downloading, with «Faltan datos por restaurar» in Inicio until it ends. If the connection is cut, what arrived stays, «Continuar» goes on and the restoration finishes by itself. A new account goes on to the onboarding.
 - «Respaldar ahora» in Profile backs up and brings the other phone's changes at once, when backed up or with changes waiting and a connection. What you did on another phone appears when the app opens or comes back, and the history, next day and suggestions follow it.
 - Progress: with an account, a workout not backed up yet says «Pendiente» in the history until it is.
+- `device:android` and `device:ios` (and their `:release` variants) build, install and open the app on a connected phone with one command.
 
 ### Changed
 
