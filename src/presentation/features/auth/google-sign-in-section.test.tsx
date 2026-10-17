@@ -18,9 +18,11 @@ jest.useFakeTimers();
 
 async function renderSection(
   outcome: GoogleOutcome = { status: 'signedIn', userId: 'u1', email: 'ana@gmail.com' },
+  googleAvailable = true,
 ) {
   const gateway = new FakeAuthGateway();
   gateway.googleOutcome = outcome;
+  gateway.googleAvailable = googleAvailable;
   const useCases = someUseCases({
     continueWithGoogle: new ContinueWithGoogle(gateway, new InMemoryAccountRepository()),
     continueAfterAuth: { execute: async () => {} } as unknown as ContinueAfterAuth,
@@ -39,6 +41,13 @@ async function renderSection(
 const google = () => screen.getByRole('button', { name: auth.form.continueWithGoogle });
 
 describe('GoogleSignInSection (S02, S03)', () => {
+  it('without a Google picker (iOS without its own client) the section is not shown (D2 of F9)', async () => {
+    await renderSection(undefined, false);
+
+    expect(screen.queryByRole('button', { name: auth.form.continueWithGoogle })).toBeNull();
+    expect(screen.queryByText(auth.form.orWithEmail)).toBeNull();
+  });
+
   it('idle: the button and the way to the email form', async () => {
     await renderSection();
 

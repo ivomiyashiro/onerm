@@ -13,6 +13,8 @@ export interface GoogleSignInState {
 }
 
 export interface GoogleSignInViewModel {
+  /** False without Google's picker on this device: the section isn't shown (D2 of F9). */
+  available: boolean;
   state: GoogleSignInState;
   actions: { start(): Promise<void> };
 }
@@ -54,5 +56,5 @@ export function useGoogleSignInViewModel(): GoogleSignInViewModel {
     }
   }
 
-  return { state, actions: { start } };
+  return { available: continueWithGoogle.available, state, actions: { start } };
 }

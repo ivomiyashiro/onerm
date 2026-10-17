@@ -152,6 +152,8 @@ export const workout = {
     next: (exercise: string, values: string) => `Siguiente: ${exercise} · ${values}`,
     /** The minimized bar (Figma «RestTimer»). */
     nextShort: (values: string) => `Siguiente: ${values}`,
+    /** In place of «{carga} × {reps}» for an exercise with no load yet (D1 of the F9 review). */
+    firstTime: 'primera vez',
     /** The card of the set just done (Figma «Serie hecha»). */
     doneSet: (n: number, values: string) => `Serie ${n} · ${values}`,
     finished: '¡Descanso terminado!',

@@ -17,13 +17,18 @@ export class ContinueWithGoogle {
   private readonly enter: EnterAccount;
 
   constructor(
-    private readonly gateway: Pick<AuthGateway, 'signInWithGoogle' | 'signOut'>,
+    private readonly gateway: Pick<AuthGateway, 'signInWithGoogle' | 'signOut' | 'googleAvailable'>,
     account: Pick<
       AccountRepository,
       'readOwner' | 'savePendingMigration' | 'saveOwnerEmail' | 'saveOwner' | 'isEmptyDevice'
     >,
   ) {
     this.enter = new EnterAccount(gateway, account);
+  }
+
+  /** Without Google's picker on this device, «Continuar con Google» isn't offered (D2 of F9). */
+  get available(): boolean {
+    return this.gateway.googleAvailable;
   }
 
   async execute(): Promise<ContinueWithGoogleResult> {

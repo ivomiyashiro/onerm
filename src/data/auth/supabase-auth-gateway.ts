@@ -30,9 +30,13 @@ export class SupabaseAuthGateway implements AuthGateway {
   constructor(
     private readonly client: SupabaseClient,
     private readonly storage: Pick<SessionStorage, 'getItem'>,
-    /** Absent in a build without Google configured: «Continuar con Google» then fails. */
+    /** Absent without Google's client for the platform: «Continuar con Google» isn't offered. */
     private readonly google: GoogleAccountPicker | null = null,
   ) {}
+
+  get googleAvailable(): boolean {
+    return this.google !== null;
+  }
 
   async signUp(email: string, password: string): Promise<AuthOutcome> {
     const { data, error } = await this.client.auth.signUp({ email, password });

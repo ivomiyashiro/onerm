@@ -365,6 +365,7 @@ export class FakeAuthGateway implements AuthGateway {
   /** The recovery flow (RF-AUTH-08): what each step answers, and what it was asked. */
   googleOutcome: GoogleOutcome = { status: 'signedIn', userId: 'u1', email: 'ana@gmail.com' };
   googleRequests = 0;
+  googleAvailable = true;
   resetOutcome: PasswordResetOutcome = 'sent';
   linkOutcome: RecoveryLinkOutcome = { status: 'opened', userId: 'u1', email: 'ana@mail.com' };
   newPasswordOutcome: NewPasswordOutcome = {

@@ -17,12 +17,14 @@ interface GoogleSignInSectionProps {
 
 /** «Continuar con Google» and «o con tu email», at the top of S02 and S03 (RF-AUTH-04). */
 export function GoogleSignInSection({ onDone, disabled = false }: GoogleSignInSectionProps) {
-  const { state, actions } = useGoogleSignInViewModel();
+  const { available, state, actions } = useGoogleSignInViewModel();
 
   // `onDone` has to be stable (the routes memoize it): a new one would navigate again.
   useEffect(() => {
     if (state.status === 'done') onDone();
   }, [state.status, onDone]);
+
+  if (!available) return null;
 
   return (
     <View style={styles.section}>

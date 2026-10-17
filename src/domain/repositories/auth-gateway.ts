@@ -42,6 +42,8 @@ export interface AuthGateway {
   signIn(email: string, password: string): Promise<AuthOutcome>;
   /** Google's account picker, then the sign-in with its ID token (RF-AUTH-04). */
   signInWithGoogle(): Promise<GoogleOutcome>;
+  /** Whether this device has Google's picker: iOS needs a client of its own (ADR-0012). */
+  readonly googleAvailable: boolean;
   /**
    * Sends the recovery email. It answers `sent` whether the account exists or not, so it never
    * tells (RN-AUTH-02).
