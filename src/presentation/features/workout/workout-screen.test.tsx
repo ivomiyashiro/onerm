@@ -1,5 +1,7 @@
 import { act, render, screen, userEvent } from '@testing-library/react-native';
 import { AppState, Vibration, type AppStateStatus } from 'react-native';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Workout } from '@/domain/models/workout';
@@ -256,6 +258,41 @@ describe('WorkoutScreen (S09)', () => {
     await user.press(screen.getByRole('button', { name: PRESS.name }));
 
     expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+  });
+
+  it('08 §5: swiping goes to the next exercise and back to the previous one, without wrapping', async () => {
+    await renderScreen();
+    const swipe = (translationX: number) =>
+      act(() =>
+        fireGestureHandler(getByGestureTestId('swipe exercise'), [
+          { state: State.BEGAN, translationX: 0 },
+          { state: State.ACTIVE, translationX: translationX / 2 },
+          { state: State.END, translationX },
+        ]),
+      );
+
+    await swipe(-120);
+    expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+    await swipe(-120);
+    expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+    await swipe(120);
+    expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+    await swipe(120);
+    expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+  });
+
+  it('08 §5: a short swipe stays on the exercise', async () => {
+    await renderScreen();
+
+    await act(() =>
+      fireGestureHandler(getByGestureTestId('swipe exercise'), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -20 },
+        { state: State.END, translationX: -20 },
+      ]),
+    );
+
+    expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
   });
 
   it('RF-ENT-04.AC1, RF-ENT-02.AC5: a typed load out of range keeps the sheet open with the error', async () => {
