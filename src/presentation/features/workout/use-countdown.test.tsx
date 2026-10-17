@@ -65,4 +65,22 @@ describe('the clocks of the UI in the background (RNF-22)', () => {
     await act(() => jest.advanceTimersByTime(0));
     expect(result.current).toBe('1:30');
   });
+
+  it('the first render back is already right: a rest that ended in the background reads ended (RF-ENT-06.AC8)', async () => {
+    const goTo = appState();
+    const seen: (number | null)[] = [];
+    await renderHook(() => {
+      const value = useCountdown(new Date(START.getTime() + 120_000));
+      seen.push(value);
+      return value;
+    });
+
+    await goTo('background');
+    jest.setSystemTime(START.getTime() + 180_000);
+    seen.length = 0;
+    await goTo('active');
+
+    expect(seen.length).toBeGreaterThan(0);
+    expect(seen.every((value) => value !== null && value <= 0)).toBe(true);
+  });
 });

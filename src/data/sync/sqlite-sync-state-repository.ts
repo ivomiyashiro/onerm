@@ -71,7 +71,11 @@ export class SqliteSyncStateRepository implements SyncStateRepository {
   }
 }
 
-/** Waiting for the push, or rejected by the server: either way, not on the server yet. */
+/**
+ * Waiting for the push, or rejected by the server: either way, not on the server yet. It reads the
+ * same `_dirty` and `_conflict` as `uploadable` in push.ts, which also holds rows back from the
+ * push (the workout in progress, a conflict's children): a change to one has to reach the other.
+ */
 function notBackedUp(table: typeof workouts | typeof workoutExercises | typeof workoutSets) {
   return or(eq(table.dirty, true), isNotNull(table.conflict));
 }

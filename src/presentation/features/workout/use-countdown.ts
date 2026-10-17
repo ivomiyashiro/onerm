@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useAppActive } from '@/presentation/features/workout/use-app-active';
+import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
 
 const TICK_MS = 250;
 
@@ -11,7 +11,8 @@ const TICK_MS = 250;
  */
 export function useCountdown(endsAt: Date | null): number | null {
   const [now, setNow] = useState(() => Date.now());
-  const active = useAppActive();
+  const onScreenSince = useOnScreenSince();
+  const active = onScreenSince !== null;
 
   useEffect(() => {
     if (endsAt === null || !active) return;
@@ -25,5 +26,6 @@ export function useCountdown(endsAt: Date | null): number | null {
     };
   }, [endsAt, active]);
 
-  return endsAt === null ? null : endsAt.getTime() - now;
+  // Back on screen, `now` is still from before it left until the first tick.
+  return endsAt === null ? null : endsAt.getTime() - Math.max(now, onScreenSince ?? now);
 }

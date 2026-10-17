@@ -136,5 +136,5 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 | 13 | Diagramas de arquitectura | 12 §2 (flujo de datos) y §3 (topología) |
 | 14 | Offline First | 07 §5 |
 | 15 | Tecnologías y justificación | ADR-0001, 0004, 0007, 0010, 0011, 0012 |
-| 16 | Repositorio | **Pendiente**: crear el repo, la estrategia de ramas y la convención de commits |
-| 17 | Integrantes y roles | **Pendiente** (ver la advertencia sobre el equipo en propuesta.md) |
+| 16 | Repositorio | [github.com/ivomiyashiro/onerm](https://github.com/ivomiyashiro/onerm); ramas, commits y PRs en [convenciones.md](../convenciones.md) |
+| 17 | Integrantes y roles | Trabajo individual: README, sección «Team, roles and responsibilities» |

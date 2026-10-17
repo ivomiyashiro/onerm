@@ -131,7 +131,10 @@ export function countConflicts(db: AppDatabase, userId: string): number {
   }, 0);
 }
 
-/** Pending, of this owner, not in conflict and not held back. */
+/**
+ * Pending, of this owner, not in conflict and not held back. `notBackedUp` in
+ * sqlite-sync-state-repository.ts reads the same columns for the history's «Pendiente».
+ */
 function uploadable(db: AppDatabase, sync: UserTableSync, userId: string): SQL | undefined {
   const table = sync.table as typeof routines;
   return and(

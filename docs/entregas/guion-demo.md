@@ -57,11 +57,12 @@ Estructura recomendada por la cátedra: **problema → escenario → acción del
 | Progreso del ejercicio | Gráfico del 1RM estimado y récords | |
 | Volumen | Series por músculo de la semana, con la guía de 8 a 12 | |
 
-### 7. Respaldo — sin bloquear el entrenamiento (1 min) · dispositivo A, con cuenta
+### 7. Respaldo — sin bloquear el entrenamiento (1 min 30 s) · dispositivo A, con cuenta
 | Acción | Respuesta | Qué mostrar |
 |---|---|---|
-| Modo avión y registrar una serie | El entrenamiento no cambia; Perfil dice «1 cambio sin respaldar · sin conexión» | RNF-10: la sync nunca interrumpe |
-| Quitar el modo avión | Perfil vuelve a «Respaldado · hace menos de 1 min» | La sync corre aparte |
+| Modo avión, registrar una serie | El entrenamiento no cambia; ningún aviso ni diálogo | RNF-10: la sync nunca interrumpe. Perfil dice «Tu entrenamiento se respalda al finalizarlo» (RN-SYNC-13: el entrenamiento en curso se sube recién al terminar) |
+| Finalizar el entrenamiento, todavía en modo avión | Resumen S12; en Progreso, el entrenamiento con «Pendiente»; en Perfil, «N cambios sin respaldar · sin conexión» | Todo queda guardado en el teléfono (RF-PROG-01.AC2) |
+| Quitar el modo avión | En unos segundos desaparece «Pendiente» y Perfil vuelve a «Respaldado · hace menos de 1 min» | La sync corre aparte, sola |
 | (Opcional) Iniciar sesión con la misma cuenta en el dispositivo B | «Restaurando tus datos… N %» y aparece el historial | El historial no se pierde al cambiar de teléfono |
 
 ### 8. Valor (30 s)
