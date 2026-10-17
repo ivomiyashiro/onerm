@@ -114,7 +114,7 @@ function RestPanel({
             onPress={onMinimize}
             style={styles.iconButton}
           >
-            <Icon name="down" size={20} color={colors.textPrimary} />
+            <Icon name="x" size={20} color={colors.textPrimary} />
           </Pressable>
         </View>
         <View style={styles.center}>
