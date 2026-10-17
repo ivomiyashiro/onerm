@@ -69,6 +69,7 @@ Las direcciones de la §5 (A, B y C "tranquilas") se descartaron: se buscó un *
 - Profundidad con **capas de superficie y líneas de 1 px** al 7 % de blanco; sin bordes gruesos.
 - **Sin botones con contorno:** primario relleno con brillo superior y halo amarillo; secundario relleno gris; terciario solo texto; destructivo con fondo rojo tenue.
 - Radios por tamaño (8 → 28 px); las píldoras quedan solo para chips, etiquetas y pestañas.
+- **Botones (#194, 2026-10-17):** un solo radio, `radius.md` (12 px), para el secundario en sus dos tamaños, el destructivo y los compactos. El primario conserva sus dos esquinas cortadas (placa) y redondea las otras dos con ese mismo radio.
 - **Movimiento** con 4 tokens (presión 120 ms, estado 200–360 ms, resorte 320 ms, entrada 320 ms) y respeto de "reducir movimiento".
 - Se sumaron campos de texto, controles, carga, esqueletos, estados de respaldo, avisos, vacíos, errores, diálogo y hoja inferior.
 

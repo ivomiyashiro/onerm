@@ -53,6 +53,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Visual details on iPhone: every button shares one corner radius; text fields center their text; the central tab button's shadow is no longer cut; the welcome photo is sharp on high-density screens; «Continuar con Google» shows the Google logo.
 - On iPhone the rest notifications are asked once, with the system prompt alone, instead of our explanation followed by the system's.
 - Routine editor: each day has a visible «…» with its options, so a day can be removed while creating a routine too; removing one with exercises asks first.
 - Rest notice: «Activar» in the workout shows the system prompt when the phone never asked (after «Ahora no»), instead of opening the settings, where iPhone has no notifications option for the app yet. The notice also appears right after «Ahora no».

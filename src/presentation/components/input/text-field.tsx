@@ -94,6 +94,12 @@ const styles = StyleSheet.create({
   error: { borderColor: colors.borderErr, ...elevation.focusError },
   disabled: { borderStyle: 'dashed', backgroundColor: 'transparent' },
   // The whole box is tappable, not only the line of text (RNF-16).
-  input: { padding: 0, minHeight: size.targetMin },
+  // #194: without the type's line height, which on iOS pushed the line down; centered.
+  input: {
+    padding: 0,
+    minHeight: size.targetMin,
+    lineHeight: undefined,
+    textAlignVertical: 'center',
+  },
   message: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });
