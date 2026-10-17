@@ -67,6 +67,7 @@ describe('strings (13-textos, RNF-21)', () => {
       'D16',
       'D17',
       'D18',
+      'D19',
     ]);
   });
 
