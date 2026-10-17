@@ -119,6 +119,7 @@ function Editor({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
+            style={styles.dayChips}
             contentContainerStyle={styles.days}
           >
             {routine.days.map((d) => (
