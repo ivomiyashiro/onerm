@@ -126,6 +126,9 @@ export class ObserveWorkout {
           ].join('\n');
           if (cache?.key !== key) cache = { key, explanations: new Map() };
           const { explanations } = cache;
+          const finishedNewestFirst = [...finished].sort(
+            (a, b) => b.startedAt.getTime() - a.startedAt.getTime(),
+          );
           const inputs = {
             profile,
             catalog,
@@ -178,7 +181,7 @@ export class ObserveWorkout {
                     ? (catalog.get(reason.basis.exerciseId)?.name ?? null)
                     : null,
                 grid,
-                lastLoadKg: lastLoadKg(exercise.exerciseId, workout, finished),
+                lastLoadKg: lastLoadKg(exercise.exerciseId, workout, finishedNewestFirst),
               };
             }),
           });

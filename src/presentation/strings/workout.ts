@@ -32,7 +32,7 @@ export const workout = {
     increaseReps: 'Subir las repeticiones',
     /** In the sheet, the load of a calibration's first set still to choose (RN-ENT-04): greyed. */
     noLoad: '0',
-    /** The same load in its row: «— × 8», so it never reads as «use 0 kg». */
+    /** The same load in its row and its reason: «— × 8», so it never reads as «use 0 kg». */
     noLoadInRow: '—',
     /** Under the load, the last one logged in the exercise (#195). */
     lastLoad: (load: string) => `Última vez: ${load}`,

@@ -75,7 +75,7 @@ export function reasonIcon(code: SuggestionCode): IconName {
 const isAdvanced = (level: ExperienceLevel) => level !== 'novice';
 
 function formatLoad(kg: number | null, unit: LoadUnit): string {
-  if (kg === null) return text.set.noLoad;
+  if (kg === null) return text.set.noLoadInRow;
   return `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
 }
 

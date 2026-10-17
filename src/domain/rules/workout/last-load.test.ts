@@ -34,7 +34,22 @@ describe('lastLoadKg (#195)', () => {
     const older = workoutWith('older', '2026-10-10T18:00:00Z', 'press', [55]);
     const newer = workoutWith('newer', '2026-10-15T18:00:00Z', 'press', [57.5, 60]);
 
-    expect(lastLoadKg('press', today, [older, newer])).toBe(60);
+    expect(lastLoadKg('press', today, [newer, older])).toBe(60);
+  });
+
+  it('a warm-up is not the last load', () => {
+    const today = aWorkout({
+      exercises: [
+        aWorkoutExercise({
+          id: 'we',
+          exerciseId: 'press',
+          sets: [aBilateralSet({ workoutExerciseId: 'we', loadKg: 40, isWarmup: true })],
+        }),
+      ],
+    });
+    const before = workoutWith('before', '2026-10-15T18:00:00Z', 'press', [60]);
+
+    expect(lastLoadKg('press', today, [before])).toBe(60);
   });
 
   it('nothing without history, or with only sets without a load', () => {
