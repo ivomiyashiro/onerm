@@ -107,7 +107,7 @@ function background(
   }
 }
 
-// #194: one radius for every full-width button. The primary plate keeps its two cut corners and
+// #194: one radius for every button. The primary plate keeps its two cut corners and
 // rounds the other two with it.
 const BUTTON_RADIUS = radius.md;
 
