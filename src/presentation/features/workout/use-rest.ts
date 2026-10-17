@@ -126,14 +126,23 @@ export function useRest(
       async dismissDialog() {
         if (dialog === 'notifications') await askRestPermission.dismiss();
         setDialog(null);
+        // «Ahora no» leaves them off: the notice says so right away (AC7).
+        setNotice(await readRestPermissions.execute());
       },
       async openExactAlarmSettings() {
         setDialog(null);
         await askRestPermission.openExactAlarmSettings();
       },
       async openNotice() {
-        if (notice === 'notifications') await askRestPermission.openNotificationSettings();
-        else if (notice === 'exactAlarms') await askRestPermission.openExactAlarmSettings();
+        if (notice === 'exactAlarms') return askRestPermission.openExactAlarmSettings();
+        if (notice !== 'notifications') return;
+        // The system prompt while it still shows (#190): iOS settings have no notifications row for
+        // an app that never asked. A refused permission only changes in settings.
+        const next = await askRestPermission.allow();
+        const missing = await readRestPermissions.execute();
+        setNotice(missing);
+        if (missing === 'notifications') await askRestPermission.openNotificationSettings();
+        else if (next === 'exactAlarms') setDialog('exactAlarms');
       },
     },
   };

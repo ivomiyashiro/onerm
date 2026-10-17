@@ -257,6 +257,7 @@ Escenario: AC7 — Permiso de notificaciones rechazado
   Cuando el descanso termina con la app en primer plano
   Entonces el teléfono vibra y la pantalla lo indica
   Y en la pantalla de entrenamiento veo un aviso discreto: "Activá las notificaciones para que te avisemos con la pantalla bloqueada", con la acción "Activar"
+  Y "Activar" muestra el pedido del sistema si todavía se puede mostrar (por ejemplo, si respondí "Ahora no" en D05), y si no abre los ajustes del teléfono
 
 Escenario: AC8 — Precisión en segundo plano
   Dado que el temporizador marcaba 2:00 y la app pasó a segundo plano
