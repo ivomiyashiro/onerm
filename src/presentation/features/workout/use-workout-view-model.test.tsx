@@ -642,6 +642,18 @@ describe('useWorkoutViewModel', () => {
       expect(result.current.notice).toBeNull();
     });
 
+    it('#190: granted at the prompt without exact alarms, «Activar» goes on to D17', async () => {
+      const permissions = new FakeDevicePermissions('undetermined', false);
+      const { result } = await renderViewModel({ permissions });
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.dismissDialog());
+
+      await act(() => result.current.actions.openNotice());
+
+      expect(result.current.dialog).toBe('exactAlarms');
+      expect(result.current.notice).toBe('exactAlarms');
+    });
+
     it('#190: refused at the prompt, «Activar» goes on to the settings', async () => {
       const permissions = new FakeDevicePermissions('undetermined', true, false);
       const { result } = await renderViewModel({ permissions });
