@@ -49,6 +49,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Workout on iPhone: confirming a set from «Ajustar serie» closes the sheet before the rest opens, so the screen no longer stops responding.
 - On an iPhone with iOS 27 the app closed as soon as it opened; it now starts normally.
 - A profile made on the phone while your account was still being restored (or before signing in) no longer replaces the one your account already had; it only goes up if the account had none.
 

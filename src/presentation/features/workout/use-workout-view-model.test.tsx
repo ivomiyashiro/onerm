@@ -20,10 +20,12 @@ import {
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { AskRestPermission } from '@/domain/usecases/rest-timer';
 import { stepReps, typeLoad } from '@/presentation/features/workout/set-form';
 import {
   useWorkoutViewModel,
   type WorkoutContent,
+  type WorkoutViewModel,
 } from '@/presentation/features/workout/use-workout-view-model';
 import {
   restUseCasesOver,
@@ -84,34 +86,45 @@ async function renderViewModel({
   finished = [LAST_TIME],
   useCases = undefined as UseCases | undefined,
   permissions = new FakeDevicePermissions(),
+  /** Every state the screen rendered, in order. */
+  renders = [] as WorkoutViewModel[],
+  overrides = {} as Partial<UseCases>,
 } = {}) {
   const workouts = new InMemoryWorkoutRepository(inProgress, finished);
   const timers = new InMemoryRestTimerRepository();
   const notifier = new FakeRestNotifier();
   let n = 0;
-  const hook = await renderHook(() => useWorkoutViewModel(), {
-    wrapper: ({ children }: { children: ReactNode }) => (
-      <UseCasesProvider
-        useCases={
-          useCases ??
-          someUseCases({
-            ...routineUseCasesOver({
-              routines: new InMemoryRoutineRepository([aRoutine()]),
-              templates: new InMemoryRoutineTemplateRepository(),
-              profiles: new InMemoryProfileRepository(defaultProfile()),
-              workouts,
-              exercises: [SQUAT, PRESS, LEG_PRESS, CURL],
-              newId: () => `set-${++n}`,
-              now: () => NOW,
-            }),
-            ...restUseCasesOver({ timers, notifier, permissions, now: () => NOW }),
-          })
-        }
-      >
-        {children}
-      </UseCasesProvider>
-    ),
-  });
+  const hook = await renderHook(
+    () => {
+      const viewModel = useWorkoutViewModel();
+      renders.push(viewModel);
+      return viewModel;
+    },
+    {
+      wrapper: ({ children }: { children: ReactNode }) => (
+        <UseCasesProvider
+          useCases={
+            useCases ??
+            someUseCases({
+              ...routineUseCasesOver({
+                routines: new InMemoryRoutineRepository([aRoutine()]),
+                templates: new InMemoryRoutineTemplateRepository(),
+                profiles: new InMemoryProfileRepository(defaultProfile()),
+                workouts,
+                exercises: [SQUAT, PRESS, LEG_PRESS, CURL],
+                newId: () => `set-${++n}`,
+                now: () => NOW,
+              }),
+              ...restUseCasesOver({ timers, notifier, permissions, now: () => NOW }),
+              ...overrides,
+            })
+          }
+        >
+          {children}
+        </UseCasesProvider>
+      ),
+    },
+  );
   const content = () => hook.result.current.state as WorkoutContent;
   return { ...hook, workouts, content, timers, notifier, permissions };
 }
@@ -479,6 +492,37 @@ describe('useWorkoutViewModel', () => {
       expect(timers.timer.endsAt).toBeNull();
       expect(notifier.scheduled).toBeNull();
       expect(result.current.rest).toBeNull();
+    });
+
+    it('#188: the sheet closes before the full rest opens, never both at once', async () => {
+      const renders: WorkoutViewModel[] = [];
+      // The permission check runs once the rest started: holding it shows the state in between.
+      let release = () => {};
+      const ask = new AskRestPermission(
+        new InMemoryRestTimerRepository(),
+        new FakeDevicePermissions(),
+      );
+      ask.shouldAsk = () => new Promise((resolve) => (release = () => resolve(false)));
+      const { result } = await renderViewModel({
+        renders,
+        overrides: { askRestPermission: ask },
+      });
+      await act(() => result.current.actions.openAdjust());
+
+      let confirming: Promise<unknown> = Promise.resolve();
+      await act(async () => {
+        confirming = result.current.actions.confirmAdjust();
+      });
+      await act(async () => {
+        release();
+        await confirming;
+      });
+
+      expect(result.current.rest).not.toBeNull();
+      expect(result.current.sheet).toBeNull();
+      // On iOS a native Modal opened over one that is closing is dropped and the screen hangs.
+      const both = renders.some((r) => r.sheet !== null && r.rest !== null && !r.restMinimized);
+      expect(both).toBe(false);
     });
 
     it('minimized, it stays as a bar until a new rest opens it again', async () => {
