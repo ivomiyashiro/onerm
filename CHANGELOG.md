@@ -51,6 +51,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- On iPhone the rest notifications are asked once, with the system prompt alone, instead of our explanation followed by the system's.
 - Rest notice: «Activar» in the workout shows the system prompt when the phone never asked (after «Ahora no»), instead of opening the settings, where iPhone has no notifications option for the app yet. The notice also appears right after «Ahora no».
 - Workout on iPhone: the screen no longer stops responding when a set is confirmed from «Ajustar serie» or sheets are opened and closed quickly; sheets and dialogs are drawn over the screen instead of as separate system windows.
 - On an iPhone with iOS 27 the app closed as soon as it opened; it now starts normally.

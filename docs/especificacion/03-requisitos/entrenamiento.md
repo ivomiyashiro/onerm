@@ -270,6 +270,7 @@ Escenario: AC9 — Pedido del permiso en contexto
   Entonces se me explica para qué se usa y se me pide el permiso
   Y si lo doy y el sistema no permite alarmas exactas, se me explica por qué hacen falta y puedo abrir los ajustes del teléfono para permitirlas (D17)
   Y el entrenamiento sigue igual si rechazo cualquiera de los dos
+  Pero en iOS veo solo el pedido del sistema, sin D05: su texto no se puede cambiar, el descanso que acaba de empezar explica para qué es, y dos pedidos seguidos confunden (#191)
 
 Escenario: AC10 — Alarmas exactas no permitidas
   Dado que di permiso de notificaciones pero no de alarmas exactas

@@ -101,6 +101,13 @@ export function useRest(
 
   const seconds = () => (rest ? rest.totalSeconds : 0);
 
+  /** D05 «Permitir», or the system prompt alone on iOS: then D17 or the notice. */
+  async function allowNotifications() {
+    const next = await askRestPermission.allow();
+    setDialog(next === 'exactAlarms' ? 'exactAlarms' : null);
+    setNotice(await readRestPermissions.execute());
+  }
+
   return {
     rest,
     restMinimized,
@@ -110,7 +117,9 @@ export function useRest(
       if (isWarmup) return;
       setRestMinimized(false);
       await startRest.execute(restSeconds, message ?? PROVISIONAL);
-      if (await askRestPermission.shouldAsk()) setDialog('notifications');
+      const ask = await askRestPermission.firstAsk();
+      if (ask === 'explain') setDialog('notifications');
+      else if (ask === 'system') await allowNotifications();
     },
     actions: {
       addRest: () => addRestTime.execute(message ?? PROVISIONAL),
@@ -118,11 +127,8 @@ export function useRest(
       skipRest: () => skipRest.execute(),
       minimizeRest: () => setRestMinimized(true),
       expandRest: () => setRestMinimized(false),
-      async allowNotifications() {
-        const next = await askRestPermission.allow();
-        setDialog(next === 'exactAlarms' ? 'exactAlarms' : null);
-        setNotice(await readRestPermissions.execute());
-      },
+      allowNotifications,
+
       async dismissDialog() {
         if (dialog === 'notifications') await askRestPermission.dismiss();
         setDialog(null);

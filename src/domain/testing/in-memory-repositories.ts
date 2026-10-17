@@ -135,6 +135,8 @@ export class FakeRestNotifier implements RestNotifier {
 
 export class FakeDevicePermissions implements DevicePermissions {
   opened: ('notifications' | 'exactAlarms')[] = [];
+  /** Android by default; iOS sets it to false. */
+  explainsFirst = true;
 
   constructor(
     public notificationState: NotificationPermission = 'granted',

@@ -519,7 +519,7 @@ describe('useWorkoutViewModel', () => {
         new InMemoryRestTimerRepository(),
         new FakeDevicePermissions(),
       );
-      ask.shouldAsk = () => new Promise((resolve) => (release = () => resolve(false)));
+      ask.firstAsk = () => new Promise((resolve) => (release = () => resolve(null)));
       const { result } = await renderViewModel({
         renders,
         overrides: { askRestPermission: ask },
@@ -604,6 +604,18 @@ describe('useWorkoutViewModel', () => {
 
       expect(permissions.opened).toEqual(['exactAlarms']);
       expect(result.current.dialog).toBeNull();
+    });
+
+    it('#191: on iOS the first set shows only the system prompt, without D05', async () => {
+      const permissions = new FakeDevicePermissions('undetermined');
+      permissions.explainsFirst = false;
+      const { result } = await renderViewModel({ permissions });
+
+      await act(() => result.current.actions.done());
+
+      expect(result.current.dialog).toBeNull();
+      expect(permissions.notificationState).toBe('granted');
+      expect(result.current.notice).toBeNull();
     });
 
     it('AC9: «Ahora no» never asks again and the workout goes on', async () => {

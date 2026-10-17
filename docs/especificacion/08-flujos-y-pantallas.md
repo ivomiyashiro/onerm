@@ -54,7 +54,7 @@ Responde a los §4.8 (UI/UX/CX) y §4.9 (flujo de pantallas) del TPO. Es la **gu
 | D02 | Entrenamiento abandonado | Arranque | RF-ENT-13 AC2 |
 | D03 | Cerrar sesión con pendientes | S21 | RF-AUTH-07 AC3 |
 | D14 | Terminá tu entrenamiento primero (reemplaza a D04) | S21 (cerrar sesión), S13/S14 (activar, adoptar o eliminar la activa) | RF-AUTH-07 AC4, RN-RUT-09 |
-| D05 | Permiso de notificaciones, en contexto | S09 (primera serie) | RF-ENT-06 AC9 |
+| D05 | Permiso de notificaciones, en contexto (Android; en iOS va directo el pedido del sistema) | S09 (primera serie) | RF-ENT-06 AC9 |
 | D17 | Permiso de alarmas exactas (Android 12+), después de D05 | S09 (primera serie), S21 | RF-ENT-06 AC9, AC10 |
 | D18 | Finalizar sin series efectivas: ofrece descartar | S09 | RF-ENT-11 AC5 |
 | D06 | Ajustar la rutina al nuevo objetivo | S21 | RF-PERF-03 AC2 |

@@ -81,8 +81,8 @@ export class ObserveRestTimer {
 }
 
 /**
- * RF-ENT-06.AC9: D05 on the first set, once, and D17 after it when the system doesn't allow exact
- * alarms. The workout goes on whatever the answer.
+ * RF-ENT-06.AC9: D05 on the first set, once (on iOS the system prompt alone), and D17 after it when
+ * the system doesn't allow exact alarms. The workout goes on whatever the answer.
  */
 export class AskRestPermission {
   constructor(
@@ -90,12 +90,15 @@ export class AskRestPermission {
     private readonly permissions: DevicePermissions,
   ) {}
 
-  /** Never shown, and the system never asked. */
-  async shouldAsk(): Promise<boolean> {
+  /**
+   * On the first set: D05 first (`explain`), the system prompt alone (`system`, #191), or nothing
+   * when D05 was already shown or the system already asked.
+   */
+  async firstAsk(): Promise<'explain' | 'system' | null> {
     const { notificationPermissionAsked } = await this.timers.get();
-    return (
-      !notificationPermissionAsked && (await this.permissions.notifications()) === 'undetermined'
-    );
+    if (notificationPermissionAsked) return null;
+    if ((await this.permissions.notifications()) !== 'undetermined') return null;
+    return this.permissions.explainsFirst ? 'explain' : 'system';
   }
 
   /** «Ahora no». */
