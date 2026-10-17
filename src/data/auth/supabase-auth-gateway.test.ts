@@ -219,6 +219,15 @@ function googleGateway(
 const PICKED: GooglePick = { status: 'picked', idToken: 'google-id-token', email: 'ana@mail.com' };
 
 describe('SupabaseAuthGateway.signInWithGoogle (RF-AUTH-04)', () => {
+  it('Google is available only with a picker (iOS without its own client has none, ADR-0012)', () => {
+    const client = {} as SupabaseClient;
+
+    expect(googleGateway(PICKED).gateway.googleAvailable).toBe(true);
+    expect(new SupabaseAuthGateway(client, { getItem: async () => null }).googleAvailable).toBe(
+      false,
+    );
+  });
+
   it('AC1, AC2: signs in to Supabase with the ID token Google gave', async () => {
     const signInWithIdToken = jest.fn(async () => ({
       data: { user: USER, session: {} },

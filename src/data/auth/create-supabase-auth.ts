@@ -51,6 +51,9 @@ export function createSupabaseAuth(config: {
 
 /** Without a server configured (a build without the Supabase variables), nothing can sign in. */
 export class UnconfiguredAuthGateway implements AuthGateway {
+  /** Offered anyway: tapping it says a connection is needed, like the email form. */
+  readonly googleAvailable = true;
+
   async signUp(): Promise<AuthOutcome> {
     return { status: 'offline' };
   }
