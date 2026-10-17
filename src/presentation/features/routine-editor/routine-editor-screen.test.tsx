@@ -174,13 +174,26 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByText(dialogs.D15.title('Pierna'))).toBeOnTheScreen();
   });
 
-  it('the day sheet: tapping the chosen day opens its options', async () => {
+  it('the day sheet: tapping the chosen day, or its options button, opens its options', async () => {
     const { user } = await renderScreen();
-    await user.press(await screen.findByRole('checkbox', { name: 'Día A' }));
+    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
 
     expect(screen.getByLabelText(text.editor.day.name)).toBeOnTheScreen();
     // The only day: nothing to move or remove.
     expect(screen.queryByRole('button', { name: text.editor.day.remove })).not.toBeOnTheScreen();
+  });
+
+  it('#192: removing a day with exercises asks with D19 first', async () => {
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: text.editor.addDay }));
+    await user.press(screen.getByRole('checkbox', { name: 'Día A' }));
+    await user.press(screen.getByRole('button', { name: text.editor.day.options('Día A') }));
+
+    await user.press(screen.getByRole('button', { name: text.editor.day.remove }));
+    expect(screen.getByText(dialogs.D19.title('Día A'))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D19.remove }));
+
+    expect(screen.queryByRole('checkbox', { name: 'Día A' })).not.toBeOnTheScreen();
   });
 
   it('RF-RUT-05.AC1: dragging an exercise by its handle drops it in another position', async () => {

@@ -61,9 +61,12 @@ export type EditorState =
       errors: { name: boolean; emptyDayId: Id | null };
     };
 
-/** D08, D15 and D14. */
+/** D08, D15, D14 and D19. */
 export type EditorDialog =
-  { kind: 'discard' } | { kind: 'activate'; routineName: string } | { kind: 'workoutInProgress' };
+  | { kind: 'discard' }
+  | { kind: 'activate'; routineName: string }
+  | { kind: 'workoutInProgress' }
+  | { kind: 'removeDay'; dayName: string; exercises: number };
 
 /** S16 over the editor: the exercise to add to the selected day, or to put in place of another. */
 export type ExercisePicker =
@@ -287,6 +290,15 @@ export function useRoutineEditorViewModel(
     }
   }
 
+  function removeSelectedDay() {
+    edit(({ routine, selectedDayId }) => {
+      const index = routine.days.findIndex((day) => day.id === selectedDayId);
+      const next = removeDay(routine, selectedDayId);
+      // The day before is selected, or the new first one.
+      return { routine: next, selectedDayId: next.days[Math.max(0, index - 1)]?.id ?? '' };
+    });
+  }
+
   return {
     state,
     dialog,
@@ -310,12 +322,17 @@ export function useRoutineEditorViewModel(
         editRoutine((routine, current) => moveDay(routine, current.selectedDayId, offset)),
       removeDay: () => {
         setDaySheetOpen(false);
-        edit(({ routine, selectedDayId }) => {
-          const index = routine.days.findIndex((day) => day.id === selectedDayId);
-          const next = removeDay(routine, selectedDayId);
-          // The day before is selected, or the new first one.
-          return { routine: next, selectedDayId: next.days[Math.max(0, index - 1)]?.id ?? '' };
-        });
+        // A day with exercises asks first (D19, #192); an empty one goes at once.
+        const selected = editing?.routine.days.find((d) => d.id === editing.selectedDayId);
+        if (selected && selected.exercises.length > 0) {
+          setDialog({
+            kind: 'removeDay',
+            dayName: selected.name,
+            exercises: selected.exercises.length,
+          });
+          return;
+        }
+        removeSelectedDay();
       },
       moveExercise: (id, offset) => editRoutine((routine) => moveExercise(routine, id, offset)),
       moveExerciseTo: (id, index) => editRoutine((routine) => moveExerciseTo(routine, id, index)),
@@ -376,7 +393,10 @@ export function useRoutineEditorViewModel(
         else navigation.onClose();
       },
       confirmDialog: async () => {
-        if (dialog?.kind === 'discard') {
+        if (dialog?.kind === 'removeDay') {
+          setDialog(null);
+          removeSelectedDay();
+        } else if (dialog?.kind === 'discard') {
           setDialog(null);
           navigation.onClose();
         } else if (dialog?.kind === 'activate') {

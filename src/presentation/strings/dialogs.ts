@@ -168,4 +168,13 @@ export const dialogs = {
     discardDestructive: 'Descartar',
     keepTraining: 'Seguir entrenando',
   },
+  D19: {
+    title: (day: string) => `¿Quitar ${day}?`,
+    body: (exercises: number) =>
+      exercises === 1
+        ? 'Se quita también su ejercicio.'
+        : `Se quitan también sus ${exercises} ejercicios.`,
+    cancel: 'Cancelar',
+    remove: 'Quitar día',
+  },
 } as const;

@@ -1,5 +1,5 @@
 import { useEffect, useEffectEvent, useRef } from 'react';
-import { BackHandler, Modal, ScrollView, StyleSheet, View } from 'react-native';
+import { BackHandler, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
@@ -115,26 +115,40 @@ function Editor({
           }
           error={errors.name ? text.editor.validation.emptyName : undefined}
         />
-        <ScrollView
-          horizontal
-          showsHorizontalScrollIndicator={false}
-          contentContainerStyle={styles.days}
-        >
-          {routine.days.map((d) => (
-            <Chip
-              key={d.id}
-              label={d.name}
-              selected={d.id === selectedDayId}
-              // Tapping the chosen day opens its options (rename, move, remove).
-              onPress={() =>
-                d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
-              }
-            />
-          ))}
-          {routine.days.length < ROUTINE_LIMITS.days.max && (
-            <Chip label={text.editor.addDay} onPress={actions.addDay} />
+        <View style={styles.dayBar}>
+          <ScrollView
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            style={styles.dayChips}
+            contentContainerStyle={styles.days}
+          >
+            {routine.days.map((d) => (
+              <Chip
+                key={d.id}
+                label={d.name}
+                selected={d.id === selectedDayId}
+                // Tapping the chosen day opens its options (rename, move, remove).
+                onPress={() =>
+                  d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
+                }
+              />
+            ))}
+            {routine.days.length < ROUTINE_LIMITS.days.max && (
+              <Chip label={text.editor.addDay} onPress={actions.addDay} />
+            )}
+          </ScrollView>
+          {/* «S15 · Opciones del día» in sight: rename, move or remove the chosen day (#192). */}
+          {day && (
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={text.editor.day.options(day.name)}
+              onPress={actions.openDaySheet}
+              style={styles.dayOptions}
+            >
+              <Icon name="dots" color={colors.textPrimary} />
+            </Pressable>
           )}
-        </ScrollView>
+        </View>
         {day &&
           (exercises.length === 0 ? (
             <EmptyDay dayName={day.name} afterSave={errors.emptyDayId === day.id} />
@@ -289,6 +303,19 @@ function dialogProps(dialog: EditorDialog, actions: RoutineEditorViewModel['acti
           { label: dialogs.D14.cancel, kind: 'plain' as const, onPress: actions.dismissDialog },
         ],
       };
+    case 'removeDay':
+      return {
+        title: dialogs.D19.title(dialog.dayName),
+        body: dialogs.D19.body(dialog.exercises),
+        actions: [
+          { label: dialogs.D19.cancel, kind: 'safe' as const, onPress: actions.dismissDialog },
+          {
+            label: dialogs.D19.remove,
+            kind: 'destructive' as const,
+            onPress: actions.confirmDialog,
+          },
+        ],
+      };
   }
 }
 
@@ -301,7 +328,10 @@ const styles = StyleSheet.create({
     paddingBottom: space.s24,
   },
   message: { padding: space.s16 },
-  days: { gap: space.s8 },
+  dayBar: { flexDirection: 'row', alignItems: 'center', gap: space.s4 },
+  dayChips: { flex: 1 },
+  days: { gap: space.s8, paddingRight: space.s8 },
+  dayOptions: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   rows: {
     overflow: 'hidden',
     borderRadius: radius.xl,

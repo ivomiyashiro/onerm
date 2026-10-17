@@ -242,6 +242,25 @@ describe('useRoutineEditorViewModel', () => {
       expect(content(result.current).routine.days.map((d) => d.name)).toEqual(['Día A']);
       expect(content(result.current).selectedDayId).toBe('day-1');
     });
+
+    it('#192: a day with exercises is removed after D19, also while creating the routine', async () => {
+      const { result } = await renderViewModel({ routineId: null, routines: [] });
+      await act(() => result.current.actions.openPicker());
+      await act(() => result.current.actions.pick(SQUAT));
+      await act(() => result.current.actions.addDay());
+      await act(() => result.current.actions.selectDay(content(result.current).routine.days[0].id));
+
+      await act(() => result.current.actions.removeDay());
+      expect(result.current.dialog).toEqual({ kind: 'removeDay', dayName: 'Día A', exercises: 1 });
+      expect(content(result.current).routine.days).toHaveLength(2);
+      await act(() => result.current.actions.dismissDialog());
+      expect(content(result.current).routine.days).toHaveLength(2);
+
+      await act(() => result.current.actions.removeDay());
+      await act(() => result.current.actions.confirmDialog());
+      expect(result.current.dialog).toBeNull();
+      expect(content(result.current).routine.days.map((d) => d.name)).toEqual(['Día B']);
+    });
   });
 
   describe('the prescription sheet', () => {
