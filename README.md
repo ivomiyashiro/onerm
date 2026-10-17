@@ -183,7 +183,7 @@ The pre-delivery (2026-10-02) committed RF01–RF04 and nine non-functional requ
 |---|---|---|
 | Ivan Miyashiro (1158050) | Full development | Analysis, UX and UI, architecture, persistence and sync, suggestion engine, testing and documentation |
 
-The work is individual, with AI assistance (Claude) for implementation and reviews, as the course allows (§8). Every change went through a pull request with tests, CI and a review; the work is planned on the [«OneRM MVP» board](https://github.com/users/ivomiyashiro/projects/2), card by card.
+The work is individual, with AI assistance (Claude) for implementation and reviews, as the course allows (§8). Every change went through a pull request with tests, CI and a review; the work is planned on the [«OneRM» board](https://github.com/users/ivomiyashiro/projects/2), card by card.
 
 ## Project documentation (Spanish)
 
