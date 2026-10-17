@@ -225,7 +225,7 @@ Surgieron al diseñar S07, S09 y el sistema de componentes. Siguen las reglas de
 | S09: acción principal | Hecho · Siguiente ejercicio · Finalizar entrenamiento |
 | S09: menú del ejercicio | Sustituir ejercicio · Saltear ejercicio · Agregar serie |
 | S09: menú del entrenamiento | Entrenamiento · {día} · Finalizar entrenamiento · Descartar entrenamiento |
-| S09: temporizador | +15 s · Reiniciar · Saltear (nombre accesible: "Saltear descanso") · ¡Descanso terminado! · Siguiente: {ejercicio} · {carga} × {reps} · Último ejercicio terminado |
+| S09: temporizador | +15 s · Reiniciar · Saltear (nombre accesible: "Saltear descanso") · ¡Descanso terminado! · Siguiente: {ejercicio} · {carga} × {reps} · Siguiente: {ejercicio} · primera vez (sin carga todavía; con peso corporal, «× {reps}»; decisión D1 de la revisión de F9) · Último ejercicio terminado |
 | S09: calibración | Falta esfuerzo · Elegí una opción arriba para seguir. |
 | S09: ejercicio no disponible | Lo podés sustituir por otro del mismo músculo o saltearlo. |
 | S09: editar serie | Eliminar serie · Guardar · Aceptar (teclado numérico) |

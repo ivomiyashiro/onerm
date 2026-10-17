@@ -55,7 +55,9 @@ const CALIBRATION_CODES = new Set(['CALIBRATION', 'CALIBRATION_STEP', 'CALIBRATI
 
 /** «62,5 kg × 8», or «× 8» without a load. */
 export function valuesText(values: PrefilledSet, unit: LoadUnit | null): string {
-  if (values.loadKg === null || unit === null) return text.set.timesReps(values.reps);
+  // Bodyweight has no load: its reps, as in S12. With equipment, no load is a first time.
+  if (unit === null) return text.set.timesReps(values.reps);
+  if (values.loadKg === null) return text.rest.firstTime;
   const load = `${loadNumber(toUnit(values.loadKg, unit), unit)} ${common.units[unit]}`;
   return `${load} ${text.set.timesReps(values.reps)}`;
 }
