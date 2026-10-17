@@ -108,6 +108,7 @@ Escenario: AC2 — Valores por defecto al agregar un ejercicio
   Dado que agrego un ejercicio a un día
   Entonces su rol se completa según el tipo de ejercicio (multiarticular → principal, aislamiento → accesorio)
   Y sus series (3 para un principal, 2 para un accesorio) y su prescripción, según mi objetivo (RN-PERF-03)
+  Y se abre enseguida su hoja con esos valores para cambiarlos ("Listo"); si la cierro, quedan los valores por defecto (#197)
   Y puedo modificar todo
 
 Escenario: AC3 — Validación

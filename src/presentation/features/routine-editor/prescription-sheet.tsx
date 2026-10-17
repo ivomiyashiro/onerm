@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
@@ -43,8 +43,10 @@ interface PrescriptionSheetProps {
 }
 
 /**
- * S15 · Prescripción (hoja, Figma «SheetBody/Prescripción»): role, sets, rep range, target RIR,
- * rest and notes of one routine exercise, with the errors next to their field (RN-RUT-04).
+ * S15 · Prescripción (hoja, Figma «SheetBody/Prescripción»): sets, rep range, target RIR and rest
+ * in sight, with the errors next to their field (RN-RUT-04); role, notes, replace and remove under
+ * «Más opciones», so the sheet stays short (#197). Right after picking an exercise it is step 2,
+ * with «Listo»; closing it keeps the defaults.
  */
 export function PrescriptionSheet({
   sheet,
@@ -78,14 +80,6 @@ export function PrescriptionSheet({
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Field label={text.editor.role}>
-            <Segmented
-              label={text.editor.role}
-              options={ROLE_OPTIONS}
-              selected={form.role}
-              onSelect={(role) => onChange({ role })}
-            />
-          </Field>
           <View style={styles.numbers}>
             <View style={styles.number}>
               <TextField
@@ -154,23 +148,53 @@ export function PrescriptionSheet({
               ))}
             </ScrollView>
           </Field>
-          <TextField
-            label={text.editor.notes}
-            value={form.notes}
-            onChangeText={(notes) =>
-              onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
-            }
-            placeholder={text.editor.notesPlaceholder}
-            help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+          {/* Its own state per exercise: folded again for the next one; open with a note. */}
+          <MoreOptions key={sheet.exercise.id} initiallyOpen={form.notes !== ''}>
+            <Field label={text.editor.role}>
+              <Segmented
+                label={text.editor.role}
+                options={ROLE_OPTIONS}
+                selected={form.role}
+                onSelect={(role) => onChange({ role })}
+              />
+            </Field>
+            <TextField
+              label={text.editor.notes}
+              value={form.notes}
+              onChangeText={(notes) =>
+                onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
+              }
+              placeholder={text.editor.notesPlaceholder}
+              help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+            />
+            <View>
+              <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
+              <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
+            </View>
+          </MoreOptions>
+          <Button
+            variant="primary"
+            label={sheet.mode === 'add' ? common.ready : text.editor.save}
+            onPress={onSave}
           />
-          <View>
-            <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
-            <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
-          </View>
-          <Button variant="primary" label={text.editor.save} onPress={onSave} />
         </ScrollView>
       )}
     </BottomSheet>
+  );
+}
+
+/** «Más opciones»: role, notes, replace and remove, folded so the sheet stays short (#197). */
+function MoreOptions({ initiallyOpen, children }: { initiallyOpen: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(initiallyOpen);
+  return (
+    <>
+      <MenuItem
+        icon={open ? 'up' : 'down'}
+        label={text.editor.moreOptions}
+        onPress={() => setOpen(!open)}
+      />
+      {open && children}
+    </>
   );
 }
 

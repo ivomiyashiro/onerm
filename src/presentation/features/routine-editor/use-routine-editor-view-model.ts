@@ -30,6 +30,8 @@ export interface PrescriptionForm {
 }
 
 export interface PrescriptionSheet {
+  /** `add`: step 2 right after picking it, with its defaults already in (#197). */
+  mode: 'add' | 'edit';
   exercise: RoutineExercise;
   dayName: string;
   form: PrescriptionForm;
@@ -168,7 +170,11 @@ export function useRoutineEditorViewModel(
   const [load, setLoad] = useState<'loading' | 'error' | 'missing' | 'ready'>('loading');
   const [editing, setEditing] = useState<Editing | null>(null);
   const [dialog, setDialog] = useState<EditorDialog | null>(null);
-  const [sheetFor, setSheetFor] = useState<{ id: Id; form: PrescriptionForm } | null>(null);
+  const [sheetFor, setSheetFor] = useState<{
+    id: Id;
+    form: PrescriptionForm;
+    mode: PrescriptionSheet['mode'];
+  } | null>(null);
   const [daySheetOpen, setDaySheetOpen] = useState(false);
   const [picker, setPicker] = useState<ExercisePicker | null>(null);
   const [attempt, setAttempt] = useState(0);
@@ -235,6 +241,7 @@ export function useRoutineEditorViewModel(
     sheetFor === null || editedExercise === undefined
       ? null
       : {
+          mode: sheetFor.mode,
           exercise: editedExercise.exercise,
           dayName: editedExercise.day.name,
           form: sheetFor.form,
@@ -343,21 +350,25 @@ export function useRoutineEditorViewModel(
         if (picker?.mode === 'replace') {
           const id = picker.routineExerciseId;
           editRoutine((routine) => replaceExercise(routine, id, exercise.id));
-        } else {
-          editRoutine((routine, current) =>
-            editRoutineDraft.addExercise(
-              routine,
-              current.selectedDayId,
-              exercise,
-              current.draft.profile,
-            ),
+        } else if (editing) {
+          // Step 1 adds it with its defaults (RF-RUT-03.AC2); step 2 shows them to change, and
+          // closing it keeps them (#197).
+          const { routine, selectedDayId, draft } = editing;
+          const next = editRoutineDraft.addExercise(
+            routine,
+            selectedDayId,
+            exercise,
+            draft.profile,
           );
+          editRoutine(() => next);
+          const added = next.days.find((day) => day.id === selectedDayId)?.exercises.at(-1);
+          if (added) setSheetFor({ id: added.id, form: formOf(added), mode: 'add' });
         }
         setPicker(null);
       },
       openExercise: (id) => {
         const found = editing?.routine.days.flatMap((d) => d.exercises).find((e) => e.id === id);
-        if (found) setSheetFor({ id, form: formOf(found) });
+        if (found) setSheetFor({ id, form: formOf(found), mode: 'edit' });
       },
       closeExercise: () => setSheetFor(null),
       editForm: (changes) =>
