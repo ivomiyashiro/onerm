@@ -155,6 +155,7 @@ export const routines = {
       moveBefore: 'Mover antes',
       moveAfter: 'Mover después',
       remove: 'Quitar día',
+      options: (day: string) => `Opciones de ${day}`,
     },
     name: 'Nombre de la rutina',
     addDay: '+ Día',

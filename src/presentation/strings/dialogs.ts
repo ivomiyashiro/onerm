@@ -162,6 +162,15 @@ export const dialogs = {
     openSettings: 'Abrir ajustes',
     notNow: 'Ahora no',
   } /** RF-ENT-11.AC5: «Finalizar» without any effective set (decision D2 of the F5 review). */,
+  D19: {
+    title: (day: string) => `¿Quitar ${day}?`,
+    body: (exercises: number) =>
+      exercises === 1
+        ? 'Se quita también su ejercicio.'
+        : `Se quitan también sus ${exercises} ejercicios.`,
+    cancel: 'Cancelar',
+    remove: 'Quitar día',
+  },
   D18: {
     title: '¿Descartar el entrenamiento?',
     body: 'No registraste series, así que no hay nada para guardar.',
