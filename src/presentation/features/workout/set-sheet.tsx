@@ -34,8 +34,8 @@ export type SetSheetState =
 
 /** What the sheet reads of the exercise: the copy, its name, catalog entry and ± step. */
 export type SetSheetExercise = Pick<WorkoutExerciseView, 'exercise' | 'name' | 'catalog' | 'grid'> &
-  /** In S09 only: a past set (S19) is never in calibration. */
-  Partial<Pick<WorkoutExerciseView, 'suggestion'>>;
+  /** In S09 only: a past set (S19) is never in calibration, and shows no last load. */
+  Partial<Pick<WorkoutExerciseView, 'suggestion' | 'lastLoadKg'>>;
 
 interface SetSheetProps {
   sheet: SetSheetState | null;
@@ -84,6 +84,19 @@ export function SetSheet({
     sheet?.kind === 'edit' ? text.editSet.title(sheet.number) : text.set.setOf(setNumber, setTotal);
   const unit = grid?.unit ?? 'kg';
   const range = planned.prescription.repRange;
+  // Under the load: its convention and the last load logged (#195), or what is wrong.
+  const lastLoad =
+    exercise.lastLoadKg == null
+      ? null
+      : text.set.lastLoad(
+          `${loadNumber(toUnit(exercise.lastLoadKg, unit), unit)} ${common.units[unit]}`,
+        );
+  const loadNote = (value: SetForm) =>
+    sheet?.errors?.load
+      ? value.loadKg === null
+        ? text.validation.noLoad
+        : text.validation.load(maxLoadText(unit), common.units[unit])
+      : [loadConvention(exercise), lastLoad].filter(Boolean).join(' · ') || undefined;
 
   // Without a load the field is empty and «—» is its placeholder, so typing starts clean (#140).
   const loadValue = (value: SetForm) =>
@@ -125,6 +138,7 @@ export function SetSheet({
 
   return (
     <BottomSheet
+      testID="set-sheet"
       visible={sheet !== null}
       title={title}
       subtitle={name}
@@ -140,11 +154,7 @@ export function SetSheet({
                 value={loadValue(form)}
                 placeholder={text.set.noLoad}
                 unit={common.units[unit]}
-                note={
-                  sheet?.errors?.load
-                    ? text.validation.load(maxLoadText(unit), common.units[unit])
-                    : loadConvention(exercise)
-                }
+                note={loadNote(form)}
                 error={sheet?.errors?.load}
                 decrementLabel={text.set.decreaseLoad}
                 incrementLabel={text.set.increaseLoad}

@@ -8,7 +8,7 @@ interface LoadStepperProps {
   label: string;
   /** Already formatted for display ("62,5"); empty without a value. */
   value: string;
-  /** Shown while there is no value ("—"): never part of what is typed (#140). */
+  /** Shown greyed while there is no value ("0"): never part of what is typed (#140, #195). */
   placeholder?: string;
   unit?: string;
   /** What the change means ("Subimos 2,5 kg") or, with `error`, what is wrong. */
@@ -52,13 +52,18 @@ export function LoadStepper({
               accessibilityLabel={label}
               value={value}
               placeholder={placeholder}
-              placeholderTextColor={colors.textPrimary}
+              placeholderTextColor={colors.textSecondary}
               onChangeText={onChangeText}
               keyboardType="decimal-pad"
               style={[typography.numberHero, styles.input]}
             />
           ) : (
-            <Text style={[typography.numberHero, { color: colors.textPrimary }]}>
+            <Text
+              style={[
+                typography.numberHero,
+                { color: value ? colors.textPrimary : colors.textSecondary },
+              ]}
+            >
               {value || placeholder}
             </Text>
           )}
@@ -111,5 +116,6 @@ const styles = StyleSheet.create({
   },
   note: { textAlign: 'center' },
   input: { minWidth: 48, padding: 0, textAlign: 'center', color: colors.textPrimary },
-  plates: { flexDirection: 'row', gap: 10 },
+  // At the bottom: side by side, load and reps keep their ± level whatever their notes (#195).
+  plates: { flexDirection: 'row', gap: 10, marginTop: 'auto' },
 });
