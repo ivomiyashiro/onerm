@@ -46,9 +46,11 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Changed
 
 - Bottom sheets float over the screen, inset from its edges and with every corner rounded.
+- Sheets, dialogs and the full-screen rest: the dark background fades in place while the sheet slides up, and a «…» button can be tapped again as soon as its sheet closes, without waiting for the animation.
 
 ### Fixed
 
+- Workout on iPhone: the screen no longer stops responding when a set is confirmed from «Ajustar serie» or sheets are opened and closed quickly; sheets and dialogs are drawn over the screen instead of as separate system windows.
 - On an iPhone with iOS 27 the app closed as soon as it opened; it now starts normally.
 - A profile made on the phone while your account was still being restored (or before signing in) no longer replaces the one your account already had; it only goes up if the account had none.
 

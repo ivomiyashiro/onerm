@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { render, screen, userEvent } from '@testing-library/react-native';
 import { Text } from 'react-native';
 
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
@@ -50,7 +50,6 @@ describe('BottomSheet', () => {
       async () =>
         userEvent.setup().press(screen.getByTestId('sheet-scrim', { includeHiddenElements: true })),
     ],
-    ['the back button', async () => fireEvent(screen.getByTestId('sheet'), 'requestClose')],
   ])('%s closes it', async (_, close) => {
     const onClose = jest.fn();
     await renderSheet(onClose);

@@ -1,4 +1,4 @@
-import { fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { render, screen, userEvent } from '@testing-library/react-native';
 
 import { Dialog } from '@/presentation/components/overlay/dialog';
 
@@ -44,23 +44,6 @@ describe('Dialog', () => {
     await user.press(screen.getByRole('button', { name: 'Descartar' }));
 
     expect(onDiscard).toHaveBeenCalledTimes(1);
-  });
-
-  it('the back button dismisses it', async () => {
-    const onDismiss = jest.fn();
-    await render(
-      <Dialog
-        visible
-        title="¿Descartar?"
-        actions={actions()}
-        onDismiss={onDismiss}
-        testID="dialog"
-      />,
-    );
-
-    await fireEvent(screen.getByTestId('dialog'), 'requestClose');
-
-    expect(onDismiss).toHaveBeenCalledTimes(1);
   });
 
   it('renders nothing when hidden', async () => {

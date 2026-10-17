@@ -140,9 +140,6 @@ function Workout({
     if ((await actions.confirmAdjust()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
   }
 
-  // iOS shows no Modal over another one that is open: while the rest covers the screen, D05
-  // and D17 go inside its Modal (#49). Android stacks them either way.
-  const restShown = rest !== null && remaining !== null && !restMinimized;
   const permissionDialogs = (
     <>
       <Dialog
@@ -346,11 +343,10 @@ function Workout({
           onSkip={() => void actions.skipRest()}
           onMinimize={actions.minimizeRest}
           onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
-        >
-          {restShown && permissionDialogs}
-        </RestScreen>
+        />
       )}
-      {!restShown && permissionDialogs}
+      {/* After the rest in the tree: D05 and D17 open over it (RF-ENT-06.AC9). */}
+      {permissionDialogs}
       <BottomSheet
         visible={sheet?.kind === 'exercises'}
         title={text.exerciseList.title}

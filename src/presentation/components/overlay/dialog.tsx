@@ -1,6 +1,7 @@
-import { Modal, StyleSheet, View } from 'react-native';
+import { Animated, StyleSheet, View } from 'react-native';
 
 import { Button, type ButtonVariant } from '@/presentation/components/button/button';
+import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
@@ -31,17 +32,25 @@ interface DialogProps {
 /** Figma «Dialog»: a confirmation over the scrim. */
 export function Dialog({ visible, title, body, actions, onDismiss, testID }: DialogProps) {
   return (
-    <Modal
-      testID={testID}
-      visible={visible}
-      transparent
-      animationType="fade"
-      statusBarTranslucent
-      onRequestClose={onDismiss}
-    >
+    <Overlay visible={visible} onRequestClose={onDismiss}>
+      <DialogCard title={title} body={body} actions={actions} testID={testID} />
+    </Overlay>
+  );
+}
+
+function DialogCard({ title, body, actions, testID }: Omit<DialogProps, 'visible' | 'onDismiss'>) {
+  // It fades in growing slightly over the scrim.
+  const progress = useOverlayProgress();
+  const scale = progress.interpolate({ inputRange: [0, 1], outputRange: [0.96, 1] });
+  return (
+    <>
       <Scrim />
       <View style={styles.center} pointerEvents="box-none">
-        <View style={styles.dialog} accessibilityViewIsModal>
+        <Animated.View
+          testID={testID}
+          style={[styles.dialog, { opacity: progress, transform: [{ scale }] }]}
+          accessibilityViewIsModal
+        >
           <Text
             style={[typography.titleL, { color: colors.textPrimary }]}
             accessibilityRole="header"
@@ -59,9 +68,9 @@ export function Dialog({ visible, title, body, actions, onDismiss, testID }: Dia
               />
             ))}
           </View>
-        </View>
+        </Animated.View>
       </View>
-    </Modal>
+    </>
   );
 }
 

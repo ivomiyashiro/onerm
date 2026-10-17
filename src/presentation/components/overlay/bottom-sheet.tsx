@@ -1,8 +1,9 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Keyboard, Modal, Pressable, StyleSheet, View } from 'react-native';
+import { Animated, Keyboard, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
+import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Scrim } from '@/presentation/components/overlay/scrim';
 import { colors, elevation, radius, size, space, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
@@ -21,7 +22,7 @@ interface SheetContentProps {
 }
 
 /**
- * The scrim and the sheet surface, without the Modal: route sheets (S08, S10, S11) are already
+ * The scrim and the sheet surface, without the overlay: route sheets (S08, S10, S11) are already
  * shown over the screen by the router and render this directly.
  */
 export function SheetOverlay({
@@ -31,16 +32,24 @@ export function SheetOverlay({
   onClose,
   children,
   footer,
-  scrimTestID,
+  testID,
   keyboardHeight = 0,
-}: SheetContentProps & { scrimTestID?: string; keyboardHeight?: number }) {
+}: SheetContentProps & { testID?: string; keyboardHeight?: number }) {
   const insets = useSafeAreaInsets();
+  // The sheet comes up from below the screen; the scrim only fades (#193).
+  const progress = useOverlayProgress();
+  const { height } = useWindowDimensions();
+  const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [height, 0] });
   // Floating: a gap above the system bar, or above the keyboard while it is open.
   const bottom = (keyboardHeight > 0 ? keyboardHeight : insets.bottom) + FLOAT_GAP;
   return (
     <>
-      <Scrim onPress={onClose} testID={scrimTestID} />
-      <View style={[styles.sheet, { bottom }]} accessibilityViewIsModal>
+      <Scrim onPress={onClose} testID={testID && `${testID}-scrim`} />
+      <Animated.View
+        testID={testID}
+        style={[styles.sheet, { bottom, transform: [{ translateY }] }]}
+        accessibilityViewIsModal
+      >
         <View style={styles.handleArea}>
           <View style={styles.handle} />
         </View>
@@ -69,7 +78,7 @@ export function SheetOverlay({
         </View>
         {children}
         {footer && <View style={styles.footer}>{footer}</View>}
-      </View>
+      </Animated.View>
     </>
   );
 }
@@ -86,27 +95,15 @@ export function BottomSheet({
 }: SheetContentProps & { visible: boolean; testID?: string }) {
   const keyboardHeight = useKeyboardHeight();
   return (
-    <Modal
-      testID={testID}
-      visible={visible}
-      transparent
-      animationType="slide"
-      statusBarTranslucent
-      navigationBarTranslucent
-      onRequestClose={content.onClose}
-    >
-      <SheetOverlay
-        {...content}
-        keyboardHeight={keyboardHeight}
-        scrimTestID={testID && `${testID}-scrim`}
-      />
-    </Modal>
+    <Overlay visible={visible} onRequestClose={content.onClose}>
+      <SheetOverlay {...content} keyboardHeight={keyboardHeight} testID={testID} />
+    </Overlay>
   );
 }
 
 /**
  * The open keyboard's height. A sheet with a field (Incrementos) rises above it: Android doesn't
- * resize a Modal's window for the keyboard.
+ * resize the window for the keyboard (edge to edge).
  */
 function useKeyboardHeight(): number {
   const [height, setHeight] = useState(0);

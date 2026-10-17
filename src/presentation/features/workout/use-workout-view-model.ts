@@ -295,9 +295,17 @@ export function useWorkoutViewModel(): WorkoutViewModel {
       },
       async confirmAdjust() {
         if (sheet?.kind !== 'adjust' || !content) return 'invalid';
-        const result = await log(sheet.form);
-        if (result === 'logged') setSheet(null);
-        else setSheet({ ...sheet, errors: formErrors(sheet.form, content.exercise.exercise) });
+        const errors = formErrors(sheet.form, content.exercise.exercise);
+        if (errors.load || errors.reps) {
+          setSheet({ ...sheet, errors });
+          return 'invalid';
+        }
+        // Closed before the rest opens: on iOS a Modal shown over one that is closing is dropped
+        // and leaves the screen without touches (#188).
+        setSheet(null);
+        const result = await log(sheet.form).catch(() => 'invalid' as const);
+        // Not saved: the sheet comes back with what was typed.
+        if (result === 'invalid') setSheet({ ...sheet, errors });
         return result;
       },
       openSet(setId) {
