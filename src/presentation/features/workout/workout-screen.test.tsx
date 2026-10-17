@@ -410,6 +410,26 @@ describe('WorkoutScreen (S09)', () => {
       expect(screen.getByRole('button', { name: /^\d\d:\d\d/ })).toBeOnTheScreen();
     });
 
+    it('#196: pulling the rest down minimizes it; a short pull leaves it open', async () => {
+      const { user } = await renderRest();
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      const pull = (translationY: number) =>
+        act(() =>
+          fireGestureHandler(getByGestureTestId('pull down rest'), [
+            { state: State.BEGAN, translationY: 0 },
+            { state: State.ACTIVE, translationY: translationY / 2 },
+            { state: State.END, translationY },
+          ]),
+        );
+
+      await pull(40);
+      expect(screen.getByRole('header', { name: text.rest.title })).toBeOnTheScreen();
+      await pull(240);
+
+      expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: text.rest.openTimer })).toBeOnTheScreen();
+    });
+
     it('AC4: «Saltear descanso» closes it', async () => {
       const { user, timers } = await renderRest();
       await user.press(screen.getByRole('button', { name: text.primaryAction.done }));

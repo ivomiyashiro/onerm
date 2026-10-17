@@ -104,10 +104,11 @@ describe('HomeScreen (S07)', () => {
     expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
   });
 
-  it('RF-SUG-01.AC1: an exercise never done shows «Calibrar»', async () => {
+  it('#196: an exercise never done shows no suggestion and no «Calibrar» pill', async () => {
     await renderScreen();
 
-    expect(screen.getByText(home.calibrate)).toBeOnTheScreen();
+    expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
+    expect(screen.queryByText('Calibrar')).not.toBeOnTheScreen();
   });
 
   it('RF-ENT-01.AC3: «Cambiar día» opens the choice of day', async () => {

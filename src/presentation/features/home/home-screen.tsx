@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Logo } from '@/presentation/components/brand/logo';
 import type { LoadUnit } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
-import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { backupNoticeText } from '@/presentation/features/profile/sync-status-text';
@@ -210,9 +209,8 @@ function TodayRow({
         />
       </View>
       <Text style={[typography.bodyRow, styles.rowName]}>{name}</Text>
-      {trend === 'calibrate' ? (
-        <Badge label={home.calibrate} />
-      ) : (
+      {/* Calibrating: only its icon; the calibration is explained inside the exercise (#196). */}
+      {trend !== 'calibrate' && (
         <View style={styles.value}>
           {loadKg !== null && (
             <>

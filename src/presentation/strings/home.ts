@@ -19,7 +19,6 @@ export const home = {
   todayList: 'Lo de hoy',
   goesUpIn: (n: number) => `Sube en ${n}`,
   addsRepsIn: (n: number) => `suma reps en ${n}`,
-  calibrate: 'Calibrar',
   inProgress: 'En curso',
   inProgressSince: (time: string) => `En curso · ${time}`,
   /** «×8» after the suggested load. */

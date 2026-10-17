@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import { Animated, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { EffortMode } from '@/domain/models/vocabulary';
@@ -16,6 +18,12 @@ import { countdown, elapsed } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
 
+/** #196: how far down the rest is pulled to minimize it, or how fast (pt/s). */
+const PULL_DISTANCE = 120;
+const PULL_VELOCITY = 800;
+/** The pull starts after this much down, and gives way to a sideways swipe. */
+const PULL_START = 12;
+
 interface RestScreenProps {
   rest: RestView;
   visible: boolean;
@@ -32,7 +40,7 @@ interface RestScreenProps {
 /**
  * S09 descanso a pantalla completa (08 §5, marca §13; Figma «Descanso (pantalla completa)» and
  * «Descanso terminado»): the countdown with its ring, +15 s and Reiniciar, the set just done with
- * its effort, what comes next and «Saltear descanso». Back minimizes it.
+ * its effort, what comes next and «Saltear descanso». The «X», Back and pulling it down minimize it.
  */
 export function RestScreen({ visible, ...props }: RestScreenProps) {
   return (
@@ -56,7 +64,20 @@ function RestPanel({
   // It comes up over the workout, and goes down when minimized.
   const progress = useOverlayProgress();
   const { height } = useWindowDimensions();
-  const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [height, 0] });
+  const entry = progress.interpolate({ inputRange: [0, 1], outputRange: [height, 0] });
+  // #196: it follows the finger down, and minimizes when pulled far or fast enough.
+  const [pulled] = useState(() => new Animated.Value(0));
+  const translateY = Animated.add(entry, pulled);
+  const pullDown = Gesture.Pan()
+    .runOnJS(true)
+    .withTestId('pull down rest')
+    .activeOffsetY(PULL_START)
+    .failOffsetX([-PULL_START, PULL_START])
+    .onUpdate(({ translationY }) => pulled.setValue(Math.max(0, translationY)))
+    .onEnd(({ translationY, velocityY }) => {
+      if (translationY > PULL_DISTANCE || velocityY > PULL_VELOCITY) onMinimize();
+      else Animated.spring(pulled, { toValue: 0, useNativeDriver: true }).start();
+    });
   const finished = remainingMs <= 0;
   const { next } = rest;
   const nextSet = next.kind === 'set' || next.kind === 'calibrating' ? next.number : null;
@@ -68,84 +89,86 @@ function RestPanel({
         : common.close;
 
   return (
-    <Animated.View
-      style={[
-        styles.screen,
-        { paddingTop: insets.top, paddingBottom: insets.bottom, transform: [{ translateY }] },
-      ]}
-    >
-      <View style={styles.header}>
-        <View style={styles.flex}>
-          <Text
-            style={[typography.titleL, { color: colors.textPrimary }]}
-            accessibilityRole="header"
+    <GestureDetector gesture={pullDown}>
+      <Animated.View
+        style={[
+          styles.screen,
+          { paddingTop: insets.top, paddingBottom: insets.bottom, transform: [{ translateY }] },
+        ]}
+      >
+        <View style={styles.header}>
+          <View style={styles.flex}>
+            <Text
+              style={[typography.titleL, { color: colors.textPrimary }]}
+              accessibilityRole="header"
+            >
+              {finished ? text.rest.finished : text.rest.title}
+            </Text>
+            <Text style={[typography.bodyS, { color: colors.textSecondary }]} numberOfLines={1}>
+              {rest.exerciseName}
+            </Text>
+          </View>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={text.rest.minimize}
+            onPress={onMinimize}
+            style={styles.iconButton}
           >
-            {finished ? text.rest.finished : text.rest.title}
-          </Text>
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]} numberOfLines={1}>
-            {rest.exerciseName}
-          </Text>
+            <Icon name="x" size={20} color={colors.textPrimary} />
+          </Pressable>
         </View>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={text.rest.minimize}
-          onPress={onMinimize}
-          style={styles.iconButton}
-        >
-          <Icon name="down" size={20} color={colors.textPrimary} />
-        </Pressable>
-      </View>
-      <View style={styles.center}>
-        <RestRing
-          size={264}
-          strokeWidth={10}
-          progress={remainingMs / (rest.totalSeconds * 1000)}
-          finished={finished}
-        >
-          <Text style={[typography.monoHero, { color: colors.textPrimary }]}>
-            {countdown(remainingMs)}
-          </Text>
-          <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-            {finished && nextSet !== null
-              ? text.rest.readyForSet(nextSet)
-              : text.rest.ofTotal(elapsed(rest.totalSeconds * 1000))}
-          </Text>
-        </RestRing>
-        {!finished && (
-          <View style={styles.chips}>
-            <Chip label={text.rest.plus15} onPress={onAdd} />
-            <Chip label={text.rest.restart} onPress={onRestart} />
-          </View>
-        )}
-        <View style={[styles.card, rest.awaitingEffort && styles.cardAsking]}>
-          <View style={styles.summary}>
-            <Icon name="check" size={20} color={colors.textOk} />
-            <Text style={[typography.bodyMBold, { color: colors.textPrimary }]}>
-              {rest.setText}
+        <View style={styles.center}>
+          <RestRing
+            size={264}
+            strokeWidth={10}
+            progress={remainingMs / (rest.totalSeconds * 1000)}
+            finished={finished}
+          >
+            <Text style={[typography.monoHero, { color: colors.textPrimary }]}>
+              {countdown(remainingMs)}
             </Text>
-          </View>
-          <SetEffort set={rest.set} effortMode={effortMode} onEffort={onEffort} />
-          {rest.awaitingEffort && (
-            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-              {text.calibration.answerToContinue(rest.setNumber + 1)}
+            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+              {finished && nextSet !== null
+                ? text.rest.readyForSet(nextSet)
+                : text.rest.ofTotal(elapsed(rest.totalSeconds * 1000))}
             </Text>
+          </RestRing>
+          {!finished && (
+            <View style={styles.chips}>
+              <Chip label={text.rest.plus15} onPress={onAdd} />
+              <Chip label={text.rest.restart} onPress={onRestart} />
+            </View>
           )}
-          {rest.calibrationNote && (
-            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-              {rest.calibrationNote}
-            </Text>
+          <View style={[styles.card, rest.awaitingEffort && styles.cardAsking]}>
+            <View style={styles.summary}>
+              <Icon name="check" size={20} color={colors.textOk} />
+              <Text style={[typography.bodyMBold, { color: colors.textPrimary }]}>
+                {rest.setText}
+              </Text>
+            </View>
+            <SetEffort set={rest.set} effortMode={effortMode} onEffort={onEffort} />
+            {rest.awaitingEffort && (
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {text.calibration.answerToContinue(rest.setNumber + 1)}
+              </Text>
+            )}
+            {rest.calibrationNote && (
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {rest.calibrationNote}
+              </Text>
+            )}
+          </View>
+          <Text style={[typography.bodyM, styles.next]}>{rest.nextText}</Text>
+        </View>
+        <View style={styles.bottom}>
+          {finished ? (
+            <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
+          ) : (
+            <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
           )}
         </View>
-        <Text style={[typography.bodyM, styles.next]}>{rest.nextText}</Text>
-      </View>
-      <View style={styles.bottom}>
-        {finished ? (
-          <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
-        ) : (
-          <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
-        )}
-      </View>
-    </Animated.View>
+      </Animated.View>
+    </GestureDetector>
   );
 }
 
