@@ -1,5 +1,5 @@
 import * as Notifications from 'expo-notifications';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 
 import type {
   DevicePermissions,
@@ -12,6 +12,9 @@ import { ExactAlarm } from '../../../modules/exact-alarm';
  * raises an error when scheduling (spike #14): it has to be read.
  */
 export class ExpoDevicePermissions implements DevicePermissions {
+  // iOS: its prompt can't carry our text, and the rest that just started explains it (#191).
+  readonly explainsFirst = Platform.OS === 'android';
+
   async notifications(): Promise<NotificationPermission> {
     const { status, canAskAgain } = await Notifications.getPermissionsAsync();
     // Android 13+ reports «denied» before the first prompt; the system can still ask.

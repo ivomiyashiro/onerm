@@ -124,9 +124,18 @@ describe('rest permissions (RF-ENT-06.AC9, AC10)', () => {
     const timers = new InMemoryRestTimerRepository();
     const ask = new AskRestPermission(timers, new FakeDevicePermissions('undetermined'));
 
-    expect(await ask.shouldAsk()).toBe(true);
+    expect(await ask.firstAsk()).toBe('explain');
     await ask.dismiss();
-    expect(await ask.shouldAsk()).toBe(false);
+    expect(await ask.firstAsk()).toBeNull();
+  });
+
+  it('#191: where the system prompt says it all (iOS), it comes alone, without D05', async () => {
+    const permissions = new FakeDevicePermissions('undetermined');
+    permissions.explainsFirst = false;
+
+    expect(
+      await new AskRestPermission(new InMemoryRestTimerRepository(), permissions).firstAsk(),
+    ).toBe('system');
   });
 
   it('AC9: allowing without exact alarms goes on to D17', async () => {
