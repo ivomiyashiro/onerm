@@ -60,9 +60,6 @@ export function PrescriptionSheet({
 }: PrescriptionSheetProps) {
   const { height } = useWindowDimensions();
   const form = sheet?.form;
-  const [more, setMore] = useState(false);
-  // A note already written is shown; otherwise the extra options start folded.
-  const showMore = more || (form !== undefined && form.notes !== '');
   const restOptions =
     form === undefined || REST_OPTIONS.includes(form.restSeconds)
       ? REST_OPTIONS
@@ -151,36 +148,30 @@ export function PrescriptionSheet({
               ))}
             </ScrollView>
           </Field>
-          <MenuItem
-            icon={showMore ? 'up' : 'down'}
-            label={text.editor.moreOptions}
-            onPress={() => setMore(!showMore)}
-          />
-          {showMore && (
-            <>
-              <Field label={text.editor.role}>
-                <Segmented
-                  label={text.editor.role}
-                  options={ROLE_OPTIONS}
-                  selected={form.role}
-                  onSelect={(role) => onChange({ role })}
-                />
-              </Field>
-              <TextField
-                label={text.editor.notes}
-                value={form.notes}
-                onChangeText={(notes) =>
-                  onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
-                }
-                placeholder={text.editor.notesPlaceholder}
-                help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+          {/* Its own state per exercise: folded again for the next one; open with a note. */}
+          <MoreOptions key={sheet.exercise.id} initiallyOpen={form.notes !== ''}>
+            <Field label={text.editor.role}>
+              <Segmented
+                label={text.editor.role}
+                options={ROLE_OPTIONS}
+                selected={form.role}
+                onSelect={(role) => onChange({ role })}
               />
-              <View>
-                <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
-                <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
-              </View>
-            </>
-          )}
+            </Field>
+            <TextField
+              label={text.editor.notes}
+              value={form.notes}
+              onChangeText={(notes) =>
+                onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
+              }
+              placeholder={text.editor.notesPlaceholder}
+              help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+            />
+            <View>
+              <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
+              <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
+            </View>
+          </MoreOptions>
           <Button
             variant="primary"
             label={sheet.mode === 'add' ? common.ready : text.editor.save}
@@ -189,6 +180,21 @@ export function PrescriptionSheet({
         </ScrollView>
       )}
     </BottomSheet>
+  );
+}
+
+/** «Más opciones»: role, notes, replace and remove, folded so the sheet stays short (#197). */
+function MoreOptions({ initiallyOpen, children }: { initiallyOpen: boolean; children: ReactNode }) {
+  const [open, setOpen] = useState(initiallyOpen);
+  return (
+    <>
+      <MenuItem
+        icon={open ? 'up' : 'down'}
+        label={text.editor.moreOptions}
+        onPress={() => setOpen(!open)}
+      />
+      {open && children}
+    </>
   );
 }
 

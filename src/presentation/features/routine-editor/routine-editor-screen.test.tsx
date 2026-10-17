@@ -158,6 +158,21 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByText(text.editor.rirZeroWarning)).toBeOnTheScreen();
   });
 
+  it('#197: role, notes, replace and remove fold under «Más opciones»', async () => {
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: 'Prensa de piernas' }));
+    expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
+
+    await user.press(screen.getByRole('button', { name: text.editor.moreOptions }));
+    expect(screen.getByLabelText(text.editor.notes)).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.editor.remove })).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: common.close }));
+    await user.press(screen.getByRole('button', { name: 'Curl de bíceps' }));
+
+    // Folded again for the next exercise.
+    expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
+  });
+
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
     const { user, onClose } = await renderScreen();
     await screen.findByDisplayValue('Mi rutina de pierna');
