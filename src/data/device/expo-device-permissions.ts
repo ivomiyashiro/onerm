@@ -12,7 +12,8 @@ import { ExactAlarm } from '../../../modules/exact-alarm';
  * raises an error when scheduling (spike #14): it has to be read.
  */
 export class ExpoDevicePermissions implements DevicePermissions {
-  // iOS: its prompt can't carry our text, and the rest that just started explains it (#191).
+  // Only Android explains first (D17 may follow). iOS: its prompt can't carry our text, and the
+  // rest that just started explains it (#191).
   readonly explainsFirst = Platform.OS === 'android';
 
   async notifications(): Promise<NotificationPermission> {
