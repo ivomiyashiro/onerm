@@ -29,7 +29,8 @@ export default function RootLayout() {
     // Gestures (the drag of S15) need a root view over the whole app.
     <GestureHandlerRootView style={{ flex: 1 }}>
       <AppProviders>
-        {/* Sheets and dialogs are drawn over the screen that opens them (#188, #193). */}
+        {/* Sheets and dialogs are drawn over the screen that opens them (#188, #193); this one
+            takes those of the gates outside the screens, like the guest union's. */}
         <OverlayHost>
           {/* The screens mount once the local database is migrated (07 §6). */}
           <StartupGate>

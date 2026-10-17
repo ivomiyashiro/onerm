@@ -122,7 +122,10 @@ interface OverlayProps {
   children: ReactNode;
 }
 
-/** Shows `children` in the nearest host while `visible`; in place when there is none (tests). */
+/**
+ * Shows `children` in the nearest host while `visible`; in place when there is none (tests). The
+ * host draws them, so they only see the contexts above the host (the app's providers).
+ */
 export function Overlay({ visible, onRequestClose, children }: OverlayProps) {
   const host = useContext(HostContext);
   const key = useId();

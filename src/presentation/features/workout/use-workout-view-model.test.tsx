@@ -21,6 +21,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { AskRestPermission } from '@/domain/usecases/rest-timer';
+import { LogSet } from '@/domain/usecases/workout-sets';
 import { stepReps, typeLoad } from '@/presentation/features/workout/set-form';
 import {
   useWorkoutViewModel,
@@ -249,6 +250,22 @@ describe('useWorkoutViewModel', () => {
     expect(sets(workouts)).toMatchObject([{ isWarmup: true }]);
     expect(content().exerciseIndex).toBe(0);
     expect(content().rows.filter((r) => r.kind !== 'done')).toHaveLength(2);
+  });
+
+  it('#188: if the set cannot be saved, the sheet comes back with what was typed', async () => {
+    const logSet = new LogSet(
+      new InMemoryWorkoutRepository(null),
+      () => 'x',
+      () => NOW,
+    );
+    logSet.execute = () => Promise.reject(new Error('disk full'));
+    const { result } = await renderViewModel({ overrides: { logSet } });
+    await act(() => result.current.actions.openAdjust());
+    await act(() => result.current.actions.editForm((form) => stepReps(form, 'reps', -1)));
+
+    expect(await act(() => result.current.actions.confirmAdjust())).toBe('invalid');
+
+    expect(result.current.sheet).toMatchObject({ kind: 'adjust', form: { reps: 7 } });
   });
 
   it('RF-ENT-02.AC5: a typed load out of range is not logged and the sheet says so', async () => {
