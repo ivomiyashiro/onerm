@@ -11,7 +11,7 @@ Responde al entregable 16 de la preentrega (repositorio, estrategia de ramas y c
 | Decisiones de arquitectura | [`docs/especificacion/adr/`](especificacion/adr/README.md) | Una decisión nueva o un cambio de decisión es un ADR nuevo, nunca una edición silenciosa |
 | Plan por fases y criterios de salida | [`docs/plan-de-implementacion.md`](plan-de-implementacion.md) | No registra el estado de las tareas |
 | Resultado de un spike | [`docs/spikes/`](spikes/README.md) | Una nota por spike, con la plantilla |
-| Tareas, bugs y su estado | GitHub Issues + [Project «OneRM MVP»](https://github.com/users/ivomiyashiro/projects/2) | **Única** fuente del estado del trabajo |
+| Tareas, bugs y su estado | GitHub Issues + [Project «OneRM»](https://github.com/users/ivomiyashiro/projects/2) | **Única** fuente del estado del trabajo |
 | Fases | GitHub Milestones (F0…F9) | Una milestone por fase del plan |
 | Cambios por versión | [`CHANGELOG.md`](../CHANGELOG.md) | Formato Keep a Changelog |
 | Cómo ejecutar el proyecto | `README.md` | Se completa a medida que avanza (§7.4) |
