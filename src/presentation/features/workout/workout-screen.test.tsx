@@ -1,4 +1,4 @@
-import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent, within } from '@testing-library/react-native';
 import { AppState, Vibration, type AppStateStatus } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
@@ -293,6 +293,44 @@ describe('WorkoutScreen (S09)', () => {
     );
 
     expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+  });
+
+  it('#195: a load still to choose shows 0 and asks for it only when confirmed', async () => {
+    const { user } = await renderScreen({
+      inProgress: { ...RUNNING, exercises: [RUNNING.exercises[1]] },
+    });
+
+    await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+    expect(screen.getByLabelText(text.set.load)).toHaveProp('placeholder', text.set.noLoad);
+    expect(screen.queryByText(text.validation.noLoad)).not.toBeOnTheScreen();
+    await user.press(
+      within(screen.getByTestId('set-sheet')).getByRole('button', {
+        name: text.primaryAction.done,
+      }),
+    );
+
+    expect(screen.getByText(text.validation.noLoad)).toBeOnTheScreen();
+  });
+
+  it('#195: under the load, the last one logged in the exercise', async () => {
+    const before = aWorkout({
+      id: 'before',
+      exercises: [
+        aWorkoutExercise({
+          id: 'old',
+          exerciseId: 'press',
+          sets: [aBilateralSet({ id: 'old-0', workoutExerciseId: 'old', loadKg: 57.5 })],
+        }),
+      ],
+    });
+    const { user } = await renderScreen({
+      inProgress: { ...RUNNING, exercises: [RUNNING.exercises[1]] },
+      finished: [before],
+    });
+
+    await user.press(screen.getByRole('button', { name: /^Serie 1/ }));
+
+    expect(screen.getByText(text.set.lastLoad('57,5 kg'), { exact: false })).toBeOnTheScreen();
   });
 
   it('RF-ENT-04.AC1, RF-ENT-02.AC5: a typed load out of range keeps the sheet open with the error', async () => {

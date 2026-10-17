@@ -4,6 +4,7 @@ import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
 import type { EffortMode, ExperienceLevel } from '@/domain/models/vocabulary';
 import type { Workout, WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
+import { lastLoadKg } from '@/domain/rules/workout/last-load';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
@@ -44,6 +45,8 @@ export interface WorkoutExerciseView {
   readonly basisName: string | null;
   /** The ± step (RN-PERF-06); null for bodyweight. */
   readonly grid: LoadGrid | null;
+  /** The last load logged in this exercise, today or before (#195); null without one. */
+  readonly lastLoadKg: number | null;
 }
 
 /** S09: the workout in progress with what each exercise shows. */
@@ -175,6 +178,7 @@ export class ObserveWorkout {
                     ? (catalog.get(reason.basis.exerciseId)?.name ?? null)
                     : null,
                 grid,
+                lastLoadKg: lastLoadKg(exercise.exerciseId, workout, finished),
               };
             }),
           });

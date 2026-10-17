@@ -202,6 +202,9 @@ describe('useWorkoutViewModel', () => {
     expect(await act(() => result.current.actions.done())).toBe('adjust');
 
     expect(sets(workouts)).toEqual([]);
+    // #195: nothing typed yet, so no error yet; confirming without a load says so.
+    expect(result.current.sheet).toMatchObject({ kind: 'adjust', errors: null });
+    expect(await act(() => result.current.actions.confirmAdjust())).toBe('invalid');
     expect(result.current.sheet).toMatchObject({ kind: 'adjust', errors: { load: true } });
   });
 

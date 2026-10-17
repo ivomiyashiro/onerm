@@ -30,8 +30,12 @@ export const workout = {
     increaseLoad: 'Subir la carga',
     decreaseReps: 'Bajar las repeticiones',
     increaseReps: 'Subir las repeticiones',
-    /** The load of a calibration's first set, still to choose (RN-ENT-04). */
-    noLoad: '—',
+    /** In the sheet, the load of a calibration's first set still to choose (RN-ENT-04): greyed. */
+    noLoad: '0',
+    /** The same load in its row: «— × 8», so it never reads as «use 0 kg». */
+    noLoadInRow: '—',
+    /** Under the load, the last one logged in the exercise (#195). */
+    lastLoad: (load: string) => `Última vez: ${load}`,
     unilateral: 'Unilateral',
     /** The index of a warm-up row (Figma «SetRow» Warmup). */
     warmUpIndex: 'C',
@@ -96,6 +100,8 @@ export const workout = {
     /** The maximum of RN-ENT-02 (1000 kg) already in the user unit: «1000 kg», «2204,6 lb». */
     load: (max: string, unit: string) => `La carga tiene que estar entre 0 y ${max} ${unit}.`,
     reps: 'Las repeticiones tienen que estar entre 0 y 100.',
+    /** Confirmed without choosing a load (RN-ENT-04, #195). */
+    noLoad: 'Elegí la carga que usaste.',
   },
   effort: {
     simpleQuestion: '¿Cuántas más podías hacer?',

@@ -273,7 +273,9 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         if (!content || content.primary !== 'done' || current?.kind !== 'current') return 'none';
         const form = formFromPrefill(current.values);
         if ((await log(form)) === 'logged') return 'logged';
-        setSheet({ kind: 'adjust', form, errors: formErrors(form, content.exercise.exercise) });
+        // Without a load yet (RN-ENT-04) the sheet asks for it: no error until it is confirmed.
+        const errors = form.loadKg === null ? null : formErrors(form, content.exercise.exercise);
+        setSheet({ kind: 'adjust', form, errors });
         return 'adjust';
       },
       openAdjust() {

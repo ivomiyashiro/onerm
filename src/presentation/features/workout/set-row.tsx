@@ -96,7 +96,7 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
           {unit !== null && (
             <>
               <Text style={[typography.numberM, { color: valueColor }]}>
-                {loadKg === null ? text.set.noLoad : loadNumber(toUnit(loadKg, unit), unit)}
+                {loadKg === null ? text.set.noLoadInRow : loadNumber(toUnit(loadKg, unit), unit)}
               </Text>
               {loadKg !== null && (
                 <Text style={[typography.bodyMStrong, { color: colors.textSecondary }]}>
