@@ -199,9 +199,9 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S10 ¿Por qué? | — | ✅ versión novato · versión avanzado | — | — | ✅ | — | Uno por código de motivo (13 §4) |
 | S11 Sustituir | — | ✅ mismo músculo primero + búsqueda | ✅ sin resultados | — | ✅ | — | — |
 | S12 Resumen | — | ✅ con récords · sin récords | — | — | ✅ | — | Invitado: D13 |
-| S13 Rutinas | ✅ | ✅ | ✅ sin rutinas propias | ✅ | ✅ | — | Rutina activa destacada |
+| S13 Rutinas | ✅ | ✅ | ✅ sin rutinas propias | ✅ | ✅ | — | Rutina activa destacada · deslizar una rutina: Editar / Eliminar (#198) |
 | S14 Plantilla | — | ✅ + ¿por qué? | — | — | ✅ | — | Prescripción calculada para mi objetivo |
-| S15 Editor | — | ✅ | ✅ día sin ejercicios | ✅ validaciones (RN-RUT-04/05) | ✅ | — | Reordenando (arrastrar / subir-bajar) · advertencia de RIR 0 (en el campo) · D08 · D15 |
+| S15 Editor | — | ✅ | ✅ día sin ejercicios | ✅ validaciones (RN-RUT-04/05) | ✅ | — | Reordenando (arrastrar el asa; subir-bajar como acciones accesibles) · deslizar una fila: Editar / Quitar (#198) · advertencia de RIR 0 (en el campo) · D08 · D15 |
 | S16 Buscador | ✅ | ✅ | ✅ sin resultados | — | ✅ | — | Filtros activos |
 | S17 Ejercicio | — | ✅ | — | — | ✅ | — | Sin descripción (sección oculta) · obsoleto · "no disponible todavía" |
 | S18 Progreso | ✅ | ✅ historial · volumen semanal | ✅ sin entrenamientos | ✅ | ✅ | — | Ítem "pendiente de respaldo" |

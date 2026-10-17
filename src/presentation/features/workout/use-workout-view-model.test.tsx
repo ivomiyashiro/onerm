@@ -217,8 +217,8 @@ describe('useWorkoutViewModel', () => {
     await act(() => result.current.actions.saveEdit());
     expect(sets(workouts)).toMatchObject([{ reps: 9 }]);
 
-    await act(() => result.current.actions.openSet(sets(workouts)[0].id));
-    await act(() => result.current.actions.deleteSet());
+    // #198: from its sheet or swiping its row, with no sheet open.
+    await act(() => result.current.actions.deleteSet(sets(workouts)[0].id));
     expect(sets(workouts)).toEqual([]);
     expect(result.current.deleted).toMatchObject({ reps: 9 });
 

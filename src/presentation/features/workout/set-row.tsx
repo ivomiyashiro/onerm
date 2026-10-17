@@ -5,6 +5,7 @@ import type { WorkoutSet } from '@/domain/models/workout';
 import { toUnit } from '@/domain/rules/units';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { Icon } from '@/presentation/components/icons/icon';
+import type { SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
 import type { RirField } from '@/presentation/features/workout/set-form';
 import { effortOptions, effortTitle } from '@/presentation/features/workout/set-sheet';
@@ -22,13 +23,15 @@ interface SetRowProps {
   /** The current row opens «Ajustar serie»; a done one opens «Editar serie». */
   onPress: () => void;
   onEffort: (set: WorkoutSet, field: RirField, rir: number) => void;
+  /** A done row's swipe actions, for screen readers too (#198). */
+  a11y?: SwipeA11y;
 }
 
 /**
  * Figma «SetRow» (≥ 60 dp): pending in grey, current with the lime index and «Tocá para ajustar»,
  * done with a check (warm-ups dimmed with a «C»), tapped to edit (RF-ENT-04).
  */
-export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps) {
+export function SetRow({ row, unit, effortMode, onPress, onEffort, a11y }: SetRowProps) {
   const current = row.kind === 'current';
   const done = row.kind === 'done' ? row.set : null;
   const warmUp = done?.isWarmup ?? false;
@@ -71,6 +74,7 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort }: SetRowProps
         accessibilityHint={current ? text.set.tapToAdjust : undefined}
         disabled={muted}
         onPress={onPress}
+        {...a11y}
         style={[
           styles.row,
           (current || missing) && styles.current,

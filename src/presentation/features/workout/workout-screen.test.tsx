@@ -333,6 +333,32 @@ describe('WorkoutScreen (S09)', () => {
     expect(screen.getByText(text.set.lastLoad('57,5 kg'), { exact: false })).toBeOnTheScreen();
   });
 
+  it('#198, RF-ENT-04.AC2: swiping a done set deletes it, with «Deshacer»', async () => {
+    const { user, workouts } = await renderScreen({
+      inProgress: {
+        ...RUNNING,
+        exercises: [
+          {
+            ...RUNNING.exercises[1],
+            sets: [aBilateralSet({ id: 's1', workoutExerciseId: 'we-2', loadKg: 60, rir: 2 })],
+          },
+        ],
+      },
+    });
+
+    await act(() =>
+      fireGestureHandler(getByGestureTestId('swipe set 1'), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -100 },
+        { state: State.END, translationX: -200 },
+      ]),
+    );
+    await user.press(screen.getByRole('button', { name: common.swipe.delete }));
+
+    expect(workouts.inProgress!.exercises[0].sets).toEqual([]);
+    expect(screen.getByText(text.setDeleted.message)).toBeOnTheScreen();
+  });
+
   it('RF-ENT-04.AC1, RF-ENT-02.AC5: a typed load out of range keeps the sheet open with the error', async () => {
     const { user, workouts } = await renderScreen({
       inProgress: {
