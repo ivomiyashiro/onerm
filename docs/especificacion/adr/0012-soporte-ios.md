@@ -19,7 +19,8 @@ El TPO pide Android. El equipo quiere, además, que la app **se pueda ejecutar e
 
 | Tema | Implicancia en iOS |
 |---|---|
-| Build | Necesita **macOS + Xcode** para el development build (`npx expo run:ios`). El simulador es gratis. En un **dispositivo físico** alcanza con un Apple ID gratuito (firma por 7 días). TestFlight requiere la cuenta paga de desarrollador. |
+| Build | Necesita **macOS + Xcode** para el development build (`npx expo run:ios`). El simulador es gratis. En un **dispositivo físico** alcanza con un Apple ID gratuito (firma por 7 días), sin el entitlement de push, que los Personal Teams no admiten (#181). TestFlight requiere la cuenta paga de desarrollador. |
+| Ciclo de vida | Desde iOS 27 la app tiene que usar escenas (UIScene) o se cierra al abrir. Lo agrega el config plugin `plugins/with-scene-lifecycle.js` en el prebuild (#181). |
 | Google Sign-In | Requiere un **client ID de iOS** y un URL scheme propios en la configuración (config plugin). Se lee de `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`, que es público como el client ID web. Sin él, iOS no muestra «Continuar con Google» (#49; decisión D2 de la revisión de F9). |
 | Sign in with Apple | ⚠️ Si la app **se publicara** en la App Store con login de Google, Apple exige ofrecer también Sign in with Apple o una alternativa equivalente (App Review Guidelines 4.8). **No aplica** porque no se publica. Queda como limitación conocida. |
 | Notificaciones del temporizador | Las notificaciones locales programadas funcionan igual. El permiso se pide también en iOS (RF-ENT-06 AC9). |

@@ -49,6 +49,8 @@ const config: ExpoConfig = {
         imageWidth: 76,
       },
     ],
+    // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
+    './plugins/with-scene-lifecycle',
   ],
   experiments: {
     typedRoutes: true,
