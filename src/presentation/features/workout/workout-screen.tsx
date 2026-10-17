@@ -47,6 +47,9 @@ const LOGGED_VIBRATION_MS = 30;
 const REST_END_VIBRATION = [0, 400, 200, 400];
 /** How far the exercise has to be swiped to change it (08 §5). */
 const SWIPE_DISTANCE = 64;
+/** The swipe starts after this much sideways, and gives way to the scroll after this much down. */
+const SWIPE_START = 24;
+const SCROLL_START = 12;
 
 interface WorkoutScreenProps {
   /** No workout in progress any more: back to the tabs. */
@@ -140,8 +143,8 @@ function Workout({
   const swipe = Gesture.Pan()
     .runOnJS(true)
     .withTestId('swipe exercise')
-    .activeOffsetX([-24, 24])
-    .failOffsetY([-12, 12])
+    .activeOffsetX([-SWIPE_START, SWIPE_START])
+    .failOffsetY([-SCROLL_START, SCROLL_START])
     .onEnd(({ translationX }) => {
       if (Math.abs(translationX) < SWIPE_DISTANCE) return;
       const to = exerciseIndex + (translationX < 0 ? 1 : -1);
