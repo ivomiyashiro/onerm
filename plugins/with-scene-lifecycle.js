@@ -48,7 +48,7 @@ function adoptSceneLifecycle(appDelegate) {
       `${PLUGIN}: AppDelegate.swift doesn't match the Expo 57 template; update the plugin.`,
     );
   }
-  return appDelegate.replace(CLASS_DECLARATION, PROVIDER_DECLARATION).replace(WINDOW_START, '\n');
+  return appDelegate.replace(CLASS_DECLARATION, PROVIDER_DECLARATION).replace(WINDOW_START, '');
 }
 
 /** @type {import('expo/config-plugins').ConfigPlugin} */
