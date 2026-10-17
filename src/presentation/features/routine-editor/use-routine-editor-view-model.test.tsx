@@ -194,6 +194,23 @@ describe('useRoutineEditorViewModel', () => {
       expect(onClose).toHaveBeenCalled();
     });
 
+    it('#197: picking an exercise adds it with its defaults and opens its data (step 2)', async () => {
+      const { result } = await renderViewModel({ routineId: null, routines: [] });
+      await act(() => result.current.actions.openPicker());
+
+      await act(() => result.current.actions.pick(CURL));
+
+      const [added] = content(result.current).routine.days[0].exercises;
+      expect(result.current.sheet).toMatchObject({
+        mode: 'add',
+        exercise: { id: added.id },
+        form: { sets: '2', role: 'accessory' },
+      });
+      // Closing step 2 keeps the defaults: it can be skipped.
+      await act(() => result.current.actions.closeExercise());
+      expect(content(result.current).routine.days[0].exercises).toHaveLength(1);
+    });
+
     it('D15 «Ahora no» leaves without activating', async () => {
       const { result, profiles, onClose } = await renderViewModel({
         routineId: null,

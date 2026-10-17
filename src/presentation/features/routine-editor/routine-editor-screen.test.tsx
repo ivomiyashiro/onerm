@@ -189,6 +189,9 @@ describe('RoutineEditorScreen', () => {
     await user.press(screen.getByRole('button', { name: text.editor.addExercise }));
     expect(screen.getByRole('header', { name: catalog.search.addTo('Día A') })).toBeOnTheScreen();
     await user.press(await screen.findByRole('button', { name: 'Curl de bíceps' }));
+    // #197: step 2 shows its defaults; «Listo» keeps them.
+    expect(screen.getByLabelText(text.editor.fields.sets)).toHaveDisplayValue('2');
+    await user.press(screen.getByRole('button', { name: common.ready }));
     await user.press(screen.getByRole('button', { name: text.editor.save }));
 
     expect(screen.getByText(dialogs.D15.title('Pierna'))).toBeOnTheScreen();

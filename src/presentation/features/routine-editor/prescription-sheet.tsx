@@ -1,4 +1,4 @@
-import type { ReactNode } from 'react';
+import { useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
 
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
@@ -43,8 +43,10 @@ interface PrescriptionSheetProps {
 }
 
 /**
- * S15 · Prescripción (hoja, Figma «SheetBody/Prescripción»): role, sets, rep range, target RIR,
- * rest and notes of one routine exercise, with the errors next to their field (RN-RUT-04).
+ * S15 · Prescripción (hoja, Figma «SheetBody/Prescripción»): sets, rep range, target RIR and rest
+ * in sight, with the errors next to their field (RN-RUT-04); role, notes, replace and remove under
+ * «Más opciones», so the sheet stays short (#197). Right after picking an exercise it is step 2,
+ * with «Listo»; closing it keeps the defaults.
  */
 export function PrescriptionSheet({
   sheet,
@@ -58,6 +60,9 @@ export function PrescriptionSheet({
 }: PrescriptionSheetProps) {
   const { height } = useWindowDimensions();
   const form = sheet?.form;
+  const [more, setMore] = useState(false);
+  // A note already written is shown; otherwise the extra options start folded.
+  const showMore = more || (form !== undefined && form.notes !== '');
   const restOptions =
     form === undefined || REST_OPTIONS.includes(form.restSeconds)
       ? REST_OPTIONS
@@ -78,14 +83,6 @@ export function PrescriptionSheet({
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >
-          <Field label={text.editor.role}>
-            <Segmented
-              label={text.editor.role}
-              options={ROLE_OPTIONS}
-              selected={form.role}
-              onSelect={(role) => onChange({ role })}
-            />
-          </Field>
           <View style={styles.numbers}>
             <View style={styles.number}>
               <TextField
@@ -154,20 +151,41 @@ export function PrescriptionSheet({
               ))}
             </ScrollView>
           </Field>
-          <TextField
-            label={text.editor.notes}
-            value={form.notes}
-            onChangeText={(notes) =>
-              onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
-            }
-            placeholder={text.editor.notesPlaceholder}
-            help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+          <MenuItem
+            icon={showMore ? 'up' : 'down'}
+            label={text.editor.moreOptions}
+            onPress={() => setMore(!showMore)}
           />
-          <View>
-            <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
-            <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
-          </View>
-          <Button variant="primary" label={text.editor.save} onPress={onSave} />
+          {showMore && (
+            <>
+              <Field label={text.editor.role}>
+                <Segmented
+                  label={text.editor.role}
+                  options={ROLE_OPTIONS}
+                  selected={form.role}
+                  onSelect={(role) => onChange({ role })}
+                />
+              </Field>
+              <TextField
+                label={text.editor.notes}
+                value={form.notes}
+                onChangeText={(notes) =>
+                  onChange({ notes: Array.from(notes).slice(0, NOTES_MAX).join('') })
+                }
+                placeholder={text.editor.notesPlaceholder}
+                help={text.editor.notesCount(Array.from(form.notes).length, NOTES_MAX)}
+              />
+              <View>
+                <MenuItem icon="swap" label={text.editor.replace} onPress={onReplace} />
+                <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
+              </View>
+            </>
+          )}
+          <Button
+            variant="primary"
+            label={sheet.mode === 'add' ? common.ready : text.editor.save}
+            onPress={onSave}
+          />
         </ScrollView>
       )}
     </BottomSheet>

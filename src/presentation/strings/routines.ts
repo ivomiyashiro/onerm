@@ -160,6 +160,8 @@ export const routines = {
     name: 'Nombre de la rutina',
     addDay: '+ Día',
     addExercise: 'Agregar ejercicio',
+    /** The folded part of the prescription sheet: role, notes, replace, remove (#197). */
+    moreOptions: 'Más opciones',
     reorderHelp:
       'Arrastrá desde el asa para cambiar el orden; deslizá un ejercicio para editarlo o quitarlo.',
     save: 'Guardar',
