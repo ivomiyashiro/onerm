@@ -326,11 +326,11 @@ describe('useRoutineEditorViewModel', () => {
       expect(result.current.picker).toBeNull();
     });
 
-    it('RF-RUT-04.AC1: «Quitar ejercicio» takes it out of the day', async () => {
+    it('RF-RUT-04.AC1: «Quitar ejercicio» takes it out of the day, also swiping its row (#198)', async () => {
       const { result } = await renderViewModel();
       await act(() => result.current.actions.openExercise('re-1'));
 
-      await act(() => result.current.actions.removeExercise());
+      await act(() => result.current.actions.removeExercise('re-1'));
 
       expect(content(result.current).routine.days[0].exercises.map((e) => e.id)).toEqual(['re-2']);
       expect(result.current.sheet).toBeNull();

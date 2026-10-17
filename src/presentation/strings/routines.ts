@@ -160,7 +160,8 @@ export const routines = {
     name: 'Nombre de la rutina',
     addDay: '+ Día',
     addExercise: 'Agregar ejercicio',
-    reorderHelp: 'Arrastrá desde el asa o usá las flechas para cambiar el orden.',
+    reorderHelp:
+      'Arrastrá desde el asa para cambiar el orden; deslizá un ejercicio para editarlo o quitarlo.',
     save: 'Guardar',
     emptyDay: {
       title: 'Este día no tiene ejercicios',
