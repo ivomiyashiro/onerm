@@ -91,6 +91,17 @@ The `tdd` skill has the detail: what each layer's tests own, the tests not to wr
 - **No tests in `app/`:** Expo Router treats every file in `app/` as a route. The screen lives in `src/presentation/features/<feature>/<x>-screen.tsx` (with its test next to it) and the `app/` file only re-exports it.
 - No production code without a test that calls for it, except config and purely visual components.
 
+## Performance (#221, `docs/pruebas/221-performance.md`)
+
+Measure before and after: a change to an observer, a use case that observes, a ViewModel or the screens S07, S09 or S18 runs `bun run perf` (the real screens on SQLite with 1.000 workouts, compiled with React Compiler) and puts the before/after numbers in the PR.
+
+- **Emit only what changed.** An observer or use case doesn't emit an equal result, and a ViewModel doesn't `setState` a new object with the same data: React Compiler can't skip a render whose props are new.
+- **Work per write doesn't grow with the history.** Logging a set (RNF-03) never reads or folds the whole history; derive from it only when it changed (`sharedQuery` keeps the same array while it doesn't).
+- **Clocks live in leaf components**, with state at the precision shown (whole seconds for «01:14»). A screen passes `startedAt`/`endsAt`, never the ticking value, and nothing hidden reads it.
+- **Stable props in lists and per-tick components:** handlers and objects passed to rows and to components that re-render often don't change on every render.
+- **Unbounded data goes in a virtualized list** (`FlatList`/`SectionList`) with stable keys, never `ScrollView` + `map`.
+- **The network never runs for the UI**, and the sync writes only rows that changed: a rewrite with the same values still wakes every observer of the table.
+
 ## Commands
 
 ```bash
@@ -99,6 +110,7 @@ bun run typecheck
 bun run lint           # ESLint, fails on any warning
 bun run format         # Prettier (format:check in CI)
 bun run test           # Jest (jest-expo); test:watch, test:coverage
+bun run perf           # renders and SQL per scenario (#221); it prints, it doesn't guard
 bun run android        # development build on the emulator (expo run:android)
 bun run start          # Metro only, with the app already installed
 ```

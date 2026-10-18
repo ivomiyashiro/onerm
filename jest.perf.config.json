@@ -1,0 +1,28 @@
+// The performance measurements of #221 (`bun run perf`): the whole app on a real SQLite database,
+// like jest.int.config.json, but compiled with React Compiler as Metro does for the app
+// (experiments.reactCompiler). Without it the renders counted would not be the app's.
+{
+  "preset": "jest-expo",
+  "moduleNameMapper": {
+    "\\.svg$": "<rootDir>/tools/jest/svg-mock.ts",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@react-native-google-signin/google-signin$": "<rootDir>/tools/jest/google-signin-mock.ts"
+  },
+  "transform": {
+    "\\.[jt]sx?$": [
+      "babel-jest",
+      {
+        "caller": {
+          "name": "metro",
+          "bundler": "metro",
+          "platform": "ios",
+          "supportsReactCompiler": true
+        }
+      }
+    ]
+  },
+  "testEnvironment": "node",
+  "testMatch": ["<rootDir>/tools/perf/**/*.perf.tsx"],
+  "testPathIgnorePatterns": ["/node_modules/", "/android/", "/ios/"],
+  "testTimeout": 120000
+}

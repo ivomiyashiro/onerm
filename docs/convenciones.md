@@ -105,6 +105,7 @@ Una card pasa a `Hecho` cuando:
 - [ ] Tiene tests: unitarios en el dominio y de integración en datos o sync, según la matriz de 09 §2.
 - [ ] La CI pasa: typecheck, lint (incluidas las reglas de capas) y tests.
 - [ ] Los textos de la UI salen de `presentation/strings` (RNF-21).
+- [ ] Si toca un observador, un caso de uso que observa, un ViewModel o S07, S09 o S18, el PR trae los números de `bun run perf` de antes y de después, y cumple la regla de performance de `CLAUDE.md` (#221).
 - [ ] Si cambió una decisión o un comportamiento, se actualizaron la especificación o el ADR.
 - [ ] Si el cambio es visible para el usuario, está en `CHANGELOG.md`.
 - [ ] El PR se mergeó con squash.
