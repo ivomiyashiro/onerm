@@ -96,7 +96,9 @@ function LaunchSplash({ ready, onHidden }: { ready: boolean; onHidden: () => voi
             styles.halo,
             {
               opacity: halo,
-              transform: [{ scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) }],
+              transform: [
+                { scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+              ],
             },
           ]}
         >

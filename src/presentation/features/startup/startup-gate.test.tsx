@@ -1,8 +1,9 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { render, screen, userEvent, waitFor } from '@testing-library/react-native';
 import { Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { LaunchSplashProvider } from '@/presentation/features/startup/launch-splash';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
@@ -23,9 +24,11 @@ async function renderGate(prepare: () => Promise<void>) {
     <SafeAreaProvider initialMetrics={METRICS}>
       <AppStoreProvider store={createAppStore()}>
         <UseCasesProvider useCases={useCases}>
-          <StartupGate>
-            <Text>App</Text>
-          </StartupGate>
+          <LaunchSplashProvider>
+            <StartupGate>
+              <Text>App</Text>
+            </StartupGate>
+          </LaunchSplashProvider>
         </UseCasesProvider>
       </AppStoreProvider>
     </SafeAreaProvider>,
@@ -53,6 +56,12 @@ describe('StartupGate (08 §3, 07 §6)', () => {
     expect(screen.getByText(dataError.body)).toBeOnTheScreen();
     expect(screen.getByRole('button', { name: dataError.retry })).toBeOnTheScreen();
     expect(screen.queryByText('App')).not.toBeOnTheScreen();
+    // marca §16: the launch splash never covers the error.
+    await waitFor(() =>
+      expect(
+        screen.queryByTestId('launch-splash', { includeHiddenElements: true }),
+      ).not.toBeOnTheScreen(),
+    );
   });
 
   it('Reintentar prepares again and mounts the app when it works', async () => {

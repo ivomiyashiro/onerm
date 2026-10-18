@@ -3,6 +3,7 @@ import { StyleSheet, View } from 'react-native';
 
 import type { Entry } from '@/domain/usecases/observe-entry';
 import { useEntryViewModel } from '@/presentation/features/entry/use-entry-view-model';
+import { LaunchReady } from '@/presentation/features/startup/launch-splash';
 import { StartupErrorScreen } from '@/presentation/features/startup/startup-error-screen';
 import { colors } from '@/presentation/theme';
 
@@ -15,7 +16,13 @@ export function EntryGate({ children }: { children: (entry: Entry) => ReactNode 
 
   switch (state.status) {
     case 'ready':
-      return children(state.entry);
+      return (
+        <>
+          {/* The navigator is the app's first real screen: the launch splash leaves (marca §16). */}
+          <LaunchReady />
+          {children(state.entry)}
+        </>
+      );
     case 'error':
       return <StartupErrorScreen onRetry={actions.retry} />;
     case 'loading':
