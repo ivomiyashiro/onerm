@@ -18,7 +18,12 @@ const REDIRECTION = /\d*[<>]+&?\s*\S*/g;
 // Options that push more than the current branch.
 const WIDE_OPTIONS = /(^|\s)(--all|--mirror|--tags|--delete|-d)(\s|=|$)/;
 
-function readStdin() {
+interface HookInput {
+  tool_input?: { command?: string };
+  cwd?: string;
+}
+
+function readStdin(): { ok: boolean; input: HookInput } {
   try {
     return { ok: true, input: JSON.parse(readFileSync(0, 'utf8')) };
   } catch {
@@ -26,7 +31,7 @@ function readStdin() {
   }
 }
 
-function git(args, cwd) {
+function git(args: string[], cwd: string): string {
   return execFileSync('git', args, {
     cwd,
     encoding: 'utf8',
@@ -34,7 +39,7 @@ function git(args, cwd) {
   }).trim();
 }
 
-function deny(reason) {
+function deny(reason: string): never {
   process.stdout.write(
     JSON.stringify({
       hookSpecificOutput: {
@@ -51,7 +56,7 @@ function deny(reason) {
  * The command without heredoc bodies and quoted strings, so a commit message or a PR body
  * that mentions a push doesn't count as one. Shell payloads (`bash -c '…'`) are kept.
  */
-function withoutLiterals(command) {
+function withoutLiterals(command: string): string {
   const payloads = [...command.matchAll(SHELL_PAYLOAD)].map((m) => m[1] ?? m[2]);
   const stripped = command
     .replace(/<<-?\s*(['"]?)(\w+)\1[^\n]*\n[\s\S]*?\n\s*\2(?=\s|$)/g, ' ')
@@ -60,7 +65,7 @@ function withoutLiterals(command) {
 }
 
 /** The arguments of each push in the command (`origin feature` for `git push origin feature`). */
-function pushArguments(command) {
+function pushArguments(command: string): string[] {
   return [...withoutLiterals(command).matchAll(GIT_PUSH)].map((m) => m[2].trim());
 }
 
@@ -68,7 +73,7 @@ function pushArguments(command) {
  * Whether a push only sends HEAD to the branch of the same name: no refspec, or one whose
  * source is HEAD or the branch and whose destination, if any, is that branch.
  */
-function pushesOnlyHead(args, branch) {
+function pushesOnlyHead(args: string, branch: string): boolean {
   if (WIDE_OPTIONS.test(args)) return false;
   const positional = args
     .replace(REDIRECTION, ' ')
@@ -102,9 +107,9 @@ try {
 // Outside a git repository: nothing to check.
 if (!inRepository) process.exit(0);
 
-let head;
-let gitDir;
-let branch;
+let head: string;
+let gitDir: string;
+let branch: string;
 try {
   head = git(['rev-parse', 'HEAD'], cwd);
   gitDir = path.resolve(cwd, git(['rev-parse', '--git-dir'], cwd));

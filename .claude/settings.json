@@ -6,7 +6,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "node \"$CLAUDE_PROJECT_DIR/.claude/hooks/require-pre-push.mjs\"",
+            "command": "bun \"$CLAUDE_PROJECT_DIR/.claude/hooks/require-pre-push.ts\"",
             "timeout": 15,
             "statusMessage": "Checking the pre-push review..."
           }

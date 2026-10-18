@@ -3,7 +3,7 @@ import { mkdtempSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import path from 'node:path';
 
-const HOOK = path.join(__dirname, 'require-pre-push.mjs');
+const HOOK = path.join(__dirname, 'require-pre-push.ts');
 // Split so this file's own text never looks like a push to the hook.
 const PUSH = 'pu' + 'sh';
 const BRANCH = 'feat/1-x';
@@ -13,7 +13,7 @@ function git(args: string[], cwd: string): string {
 }
 
 function decision(command: string, cwd: string): 'allow' | 'deny' {
-  const out = execFileSync('node', [HOOK], {
+  const out = execFileSync('bun', [HOOK], {
     input: JSON.stringify({ tool_input: { command }, cwd }),
     encoding: 'utf8',
   });
@@ -98,7 +98,7 @@ describe('require-pre-push hook', () => {
   });
 
   it('blocks when the input is not valid JSON', () => {
-    const out = execFileSync('node', [HOOK], { input: 'not json', encoding: 'utf8' });
+    const out = execFileSync('bun', [HOOK], { input: 'not json', encoding: 'utf8' });
     expect(out).toContain('"deny"');
   });
 });
