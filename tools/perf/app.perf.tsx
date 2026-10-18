@@ -2,7 +2,8 @@
  * Performance measurements of #221 (`bun run perf`): the real screens, ViewModels, use cases and
  * repositories on a real SQLite database with 1.000 finished workouts (RNF-03, RNF-14), compiled
  * with React Compiler like the app. It reports renders per component and SQL statements per
- * scenario; Node's times are only a hint, the phone is the reference.
+ * scenario; Node's times are only a hint, the phone is the reference. It prints, it doesn't guard:
+ * the tests only fail if a scenario can't run.
  */
 import { fireEvent, render, screen } from '@testing-library/react-native';
 import { Profiler, type ReactNode } from 'react';
@@ -128,8 +129,11 @@ async function seed({ history, inProgress }: { history: number; inProgress: bool
 async function settle(ms = 100) {
   const global = globalThis as { IS_REACT_ACT_ENVIRONMENT?: boolean };
   global.IS_REACT_ACT_ENVIRONMENT = false;
-  await new Promise((resolve) => setTimeout(resolve, ms));
-  global.IS_REACT_ACT_ENVIRONMENT = true;
+  try {
+    await new Promise((resolve) => setTimeout(resolve, ms));
+  } finally {
+    global.IS_REACT_ACT_ENVIRONMENT = true;
+  }
 }
 
 let commits = 0;

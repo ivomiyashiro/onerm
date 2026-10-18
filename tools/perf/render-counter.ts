@@ -2,7 +2,8 @@
  * Counts how many times each function component renders (#221). The JSX runtime is replaced
  * (`jest.mock('react/jsx-runtime')`) so every function component goes through a counting wrapper.
  * The wrapper is created once per component, so its identity is stable and React reconciles it
- * like the original: the counts are the app's renders, not extra ones.
+ * like the original: the counts are the app's renders, not extra ones. Components wrapped in
+ * `React.memo` or `forwardRef` are objects, not functions, and are not counted.
  */
 type Component = (props: unknown, ref?: unknown) => unknown;
 type JsxFactory = (type: unknown, ...rest: unknown[]) => unknown;

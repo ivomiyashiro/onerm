@@ -110,7 +110,7 @@ bun run typecheck
 bun run lint           # ESLint, fails on any warning
 bun run format         # Prettier (format:check in CI)
 bun run test           # Jest (jest-expo); test:watch, test:coverage
-bun run perf           # performance measurements of #221 (renders and SQL per scenario)
+bun run perf           # renders and SQL per scenario (#221); it prints, it doesn't guard
 bun run android        # development build on the emulator (expo run:android)
 bun run start          # Metro only, with the app already installed
 ```
