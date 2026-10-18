@@ -10,11 +10,17 @@ const config: ExpoConfig = {
   userInterfaceStyle: 'automatic',
   ios: {
     bundleIdentifier: 'com.training.onerm',
+    // marca §16: iOS 18+ picks the variant for the home screen's look (light, dark or tinted).
+    icon: {
+      light: './assets/images/icon.png',
+      dark: './assets/images/icon-dark.png',
+      tinted: './assets/images/icon-tinted.png',
+    },
   },
   android: {
     package: 'com.training.onerm',
     adaptiveIcon: {
-      backgroundColor: '#E6F4FE',
+      backgroundColor: '#0E0E0D',
       foregroundImage: './assets/images/android-icon-foreground.png',
       backgroundImage: './assets/images/android-icon-background.png',
       monochromeImage: './assets/images/android-icon-monochrome.png',
@@ -43,10 +49,13 @@ const config: ExpoConfig = {
     ],
     [
       'expo-splash-screen',
+      // marca §16: bg/base and the mark at 96 dp; the JS splash starts from this same frame.
+      // The app is dark only, so the system's dark mode shows the same splash.
       {
-        backgroundColor: '#208AEF',
+        backgroundColor: '#0E0E0D',
         image: './assets/images/splash-icon.png',
-        imageWidth: 76,
+        imageWidth: 96,
+        dark: { backgroundColor: '#0E0E0D', image: './assets/images/splash-icon.png' },
       },
     ],
     // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
