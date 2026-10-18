@@ -5,11 +5,12 @@ import { Platform, type TextStyle } from 'react-native';
  * so styles set fontFamily and never fontWeight (Android would fake the bold).
  */
 export const fonts = {
-  regular: 'Archivo-Regular',
-  medium: 'Archivo-Medium',
-  semiBold: 'Archivo-SemiBold',
-  bold: 'Archivo-Bold',
-  extraBold: 'Archivo-ExtraBold',
+  /** Text (#199): Geist, so the Archivo numbers and display stand out. */
+  regular: 'Geist-Regular',
+  medium: 'Geist-Medium',
+  semiBold: 'Geist-SemiBold',
+  bold: 'Geist-Bold',
+  extraBold: 'Geist-ExtraBold',
   /** wdth 75: load, reps and every number. */
   number: 'ArchivoCondensed-Bold',
   /** wdth 125: brand display ("HOY TOCA"). */

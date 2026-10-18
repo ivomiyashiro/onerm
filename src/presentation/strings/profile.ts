@@ -112,7 +112,7 @@ export const profile = {
     fonts: 'Tipografías',
     /** The brand name, split to color «RM» like the logo (Figma S22). */
     appName: { one: 'One', rm: 'RM' },
-    fontsCredit: 'Archivo y JetBrains Mono · SIL Open Font License',
+    fontsCredit: 'Geist, Archivo y JetBrains Mono · SIL Open Font License',
     photosCredit: 'Eduardo Cano Photo Co., Alora Griffiths y Victor Freitas · Licencia de Unsplash',
     basedOn: 'En qué nos basamos',
     principlesCount: (n: number) => count(n, 'principio', 'principios'),

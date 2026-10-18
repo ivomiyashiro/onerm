@@ -30,11 +30,11 @@ const config: ExpoConfig = {
       'expo-font',
       {
         fonts: [
-          './assets/fonts/Archivo-Regular.ttf',
-          './assets/fonts/Archivo-Medium.ttf',
-          './assets/fonts/Archivo-SemiBold.ttf',
-          './assets/fonts/Archivo-Bold.ttf',
-          './assets/fonts/Archivo-ExtraBold.ttf',
+          './assets/fonts/Geist-Regular.ttf',
+          './assets/fonts/Geist-Medium.ttf',
+          './assets/fonts/Geist-SemiBold.ttf',
+          './assets/fonts/Geist-Bold.ttf',
+          './assets/fonts/Geist-ExtraBold.ttf',
           './assets/fonts/ArchivoCondensed-Bold.ttf',
           './assets/fonts/ArchivoExpanded-ExtraBold.ttf',
           './assets/fonts/JetBrainsMono-Bold.ttf',
