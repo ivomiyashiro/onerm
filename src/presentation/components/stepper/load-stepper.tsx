@@ -128,11 +128,7 @@ const styles = StyleSheet.create({
   note: { textAlign: 'center' },
   sizer: { minWidth: 48, opacity: 0 },
   input: {
-    position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    ...StyleSheet.absoluteFill,
     padding: 0,
     textAlign: 'center',
     color: colors.textPrimary,
