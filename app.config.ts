@@ -61,6 +61,8 @@ const config: ExpoConfig = {
     ],
     // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
     './plugins/with-scene-lifecycle',
+    // Local notifications only: a personal Apple team can't sign the push entitlement (#217).
+    './plugins/with-local-notifications-only',
   ],
   experiments: {
     typedRoutes: true,
