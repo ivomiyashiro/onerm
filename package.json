@@ -63,7 +63,7 @@
     "device:ios": "expo run:ios --device",
     "device:ios:release": "expo run:ios --configuration Release --device",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "eslint . --max-warnings 0 && tools/ci/no-javascript.sh",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
