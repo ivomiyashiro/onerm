@@ -1,9 +1,9 @@
 <svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
-<circle cx="80" cy="80" r="80" fill="url(#halo)"/>
 <defs>
-<radialGradient id="halo" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(80 80) scale(80)">
-<stop stop-color="#C5F04A" stop-opacity="0.4"/>
+<radialGradient id="halo" cx="80" cy="80" r="80" gradientUnits="userSpaceOnUse">
+<stop offset="0" stop-color="#C5F04A" stop-opacity="0.4"/>
 <stop offset="1" stop-color="#C5F04A" stop-opacity="0"/>
 </radialGradient>
 </defs>
+<circle cx="80" cy="80" r="80" fill="url(#halo)"/>
 </svg>
