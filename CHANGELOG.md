@@ -52,6 +52,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - The full-screen rest closes by pulling it down too, and its button is now an «X». Inicio no longer shows a «Calibrar» pill in today's list; the calibration is explained inside the exercise.
 - Set sheet: a load still to choose shows a grey 0 instead of «—», and asks for it only when confirmed; under the load, the last one you logged in that exercise. Load and reps keep their ± buttons level.
 - Bottom sheets float over the screen, inset from its edges and with every corner rounded.
+- App icon and opening with the brand mark: the lime plate on Android (adaptive and themed) and iPhone (light, dark and tinted), and a splash that takes over from the system's without a jump, grows a halo while the data opens and fades into the app (only a fade with «reduce motion»).
 - Sheets, dialogs and the full-screen rest: the dark background fades in place while the sheet slides up, and a «…» button can be tapped again as soon as its sheet closes, without waiting for the animation.
 
 ### Fixed
