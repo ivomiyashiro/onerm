@@ -222,3 +222,23 @@ La barra fija "Empezar" sobre las pestañas ocupaba unos 87 px (≈ 10 % de la p
 
 Con el espacio liberado, "Lo de hoy" muestra cuatro ejercicios en lugar de dos y medio. La placa cortada sigue siendo el botón principal dentro de las pantallas (S09, hojas, estados vacíos); el círculo es solo la acción global de la barra.
 
+
+## 16. Ícono y apertura (2026-10-17, #203)
+
+Hasta ahora el ícono y el splash eran los de ejemplo de Expo (fondo azul). Se diseñaron en Figma, en la página «10 Ícono y splash (F10 #203)», a partir de `Logo/Marca` (la placa cortada lima con «1RM»). Los PNG salen de los marcos «Exportación (4x)» de esa página.
+
+| Pieza | Diseño |
+|---|---|
+| Ícono de iOS, claro | Fondo `bg` con un degradé suave hacia arriba, halo lima detrás y la placa al 59 % del lado |
+| Ícono de iOS, oscuro (iOS 18+) | Fondo transparente (el sistema pone el oscuro), halo y placa |
+| Ícono de iOS, tintado (iOS 18+) | En grises sobre negro: placa blanca y «1RM» negro, para que el sistema lo tiña |
+| Android adaptativo | Fondo: `bg` con el halo. Primer plano: la placa dentro de la zona segura de 66 dp (de 108 dp), así ninguna máscara la recorta. Monocromo: la placa con «1RM» calado, para los íconos temáticos |
+| Splash nativo | Fondo `bg` `#0E0E0D` y la marca centrada a 96 dp. Es el mismo con el sistema en claro o en oscuro, porque la app es solo oscura (§7.4) |
+
+**Animación de entrada.** El splash nativo es estático: lo dibuja el sistema antes de que cargue JavaScript. Encima va un splash en JS que arranca con el mismo cuadro y oculta el nativo apenas se dibuja.
+
+1. **Halo** (0 → 600 ms, easeOut cúbica): mientras se abre la base, un halo lima crece detrás de la placa (escala 0,6 → 1, opacidad 0 → 1). Una sola pasada (§7): si la base tarda más, queda quieto.
+2. **Salida** (360 ms, easeIn cúbica): cuando la app está lista (el navegador o un error del arranque), se monta debajo y la capa se desvanece mientras la marca crece de 1 a 1,6. No espera a la animación ni bloquea los toques: la app aparece en el mismo momento que antes.
+3. **Reducir movimiento:** sin halo ni escala, la capa se desvanece en 200 ms.
+
+Se anima con `Animated` y el driver nativo, como el resto de la app: corre en el hilo de la interfaz aunque JavaScript esté ocupado con las migraciones. No se usa Lottie.

@@ -3,6 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo } from '@/presentation/components/brand/logo';
 import { Button } from '@/presentation/components/button/button';
+import { LaunchReady } from '@/presentation/features/startup/launch-splash';
 import { Text } from '@/presentation/components/text';
 import { strings } from '@/presentation/strings';
 import { colors, space, typography } from '@/presentation/theme';
@@ -15,6 +16,8 @@ export function StartupErrorScreen({ onRetry }: { onRetry: () => void }) {
 
   return (
     <View style={[styles.screen, { paddingTop: insets.top }]}>
+      {/* The launch splash never covers the error (marca §16). */}
+      <LaunchReady />
       <View style={styles.content}>
         <Logo />
         <Text style={[typography.titleL, styles.title]} accessibilityRole="header">
