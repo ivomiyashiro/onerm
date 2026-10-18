@@ -82,7 +82,7 @@ Las direcciones de la §5 (A, B y C "tranquilas") se descartaron: se buscó un *
 | `y` / `ink` / `ysoft` | `#FFD400` / `#141100` / `rgba(255,212,0,.12)` | Acción y estado actual (13,2:1) / selección |
 | `ok` / `warn` / `err` | `#5BC98A` / `#FFA94D` / `#FF6B6B` | Semántica, siempre con ícono |
 
-**Tipografía:** Archivo en tres anchos (125 % display, 75 % números, 100 % texto) y JetBrains Mono para el tiempo.
+**Tipografía:** Geist para el texto, Archivo en dos anchos (125 % display, 75 % números) y JetBrains Mono para el tiempo. Hasta F10 el texto también era Archivo (100 %); se cambió en #199 para que la app se sintiera más premium y para que los números y el display contrasten con el texto. Se compararon Geist, Manrope y Space Grotesk en Figma (página «10 Tipografía (F10 #199)»).
 
 ## 7. Versión 3 del sistema tras la revisión de jueces (2026-10-01)
 
