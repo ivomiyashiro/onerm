@@ -6,10 +6,10 @@ import path from 'node:path';
 
 import { ESLint } from 'eslint';
 
+import config from '../../eslint.config';
+
 // RNF-21: UI texts live in src/presentation/strings, never written in a component.
 const root = path.resolve(__dirname, '../..');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const config = require('../../eslint.config.js');
 const eslint = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig: config });
 
 const HEADER =
