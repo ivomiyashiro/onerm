@@ -67,10 +67,10 @@
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "test": "jest",
-    "test:int": "jest -c jest.int.config.js",
+    "test:int": "jest -c jest.int.config.json",
     "seed:catalog": "bun tools/catalog-seed/cli.ts",
     "seed:catalog:cloud": "bun --env-file=.seed.local tools/catalog-seed/cli.ts --load",
-    "test:supabase": "supabase test db && jest -c jest.supabase.config.js",
+    "test:supabase": "supabase test db && jest -c jest.supabase.config.json",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
   },
