@@ -6,11 +6,11 @@ import path from 'node:path';
 
 import { ESLint } from 'eslint';
 
+import config from '../../eslint.config';
+
 // RNF-11: the layer rules of 12 §1 (ADR-0011) are enforced by the lint.
 const root = path.resolve(__dirname, '../..');
-// The config is passed via require: ESLint would load it with a dynamic import(), which Jest does not support.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const config = require('../../eslint.config.js');
+// The config is imported and passed in: ESLint would load it with a dynamic import(), which Jest does not support.
 const eslint = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig: config });
 
 const DATA = "import { dataFixture } from '@/data/__fixtures__/boundaries-target';";

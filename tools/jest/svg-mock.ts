@@ -1,7 +1,7 @@
 // Jest has no SVG transformer: an imported SVG becomes a host element that keeps its props, so
 // tests can check the size and color the Icon component passes.
-const { createElement } = require('react');
+import { createElement } from 'react';
 
-module.exports = function SvgMock(props) {
+export default function SvgMock(props: Record<string, unknown>) {
   return createElement('Svg', props);
-};
+}

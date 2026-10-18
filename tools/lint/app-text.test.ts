@@ -6,11 +6,11 @@ import path from 'node:path';
 
 import { ESLint } from 'eslint';
 
+import config from '../../eslint.config';
+
 // Screens and components use the app's Text (src/presentation/components/text.tsx), which works
 // around the Android 15+ text clipping. Importing React Native's Text directly is an error.
 const root = path.resolve(__dirname, '../..');
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const config = require('../../eslint.config.js');
 const eslint = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig: config });
 
 async function restrictedImportErrors(filePath: string, code: string): Promise<string[]> {

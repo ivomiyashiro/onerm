@@ -1,0 +1,15 @@
+// Integration tests of the data layer: a real SQLite database (better-sqlite3, in memory) with the
+// app's migrations. Plain Node: better-sqlite3 is a native Node module.
+// Same preset, mappings and timeout as jest.config.json (JSON can't import it).
+{
+  "preset": "jest-expo",
+  "moduleNameMapper": {
+    "\\.svg$": "<rootDir>/tools/jest/svg-mock.ts",
+    "^@/(.*)$": "<rootDir>/src/$1",
+    "^@react-native-google-signin/google-signin$": "<rootDir>/tools/jest/google-signin-mock.ts"
+  },
+  "testEnvironment": "node",
+  "testMatch": ["**/*.int.test.{ts,tsx}"],
+  "testPathIgnorePatterns": ["/node_modules/", "/android/", "/ios/"],
+  "testTimeout": 15000
+}

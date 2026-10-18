@@ -1,9 +1,9 @@
 // https://docs.expo.dev/guides/using-eslint/
-const { defineConfig } = require('eslint/config');
-const expoConfig = require('eslint-config-expo/flat');
-const tseslint = require('typescript-eslint');
-const prettierConfig = require('eslint-config-prettier');
-const boundaries = require('eslint-plugin-boundaries');
+import prettierConfig from 'eslint-config-prettier';
+import expoConfig from 'eslint-config-expo/flat';
+import boundaries from 'eslint-plugin-boundaries';
+import { defineConfig } from 'eslint/config';
+import { configs as tseslint } from 'typescript-eslint';
 
 // Infrastructure SDKs: only data may import them (and di, which composes it).
 // Closed list: when adding any persistence or network SDK (another SQLite, an HTTP client),
@@ -50,14 +50,14 @@ const LITERAL_TEXT_SELECTORS = [
   ),
 ];
 
-module.exports = defineConfig([
+export default defineConfig([
   {
     ignores: ['dist/', 'coverage/', 'android/', 'ios/', '.expo/', 'expo-env.d.ts'],
   },
   expoConfig,
   {
     files: ['**/*.ts', '**/*.tsx'],
-    extends: [tseslint.configs.recommended],
+    extends: [tseslint.recommended],
   },
   // Clean Architecture layer rules (12 §1, ADR-0011, RNF-11). Never disabled.
   {
