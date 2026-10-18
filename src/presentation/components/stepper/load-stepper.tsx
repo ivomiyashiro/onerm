@@ -48,15 +48,26 @@ export function LoadStepper({
         </Text>
         <View style={styles.value}>
           {onChangeText ? (
-            <TextInput
-              accessibilityLabel={label}
-              value={value}
-              placeholder={placeholder}
-              placeholderTextColor={colors.textSecondary}
-              onChangeText={onChangeText}
-              keyboardType="decimal-pad"
-              style={[typography.numberHero, styles.input]}
-            />
+            // iOS sizes a TextInput by its previous value: right after «5», «10» showed «1» (#220).
+            // A hidden Text with the same value gives the width in the same render.
+            <View>
+              <Text
+                style={[typography.numberHero, styles.sizer]}
+                accessibilityElementsHidden
+                importantForAccessibility="no-hide-descendants"
+              >
+                {value || placeholder}
+              </Text>
+              <TextInput
+                accessibilityLabel={label}
+                value={value}
+                placeholder={placeholder}
+                placeholderTextColor={colors.textSecondary}
+                onChangeText={onChangeText}
+                keyboardType="decimal-pad"
+                style={[typography.numberHero, styles.input]}
+              />
+            </View>
           ) : (
             <Text
               style={[
@@ -115,7 +126,13 @@ const styles = StyleSheet.create({
     minHeight: 56,
   },
   note: { textAlign: 'center' },
-  input: { minWidth: 48, padding: 0, textAlign: 'center', color: colors.textPrimary },
+  sizer: { minWidth: 48, opacity: 0 },
+  input: {
+    ...StyleSheet.absoluteFill,
+    padding: 0,
+    textAlign: 'center',
+    color: colors.textPrimary,
+  },
   // At the bottom: side by side, load and reps keep their ± level whatever their notes (#195).
   plates: { flexDirection: 'row', gap: 10, marginTop: 'auto' },
 });
