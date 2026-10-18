@@ -2,7 +2,7 @@
 module.exports = {
   preset: 'jest-expo',
   moduleNameMapper: {
-    '\\.svg$': '<rootDir>/tools/jest/svg-mock.js',
+    '\\.svg$': '<rootDir>/tools/jest/svg-mock.ts',
     '^@/(.*)$': '<rootDir>/src/$1',
   },
   // Integration tests (*.int.test.ts) run with `bun run test:int` (jest.int.config.js).

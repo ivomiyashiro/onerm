@@ -9,7 +9,7 @@ module.exports = {
   ...base,
   moduleNameMapper: {
     ...base.moduleNameMapper,
-    '^@react-native-google-signin/google-signin$': '<rootDir>/tools/jest/google-signin-mock.js',
+    '^@react-native-google-signin/google-signin$': '<rootDir>/tools/jest/google-signin-mock.ts',
   },
   testEnvironment: 'node',
   testMatch: ['**/*.int.test.{ts,tsx}'],
