@@ -49,7 +49,8 @@ const config: ExpoConfig = {
     ],
     [
       'expo-splash-screen',
-      // marca §16: bg/base and the mark at 96 dp; the JS splash starts from this same frame.
+      // marca §16: bg/base and the mark at 96 dp; the JS splash (launch-splash.tsx) starts from
+      // this same frame, so both values must match it.
       // The app is dark only, so the system's dark mode shows the same splash.
       {
         backgroundColor: '#0E0E0D',

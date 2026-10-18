@@ -7,9 +7,14 @@ import Mark from '@/presentation/components/brand/svg/logo-mark.svg';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { colors } from '@/presentation/theme';
 
-/** Figma «10 Ícono y splash»: the mark at the native splash's 96 dp, and its halo behind. */
+/**
+ * Figma «10 Ícono y splash»: the mark at the native splash's 96 dp, and its halo behind. MARK must
+ * match `imageWidth` in app.config.ts, and the layer's bg/base its splash `backgroundColor`.
+ */
 const MARK = 96;
 const HALO = 160;
+const HALO_START_SCALE = 0.6;
+const EXIT_SCALE = 1.6;
 const HALO_MS = 600;
 const EXIT_MS = 360;
 const REDUCED_EXIT_MS = 200;
@@ -74,7 +79,9 @@ function LaunchSplash({ ready, onHidden }: { ready: boolean; onHidden: () => voi
   }, [exit, ready, reduceMotion, onHidden]);
 
   // With "reduce motion" the mark doesn't grow: the layer only fades.
-  const scale = reduceMotion ? 1 : exit.interpolate({ inputRange: [0, 1], outputRange: [1, 1.6] });
+  const scale = reduceMotion
+    ? 1
+    : exit.interpolate({ inputRange: [0, 1], outputRange: [1, EXIT_SCALE] });
 
   return (
     <Animated.View
@@ -97,7 +104,12 @@ function LaunchSplash({ ready, onHidden }: { ready: boolean; onHidden: () => voi
             {
               opacity: halo,
               transform: [
-                { scale: halo.interpolate({ inputRange: [0, 1], outputRange: [0.6, 1] }) },
+                {
+                  scale: halo.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [HALO_START_SCALE, 1],
+                  }),
+                },
               ],
             },
           ]}
