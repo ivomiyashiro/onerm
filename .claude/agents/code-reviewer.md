@@ -29,7 +29,8 @@ Skip anything ESLint, Prettier or `tsc` already enforce (including the layer imp
 4. **Offline-first:** the UI reads and observes SQLite; it never waits on the network (RN-SYNC-01, RNF-10).
 5. **Screens:** `app/` files only re-export; a screen composes components and its ViewModel.
 6. **React:** no `useEffect` to derive state or to chain actions (compute in render or in the handler); effects that subscribe clean up; hooks follow the rules of hooks; no new object or function props that break memoization in hot lists without reason.
-7. **Size and coupling (SUGGESTION):** components that mix several responsibilities, deep prop drilling, duplicated logic, magic numbers instead of `SUGGESTION_PARAMETERS` or a named constant, speculative generality.
+7. **Performance (`CLAUDE.md` «Performance», #221):** an observer or use case that emits an equal result, or a ViewModel that `setState`s a new object with the same data; work per set that grows with the history (RNF-03); a ticking value (`useCountdown`, `useElapsed`) read by a whole screen or by something hidden instead of a leaf component; a `ScrollView` + `map` over unbounded data; a sync write that rewrites unchanged rows. A change to an observer, a ViewModel or S07/S09/S18 without `bun run perf` numbers in the PR is a SUGGESTION to add them.
+8. **Size and coupling (SUGGESTION):** components that mix several responsibilities, deep prop drilling, duplicated logic, magic numbers instead of `SUGGESTION_PARAMETERS` or a named constant, speculative generality.
 
 ## 3. Correctness
 
@@ -43,7 +44,7 @@ Prove what you can with `bun run test <path>` or a temporary test.
 ## Severity
 
 - **BLOCKER:** a broken hard rule of §1, a contradiction with the specification or ADR-0011 (§2.1–2.5), or a demonstrated bug.
-- **SUGGESTION:** smells, §2.6–2.7 judgement calls, likely edge cases without proof.
+- **SUGGESTION:** smells, §2.6–2.8 judgement calls, likely edge cases without proof. A §2.7 finding is a BLOCKER only when the diff makes a `bun run perf` number worse.
 
 ## Report
 
