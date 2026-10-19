@@ -39,6 +39,8 @@ Un rango indica que el valor cambió entre corridas: los commits dependen de en 
 
 Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20 lecturas + 5 escrituras), pero el tiempo hasta que `observeWorkout` emite pasa de 11 a 41 ms. La diferencia es CPU de JavaScript: en cada emisión, `ObserveWorkout` arma `historyKey` con un `JSON.stringify` de las ~18.000 series del historial. Si se anula `historyKey` a modo de prueba (**prueba manual**), baja a 20 ms. `observeFinished` ya devuelve el mismo array mientras el historial no cambia (#141), así que se puede cachear por referencia. En Hermes, en un teléfono de gama media, este tiempo se multiplica. Es el riesgo más concreto para RNF-03.
 
+**Corregido en #228 (medido):** `ObserveWorkout` guarda lo que deriva del historial (explicaciones, orden, última carga de #195) por la referencia del array de `observeFinished`, y la huella de `sharedQuery` se responde con índices cubrientes (migración `0002`). `logSet` → emisión: 41 → 10–13 ms con 1.000 entrenamientos, frente a 8–10 ms sin historial. Lo que queda de diferencia es la huella en SQLite (≈ 3 ms).
+
 ### 2. Los relojes re-renderizan la pantalla entera → #229
 
 - **Descanso (medido):** `useCountdown` actualiza el estado cada 250 ms con `Date.now()`. Son 14–16 commits y 267–292 renders en 3 s (cerca de 90 renders por segundo), aunque el número visible cambia una vez por segundo. Se re-renderizan `Workout` (todo S09), `RestScreen`, `RestRing` y los dos `Chip`, que reciben un `onPress` nuevo en cada tick.
