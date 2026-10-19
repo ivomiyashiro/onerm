@@ -144,7 +144,7 @@ flowchart TD
     MORE -- no --> NEXT{¿Quedan ejercicios?}
     NEXT -- sí --> S09
     NEXT -- no --> FIN
-    S09 -- "Saltear ejercicio" --> NEXT
+    S09 -- "Deslizar al siguiente" --> NEXT
     S09 -- "Sustituir" --> S11[S11 Sustituir] --> HIST
     S09 -- "Finalizar" --> PEND{¿Ejercicios sin series?}
     PEND -- sí --> D10{{D10}} --> FIN
@@ -163,12 +163,12 @@ flowchart TD
 | Zona | Contenido |
 |---|---|
 | Encabezado | Nombre del día · tiempo transcurrido · menú (Descartar, Finalizar) · nota "Se respalda al finalizar" (si hay cuenta) |
-| Ejercicio actual | Nombre · nota del ejercicio de rutina (RF-RUT-06) · prescripción ("3 × 8–12") · etiqueta "Unilateral" si corresponde · **motivo** de la sugerencia + "¿Por qué?" |
-| Lista de series | Una fila por serie: carga · reps · esfuerzo · estado (pendiente, hecha, calentamiento atenuado). Tocar una serie hecha la abre para editar (RF-ENT-04) |
+| Ejercicio actual | Nombre con el botón **Sustituir** al lado (RF-ENT-09; sin menú del ejercicio, #222) · nota del ejercicio de rutina (RF-RUT-06) · prescripción ("3 × 8–12") · etiqueta "Unilateral" si corresponde · **motivo** de la sugerencia + "¿Por qué?" |
+| Lista de series | Una fila por serie: carga · reps · esfuerzo · estado (pendiente, hecha, calentamiento atenuado). Tocar una serie hecha la abre para editar (RF-ENT-04). Debajo de la última, **"Agregar serie"**: una serie más, precargada con los valores de la última (RF-ENT-05) |
 | Serie actual | La **fila de la serie actual** muestra la sugerencia ("62,5 kg × 8") y "Tocá para ajustar". **Hecho** (≥ 56 dp, abajo, UX-03) registra la sugerencia con un toque (UX-01). Tocar la fila abre la hoja **"Ajustar serie"**: pasos de **carga** (± incremento, con la convención "por mancuerna"/"total con barra") y de **repeticiones** (±) con su nota · interruptor "Es una serie de calentamiento" (oculto en calibración) · esfuerzo **opcional** ("¿Cuántas más podías hacer?") · **Hecho**, que registra la serie con lo ajustado. Unilateral: "Distinto por lado" y pasos Izq / Der. **Peso corporal:** sin campo de carga. El error de carga se muestra en el paso, dentro de la hoja (decisión de diseño, diseno/marca.md §12) |
 | Después de "Hecho" | Si no se eligió el esfuerzo en la hoja, las **opciones de esfuerzo** aparecen en el descanso a pantalla completa y, si se minimiza, en la fila de esa serie. Siguen visibles hasta que se elige una o se confirma la serie siguiente. Después se puede cambiar tocando la serie. En unilaterales "divididos" hay dos filas de opciones (Izq / Der). En calibración quedan resaltadas y **bloquean la serie siguiente** hasta elegir una |
 | Temporizador | Después de **Hecho** se abre el **descanso a pantalla completa**: cuenta regresiva grande con anillo de progreso · +15 s · Reiniciar · tarjeta de la serie recién hecha con las **opciones de esfuerzo** · "Siguiente: serie 2 de 3 · 62,5 kg × 8" · **Saltear descanso** · **Minimizar** (una "X", o deslizar la pantalla hacia abajo). Minimizado, queda una **barra mínima** sobre Hecho (anillo, tiempo, siguiente serie, +15 s); tocarla vuelve a la pantalla completa. Al terminar: **"¡Descanso terminado!"** con vibración y **"Ir a la serie 2"** (decisión de diseño, diseno/marca.md §13) |
-| Navegación | Deslizar el ejercicio a los costados (izquierda: siguiente; derecha: anterior, sin dar la vuelta) o usar una lista de ejercicios para saltar a otro · "Saltear ejercicio" · "Sustituir" · "Agregar serie". En iOS, volver atrás desde S09 se hace desde el borde de la pantalla, para no confundirlo con el deslizamiento |
+| Navegación | Deslizar el ejercicio a los costados (izquierda: siguiente; derecha: anterior, sin dar la vuelta) o usar una lista de ejercicios para saltar a otro. Pasar al siguiente sin registrar series es **saltearlo**: queda "salteado" al finalizar si no tiene series efectivas (RF-ENT-08, RN-ENT-09). En iOS, volver atrás desde S09 se hace desde el borde de la pantalla, para no confundirlo con el deslizamiento |
 | Avisos discretos | Permiso de notificaciones rechazado · Alarmas exactas no permitidas (RF-ENT-06 AC10) · (nunca errores de red, UX-04) |
 
 ### Anatomía de S07 (Inicio)
