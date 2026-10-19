@@ -14,7 +14,7 @@ import { Text } from '@/presentation/components/text';
 import { HeroPhoto } from '@/presentation/features/home/hero-photo';
 import { TREND_ICONS, trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
-import { useElapsed } from '@/presentation/features/workout/use-elapsed';
+import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
@@ -112,7 +112,6 @@ function NextDay({
   onChangeDay: () => void;
 }) {
   const { routine, day, sets, minutes, unit } = nextDay;
-  const time = useElapsed(inProgressSince);
   const trends = day.exercises.map((e) => trendOf(e.suggestion.reason.code));
   const { up, reps } = trendCounts(trends);
   const summary = [up > 0 && home.goesUpIn(up), reps > 0 && home.addsRepsIn(reps)]
@@ -126,9 +125,16 @@ function NextDay({
     <>
       <View style={styles.hero}>
         <HeroPhoto kind={nextDay.dayKind} />
-        <Text style={[typography.label, { color: time ? colors.textAccent : colors.textPrimary }]}>
-          {time ? home.inProgressSince(time) : home.todayIs}
-        </Text>
+        {inProgressSince ? (
+          // #229: only this line renders every second, not the card.
+          <ElapsedText
+            startedAt={inProgressSince}
+            format={home.inProgressSince}
+            style={[typography.label, { color: colors.textAccent }]}
+          />
+        ) : (
+          <Text style={[typography.label, { color: colors.textPrimary }]}>{home.todayIs}</Text>
+        )}
         <Text
           style={[
             day.name.length <= SHORT_DAY_NAME ? typography.displayXl : typography.displayL,

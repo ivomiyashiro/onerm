@@ -25,9 +25,10 @@ import { SetRow } from '@/presentation/features/workout/set-row';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import { SetSheet } from '@/presentation/features/workout/set-sheet';
 import { SubstituteSheet } from '@/presentation/features/workout/substitute-sheet';
-import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
-import { useCountdown } from '@/presentation/features/workout/use-countdown';
-import { useElapsed } from '@/presentation/features/workout/use-elapsed';
+import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
+import { useOnScreenSince } from '@/presentation/components/clock/use-on-screen-since';
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
+import { useElapsed } from '@/presentation/components/clock/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
 import {
   useWorkoutViewModel,
@@ -114,26 +115,9 @@ function Workout({
   finish: (run: () => Promise<Id | null>) => Promise<void>;
 }) {
   const { sheet, deleted, actions, rest, restMinimized, dialog, notice, confirm } = viewModel;
-  const remaining = useCountdown(rest?.endsAt ?? null);
-  const restEnded = remaining !== null && remaining <= 0;
-
-  // RF-ENT-06.AC6: once, when it ends with the app open (not when opening an old one, nor when
-  // coming back to one that ended in the background: the notification already said so).
-  const onScreen = useOnScreenSince() !== null;
-  const wasRunning = useRef(false);
-  useEffect(() => {
-    if (remaining === null || !onScreen) {
-      wasRunning.current = false;
-      return;
-    }
-    if (!restEnded) wasRunning.current = true;
-    else if (wasRunning.current) {
-      wasRunning.current = false;
-      Vibration.vibrate(REST_END_VIBRATION);
-    }
-  }, [remaining, restEnded, onScreen]);
+  // #229: the clocks live in leaf components (the time, the rest, its vibration, the menu), so
+  // their ticks don't render the whole screen.
   const { exercise, exercises, exerciseIndex, rows, effortMode } = content;
-  const time = useElapsed(content.startedAt);
   const unit = exercise.grid?.unit ?? null;
   const name = exercise.name ?? catalog.detail.unavailable;
   const { prescription } = exercise.exercise;
@@ -199,7 +183,11 @@ function Workout({
         <Text style={[typography.bodyLStrong, { color: colors.textPrimary }]}>
           {content.dayName}
         </Text>
-        <Text style={[typography.monoS, styles.flex, { color: colors.textSecondary }]}>{time}</Text>
+        <ElapsedText
+          // Under the full-screen rest nobody sees it: it doesn't tick (#229).
+          startedAt={rest && !restMinimized ? null : content.startedAt}
+          style={[typography.monoS, styles.flex, { color: colors.textSecondary }]}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={text.workoutMenu.title}
@@ -329,13 +317,8 @@ function Workout({
       </GestureDetector>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
         {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}
-        {rest && restMinimized && remaining !== null && (
-          <RestBar
-            rest={rest}
-            remainingMs={remaining}
-            onAdd={() => void actions.addRest()}
-            onExpand={actions.expandRest}
-          />
+        {rest && restMinimized && (
+          <RestBar rest={rest} onAdd={() => void actions.addRest()} onExpand={actions.expandRest} />
         )}
         {content.awaitingEffort && (
           <CalibrationEffort
@@ -391,11 +374,11 @@ function Workout({
         onClose={actions.closeSheet}
       />
       <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />
-      {rest && remaining !== null && (
+      <RestEndVibration endsAt={rest?.endsAt ?? null} />
+      {rest && (
         <RestScreen
           rest={rest}
           visible={!restMinimized}
-          remainingMs={remaining}
           effortMode={effortMode}
           onAdd={() => void actions.addRest()}
           onRestart={() => void actions.restartRest()}
@@ -460,25 +443,14 @@ function Workout({
         />
         <MenuItem icon="plus" label={text.exerciseMenu.addSet} onPress={actions.addSet} />
       </BottomSheet>
-      <BottomSheet
+      <WorkoutMenu
         visible={sheet?.kind === 'workoutMenu'}
-        title={text.workoutMenu.title}
-        subtitle={text.workoutMenu.subtitle(content.dayName, time ?? '')}
-        closeLabel={common.close}
+        dayName={content.dayName}
+        startedAt={content.startedAt}
+        onFinish={() => void finish(actions.finish)}
+        onDiscard={actions.discard}
         onClose={actions.closeSheet}
-      >
-        <MenuItem
-          icon="flag"
-          label={text.workoutMenu.finish}
-          onPress={() => void finish(actions.finish)}
-        />
-        <MenuItem
-          icon="trash"
-          label={text.workoutMenu.discard}
-          destructive
-          onPress={actions.discard}
-        />
-      </BottomSheet>
+      />
       <SubstituteSheet
         sheet={sheet?.kind === 'substitute' ? sheet : null}
         originalName={name}
@@ -529,6 +501,61 @@ function Workout({
         onDismiss={actions.closeConfirm}
       />
     </>
+  );
+}
+
+/**
+ * RF-ENT-06.AC6: a vibration once, when the rest ends with the app open (not when opening an old
+ * one, nor when coming back to one that ended in the background: the notification already said
+ * so). A leaf with its own countdown, so its ticks render nothing else (#229).
+ */
+function RestEndVibration({ endsAt }: { endsAt: Date | null }) {
+  const remaining = useCountdown(endsAt);
+  const restEnded = remaining !== null && remaining <= 0;
+  const onScreen = useOnScreenSince() !== null;
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (remaining === null || !onScreen) {
+      wasRunning.current = false;
+      return;
+    }
+    if (!restEnded) wasRunning.current = true;
+    else if (wasRunning.current) {
+      wasRunning.current = false;
+      Vibration.vibrate(REST_END_VIBRATION);
+    }
+  }, [remaining, restEnded, onScreen]);
+  return null;
+}
+
+/** The workout's «…» (08 §5): its subtitle has the running time, which only ticks while open. */
+function WorkoutMenu({
+  visible,
+  dayName,
+  startedAt,
+  onFinish,
+  onDiscard,
+  onClose,
+}: {
+  visible: boolean;
+  dayName: string;
+  startedAt: Date;
+  onFinish: () => void;
+  onDiscard: () => void;
+  onClose: () => void;
+}) {
+  const time = useElapsed(visible ? startedAt : null);
+  return (
+    <BottomSheet
+      visible={visible}
+      title={text.workoutMenu.title}
+      subtitle={text.workoutMenu.subtitle(dayName, time ?? '')}
+      closeLabel={common.close}
+      onClose={onClose}
+    >
+      <MenuItem icon="flag" label={text.workoutMenu.finish} onPress={onFinish} />
+      <MenuItem icon="trash" label={text.workoutMenu.discard} destructive onPress={onDiscard} />
+    </BottomSheet>
   );
 }
 

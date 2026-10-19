@@ -1,6 +1,7 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
+import { useElapsed } from '@/presentation/components/clock/use-elapsed';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, size, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
@@ -15,10 +16,13 @@ export interface TabItem {
 export interface TabAction {
   kind: 'start' | 'continue' | 'disabled';
   label: string;
-  /** What TalkBack reads (13 §10): «Empezar Día A», «Continuar entrenamiento, 18:42». */
-  accessibilityLabel: string;
-  /** «Continuar» shows the time of the workout in progress. */
-  time?: string;
+  /** What TalkBack reads (13 §10), with the running time: «Continuar entrenamiento, 18:42». */
+  accessibilityLabel: (time: string | null) => string;
+  /**
+   * «Continuar» shows the time since the workout started. The disc runs that clock itself, so
+   * only it renders every second, not the tabs (#229).
+   */
+  startedAt?: Date;
   onPress: () => void;
 }
 
@@ -117,10 +121,11 @@ function ActionLabel({ action }: { action: TabAction }) {
 function ActionDisc({ action }: { action: TabAction }) {
   const disabled = action.kind === 'disabled';
   const ink = disabled ? colors.textTertiary : colors.textOnAccent;
+  const time = useElapsed(action.startedAt ?? null);
   return (
     <Pressable
       accessibilityRole="button"
-      accessibilityLabel={action.accessibilityLabel}
+      accessibilityLabel={action.accessibilityLabel(time)}
       accessibilityState={{ disabled }}
       disabled={disabled}
       onPress={action.onPress}
@@ -139,7 +144,7 @@ function ActionDisc({ action }: { action: TabAction }) {
           </Svg>
         </View>
       )}
-      {action.time ? (
+      {time ? (
         <>
           <Icon name="dumbbell" size={22} color={ink} />
           {/* The disc is 64 dp: past an hour («1:08:23») the time goes one size down, and it
@@ -148,11 +153,11 @@ function ActionDisc({ action }: { action: TabAction }) {
             numberOfLines={1}
             maxFontSizeMultiplier={1}
             style={[
-              action.time.length > SHORT_TIME.length ? typography.monoXs : typography.monoS,
+              time.length > SHORT_TIME.length ? typography.monoXs : typography.monoS,
               { color: ink },
             ]}
           >
-            {action.time}
+            {time}
           </Text>
         </>
       ) : (

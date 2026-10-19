@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { RestRing } from '@/presentation/features/workout/rest-ring';
@@ -11,7 +12,6 @@ import { colors, space, typography } from '@/presentation/theme';
 
 interface RestBarProps {
   rest: RestView;
-  remainingMs: number;
   onAdd: () => void;
   /** Back to the full screen. */
   onExpand: () => void;
@@ -20,8 +20,10 @@ interface RestBarProps {
 /**
  * The minimized rest over «Hecho» (Figma «RestTimer»): the ring, the time, what comes next and
  * +15 s. Once it ended, the light card «¡Descanso terminado!» (Figma «S09 · Descanso terminado»).
+ * It runs its own countdown, once per second (#229).
  */
-export function RestBar({ rest, remainingMs, onAdd, onExpand }: RestBarProps) {
+export function RestBar({ rest, onAdd, onExpand }: RestBarProps) {
+  const remainingMs = useCountdown(rest.endsAt) ?? 0;
   if (remainingMs <= 0) {
     return (
       <Pressable accessibilityRole="button" onPress={onExpand} style={styles.finished}>
