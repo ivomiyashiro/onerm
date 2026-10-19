@@ -38,6 +38,21 @@ describe('the rest countdown on screen (#229)', () => {
   });
 });
 
+describe('a paused elapsed time (#229)', () => {
+  it('is right at the first tick, right away, when it starts again', async () => {
+    const { result, rerender } = await renderHook(
+      ({ startedAt }: { startedAt: Date | null }) => useElapsed(startedAt),
+      { initialProps: { startedAt: null as Date | null } },
+    );
+
+    jest.setSystemTime(START.getTime() + 90_000);
+    await rerender({ startedAt: START });
+    await act(() => jest.advanceTimersByTime(0));
+
+    expect(result.current).toBe('1:30');
+  });
+});
+
 describe('the clocks of the UI in the background (RNF-22)', () => {
   it('the rest countdown stops ticking in the background and is right at once when back (RF-ENT-06.AC8)', async () => {
     const goTo = appState();
