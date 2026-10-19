@@ -15,7 +15,6 @@ import {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
-  SkipExercise,
   SubstituteExercise,
 } from '@/domain/usecases/workout-lifecycle';
 
@@ -66,7 +65,6 @@ function setUp(exercises = [PRESS, ROW, CURL]) {
     timers,
     notifier,
     exercises: () => workouts.inProgress!.exercises,
-    skip: new SkipExercise(workouts),
     substitute: new SubstituteExercise(workouts, () => `we-new-${++n}`),
     finish: new FinishWorkout(workouts, stopRest, () => NOW),
     discard: new DiscardWorkout(workouts, stopRest),
@@ -75,26 +73,6 @@ function setUp(exercises = [PRESS, ROW, CURL]) {
 
 const effective = (id: string, workoutExerciseId: string, at = '2026-10-13T18:30:00Z') =>
   aBilateralSet({ id, workoutExerciseId, completedAt: new Date(at) });
-
-describe('SkipExercise', () => {
-  it('RF-ENT-08.AC1: an exercise without effective sets is skipped', async () => {
-    const { skip, exercises } = setUp();
-
-    await skip.execute('we-2');
-
-    expect(exercises().map((e) => e.status)).toEqual(['pending', 'skipped', 'pending']);
-  });
-
-  it('RN-ENT-09: an exercise with effective sets stays done', async () => {
-    const { skip, exercises } = setUp([
-      { ...PRESS, status: 'done', sets: [effective('s1', 'we-1')] },
-    ]);
-
-    await skip.execute('we-1');
-
-    expect(exercises()[0].status).toBe('done');
-  });
-});
 
 describe('SubstituteExercise', () => {
   it('RN-ENT-10: without sets, the substitute takes its place with the original prescription', async () => {

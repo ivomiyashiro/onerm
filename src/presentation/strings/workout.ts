@@ -67,11 +67,11 @@ export const workout = {
     nextExercise: 'Siguiente ejercicio',
     finish: 'Finalizar entrenamiento',
   },
-  exerciseMenu: {
-    /** Accessibility label of the ⋯ of the exercise (like S13's). */
-    title: (exercise: string) => `Opciones de ${exercise}`,
-    substitute: 'Sustituir ejercicio',
-    skip: 'Saltear ejercicio',
+  /** #222: the exercise has no menu; skipping it is moving on (RF-ENT-08). */
+  exercise: {
+    /** Accessibility label of the swap button by the name (RF-ENT-09). */
+    substitute: (exercise: string) => `Sustituir ${exercise}`,
+    /** Under the last set (RF-ENT-05). */
     addSet: 'Agregar serie',
   },
   workoutMenu: {

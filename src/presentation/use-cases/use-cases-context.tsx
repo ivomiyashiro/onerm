@@ -69,7 +69,6 @@ import type {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
-  SkipExercise,
   SubstituteExercise,
 } from '@/domain/usecases/workout-lifecycle';
 import type { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
@@ -156,7 +155,6 @@ export interface UseCases {
   skipRest: SkipRest;
   askRestPermission: AskRestPermission;
   readRestPermissions: ReadRestPermissions;
-  skipExercise: SkipExercise;
   substituteExercise: SubstituteExercise;
   finishWorkout: FinishWorkout;
   discardWorkout: DiscardWorkout;

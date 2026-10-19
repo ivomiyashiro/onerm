@@ -81,7 +81,6 @@ export type WorkoutSheet =
   | { kind: 'exercises' }
   /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
   | { kind: 'why'; detail: WhyDetail }
-  | { kind: 'exerciseMenu' }
   | { kind: 'workoutMenu' }
   /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
   | { kind: 'substitute'; query: string; options: SubstituteOptions };
@@ -120,12 +119,10 @@ export interface WorkoutViewModel extends Pick<
     goTo(index: number): void;
     nextExercise(): void;
     openExercises(): void;
-    openExerciseMenu(): void;
+    /** RF-ENT-05: one more set, preloaded with the values of the last one. */
     addSet(): void;
     closeSheet(): void;
     openWorkoutMenu(): void;
-    /** RF-ENT-08: «Saltear ejercicio». */
-    skipExercise(): Promise<void>;
     openSubstitute(): void;
     searchSubstitute(query: string): void;
     substitute(exercise: Exercise): Promise<void>;
@@ -188,7 +185,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     updateSet,
     deleteSet,
     restoreSet,
-    skipExercise,
     substituteExercise,
     finishWorkout,
     discardWorkout,
@@ -360,26 +356,13 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setChosenIndex(next ?? (content.exerciseIndex + 1) % content.exercises.length);
       },
       openExercises: () => setSheet({ kind: 'exercises' }),
-      openExerciseMenu: () => setSheet({ kind: 'exerciseMenu' }),
       addSet() {
         if (!content) return;
         const id = content.exercise.exercise.id;
         setExtras((all) => ({ ...all, [id]: (all[id] ?? 0) + 1 }));
-        setSheet(null);
       },
       closeSheet: () => setSheet(null),
       openWorkoutMenu: () => setSheet({ kind: 'workoutMenu' }),
-      async skipExercise() {
-        if (!content) return;
-        setSheet(null);
-        await skipExercise.execute(content.exercise.exercise.id);
-        const next = firstIncomplete(
-          content.exercises.map((e) => e.exercise),
-          content.exerciseIndex,
-          (e) => extraOf(e.id),
-        );
-        if (next !== null) setChosenIndex(next);
-      },
       openSubstitute: () =>
         setSheet({ kind: 'substitute', query: '', options: { sameMuscle: [], others: [] } }),
       searchSubstitute: (query) =>
