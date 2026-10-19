@@ -47,6 +47,8 @@ Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20
 - **Tiempo transcurrido:** `useElapsed` vive en `Workout`. Cada segundo se re-renderiza la pantalla y también la hoja del menú del entrenamiento **cerrada**, porque su subtítulo usa la hora. En S07 pasa lo mismo con la card `NextDay`.
 - #180 ya hizo que los relojes no corran en segundo plano. Esto es lo que cuestan en primer plano.
 
+**Corregido en #229 (medido):** `useCountdown` cambia su estado solo cuando cambia el segundo que se muestra, y los relojes viven en componentes hoja que reciben `startedAt`/`endsAt`: el tiempo del encabezado (`ElapsedText`, quieto mientras el descanso a pantalla completa lo tapa), el panel y la barra del descanso, la vibración del final y el menú del entrenamiento (solo corre abierto). El disco de la barra de pestañas calcula su tiempo: antes lo hacía el layout de las pestañas, que re-renderizaba el navegador entero cada segundo. S09 con el descanso: 14–16 → 3 commits y 267–292 → 18 renders en 3 s, sin `Workout`. S09 y S07 en pantalla: `Workout`/`NextDay` → solo `ElapsedText`.
+
 ### 3. Los observadores avisan aunque nada cambió → #230
 
 `observeQuery` vuelve a leer con cada cambio de sus tablas y **siempre emite un objeto nuevo**. El ViewModel hace `setState` con él y React no puede saltear el render, tampoco con React Compiler.
