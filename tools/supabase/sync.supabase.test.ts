@@ -699,6 +699,26 @@ describe('catalog pull (RF-CAT-04, RN-SYNC-09)', () => {
 
     expect(guest.db.select().from(exercises).all()).toHaveLength(before + 1);
   });
+
+  it('#231, RN-CAT-04: a second pull in a row writes no catalog row', async () => {
+    const { db, sqlite } = openTestDatabase();
+    db.insert(appState).values({ owner: 'guest' }).run();
+    await pullCatalog(db, anonClient());
+    sqlite.exec('create temp table catalog_writes (name text)');
+    for (const table of ['exercises', 'routine_templates', 'template_days', 'template_exercises']) {
+      for (const event of ['insert', 'update']) {
+        sqlite.exec(
+          `create temp trigger ${table}_${event} after ${event} on main.${table}
+           begin insert into catalog_writes values ('${table}'); end`,
+        );
+      }
+    }
+
+    // The seed loads each table in one upsert: its rows fall in the 5 s overlap of every pull.
+    await pullCatalog(db, anonClient());
+
+    expect(sqlite.prepare('select count(*) as n from catalog_writes').get()).toEqual({ n: 0 });
+  });
 });
 
 describe('guest union (RF-AUTH-05, 07 §4.3)', () => {

@@ -1,5 +1,5 @@
 import type { SupabaseClient } from '@supabase/supabase-js';
-import { eq } from 'drizzle-orm';
+import { eq, getTableColumns, or, sql } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { profiles, routines } from '@/data/db/schema';
@@ -52,7 +52,7 @@ export async function pullChanges(
 
 /**
  * The catalog's pull (RF-CAT-04, RN-CAT-04), for guests too (RN-SYNC-09): only the server writes
- * it, so every row it sends replaces the local one.
+ * it, so every row it sends replaces the local one, unless it is the same (#231).
  */
 export async function pullCatalog(db: AppDatabase, client: SupabaseClient): Promise<void> {
   for (const sync of CATALOG_TABLES) {
@@ -61,9 +61,27 @@ export async function pullCatalog(db: AppDatabase, client: SupabaseClient): Prom
       client,
       sync,
       { userId: null, pageSize: PULL_PAGE, onRows: () => {} },
-      (tx, remote) => writeRemoteRow(tx, sync, remote),
+      (tx, remote) => writeCatalogRow(tx, sync, remote),
     );
   }
+}
+
+/**
+ * Like `writeRemoteRow`, but an existing row is only updated when a column differs (#231). The
+ * seed loads each catalog table in one upsert, so its rows fall in the overlap of every pull
+ * (ADR-0002 R2): rewritten as they are, they would wake every observer of the catalog. The local
+ * catalog has no `server_updated_at` to compare, so SQLite compares the values in the same upsert.
+ */
+function writeCatalogRow(db: AppDatabase, sync: TableSync, remote: RemoteRow) {
+  const table = sync.table as typeof routines;
+  const values = fromRemote(sync, remote) as typeof routines.$inferInsert;
+  const changed = Object.values(getTableColumns(table)).map(
+    (column) => sql`${column} is not excluded.${sql.identifier(column.name)}`,
+  );
+  db.insert(table)
+    .values(values)
+    .onConflictDoUpdate({ target: table.id, set: values, setWhere: or(...changed) })
+    .run();
 }
 
 /** Inserts the server's row, or replaces the local one with it. */
