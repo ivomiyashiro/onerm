@@ -213,7 +213,14 @@ export const workout = {
     recordTitle: (record: string) => `Nuevo récord · ${record}`,
     approximate: (value: string) => `${value} (aprox.)`,
     skipped: 'Salteado',
-    nextDay: (day: string) => `Próximo: ${day}`,
+    /** RN-ENT-13: the main figure (RF-ENT-11.AC6); the duration takes its place without load. */
+    totalLoad: 'Carga total',
+    /** Accessible name of the main figure: its final value, also while it counts up. */
+    mainFigure: (label: string, value: string) => `${label}: ${value}`,
+    /** Accessible name of a line of «Lo que hiciste», instead of reading each chip. */
+    exerciseName: (exercise: string, detail: string) => `${exercise}, ${detail}`,
+    noRecords: (sets: number) => `Hoy sumaste ${count(sets, 'serie', 'series')}. Así se progresa.`,
+    nextWorkout: 'Próximo entrenamiento',
     ready: 'Listo',
   },
 } as const;

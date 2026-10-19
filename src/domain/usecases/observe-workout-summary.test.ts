@@ -91,7 +91,7 @@ describe('ObserveWorkoutSummary', () => {
     const summary = observe([
       workout('w1', '2026-10-13T19:00:00Z', [
         [100, 8],
-        [100, 8],
+        [100, 7],
       ]),
     ])!;
 
@@ -108,11 +108,26 @@ describe('ObserveWorkoutSummary', () => {
       expect.objectContaining({
         name: 'Sentadilla',
         status: 'done',
-        sets: 2,
+        // #223: each effective set, for its chip.
+        sets: [
+          { loadKg: 100, reps: 8 },
+          { loadKg: 100, reps: 7 },
+        ],
         best: { loadKg: 100, reps: 8 },
       }),
       { name: 'Curl', status: 'skipped' },
     ]);
+  });
+
+  it('RF-ENT-11.AC6: the total load lifted, from its effective sets (RN-ENT-13)', () => {
+    const summary = observe([
+      workout('w1', '2026-10-13T19:00:00Z', [
+        [100, 8],
+        [100, 7],
+      ]),
+    ])!;
+
+    expect(summary.totalLoadKg).toBe(1500);
   });
 
   it('RN-PROG-03: the first time an exercise is done is not a record', () => {

@@ -5,6 +5,7 @@ import {
   longDate,
   parseDecimal,
   shortDate,
+  wholeNumber,
 } from '@/presentation/strings/numbers';
 
 describe('RN-PERF-05 · numbers on screen', () => {
@@ -21,6 +22,14 @@ describe('RN-PERF-05 · numbers on screen', () => {
     expect(parseDecimal('abc')).toBeNull();
     expect(parseDecimal('')).toBeNull();
     expect(parseDecimal('1,2,3')).toBeNull();
+  });
+});
+
+describe('wholeNumber (RN-ENT-13)', () => {
+  it('rounds to a whole number with a dot every three digits', () => {
+    expect(wholeNumber(4249.6)).toBe('4.250');
+    expect(wholeNumber(1234567)).toBe('1.234.567');
+    expect(wholeNumber(980)).toBe('980');
   });
 });
 
