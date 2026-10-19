@@ -156,7 +156,7 @@ bun run test             # unit tests (domain, ViewModels, screens); test:watch,
 bun run test:int         # repositories against a real in-memory SQLite with the app's migrations
 bun run test:supabase    # RLS and LWW triggers (pgTAP) and supabase-js with two users; needs `bunx supabase start`
 bun run typecheck        # tsc --noEmit
-bun run lint             # ESLint with the layer rules; fails on any warning
+bun run lint             # ESLint with the layer rules; fails on any warning; cached, CI runs it cold
 bun run format:check     # Prettier
 ```
 

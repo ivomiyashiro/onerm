@@ -107,7 +107,7 @@ Measure before and after: a change to an observer, a use case that observes, a V
 ```bash
 bun install
 bun run typecheck
-bun run lint           # ESLint, fails on any warning
+bun run lint           # ESLint, fails on any warning; cached in node_modules/.cache/eslint/ (only changed files are re-linted: cross-file rules like import/no-unresolved are left to tsc and CI, which runs cold)
 bun run format         # Prettier (format:check in CI)
 bun run test           # Jest (jest-expo); test:watch, test:coverage
 bun run perf           # renders and SQL per scenario (#221); it prints, it doesn't guard
