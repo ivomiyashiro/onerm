@@ -175,9 +175,9 @@ flowchart TD
 
 | Zona | Contenido |
 |---|---|
-| Encabezado | "Hoy toca: {día}" · rutina activa · "Empezás con" y la sugerencia del primer ejercicio · "Esta semana · {hechos} de {meta}" con un punto por día · "Cambiar día" (RF-ENT-01.AC8, #225) |
-| Lista de ejercicios | Por ejercicio: nombre · sugerencia ("62,5 kg × 8"; nada si se calibra) · **insignia** de qué cambia (sube, suma reps, igual, más liviano; nada si se calibra); el ejercicio principal va destacado (#225). La calibración se explica dentro del ejercicio (S09), no en la lista (#196). El motivo completo vive en S09 y S10 (decisión de diseño, diseno/marca.md §8) |
-| Acción principal | El botón central de la barra de pestañas (§2): **Empezar**, o **Continuar** con el tiempo si hay un entrenamiento en curso. Sin rutina activa queda deshabilitado y "Elegir una rutina" va en el estado vacío |
+| Tarjeta del día | Placa lima (#225): "Hoy toca" · "Cambiar día" · el día (su tamaño baja con el largo, dos líneas como máximo) · rutina activa · ~{min} min · {n} ejercicios · {n} series · **Empezar** ("Continuar" si hay uno en curso). Debajo, la semana: L M M J V S D con los días hechos y hoy resaltado, "{hechos} de {meta}" (RF-ENT-01.AC8, AC9) |
+| Lista de ejercicios | Por ejercicio, numerado: nombre · "Principal" si lo es · músculo principal y prescripción ("Cuádriceps · 3 × 8–12") · sugerencia ("62,5 kg × 8"; nada si se calibra) · qué cambia contra la última vez ("↑ 2,5 kg", "+1 rep", "Igual", "↓ 5 kg"; nada si se calibra) (#225). La calibración se explica dentro del ejercicio (S09), no en la lista (#196). El motivo completo vive en S09 y S10 (decisión de diseño, diseno/marca.md §8) |
+| Acción principal | En la tarjeta del día y en el botón central de la barra de pestañas (§2): **Empezar**, o **Continuar** con el tiempo si hay un entrenamiento en curso. Sin rutina activa queda deshabilitado y "Elegir una rutina" va en el estado vacío |
 | Avisos | Restauración incompleta · pendientes o conflictos de sync (discretos) |
 
 ## 6. Estados por pantalla
