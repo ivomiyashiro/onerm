@@ -254,3 +254,12 @@ El cierre de cada entrenamiento tenía que sentirse como un logro. En Figma: «S
 - **Próximo entrenamiento:** una tarjeta al final, cerca de «Listo», en lugar del texto chico del encabezado de la sección.
 - **Movimiento (una sola pasada, < 1 s):** encabezado → números → récords → lista → próximo, cada bloque sube 12 px y aparece en 300 ms, 150 ms después del anterior; el número principal cuenta desde 0 en 700 ms. Con «Reducir movimiento», todo aparece quieto y con sus valores. Se anima con `Animated` (driver nativo, salvo el trazo del check, que es SVG).
 - **Háptica:** la de éxito cuando el número termina de contar, y otra cuando entran los récords.
+
+## 18. Inicio: el número es el héroe (S07, 2026-10-19, #225)
+
+Se exploraron tres direcciones en Figma (página 04, «S07 · Dirección A/B/C (#225)»): **A · El número es el héroe**, B · Tu semana (anillo semanal y principales como tarjetas) y C · Editorial (foto alta y recorrido numerado). El usuario eligió **A**; B y C quedan como referencia.
+
+- **Tarjeta «Hoy toca»:** el día en lima, una línea con la rutina, los ejercicios y el tiempo, y **«Empezás con 90 kg × 10»**: la sugerencia del primer ejercicio, grande en Archivo, con su nombre abajo (al calibrar, solo el nombre: #196). Abajo, **«Esta semana ●●○ 2 de 3»**: un punto por día de la meta, lleno por cada entrenamiento terminado de lunes a hoy.
+- **«Lo de hoy»:** cada ejercicio en su tarjeta con una **insignia** de qué cambia: Sube (lima), Suma reps (verde azulado), Igual (gris), Más liviano (naranja). Al calibrar no hay insignia ni sugerencia (#196). El ejercicio principal lleva el borde de acento y «Principal» en la insignia, con el número un poco más grande.
+- **Movimiento:** la tarjeta y la lista entran en una pasada (300 ms cada una, la lista 150 ms después), sin animación con «Reducir movimiento»: el mismo movimiento que S12 (`components/motion`).
+- Solo modo oscuro, como el resto del sistema: la variante en claro que pedía la card no aplica.

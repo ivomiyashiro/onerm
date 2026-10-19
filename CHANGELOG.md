@@ -46,6 +46,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Inicio shows what is waiting: «Empezás con» and the first exercise's suggestion as the big number, the workouts of this week as dots against your days per week, and in today's list a badge of what changes (goes up, adds reps, same, lighter) with the main exercise highlighted; it comes in once, still with «reduce motion».
 - The workout summary feels like a finish: a done mark that draws itself, the total load lifted as the big number (counting up; the duration when everything was bodyweight), the records first with the trophy shining once, a chip per set in each exercise, the next workout as a card and a success vibration. The entrance runs once and not at all with «reduce motion».
 - Text uses the Geist font; numbers and the «DÍA A» display stay in Archivo, so they stand out more.
 - Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones». It scrolls without a scroll bar when it doesn't fit.

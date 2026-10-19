@@ -178,7 +178,7 @@ function NextDay({
           <View style={styles.sectionHeader}>
             <Text style={[typography.titleM, { color: colors.textPrimary }]}>{home.todayList}</Text>
             {summary !== '' && (
-              <Text style={[typography.label, { color: colors.textAccent }]}>
+              <Text style={[typography.bodyS, { color: colors.textAccent }]}>
                 {summary.charAt(0).toUpperCase() + summary.slice(1)}
               </Text>
             )}
@@ -246,17 +246,20 @@ function FirstExercise({
   );
 }
 
+/** One dot per day of the week at most: the count says the rest. */
+const MAX_DOTS = 7;
+
 /** RF-ENT-01.AC8: «Esta semana ●●○ 2 de 3», a dot per day of the goal (more if it was passed). */
 function Week({ done, goal }: { done: number; goal: number }) {
   return (
     <View accessible accessibilityLabel={home.weekName(done, goal)} style={styles.week}>
       <Text style={[typography.label, { color: colors.textOnPhotoMuted }]}>{home.thisWeek}</Text>
       <View style={styles.dots}>
-        {Array.from({ length: Math.max(done, goal) }, (_, index) => (
+        {Array.from({ length: Math.min(Math.max(done, goal), MAX_DOTS) }, (_, index) => (
           <View key={index} style={[styles.dot, index < done && styles.dotDone]} />
         ))}
       </View>
-      <Text style={[typography.label, { color: colors.textPrimary }]}>
+      <Text style={[typography.bodyMBold, { color: colors.textPrimary }]}>
         {home.weekProgress(done, goal)}
       </Text>
     </View>
