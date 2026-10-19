@@ -176,7 +176,7 @@ flowchart TD
 | Zona | Contenido |
 |---|---|
 | Encabezado | "Hoy toca: {día}" · rutina activa · "Empezás con" y la sugerencia del primer ejercicio · "Esta semana · {hechos} de {meta}" con un punto por día · "Cambiar día" (RF-ENT-01.AC8, #225) |
-| Lista de ejercicios | Por ejercicio: nombre · sugerencia ("62,5 kg × 8"; nada si se calibra) · **insignia** de qué cambia (sube, suma reps, igual, más liviano, calibrar); el ejercicio principal va destacado (#225). La calibración se explica dentro del ejercicio (S09), no en la lista (#196). El motivo completo vive en S09 y S10 (decisión de diseño, diseno/marca.md §8) |
+| Lista de ejercicios | Por ejercicio: nombre · sugerencia ("62,5 kg × 8"; nada si se calibra) · **insignia** de qué cambia (sube, suma reps, igual, más liviano; nada si se calibra); el ejercicio principal va destacado (#225). La calibración se explica dentro del ejercicio (S09), no en la lista (#196). El motivo completo vive en S09 y S10 (decisión de diseño, diseno/marca.md §8) |
 | Acción principal | El botón central de la barra de pestañas (§2): **Empezar**, o **Continuar** con el tiempo si hay un entrenamiento en curso. Sin rutina activa queda deshabilitado y "Elegir una rutina" va en el estado vacío |
 | Avisos | Restauración incompleta · pendientes o conflictos de sync (discretos) |
 
