@@ -73,6 +73,7 @@ export async function pullCatalog(db: AppDatabase, client: SupabaseClient): Prom
  * catalog has no `server_updated_at` to compare, so SQLite compares the values in the same upsert.
  */
 function writeCatalogRow(db: AppDatabase, sync: TableSync, remote: RemoteRow) {
+  // One table type stands for any: the columns and values come from `sync.table` at run time.
   const table = sync.table as typeof routines;
   const values = fromRemote(sync, remote) as typeof routines.$inferInsert;
   const changed = Object.values(getTableColumns(table)).map(
