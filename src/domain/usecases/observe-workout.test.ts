@@ -121,11 +121,11 @@ describe('ObserveWorkout', () => {
 
   it('RNF-03: a new history runs the engine again', async () => {
     const { workouts, last } = observe();
-    const before = last()!.exercises[0].suggestion;
 
     await workouts.delete(LAST_TIME.id);
 
-    expect(last()!.exercises[0].suggestion).not.toEqual(before);
+    // Without its last time, the squat goes back to calibration (RN-SUG-06).
+    expect(last()!.exercises[0].suggestion.reason.code).toBe('CALIBRATION');
   });
 
   it('RF-SUG-07.AC2: the explanation of each suggestion and the level of the user', () => {
