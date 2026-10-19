@@ -2,7 +2,7 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
-import type { EffortMode, ExperienceLevel } from '@/domain/models/vocabulary';
+import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { Workout, WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
 import { lastLoadKg } from '@/domain/rules/workout/last-load';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
@@ -59,26 +59,18 @@ export interface WorkoutOverview {
 }
 
 /**
- * Everything the engine reads from the history, as one string. SQLite re-emits the finished
- * workouts after any write to the workout tables, logging a set included; with the same key the
- * suggestions are kept, so «Hecho» never waits for the engine (RNF-03).
+ * What is derived from the finished history, kept while `observeFinished` emits the same array:
+ * logging a set re-emits the workout in progress but not the history, so «Hecho» neither runs the
+ * engine nor walks the history again (RNF-03 with RNF-14).
  */
-function historyKey(finished: readonly Workout[]): string {
-  return finished
-    .map((w) =>
-      [
-        w.id,
-        w.startedAt.getTime(),
-        w.finishedAt?.getTime(),
-        ...w.exercises.map((e) => [
-          e.id,
-          e.routineExerciseId,
-          e.exerciseId,
-          JSON.stringify(e.sets),
-        ]),
-      ].join('|'),
-    )
-    .join('\n');
+interface HistoryCache {
+  readonly finished: readonly Workout[];
+  /** The profile and what the engine and the grid read from the catalog (a sync can change it). */
+  readonly key: string;
+  readonly explanations: Map<string, SuggestionExplanation>;
+  readonly newestFirst: readonly Workout[];
+  /** #195: the last load of each exercise in the history. */
+  readonly lastLoads: Map<Id, number | null>;
 }
 
 /**
@@ -95,7 +87,7 @@ export class ObserveWorkout {
   ) {}
 
   execute(observer: Observer<WorkoutOverview | null>): Unsubscribe {
-    let cache: { key: string; explanations: Map<string, SuggestionExplanation> } | null = null;
+    let cache: HistoryCache | null = null;
 
     return observeTogether<[Workout | null, Workout[], Profile | null, Routine[], Exercise[]]>(
       [
@@ -120,15 +112,26 @@ export class ObserveWorkout {
           const key = [
             workout.id,
             JSON.stringify(profile),
-            // What the engine and the grid read from the catalog (a sync can change it).
             exercises.map((e) => `${e.id}:${e.loadType}:${e.primaryEquipment}`).join(','),
-            historyKey(finished),
           ].join('\n');
-          if (cache?.key !== key) cache = { key, explanations: new Map() };
-          const { explanations } = cache;
-          const finishedNewestFirst = [...finished].sort(
-            (a, b) => b.startedAt.getTime() - a.startedAt.getTime(),
-          );
+          if (cache?.finished !== finished || cache.key !== key) {
+            cache = {
+              finished,
+              key,
+              explanations: new Map(),
+              newestFirst: [...finished].sort(
+                (a, b) => b.startedAt.getTime() - a.startedAt.getTime(),
+              ),
+              lastLoads: new Map(),
+            };
+          }
+          const { explanations, newestFirst, lastLoads } = cache;
+          const lastLoadInHistory = (exerciseId: Id) => {
+            if (!lastLoads.has(exerciseId)) {
+              lastLoads.set(exerciseId, lastLoadKg(exerciseId, newestFirst));
+            }
+            return lastLoads.get(exerciseId) ?? null;
+          };
           const inputs = {
             profile,
             catalog,
@@ -181,7 +184,9 @@ export class ObserveWorkout {
                     ? (catalog.get(reason.basis.exerciseId)?.name ?? null)
                     : null,
                 grid,
-                lastLoadKg: lastLoadKg(exercise.exerciseId, workout, finishedNewestFirst),
+                lastLoadKg:
+                  lastLoadKg(exercise.exerciseId, [workout]) ??
+                  lastLoadInHistory(exercise.exerciseId),
               };
             }),
           });

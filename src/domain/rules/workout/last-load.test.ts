@@ -26,7 +26,7 @@ describe('lastLoadKg (#195)', () => {
     const today = workoutWith('today', '2026-10-17T18:00:00Z', 'press', [60, 62.5]);
     const before = workoutWith('before', '2026-10-15T18:00:00Z', 'press', [70]);
 
-    expect(lastLoadKg('press', today, [before])).toBe(62.5);
+    expect(lastLoadKg('press', [today, before])).toBe(62.5);
   });
 
   it('without sets today, the last one of the most recent workout with that exercise', () => {
@@ -34,7 +34,7 @@ describe('lastLoadKg (#195)', () => {
     const older = workoutWith('older', '2026-10-10T18:00:00Z', 'press', [55]);
     const newer = workoutWith('newer', '2026-10-15T18:00:00Z', 'press', [57.5, 60]);
 
-    expect(lastLoadKg('press', today, [newer, older])).toBe(60);
+    expect(lastLoadKg('press', [today, newer, older])).toBe(60);
   });
 
   it('a warm-up is not the last load', () => {
@@ -49,12 +49,12 @@ describe('lastLoadKg (#195)', () => {
     });
     const before = workoutWith('before', '2026-10-15T18:00:00Z', 'press', [60]);
 
-    expect(lastLoadKg('press', today, [before])).toBe(60);
+    expect(lastLoadKg('press', [today, before])).toBe(60);
   });
 
   it('nothing without history, or with only sets without a load', () => {
     const today = workoutWith('today', '2026-10-17T18:00:00Z', 'press', [null]);
 
-    expect(lastLoadKg('press', today, [])).toBeNull();
+    expect(lastLoadKg('press', [today])).toBeNull();
   });
 });
