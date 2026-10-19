@@ -88,6 +88,8 @@ describe('ObserveNextDay', () => {
             id: 'A1',
             exerciseId: 'leg-press',
             name: 'Prensa',
+            // RF-ENT-01.AC8: its main muscle (the builder's default).
+            muscle: 'quads',
             prescription: aPrescription({ sets: 3, restSeconds: 120 }),
             // RF-SUG-01.AC1: never done, the instruction is to calibrate.
             suggestion: calibrate,
@@ -96,6 +98,7 @@ describe('ObserveNextDay', () => {
             id: 'A2',
             exerciseId: 'curl',
             name: null,
+            muscle: null,
             prescription: aPrescription({ role: 'accessory', sets: 2, restSeconds: 90 }),
             suggestion: calibrate,
           },
@@ -107,7 +110,8 @@ describe('ObserveNextDay', () => {
       // Prensa works the quads (the builder's default); curl is not in the catalog.
       dayKind: 'lower',
       unit: 'kg',
-      week: { done: 0, goal: defaultProfile().daysPerWeek },
+      // NOW is Thursday 2026-10-08.
+      week: { done: 0, doneDays: [], today: 3, goal: defaultProfile().daysPerWeek },
       days: [
         { id: 'A', name: 'Día A', daysAgo: null, exerciseNames: ['Prensa', null] },
         { id: 'B', name: 'Día B', daysAgo: null, exerciseNames: ['Prensa', null] },
@@ -136,7 +140,7 @@ describe('ObserveNextDay', () => {
       finished: [on('2026-10-04'), on('2026-10-05'), on('2026-10-07')],
     }).last();
 
-    expect(next).toMatchObject({ week: { done: 2, goal: 4 } });
+    expect(next).toMatchObject({ week: { done: 2, doneDays: [0, 2], today: 3, goal: 4 } });
   });
 
   it('RN-RUT-01: after day A comes day B', () => {

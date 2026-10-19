@@ -1,6 +1,6 @@
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Workout } from '@/domain/models/workout';
-import { startOfWeek } from '@/domain/rules/calendar';
+import { daysBetween, startOfWeek } from '@/domain/rules/calendar';
 import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
 
 /** Whole minutes from start to finish; never negative, even after a correction. */
@@ -32,19 +32,33 @@ export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null 
   return total;
 }
 
+/** RF-ENT-01.AC8: this week in S07, Monday (0) to Sunday (6). */
+export interface WeekProgress {
+  /** Workouts finished from Monday to today. */
+  readonly done: number;
+  /** The days with at least one of them, in order. */
+  readonly doneDays: readonly number[];
+  readonly today: number;
+}
+
 /**
- * RF-ENT-01.AC8: the workouts finished this week, Monday to `today` (RN-GEN-01), against the
- * days per week of the profile on S07.
+ * RF-ENT-01.AC8: the workouts finished this week, Monday to `today` (RN-GEN-01), and on which days,
+ * for the week strip of S07.
  */
-export function workoutsThisWeek(
+export function weekProgress(
   finished: readonly Pick<Workout, 'finishedAt'>[],
   today: LocalDate,
   localDate: (instant: Date) => LocalDate,
-): number {
+): WeekProgress {
   const monday = startOfWeek(today);
-  return finished.filter((w) => {
-    if (w.finishedAt === null) return false;
-    const day = localDate(w.finishedAt);
-    return day >= monday && day <= today;
-  }).length;
+  const days = finished
+    .filter((w) => w.finishedAt !== null)
+    .map((w) => localDate(w.finishedAt!))
+    .filter((day) => day >= monday && day <= today)
+    .map((day) => daysBetween(monday, day));
+  return {
+    done: days.length,
+    doneDays: [...new Set(days)].sort((a, b) => a - b),
+    today: daysBetween(monday, today),
+  };
 }
