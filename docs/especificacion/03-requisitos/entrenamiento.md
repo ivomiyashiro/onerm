@@ -77,6 +77,12 @@ Escenario: AC7 — Desde cualquier pestaña
   Cuando toco el botón central de la barra de pestañas
   Entonces empiezo el próximo día, o vuelvo al entrenamiento en curso si hay uno
   Y sin rutina activa el botón está deshabilitado
+
+Escenario: AC8 — Qué me espera hoy
+  Dado que veo el próximo día
+  Entonces la tarjeta muestra la sugerencia del primer ejercicio del día («Empezás con 90 kg × 10»; si se calibra, solo su nombre)
+  Y cuántos entrenamientos terminé esta semana sobre mis días por semana («Esta semana · 2 de 3»; la semana va de lunes a domingo, RN-GEN-01)
+  Y en «Lo de hoy» cada ejercicio dice qué cambia con una insignia (sube, suma reps, igual, más liviano, calibrar) y el principal va destacado (rol de RF-RUT-03)
 ```
 
 ---
