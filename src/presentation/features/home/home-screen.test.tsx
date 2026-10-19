@@ -4,11 +4,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import {
+  aBilateralSet,
   aPrescription,
   aRoutine,
   aRoutineDay,
   aRoutineExercise,
   anExercise,
+  aWorkout,
+  aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
   InMemoryProfileRepository,
@@ -48,15 +51,30 @@ const FULL_BODY = aRoutine({
   ],
 });
 
+/** Day A done on Monday 2026-10-05: the leg press at 100 kg × 12, the top of its range. */
+const LAST_TIME = aWorkout({
+  exercises: [
+    aWorkoutExercise({
+      exerciseId: 'leg-press',
+      plannedExerciseId: 'leg-press',
+      status: 'done',
+      sets: [0, 1, 2].map((position) =>
+        aBilateralSet({ id: `s${position}`, position, loadKg: 100, reps: 12, rir: 2 }),
+      ),
+    }),
+  ],
+});
+
 async function renderScreen({
   profile = { ...defaultProfile(), activeRoutineId: 'routine-1' } as Profile | null,
   useCases = undefined as UseCases | undefined,
+  finished = [] as ReturnType<typeof aWorkout>[],
 } = {}) {
   const repositories = {
     routines: new InMemoryRoutineRepository([FULL_BODY]),
     templates: new InMemoryRoutineTemplateRepository(),
     profiles: new InMemoryProfileRepository(profile),
-    workouts: new InMemoryWorkoutRepository(),
+    workouts: new InMemoryWorkoutRepository(null, finished),
   };
   const callbacks = {
     onChooseRoutine: jest.fn(),
@@ -72,6 +90,8 @@ async function renderScreen({
             routineUseCasesOver({
               ...repositories,
               exercises: [anExercise({ id: 'leg-press', name: 'Prensa de piernas' })],
+              // Wednesday 2026-10-07: LAST_TIME, on Monday, is this week.
+              now: () => new Date('2026-10-07T12:00:00Z'),
             }),
           )
         }
@@ -97,17 +117,29 @@ describe('HomeScreen (S07)', () => {
 
     expect(screen.getByText(home.todayIs)).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: 'Día A' })).toBeOnTheScreen();
-    expect(screen.getByText('Cuerpo completo A/B')).toBeOnTheScreen();
-    expect(screen.getByText(home.stats.exercises(1))).toBeOnTheScreen();
-    expect(screen.getByText(home.stats.approxMinutes(8))).toBeOnTheScreen();
+    expect(screen.getByText(home.meta('Cuerpo completo A/B', 1, 8))).toBeOnTheScreen();
     expect(screen.getByText(home.todayList)).toBeOnTheScreen();
-    expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
+    expect(screen.getAllByText('Prensa de piernas').length).toBeGreaterThan(0);
+  });
+
+  it('RF-ENT-01.AC8: it starts with the suggestion of the first exercise, and the week so far', async () => {
+    await renderScreen({ finished: [LAST_TIME] });
+
+    expect(screen.getByText(home.startsWith)).toBeOnTheScreen();
+    expect(screen.getByLabelText(home.weekName(1, defaultProfile().daysPerWeek))).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-01.AC8: each exercise says what changes with a badge, the main one highlighted', async () => {
+    await renderScreen({ finished: [LAST_TIME] });
+
+    // 3 × 12 at the top of 8–12 → more load (RN-SUG-03), and the leg press is a main exercise.
+    expect(screen.getByText(home.mainBadge(home.badges.up))).toBeOnTheScreen();
   });
 
   it('#196: an exercise never done shows no suggestion and no «Calibrar» pill', async () => {
     await renderScreen();
 
-    expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
+    expect(screen.getAllByText('Prensa de piernas').length).toBeGreaterThan(0);
     expect(screen.queryByText('Calibrar')).not.toBeOnTheScreen();
   });
 

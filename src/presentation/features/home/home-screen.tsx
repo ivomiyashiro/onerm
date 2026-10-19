@@ -9,12 +9,17 @@ import { Notice } from '@/presentation/components/feedback/notice';
 import { backupNoticeText } from '@/presentation/features/profile/sync-status-text';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
-import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { HeroPhoto } from '@/presentation/features/home/hero-photo';
-import { TREND_ICONS, trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
+import { trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
 import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
+import {
+  ENTRANCE_STEP_MS,
+  EntranceStep,
+  useEntrance,
+} from '@/presentation/components/motion/entrance';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
@@ -32,12 +37,12 @@ interface HomeScreenProps {
 
 const SKELETON_ROWS = 4;
 
-/** Figma HeroCard: a day name up to this length goes at 72 (Short), longer ones at 46 (Long). */
+/** Figma HeroCard: a day name up to this length goes at 46, longer ones at 34 (#225). */
 const SHORT_DAY_NAME = 6;
 
 /**
  * S07 · Inicio: the next day of the active routine (RN-RUT-01) with the suggestion of each
- * exercise (RF-SUG-01). The week strip waits for its AC (marca §8, «pendiente de especificar»).
+ * exercise (RF-SUG-01), the first exercise and the week (RF-ENT-01.AC8).
  */
 export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: HomeScreenProps) {
   const { state, inProgressSince, backupNotice, actions } = useHomeViewModel();
@@ -101,7 +106,15 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
 
 type NextDayContent = Extract<HomeState, { status: 'content' }>['nextDay'];
 
-/** Figma HeroCard «Hoy toca», with the photo of its kind of day, and «Lo de hoy». */
+/** The entrance (#225, like S12): the card, then «Lo de hoy». */
+const ENTRANCE = { card: 0, today: 150 } as const;
+const ENTRANCE_TOTAL_MS = ENTRANCE.today + ENTRANCE_STEP_MS;
+
+/**
+ * Figma «S07 · Dirección A · El número es el héroe» (#225): «Hoy toca» over the photo of its kind
+ * of day, with the first exercise's suggestion as the hero number and the week so far
+ * (RF-ENT-01.AC8); then «Lo de hoy» with a badge of what changes and the main exercise lit.
+ */
 function NextDay({
   nextDay,
   inProgressSince,
@@ -111,7 +124,9 @@ function NextDay({
   inProgressSince: Date | null;
   onChangeDay: () => void;
 }) {
-  const { routine, day, sets, minutes, unit } = nextDay;
+  const animate = !useReduceMotion();
+  const progress = useEntrance(animate, ENTRANCE_TOTAL_MS);
+  const { routine, day, minutes, unit, week } = nextDay;
   const trends = day.exercises.map((e) => trendOf(e.suggestion.reason.code));
   const { up, reps } = trendCounts(trends);
   const summary = [up > 0 && home.goesUpIn(up), reps > 0 && home.addsRepsIn(reps)]
@@ -121,135 +136,188 @@ function NextDay({
   const split = day.name.lastIndexOf(' ');
   const head = split === -1 ? '' : day.name.slice(0, split + 1);
   const tail = day.name.slice(split + 1);
+  const first = day.exercises[0];
   return (
     <>
-      <View style={styles.hero}>
-        <HeroPhoto kind={nextDay.dayKind} />
-        {inProgressSince ? (
-          // #229: only this line renders every second, not the card.
-          <ElapsedText
-            startedAt={inProgressSince}
-            format={home.inProgressSince}
-            style={[typography.label, { color: colors.textAccent }]}
-          />
-        ) : (
-          <Text style={[typography.label, { color: colors.textPrimary }]}>{home.todayIs}</Text>
-        )}
-        <Text
-          style={[
-            day.name.length <= SHORT_DAY_NAME ? typography.displayXl : typography.displayL,
-            styles.dayName,
-          ]}
-          numberOfLines={2}
-          accessibilityRole="header"
-        >
-          {head}
-          <Text style={{ color: colors.textAccent }}>{tail}</Text>
-        </Text>
-        <Text style={[typography.bodyM, { color: colors.textOnPhotoMuted }]}>{routine.name}</Text>
-        <View style={styles.stats}>
-          <Stat
-            value={String(day.exercises.length)}
-            label={home.stats.exercises(day.exercises.length)}
-          />
-          <Stat value={String(sets)} label={home.stats.sets(sets)} divided />
-          <Stat value={home.stats.approxMinutes(minutes)} label={home.stats.minutes} divided />
-        </View>
-        <View style={styles.changeDay}>
-          <Button variant="secondary" label={home.changeDay} onPress={onChangeDay} />
-        </View>
-      </View>
-      <View style={styles.section}>
-        <View style={styles.sectionHeader}>
-          <Text style={[typography.titleM, { color: colors.textPrimary }]}>{home.todayList}</Text>
-          {summary !== '' && (
-            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-              {summary.charAt(0).toUpperCase() + summary.slice(1)}
-            </Text>
-          )}
-        </View>
-        <View style={styles.rows}>
-          {day.exercises.map(({ id, name, suggestion }, index) => (
-            <TodayRow
-              key={id}
-              name={name ?? catalog.detail.unavailable}
-              trend={trends[index]}
-              loadKg={suggestion.loadKg}
-              reps={suggestion.reps}
-              unit={unit}
-              divided={index > 0}
+      <EntranceStep progress={progress} at={ENTRANCE.card} totalMs={ENTRANCE_TOTAL_MS}>
+        <View style={styles.hero}>
+          <HeroPhoto kind={nextDay.dayKind} />
+          {inProgressSince ? (
+            // #229: only this line renders every second, not the card.
+            <ElapsedText
+              startedAt={inProgressSince}
+              format={home.inProgressSince}
+              style={[typography.label, { color: colors.textAccent }]}
             />
-          ))}
+          ) : (
+            <Text style={[typography.label, { color: colors.textAccent }]}>{home.todayIs}</Text>
+          )}
+          <Text
+            style={[
+              day.name.length <= SHORT_DAY_NAME ? typography.displayL : typography.displayM,
+              styles.dayName,
+            ]}
+            numberOfLines={2}
+            accessibilityRole="header"
+          >
+            {head}
+            <Text style={{ color: colors.textAccent }}>{tail}</Text>
+          </Text>
+          <Text style={[typography.bodyM, { color: colors.textOnPhotoMuted }]}>
+            {home.meta(routine.name, day.exercises.length, minutes)}
+          </Text>
+          {first !== undefined && <FirstExercise exercise={first} trend={trends[0]} unit={unit} />}
+          <Week done={week.done} goal={week.goal} />
+          <View style={styles.changeDay}>
+            <Button variant="secondary" label={home.changeDay} onPress={onChangeDay} />
+          </View>
         </View>
-      </View>
+      </EntranceStep>
+      <EntranceStep progress={progress} at={ENTRANCE.today} totalMs={ENTRANCE_TOTAL_MS}>
+        <View style={styles.section}>
+          <View style={styles.sectionHeader}>
+            <Text style={[typography.titleM, { color: colors.textPrimary }]}>{home.todayList}</Text>
+            {summary !== '' && (
+              <Text style={[typography.label, { color: colors.textAccent }]}>
+                {summary.charAt(0).toUpperCase() + summary.slice(1)}
+              </Text>
+            )}
+          </View>
+          <View style={styles.rows}>
+            {day.exercises.map(({ id, name, suggestion, prescription }, index) => (
+              <TodayRow
+                key={id}
+                name={name ?? catalog.detail.unavailable}
+                trend={trends[index]}
+                main={prescription.role === 'main'}
+                loadKg={suggestion.loadKg}
+                reps={suggestion.reps}
+                unit={unit}
+              />
+            ))}
+          </View>
+        </View>
+      </EntranceStep>
     </>
   );
 }
 
+type NextDayExercise = NextDayContent['day']['exercises'][number];
+
 /**
- * Figma «ExerciseRow»: what changes, the exercise and the suggestion (RF-SUG-01.AC1). The reason
- * lives in S09 and S10 (marca §8).
+ * RF-ENT-01.AC8: «Empezás con 90 kg × 10», the number as the hero (marca §1). Calibrating, only
+ * its name: the calibration is explained inside the exercise (#196).
  */
-function TodayRow({
-  name,
+function FirstExercise({
+  exercise,
   trend,
-  loadKg,
-  reps,
   unit,
-  divided,
 }: {
-  name: string;
+  exercise: NextDayExercise;
   trend: Trend;
-  loadKg: number | null;
-  reps: number;
   unit: LoadUnit;
-  divided: boolean;
 }) {
+  const { loadKg, reps } = exercise.suggestion;
+  const name = exercise.name ?? catalog.detail.unavailable;
   return (
-    <View style={[styles.row, divided && styles.rowDivider]}>
-      <View style={styles.trend}>
-        <Icon
-          name={TREND_ICONS[trend]}
-          size={15}
-          color={trend === 'up' ? colors.textAccent : colors.textPrimary}
-        />
-      </View>
-      <Text style={[typography.bodyRow, styles.rowName]}>{name}</Text>
-      {/* Calibrating: only its icon; the calibration is explained inside the exercise (#196). */}
-      {trend !== 'calibrate' && (
-        <View style={styles.value}>
-          {loadKg !== null && (
-            <>
-              <Text style={[typography.numberMs, { color: colors.textPrimary }]}>
-                {loadNumber(toUnit(loadKg, unit), unit)}
-              </Text>
-              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-                {common.units[unit]}
-              </Text>
-            </>
-          )}
-          <Text style={[typography.numberMs, { color: colors.textPrimary }]}>
-            {home.timesReps(reps)}
-          </Text>
-        </View>
+    <View style={styles.first}>
+      <Text style={[typography.label, { color: colors.textOnPhotoMuted }]}>{home.startsWith}</Text>
+      {trend === 'calibrate' ? (
+        <Text style={[typography.titleL, { color: colors.textPrimary }]}>{name}</Text>
+      ) : (
+        <>
+          <View style={styles.value}>
+            {loadKg !== null && (
+              <>
+                <Text style={[typography.numberHero, styles.number]}>
+                  {loadNumber(toUnit(loadKg, unit), unit)}
+                </Text>
+                <Text style={[typography.titleM, { color: colors.textOnPhotoMuted }]}>
+                  {common.units[unit]}
+                </Text>
+              </>
+            )}
+            <Text style={[typography.numberL, styles.number]}>{home.timesReps(reps)}</Text>
+          </View>
+          <Text style={[typography.bodyS, { color: colors.textOnPhotoMuted }]}>{name}</Text>
+        </>
       )}
     </View>
   );
 }
 
-function Stat({
-  value,
-  label,
-  divided = false,
-}: {
-  value: string;
-  label: string;
-  divided?: boolean;
-}) {
+/** RF-ENT-01.AC8: «Esta semana ●●○ 2 de 3», a dot per day of the goal (more if it was passed). */
+function Week({ done, goal }: { done: number; goal: number }) {
   return (
-    <View style={[styles.stat, divided && styles.statDivided]}>
-      <Text style={[typography.numberM, { color: colors.textPrimary }]}>{value}</Text>
-      <Text style={[typography.tab, { color: colors.textSecondary }]}>{label}</Text>
+    <View accessible accessibilityLabel={home.weekName(done, goal)} style={styles.week}>
+      <Text style={[typography.label, { color: colors.textOnPhotoMuted }]}>{home.thisWeek}</Text>
+      <View style={styles.dots}>
+        {Array.from({ length: Math.max(done, goal) }, (_, index) => (
+          <View key={index} style={[styles.dot, index < done && styles.dotDone]} />
+        ))}
+      </View>
+      <Text style={[typography.label, { color: colors.textPrimary }]}>
+        {home.weekProgress(done, goal)}
+      </Text>
+    </View>
+  );
+}
+
+const BADGES: Record<Exclude<Trend, 'calibrate'>, { text: string; color: string; bg: string }> = {
+  up: { text: home.badges.up, color: colors.textAccent, bg: colors.bgAccentSoft },
+  reps: { text: home.badges.reps, color: colors.textOk, bg: colors.bgOkSoft },
+  same: { text: home.badges.same, color: colors.textSecondary, bg: colors.bgRaised },
+  deload: { text: home.badges.deload, color: colors.textWarn, bg: colors.bgWarnSoft },
+};
+
+/**
+ * Figma «ExerciseRow» (#225): a badge of what changes, the exercise and the suggestion
+ * (RF-SUG-01.AC1), the main exercise lit. Calibrating, no badge nor suggestion (#196).
+ */
+function TodayRow({
+  name,
+  trend,
+  main,
+  loadKg,
+  reps,
+  unit,
+}: {
+  name: string;
+  trend: Trend;
+  main: boolean;
+  loadKg: number | null;
+  reps: number;
+  unit: LoadUnit;
+}) {
+  const badge = trend === 'calibrate' ? null : BADGES[trend];
+  const label =
+    badge === null ? (main ? home.main : null) : main ? home.mainBadge(badge.text) : badge.text;
+  const number = main ? typography.numberMl : typography.numberMs;
+  return (
+    <View style={[styles.row, main && styles.rowMain]}>
+      <View style={styles.rowTexts}>
+        {label !== null && (
+          <View style={[styles.badge, { backgroundColor: badge?.bg ?? colors.bgRaised }]}>
+            <Text style={[typography.tab, { color: badge?.color ?? colors.textSecondary }]}>
+              {label}
+            </Text>
+          </View>
+        )}
+        <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{name}</Text>
+      </View>
+      {trend !== 'calibrate' && (
+        <View style={styles.value}>
+          {loadKg !== null && (
+            <>
+              <Text style={[number, styles.number]}>{loadNumber(toUnit(loadKg, unit), unit)}</Text>
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {common.units[unit]}
+              </Text>
+            </>
+          )}
+          <Text style={[number, styles.number]}>{home.timesReps(reps)}</Text>
+        </View>
+      )}
     </View>
   );
 }
@@ -292,40 +360,37 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   dayName: { color: colors.textPrimary, textTransform: 'uppercase' },
-  stats: { flexDirection: 'row', paddingTop: space.s4 },
-  stat: { gap: space.s2, paddingRight: space.s16 },
-  statDivided: {
-    paddingLeft: space.s16,
-    borderLeftWidth: 1,
-    borderLeftColor: colors.borderHair,
+  first: { gap: 2, paddingTop: space.s8 },
+  week: { flexDirection: 'row', alignItems: 'center', gap: space.s10, paddingTop: space.s8 },
+  dots: { flexDirection: 'row', gap: 6 },
+  dot: {
+    width: 12,
+    height: 12,
+    borderRadius: 6,
+    borderWidth: 1.5,
+    borderColor: colors.textOnPhotoMuted,
   },
+  dotDone: { borderColor: colors.bgAccent, backgroundColor: colors.bgAccent },
   section: { gap: space.s10 },
-  rows: {
-    overflow: 'hidden',
-    borderRadius: radius.xl,
-    borderWidth: 1,
-    borderColor: colors.borderHair,
-    backgroundColor: colors.bgCard,
-  },
+  rows: { gap: 6 },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.s12,
     minHeight: size.targetMain,
+    paddingVertical: space.s12,
     paddingLeft: space.s16,
     paddingRight: space.s14,
+    borderRadius: 16,
+    borderWidth: 1,
+    borderColor: colors.borderHair,
+    backgroundColor: colors.bgCard,
   },
-  rowDivider: { borderTopWidth: 1, borderTopColor: colors.borderHair },
-  rowName: { flex: 1, color: colors.textPrimary },
+  rowMain: { borderColor: colors.borderAccentSoft },
+  rowTexts: { flex: 1, alignItems: 'flex-start', gap: space.s4 },
+  badge: { paddingVertical: 2, paddingHorizontal: space.s8, borderRadius: radius.full },
+  number: { color: colors.textPrimary },
   sectionHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
   changeDay: { alignSelf: 'flex-start', paddingTop: space.s10 },
-  trend: {
-    width: 30,
-    height: 30,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.full,
-    backgroundColor: colors.bgRaised,
-  },
   value: { flexDirection: 'row', alignItems: 'baseline', gap: 2 },
 });

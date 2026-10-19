@@ -15,6 +15,18 @@ export const home = {
   },
   thisWeek: 'Esta semana',
   weekProgress: (done: number, goal: number) => `${done} de ${goal}`,
+  /** RF-ENT-01.AC8: what TalkBack reads for the week dots. */
+  weekName: (done: number, goal: number) =>
+    `Esta semana, ${done} de ${count(goal, 'entrenamiento', 'entrenamientos')}`,
+  /** Under the day: its routine, exercises and time. */
+  meta: (routine: string, exercises: number, minutes: number) =>
+    `${routine} · ${count(exercises, 'ejercicio', 'ejercicios')} · ~${minutes} min`,
+  /** RF-ENT-01.AC8: the suggestion of the first exercise. */
+  startsWith: 'Empezás con',
+  /** RF-ENT-01.AC8: what changes, as a badge (none to calibrate, #196). */
+  badges: { up: 'Sube', reps: 'Suma reps', same: 'Igual', deload: 'Más liviano' },
+  main: 'Principal',
+  mainBadge: (badge: string) => `Principal · ${badge}`,
   today: 'Hoy',
   todayList: 'Lo de hoy',
   goesUpIn: (n: number) => `Sube en ${n}`,
