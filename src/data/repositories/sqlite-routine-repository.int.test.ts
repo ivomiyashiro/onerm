@@ -327,10 +327,26 @@ describe('SqliteRoutineRepository: observation', () => {
     await repository.save(ROUTINE);
     const { count } = observeAll();
 
+    t.db
+      .update(routineExercises)
+      .set({ notes: 'Pausa' })
+      .where(eq(routineExercises.id, 'e2'))
+      .run();
     changes.emit('routine_exercises');
     await flush();
 
     expect(count()).toBe(2);
+  });
+
+  it('#230: a write that leaves its routines as they were emits nothing', async () => {
+    await repository.save(ROUTINE);
+    const { count } = observeAll();
+
+    await repository.save(ROUTINE);
+    changes.emit('routine_exercises');
+    await flush();
+
+    expect(count()).toBe(1);
   });
 
   it('observeById emits null for a routine that never existed', () => {

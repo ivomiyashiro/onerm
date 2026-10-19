@@ -152,11 +152,15 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
       db.update(workouts).set({ dirty: true }).where(eq(workouts.id, 'running')).run();
 
       let pending: ReadonlySet<string> = new Set();
+      let emissions = 0;
       new SqliteSyncStateRepository(() => db, changes).observePendingWorkouts({
-        next: (ids) => (pending = ids),
+        next: (ids) => {
+          pending = ids;
+          emissions++;
+        },
         error: () => {},
       });
-      return { db, changes, pending: () => [...pending].sort() };
+      return { db, changes, pending: () => [...pending].sort(), emissions: () => emissions };
     }
 
     it('the finished workouts with a row of their own, an exercise or a set not backed up', async () => {
@@ -174,6 +178,19 @@ describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
       await flush();
 
       expect(pending()).toEqual([]);
+    });
+
+    it('#230: a set of the workout in progress emits nothing (RN-SYNC-13)', async () => {
+      const { db, changes, emissions } = await withWorkouts();
+
+      db.update(workoutSets)
+        .set({ reps: 9, dirty: true })
+        .where(eq(workoutSets.id, 'running-s'))
+        .run();
+      changes.emit('workout_sets');
+      await flush();
+
+      expect(emissions()).toBe(1);
     });
 
     it('a guest backs up nothing, so nothing is pending', async () => {
