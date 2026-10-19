@@ -13,7 +13,6 @@ import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { deltaOf, trendCounts, trendOf, type Delta } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
-import { useWorkoutAction } from '@/presentation/features/workout/use-workout-action';
 import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import {
@@ -79,7 +78,10 @@ export function HomeScreen({
             nextDay={state.nextDay}
             inProgressSince={inProgressSince}
             onChangeDay={onChangeDay}
-            onOpenWorkout={onOpenWorkout}
+            // RF-ENT-01.AC1, AC4: start the day, or go back to the one in progress.
+            onStart={async () => {
+              if (await actions.start()) onOpenWorkout();
+            }}
           />
         )}
         {state.status === 'empty' && (
@@ -121,12 +123,12 @@ function NextDay({
   nextDay,
   inProgressSince,
   onChangeDay,
-  onOpenWorkout,
+  onStart,
 }: {
   nextDay: NextDayContent;
   inProgressSince: Date | null;
   onChangeDay: () => void;
-  onOpenWorkout: () => void;
+  onStart: () => void;
 }) {
   const animate = !useReduceMotion();
   const progress = useEntrance(animate, ENTRANCE_TOTAL_MS);
@@ -143,7 +145,7 @@ function NextDay({
           nextDay={nextDay}
           inProgressSince={inProgressSince}
           onChangeDay={onChangeDay}
-          onOpenWorkout={onOpenWorkout}
+          onStart={onStart}
         />
       </EntranceStep>
       <EntranceStep progress={progress} at={ENTRANCE.week} totalMs={ENTRANCE_TOTAL_MS}>
@@ -188,15 +190,14 @@ function DayCard({
   nextDay,
   inProgressSince,
   onChangeDay,
-  onOpenWorkout,
+  onStart,
 }: {
   nextDay: NextDayContent;
   inProgressSince: Date | null;
   onChangeDay: () => void;
-  onOpenWorkout: () => void;
+  onStart: () => void;
 }) {
   const { routine, day, sets, minutes } = nextDay;
-  const { action, run } = useWorkoutAction(onOpenWorkout);
   const words = day.name.trim().split(/\s+/);
   const letter = Array.from(words[words.length - 1])[0]?.toUpperCase() ?? '';
   const facts: [IconName, string][] = [
@@ -246,14 +247,12 @@ function DayCard({
           </View>
         ))}
       </View>
-      {action.kind !== 'disabled' && (
-        <Pressable accessibilityRole="button" onPress={() => void run()} style={styles.start}>
-          <Text style={[typography.titleM, styles.startLabel]}>
-            {action.kind === 'continue' ? home.continue : home.startDay(day.name)}
-          </Text>
-          <Icon name="arrow" size={20} color={colors.textAccent} />
-        </Pressable>
-      )}
+      <Pressable accessibilityRole="button" onPress={onStart} style={styles.start}>
+        <Text style={[typography.titleM, styles.startLabel]}>
+          {inProgressSince ? home.continue : home.startDay(day.name)}
+        </Text>
+        <Icon name="arrow" size={20} color={colors.textAccent} />
+      </Pressable>
     </View>
   );
 }
