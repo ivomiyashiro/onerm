@@ -310,8 +310,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.s16,
     paddingBottom: 16,
   },
-  header: { flexDirection: 'row', alignItems: 'center', gap: space.s16, paddingLeft: space.s4 },
-  headerTexts: { flex: 1, gap: space.s4 },
+  // The mark above the titles: «Terminado» in display doesn't fit beside it.
+  header: { gap: 14, paddingLeft: space.s4 },
+  headerTexts: { gap: space.s4 },
   numbers: {
     gap: space.s16,
     paddingVertical: space.s20,
