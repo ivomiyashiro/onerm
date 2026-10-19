@@ -97,9 +97,15 @@ describe('ObserveWorkout', () => {
     });
   });
 
-  it('RNF-03: logging a set re-emits without running the engine again', async () => {
-    const { workouts, last } = observe();
+  it('RNF-03: logging a set neither runs the engine nor walks the history again', async () => {
+    let reads = 0;
+    const counted = { ...LAST_TIME };
+    Object.defineProperty(counted, 'exercises', {
+      get: () => (reads++, LAST_TIME.exercises),
+    });
+    const { workouts, last } = observe(RUNNING, { finished: [counted] });
     const first = last()!.exercises[0].suggestion;
+    const readsBefore = reads;
 
     await workouts.save({
       ...RUNNING,
@@ -108,11 +114,18 @@ describe('ObserveWorkout', () => {
       ],
     });
 
-    // SQLite re-reads the history after any write to the workout tables: the same history.
-    await workouts.save(LAST_TIME);
-
     expect(last()!.workout.exercises[0].sets).toHaveLength(1);
     expect(last()!.exercises[0].suggestion).toBe(first);
+    expect(reads).toBe(readsBefore);
+  });
+
+  it('RNF-03: a new history runs the engine again', async () => {
+    const { workouts, last } = observe();
+    const before = last()!.exercises[0].suggestion;
+
+    await workouts.delete(LAST_TIME.id);
+
+    expect(last()!.exercises[0].suggestion).not.toEqual(before);
   });
 
   it('RF-SUG-07.AC2: the explanation of each suggestion and the level of the user', () => {

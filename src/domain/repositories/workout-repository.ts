@@ -6,7 +6,11 @@ import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 export interface WorkoutRepository {
   /** The workout in progress, or null. There is at most one (I-04, RN-ENT-01). */
   observeInProgress(observer: Observer<Workout | null>): Unsubscribe;
-  /** The finished workouts, by `finishedAt`: the history the engine folds (RN-SUG-01). */
+  /**
+   * The finished workouts, by `finishedAt`: the history the engine folds (RN-SUG-01). Emits only
+   * when the history changed, so a write to the workout in progress doesn't re-emit it and the
+   * same array can be cached by reference (#141, #228).
+   */
   observeFinished(observer: Observer<Workout[]>): Unsubscribe;
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe;
   save(workout: Workout): Promise<void>;
