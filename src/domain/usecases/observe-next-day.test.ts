@@ -52,13 +52,14 @@ function observe({
   profile = ACTIVE as Profile | null,
   routines = [ROUTINE] as Routine[],
   finished = [] as Workout[],
+  inProgress = null as Workout | null,
 } = {}) {
   const routineRepository = new InMemoryRoutineRepository(routines);
   const values: NextDayOverview[] = [];
   new ObserveNextDay(
     new InMemoryProfileRepository(profile),
     routineRepository,
-    new InMemoryWorkoutRepository(null, finished),
+    new InMemoryWorkoutRepository(inProgress, finished),
     { observeAll: (o) => (o.next([anExercise({ id: 'leg-press', name: 'Prensa' })]), () => {}) },
     () => NOW,
     localDate,
@@ -141,6 +142,19 @@ describe('ObserveNextDay', () => {
     }).last();
 
     expect(next).toMatchObject({ week: { done: 2, doneDays: [0, 2], today: 3, goal: 4 } });
+  });
+
+  it('RF-ENT-01.AC4: with a workout in progress, the day is that one, whatever comes next', () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const next = observe({ inProgress: running }).last();
+
+    expect(next.kind === 'nextDay' && next.day.id).toBe('B');
   });
 
   it('RN-RUT-01: after day A comes day B', () => {
