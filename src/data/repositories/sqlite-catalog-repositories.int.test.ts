@@ -41,7 +41,7 @@ describe('SqliteExerciseRepository', () => {
     const { last, error } = lastValue<Exercise[]>((o) => repository.observeAll(o));
 
     expect(error).not.toHaveBeenCalled();
-    expect(last()).toHaveLength(22);
+    expect(last()).toHaveLength(CATALOG_SNAPSHOT.exercises.length);
     expect(last()).toContainEqual(CATALOG_SNAPSHOT.exercises[0]);
   });
 
@@ -70,7 +70,7 @@ describe('SqliteExerciseRepository', () => {
     changes.emit('exercises');
     await flush();
 
-    expect(last()).toHaveLength(22);
+    expect(last()).toHaveLength(CATALOG_SNAPSHOT.exercises.length);
     expect(last().find((e) => e.id === first.id)?.deprecatedAt).toEqual(
       new Date(1_780_000_000_000),
     );
