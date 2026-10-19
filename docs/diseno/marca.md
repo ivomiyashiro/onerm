@@ -156,7 +156,7 @@ Fotos de prueba: Eduardo Cano Photo Co., Alora Griffiths y Victor Freitas, en Un
 Auditoría automática del archivo de Figma más dos jueces ciegos (usabilidad y cobertura de la especificación). Decisiones aplicadas:
 
 - **Opción elegida en lima suave** en todos los controles (segmentado, esfuerzo, RIR, días): fondo `accent-soft`, borde `accent-border-soft` y texto `accent-text`. El blanco sólido competía con la acción principal.
-- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos.
+- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos. Todas las acciones miden lo mismo: 56 de alto y el ancho del diálogo, cada una con sus colores (#225).
 - **Sin jerga para el novato:** "Máximo estimado" sin la sigla e1RM, sin "RTF", "reserva 2" en lugar de "RIR 2" en el editor y "La última vez" en lugar de "Última W". La versión técnica queda para el detalle avanzado.
 - **Acciones destructivas fuera del lugar de la principal:** en la edición de S19 abajo va "Listo", y "Eliminar entrenamiento" pasa al menú. En las hojas de editar serie, "Eliminar serie" queda más separada.
 - **Un solo verbo:** "Respaldar ahora" (antes "Sincronizar ahora"). La acción del estado de respaldo va debajo del mensaje, para que no se aplaste con la fuente grande.
