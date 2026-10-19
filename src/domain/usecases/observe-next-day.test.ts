@@ -155,6 +155,30 @@ describe('ObserveNextDay', () => {
     expect(next.kind === 'nextDay' && next.day.id).toBe('B');
   });
 
+  it('#221: logging a set of the workout in progress emits nothing new', async () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const workouts = new InMemoryWorkoutRepository(running);
+    const next = jest.fn();
+    new ObserveNextDay(
+      new InMemoryProfileRepository(ACTIVE),
+      new InMemoryRoutineRepository([ROUTINE]),
+      workouts,
+      { observeAll: (o) => (o.next([]), () => {}) },
+      () => NOW,
+      localDate,
+    ).execute({ next, error: jest.fn() });
+
+    await workouts.save({ ...running, notes: 'one more set' });
+
+    expect(next).toHaveBeenCalledTimes(1);
+  });
+
   it('RN-RUT-01: after day A comes day B', () => {
     const next = observe({ finished: [doneOn('A')] }).last();
 

@@ -442,6 +442,7 @@ function contentOf(
   const { exercises } = overview;
   const extraOf = (id: Id) => extras[id] ?? 0;
   // Until the user picks one, the first exercise with sets left (RF-ENT-13 resumes there too).
+  // Nothing is passed over yet: that only happens when the user moves, which picks one.
   const firstOpen = exercises.findIndex((e) => isOpen(e.exercise, extraOf(e.exercise.id)));
   const exerciseIndex = Math.min(chosenIndex ?? Math.max(firstOpen, 0), exercises.length - 1);
   const exercise = exercises[exerciseIndex];

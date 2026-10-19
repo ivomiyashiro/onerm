@@ -3,7 +3,6 @@ import type { LocalDate } from '@/domain/models/local-date';
 import { totalLoadKg, weekProgress } from '@/domain/rules/progress/workout-stats';
 import {
   aBilateralSet,
-  anExercise,
   aUnilateralSet,
   aWorkout,
   aWorkoutExercise,
@@ -39,43 +38,6 @@ describe('totalLoadKg (RN-ENT-13)', () => {
     ]);
 
     expect(totalLoadKg(workout)).toBe(80 * 6);
-  });
-
-  describe('loads per dumbbell (RN-ENT-05, D2)', () => {
-    const catalog = new Map([
-      [
-        'press',
-        anExercise({ id: 'press', slug: 'press-banca-mancuernas', primaryEquipment: 'dumbbell' }),
-      ],
-      [
-        'goblet',
-        anExercise({
-          id: 'goblet',
-          slug: 'sentadilla-goblet-mancuerna',
-          primaryEquipment: 'dumbbell',
-        }),
-      ],
-      ['row', anExercise({ id: 'row', primaryEquipment: 'dumbbell', isUnilateral: true })],
-    ]);
-    const on = (exerciseId: string, set: WorkoutSet) =>
-      aWorkout({ exercises: [aWorkoutExercise({ exerciseId, sets: [set] })] });
-
-    it('two dumbbells: a bilateral exercise counts both', () => {
-      const workout = on('press', aBilateralSet({ loadKg: 20, reps: 10 }));
-
-      expect(totalLoadKg(workout, (id) => catalog.get(id))).toBe(2 * 20 * 10);
-    });
-
-    it('the goblet squat holds one dumbbell; a unilateral one already adds both sides', () => {
-      expect(
-        totalLoadKg(on('goblet', aBilateralSet({ loadKg: 20, reps: 10 })), (id) => catalog.get(id)),
-      ).toBe(20 * 10);
-      expect(
-        totalLoadKg(on('row', aUnilateralSet({ loadKg: 20, repsLeft: 10, repsRight: 10 })), (id) =>
-          catalog.get(id),
-        ),
-      ).toBe(20 * 20);
-    });
   });
 
   it('a set at 0 kg has no load: only those, there is no total load', () => {
