@@ -21,6 +21,23 @@ function appState() {
 beforeEach(() => jest.setSystemTime(START));
 afterEach(() => jest.restoreAllMocks());
 
+describe('the rest countdown on screen (#229)', () => {
+  it('renders once per second shown, not on every tick', async () => {
+    const renders = jest.fn();
+    await renderHook(() => {
+      renders();
+      return useCountdown(new Date(START.getTime() + 120_000));
+    });
+    await act(() => jest.advanceTimersByTime(0));
+    const before = renders.mock.calls.length;
+
+    // Tick by tick, each in its own update, as on the phone.
+    for (let tick = 0; tick < 12; tick++) await act(() => jest.advanceTimersByTime(250));
+
+    expect(renders.mock.calls.length - before).toBe(3);
+  });
+});
+
 describe('the clocks of the UI in the background (RNF-22)', () => {
   it('the rest countdown stops ticking in the background and is right at once when back (RF-ENT-06.AC8)', async () => {
     const goTo = appState();

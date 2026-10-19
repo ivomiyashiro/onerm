@@ -13,8 +13,10 @@ export function useElapsed(startedAt: Date | null): string | null {
   const [now, setNow] = useState(() => Date.now());
   const onScreenSince = useOnScreenSince();
   const active = onScreenSince !== null;
+  // The instant, not the object: a new `Date` with the same start doesn't restart the clock.
+  const start = startedAt?.getTime() ?? null;
   useEffect(() => {
-    if (startedAt === null || !active) return;
+    if (start === null || !active) return;
     const tick = () => setNow(Date.now());
     // Right away when the app comes back: `now` is from before it left.
     const first = setTimeout(tick, 0);
@@ -23,8 +25,6 @@ export function useElapsed(startedAt: Date | null): string | null {
       clearTimeout(first);
       clearInterval(timer);
     };
-  }, [startedAt, active]);
-  return startedAt === null
-    ? null
-    : elapsed(Math.max(now, onScreenSince ?? now) - startedAt.getTime());
+  }, [start, active]);
+  return start === null ? null : elapsed(Math.max(now, onScreenSince ?? now) - start);
 }
