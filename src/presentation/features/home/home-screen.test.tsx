@@ -80,7 +80,9 @@ async function renderScreen({
     onChooseRoutine: jest.fn(),
     onCreateRoutine: jest.fn(),
     onChangeDay: jest.fn(),
+    onOpenWorkout: jest.fn(),
   };
+  let id = 0;
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider
@@ -92,6 +94,7 @@ async function renderScreen({
               exercises: [anExercise({ id: 'leg-press', name: 'Prensa de piernas' })],
               // Wednesday 2026-10-07: LAST_TIME, on Monday, is this week.
               now: () => new Date('2026-10-07T12:00:00Z'),
+              newId: () => `id-${++id}`,
             }),
           )
         }
@@ -112,28 +115,40 @@ describe('HomeScreen (S07)', () => {
     ).not.toHaveLength(0);
   });
 
-  it('RF-RUT-02.AC1: «Hoy toca» the next day, with its routine, totals and exercises', async () => {
+  it('RF-RUT-02.AC1, RF-ENT-01.AC8: the day, its routine and what it takes', async () => {
     await renderScreen();
 
     expect(screen.getByText(home.todayIs)).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: 'Día A' })).toBeOnTheScreen();
-    expect(screen.getByText(home.meta('Cuerpo completo A/B', 1, 8))).toBeOnTheScreen();
+    expect(screen.getByText('Cuerpo completo A/B')).toBeOnTheScreen();
+    expect(screen.getByText(home.minutes(8))).toBeOnTheScreen();
+    expect(screen.getByText(home.exercises(1))).toBeOnTheScreen();
     expect(screen.getByText(home.todayList)).toBeOnTheScreen();
-    expect(screen.getAllByText('Prensa de piernas').length).toBeGreaterThan(0);
   });
 
-  it('RF-ENT-01.AC8: it starts with the suggestion of the first exercise, and the week so far', async () => {
+  it('RF-ENT-01.AC1: «Empezar» in the card starts the day and opens the workout', async () => {
+    const { user, workouts, onOpenWorkout } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: home.startDay('Día A') }));
+
+    expect(workouts.inProgress?.dayNameSnapshot).toBe('Día A');
+    expect(onOpenWorkout).toHaveBeenCalled();
+  });
+
+  it('RF-ENT-01.AC8: the week, day by day, against the days per week', async () => {
     await renderScreen({ finished: [LAST_TIME] });
 
-    expect(screen.getByText(home.startsWith)).toBeOnTheScreen();
     expect(screen.getByLabelText(home.weekName(1, defaultProfile().daysPerWeek))).toBeOnTheScreen();
+    expect(screen.getByLabelText(home.weekDay(0, 'done'))).toBeOnTheScreen();
+    expect(screen.getByLabelText(home.weekDay(2, 'today'))).toBeOnTheScreen();
   });
 
-  it('RF-ENT-01.AC8: each exercise says what changes with a badge, the main one highlighted', async () => {
+  it('RF-ENT-01.AC8: each exercise numbered, with its muscle, prescription and what changes', async () => {
     await renderScreen({ finished: [LAST_TIME] });
 
-    // 3 × 12 at the top of 8–12 → more load (RN-SUG-03), and the leg press is a main exercise.
-    expect(screen.getByText(home.mainBadge(home.badges.up))).toBeOnTheScreen();
+    // 3 × 12 at the top of 8–12 → one machine step more, 5 kg (RN-SUG-03); a main exercise.
+    expect(screen.getByText(home.exerciseDetail(true, 'Cuádriceps', 3, 8, 12))).toBeOnTheScreen();
+    expect(screen.getByText(home.delta.up('5 kg'))).toBeOnTheScreen();
   });
 
   it('#196: an exercise never done shows no suggestion and no «Calibrar» pill', async () => {
@@ -174,6 +189,7 @@ describe('HomeScreen (S07)', () => {
             onChooseRoutine={jest.fn()}
             onCreateRoutine={jest.fn()}
             onChangeDay={jest.fn()}
+            onOpenWorkout={jest.fn()}
           />
         </UseCasesProvider>
       </SafeAreaProvider>,

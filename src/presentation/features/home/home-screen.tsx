@@ -1,4 +1,4 @@
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo } from '@/presentation/components/brand/logo';
@@ -9,10 +9,11 @@ import { Notice } from '@/presentation/components/feedback/notice';
 import { backupNoticeText } from '@/presentation/features/profile/sync-status-text';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
+import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
-import { HeroPhoto } from '@/presentation/features/home/hero-photo';
-import { trendCounts, trendOf, type Trend } from '@/presentation/features/home/trend';
+import { deltaOf, trendCounts, trendOf, type Delta } from '@/presentation/features/home/trend';
 import { useHomeViewModel, type HomeState } from '@/presentation/features/home/use-home-view-model';
+import { useWorkoutAction } from '@/presentation/features/workout/use-workout-action';
 import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import {
@@ -33,18 +34,23 @@ interface HomeScreenProps {
   onCreateRoutine: () => void;
   /** «Cambiar día»: S08. */
   onChangeDay: () => void;
+  /** «Empezar» or «Continuar» in the card: S09 (RF-ENT-01.AC1). */
+  onOpenWorkout: () => void;
 }
 
 const SKELETON_ROWS = 4;
 
-/** Figma HeroCard: a day name up to this length goes at 46, longer ones at 34 (#225). */
-const SHORT_DAY_NAME = 6;
-
 /**
- * S07 · Inicio: the next day of the active routine (RN-RUT-01) with the suggestion of each
- * exercise (RF-SUG-01), the first exercise and the week (RF-ENT-01.AC8).
+ * S07 · Inicio (Figma «S07 · Tarjeta sin foto · 1 Placa lima», #225): the next day of the active
+ * routine (RN-RUT-01) on the brand's lime plate with «Empezar», the week day by day, and each
+ * exercise with its suggestion (RF-SUG-01) and what changes (RF-ENT-01.AC8).
  */
-export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: HomeScreenProps) {
+export function HomeScreen({
+  onChooseRoutine,
+  onCreateRoutine,
+  onChangeDay,
+  onOpenWorkout,
+}: HomeScreenProps) {
   const { state, inProgressSince, backupNotice, actions } = useHomeViewModel();
   const insets = useSafeAreaInsets();
 
@@ -73,6 +79,7 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
             nextDay={state.nextDay}
             inProgressSince={inProgressSince}
             onChangeDay={onChangeDay}
+            onOpenWorkout={onOpenWorkout}
           />
         )}
         {state.status === 'empty' && (
@@ -106,72 +113,41 @@ export function HomeScreen({ onChooseRoutine, onCreateRoutine, onChangeDay }: Ho
 
 type NextDayContent = Extract<HomeState, { status: 'content' }>['nextDay'];
 
-/** The entrance (#225, like S12): the card, then «Lo de hoy». */
-const ENTRANCE = { card: 0, today: 150 } as const;
+/** The entrance (#225, like S12): the card, the week, then «Lo de hoy». */
+const ENTRANCE = { card: 0, week: 100, today: 200 } as const;
 const ENTRANCE_TOTAL_MS = ENTRANCE.today + ENTRANCE_STEP_MS;
 
-/**
- * Figma «S07 · Dirección A · El número es el héroe» (#225): «Hoy toca» over the photo of its kind
- * of day, with the first exercise's suggestion as the hero number and the week so far
- * (RF-ENT-01.AC8); then «Lo de hoy» with a badge of what changes and the main exercise lit.
- */
 function NextDay({
   nextDay,
   inProgressSince,
   onChangeDay,
+  onOpenWorkout,
 }: {
   nextDay: NextDayContent;
   inProgressSince: Date | null;
   onChangeDay: () => void;
+  onOpenWorkout: () => void;
 }) {
   const animate = !useReduceMotion();
   const progress = useEntrance(animate, ENTRANCE_TOTAL_MS);
-  const { routine, day, minutes, unit, week } = nextDay;
+  const { day, unit, week } = nextDay;
   const trends = day.exercises.map((e) => trendOf(e.suggestion.reason.code));
   const { up, reps } = trendCounts(trends);
   const summary = [up > 0 && home.goesUpIn(up), reps > 0 && home.addsRepsIn(reps)]
     .filter(Boolean)
     .join(' · ');
-  // «Día A»: the last word in lime.
-  const split = day.name.lastIndexOf(' ');
-  const head = split === -1 ? '' : day.name.slice(0, split + 1);
-  const tail = day.name.slice(split + 1);
-  const first = day.exercises[0];
   return (
     <>
       <EntranceStep progress={progress} at={ENTRANCE.card} totalMs={ENTRANCE_TOTAL_MS}>
-        <View style={styles.hero}>
-          <HeroPhoto kind={nextDay.dayKind} />
-          {inProgressSince ? (
-            // #229: only this line renders every second, not the card.
-            <ElapsedText
-              startedAt={inProgressSince}
-              format={home.inProgressSince}
-              style={[typography.label, { color: colors.textAccent }]}
-            />
-          ) : (
-            <Text style={[typography.label, { color: colors.textAccent }]}>{home.todayIs}</Text>
-          )}
-          <Text
-            style={[
-              day.name.length <= SHORT_DAY_NAME ? typography.displayL : typography.displayM,
-              styles.dayName,
-            ]}
-            numberOfLines={2}
-            accessibilityRole="header"
-          >
-            {head}
-            <Text style={{ color: colors.textAccent }}>{tail}</Text>
-          </Text>
-          <Text style={[typography.bodyM, { color: colors.textOnPhotoMuted }]}>
-            {home.meta(routine.name, day.exercises.length, minutes)}
-          </Text>
-          {first !== undefined && <FirstExercise exercise={first} trend={trends[0]} unit={unit} />}
-          <Week done={week.done} goal={week.goal} />
-          <View style={styles.changeDay}>
-            <Button variant="secondary" label={home.changeDay} onPress={onChangeDay} />
-          </View>
-        </View>
+        <DayCard
+          nextDay={nextDay}
+          inProgressSince={inProgressSince}
+          onChangeDay={onChangeDay}
+          onOpenWorkout={onOpenWorkout}
+        />
+      </EntranceStep>
+      <EntranceStep progress={progress} at={ENTRANCE.week} totalMs={ENTRANCE_TOTAL_MS}>
+        <Week done={week.done} goal={week.goal} doneDays={week.doneDays} today={week.today} />
       </EntranceStep>
       <EntranceStep progress={progress} at={ENTRANCE.today} totalMs={ENTRANCE_TOTAL_MS}>
         <View style={styles.section}>
@@ -183,17 +159,9 @@ function NextDay({
               </Text>
             )}
           </View>
-          <View style={styles.rows}>
-            {day.exercises.map(({ id, name, suggestion, prescription }, index) => (
-              <TodayRow
-                key={id}
-                name={name ?? catalog.detail.unavailable}
-                trend={trends[index]}
-                main={prescription.role === 'main'}
-                loadKg={suggestion.loadKg}
-                reps={suggestion.reps}
-                unit={unit}
-              />
+          <View style={styles.list}>
+            {day.exercises.map((exercise, index) => (
+              <TodayRow key={exercise.id} exercise={exercise} index={index} unit={unit} />
             ))}
           </View>
         </View>
@@ -202,123 +170,223 @@ function NextDay({
   );
 }
 
-type NextDayExercise = NextDayContent['day']['exercises'][number];
+/** RF-ENT-01.AC9: the day's size drops with its length; two lines at most, then «…». */
+function dayStyle(name: string) {
+  const length = Array.from(name).length;
+  return length <= 6
+    ? typography.displayHero
+    : length <= 12
+      ? typography.displayL
+      : typography.displayM;
+}
 
 /**
- * RF-ENT-01.AC8: «Empezás con 90 kg × 10», the number as the hero (marca §1). Calibrating, only
- * its name: the calibration is explained inside the exercise (#196).
+ * The lime plate (marca §18): «Hoy toca» and «Cambiar día», the day big over its letter, the
+ * routine, what it takes and «Empezar» («Continuar» with a workout in progress, RF-ENT-01.AC4).
  */
-function FirstExercise({
-  exercise,
-  trend,
-  unit,
+function DayCard({
+  nextDay,
+  inProgressSince,
+  onChangeDay,
+  onOpenWorkout,
 }: {
-  exercise: NextDayExercise;
-  trend: Trend;
-  unit: LoadUnit;
+  nextDay: NextDayContent;
+  inProgressSince: Date | null;
+  onChangeDay: () => void;
+  onOpenWorkout: () => void;
 }) {
-  const { loadKg, reps } = exercise.suggestion;
-  const name = exercise.name ?? catalog.detail.unavailable;
+  const { routine, day, sets, minutes } = nextDay;
+  const { action, run } = useWorkoutAction(onOpenWorkout);
+  const words = day.name.trim().split(/\s+/);
+  const letter = Array.from(words[words.length - 1])[0]?.toUpperCase() ?? '';
+  const facts: [IconName, string][] = [
+    ['clock', home.minutes(minutes)],
+    ['list', home.exercises(day.exercises.length)],
+    ['dumbbell', home.sets(sets)],
+  ];
   return (
-    <View style={styles.first}>
-      <Text style={[typography.label, { color: colors.textOnPhotoMuted }]}>{home.startsWith}</Text>
-      {trend === 'calibrate' ? (
-        <Text style={[typography.titleL, { color: colors.textPrimary }]}>{name}</Text>
-      ) : (
-        <>
-          <View style={styles.value}>
-            {loadKg !== null && (
-              <>
-                <Text style={[typography.numberHero, styles.number]}>
-                  {loadNumber(toUnit(loadKg, unit), unit)}
-                </Text>
-                <Text style={[typography.titleM, { color: colors.textOnPhotoMuted }]}>
-                  {common.units[unit]}
-                </Text>
-              </>
-            )}
-            <Text style={[typography.numberL, styles.number]}>{home.timesReps(reps)}</Text>
+    <View style={styles.card}>
+      <Text style={styles.letter} accessible={false} importantForAccessibility="no">
+        {letter}
+      </Text>
+      <View style={styles.cardTop}>
+        <View style={styles.chip}>
+          {inProgressSince ? (
+            // #229: only this line renders every second, not the card.
+            <ElapsedText
+              startedAt={inProgressSince}
+              format={home.inProgressSince}
+              style={[typography.label, { color: colors.textAccent }]}
+            />
+          ) : (
+            <Text style={[typography.label, { color: colors.textAccent }]}>{home.todayIs}</Text>
+          )}
+        </View>
+        <Pressable accessibilityRole="button" onPress={onChangeDay} style={styles.changeDay}>
+          <Text style={[typography.bodyMBold, { color: colors.textOnAccent }]}>
+            {home.changeDay}
+          </Text>
+          <Icon name="chevron" size={16} color={colors.textOnAccent} />
+        </Pressable>
+      </View>
+      <Text
+        style={[dayStyle(day.name), { color: colors.textOnAccent }]}
+        numberOfLines={2}
+        ellipsizeMode="tail"
+        accessibilityRole="header"
+      >
+        {day.name}
+      </Text>
+      <Text style={[typography.bodyM, { color: colors.textOnAccent }]}>{routine.name}</Text>
+      <View style={styles.facts}>
+        {facts.map(([icon, label]) => (
+          <View key={icon} style={styles.fact}>
+            <Icon name={icon} size={16} color={colors.textOnAccent} />
+            <Text style={[typography.tab, { color: colors.textOnAccent }]}>{label}</Text>
           </View>
-          <Text style={[typography.bodyS, { color: colors.textOnPhotoMuted }]}>{name}</Text>
-        </>
+        ))}
+      </View>
+      {action.kind !== 'disabled' && (
+        <Pressable accessibilityRole="button" onPress={() => void run()} style={styles.start}>
+          <Text style={[typography.titleM, styles.startLabel]}>
+            {action.kind === 'continue' ? home.continue : home.startDay(day.name)}
+          </Text>
+          <Icon name="arrow" size={20} color={colors.textAccent} />
+        </Pressable>
       )}
     </View>
   );
 }
 
-/** One dot per day of the week at most: the count says the rest. */
-const MAX_DOTS = 7;
-
-/** RF-ENT-01.AC8: «Esta semana ●●○ 2 de 3», a dot per day of the goal (more if it was passed). */
-function Week({ done, goal }: { done: number; goal: number }) {
+/** RF-ENT-01.AC8: «Esta semana · 2 de 3» and Monday to Sunday, the days done and today lit. */
+function Week({
+  done,
+  goal,
+  doneDays,
+  today,
+}: {
+  done: number;
+  goal: number;
+  doneDays: readonly number[];
+  today: number;
+}) {
   return (
-    <View accessible accessibilityLabel={home.weekName(done, goal)} style={styles.week}>
-      <Text style={[typography.label, { color: colors.textOnPhotoMuted }]}>{home.thisWeek}</Text>
-      <View style={styles.dots}>
-        {Array.from({ length: Math.min(Math.max(done, goal), MAX_DOTS) }, (_, index) => (
-          <View key={index} style={[styles.dot, index < done && styles.dotDone]} />
-        ))}
+    <View style={styles.week} accessible accessibilityLabel={home.weekName(done, goal)}>
+      <View style={styles.weekTitle}>
+        <Text style={[typography.label, { color: colors.textSecondary }]}>{home.thisWeek}</Text>
+        <Text style={[typography.bodyMBold, { color: colors.textPrimary }]}>
+          {home.weekProgress(done, goal)}
+        </Text>
       </View>
-      <Text style={[typography.bodyMBold, { color: colors.textPrimary }]}>
-        {home.weekProgress(done, goal)}
-      </Text>
+      <View style={styles.weekDays}>
+        {home.weekDayLetters.map((letter, index) => {
+          const state = doneDays.includes(index) ? 'done' : index === today ? 'today' : 'pending';
+          return (
+            <View
+              key={index}
+              accessibilityLabel={home.weekDay(index, state)}
+              style={[styles.weekDay, styles[state]]}
+            >
+              <Text
+                style={[
+                  typography.tab,
+                  {
+                    color:
+                      state === 'done'
+                        ? colors.textOnAccent
+                        : state === 'today'
+                          ? colors.textAccent
+                          : colors.textSecondary,
+                  },
+                ]}
+              >
+                {letter}
+              </Text>
+            </View>
+          );
+        })}
+      </View>
     </View>
   );
 }
 
-const BADGES: Record<Exclude<Trend, 'calibrate'>, { text: string; color: string; bg: string }> = {
-  up: { text: home.badges.up, color: colors.textAccent, bg: colors.bgAccentSoft },
-  reps: { text: home.badges.reps, color: colors.textOk, bg: colors.bgOkSoft },
-  same: { text: home.badges.same, color: colors.textSecondary, bg: colors.bgRaised },
-  deload: { text: home.badges.deload, color: colors.textWarn, bg: colors.bgWarnSoft },
+const DELTA_COLORS: Record<Delta['tone'], { color: string; bg: string }> = {
+  up: { color: colors.textAccent, bg: colors.bgAccentSoft },
+  down: { color: colors.textWarn, bg: colors.bgWarnSoft },
+  reps: { color: colors.textOk, bg: colors.bgOkSoft },
+  same: { color: colors.textSecondary, bg: colors.bgRaised },
 };
 
 /**
- * Figma «ExerciseRow» (#225): a badge of what changes, the exercise and the suggestion
- * (RF-SUG-01.AC1), the main exercise lit. Calibrating, no badge nor suggestion (#196).
+ * Figma «ExerciseRow» (#225): its number, the exercise with «Principal», its muscle and
+ * prescription, and the suggestion (RF-SUG-01.AC1) with what changes; nothing to calibrate (#196).
  */
 function TodayRow({
-  name,
-  trend,
-  main,
-  loadKg,
-  reps,
+  exercise,
+  index,
   unit,
 }: {
-  name: string;
-  trend: Trend;
-  main: boolean;
-  loadKg: number | null;
-  reps: number;
+  exercise: NextDayContent['day']['exercises'][number];
+  index: number;
   unit: LoadUnit;
 }) {
-  const badge = trend === 'calibrate' ? null : BADGES[trend];
-  const label =
-    badge === null ? (main ? home.main : null) : main ? home.mainBadge(badge.text) : badge.text;
-  const number = main ? typography.numberMl : typography.numberMs;
+  const { name, muscle, prescription, suggestion } = exercise;
+  const main = prescription.role === 'main';
+  const trend = trendOf(suggestion.reason.code);
+  const delta = deltaOf(suggestion, unit);
+  const detail = home.exerciseDetail(
+    main,
+    muscle === null ? null : catalog.muscles[muscle],
+    prescription.sets,
+    prescription.repRange.min,
+    prescription.repRange.max,
+  );
+  const value =
+    trend === 'calibrate'
+      ? null
+      : `${suggestion.loadKg === null ? '' : `${loadNumber(toUnit(suggestion.loadKg, unit), unit)} ${common.units[unit]} `}${home.timesReps(suggestion.reps)}`;
+  const label = name ?? catalog.detail.unavailable;
   return (
-    <View style={[styles.row, main && styles.rowMain]}>
+    <View
+      accessible
+      accessibilityLabel={[label, detail, value, delta?.text].filter(Boolean).join(', ')}
+      style={[styles.row, index > 0 && styles.rowDivider]}
+    >
+      <View style={[styles.index, main && styles.indexMain]}>
+        <Text
+          style={[typography.numberS, { color: main ? colors.textAccent : colors.textSecondary }]}
+        >
+          {String(index + 1).padStart(2, '0')}
+        </Text>
+      </View>
       <View style={styles.rowTexts}>
-        {label !== null && (
-          <View style={[styles.badge, { backgroundColor: badge?.bg ?? colors.bgRaised }]}>
-            <Text style={[typography.tab, { color: badge?.color ?? colors.textSecondary }]}>
-              {label}
+        <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{label}</Text>
+        <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{detail}</Text>
+      </View>
+      {value !== null && (
+        <View style={styles.suggestion}>
+          <View style={styles.value}>
+            {suggestion.loadKg !== null && (
+              <>
+                <Text style={[typography.numberSm, { color: colors.textPrimary }]}>
+                  {loadNumber(toUnit(suggestion.loadKg, unit), unit)}
+                </Text>
+                <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                  {common.units[unit]}
+                </Text>
+              </>
+            )}
+            <Text style={[typography.numberSm, { color: colors.textPrimary }]}>
+              {home.timesReps(suggestion.reps)}
             </Text>
           </View>
-        )}
-        <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{name}</Text>
-      </View>
-      {trend !== 'calibrate' && (
-        <View style={styles.value}>
-          {loadKg !== null && (
-            <>
-              <Text style={[number, styles.number]}>{loadNumber(toUnit(loadKg, unit), unit)}</Text>
-              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-                {common.units[unit]}
+          {delta !== null && (
+            <View style={[styles.delta, { backgroundColor: DELTA_COLORS[delta.tone].bg }]}>
+              <Text style={[typography.tab, { color: DELTA_COLORS[delta.tone].color }]}>
+                {delta.text}
               </Text>
-            </>
+            </View>
           )}
-          <Text style={[number, styles.number]}>{home.timesReps(reps)}</Text>
         </View>
       )}
     </View>
@@ -349,51 +417,100 @@ const styles = StyleSheet.create({
     paddingHorizontal: space.s16,
     paddingBottom: space.s24,
   },
-  hero: {
-    gap: space.s6,
-    minHeight: 250,
-    justifyContent: 'flex-end',
-    paddingTop: space.s16,
-    paddingBottom: space.s14,
-    paddingHorizontal: 18,
-    borderRadius: 24,
-    borderWidth: 1,
-    borderColor: colors.borderHair,
-    backgroundColor: colors.bgBase,
+  card: {
+    gap: space.s8,
+    padding: 18,
+    borderRadius: 28,
+    backgroundColor: colors.bgAccent,
     overflow: 'hidden',
   },
-  dayName: { color: colors.textPrimary, textTransform: 'uppercase' },
-  first: { gap: 2, paddingTop: space.s8 },
-  week: { flexDirection: 'row', alignItems: 'center', gap: space.s10, paddingTop: space.s8 },
-  dots: { flexDirection: 'row', gap: 6 },
-  dot: {
-    width: 12,
-    height: 12,
-    borderRadius: 6,
-    borderWidth: 1.5,
-    borderColor: colors.textOnPhotoMuted,
+  // The day's letter, huge and tone on tone (marca §18).
+  letter: {
+    position: 'absolute',
+    right: -24,
+    bottom: -40,
+    fontFamily: fonts.display,
+    fontSize: 280,
+    lineHeight: 280,
+    color: colors.textOnAccent,
+    opacity: 0.08,
   },
-  dotDone: { borderColor: colors.bgAccent, backgroundColor: colors.bgAccent },
+  cardTop: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  chip: {
+    paddingVertical: space.s6,
+    paddingHorizontal: space.s12,
+    borderRadius: radius.full,
+    backgroundColor: colors.bgBase,
+  },
+  changeDay: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 2,
+    minHeight: size.targetMin,
+    paddingLeft: space.s8,
+  },
+  facts: { flexDirection: 'row', flexWrap: 'wrap', gap: space.s16, paddingTop: space.s4 },
+  fact: { flexDirection: 'row', alignItems: 'center', gap: space.s6 },
+  start: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: space.s10,
+    minHeight: size.targetMain,
+    marginTop: space.s8,
+    borderRadius: 16,
+    backgroundColor: colors.bgBase,
+  },
+  startLabel: { color: colors.textAccent, textTransform: 'uppercase' },
+  week: {
+    gap: space.s12,
+    padding: space.s16,
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.borderHair,
+    backgroundColor: colors.bgCard,
+  },
+  weekTitle: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' },
+  weekDays: { flexDirection: 'row', justifyContent: 'space-between' },
+  weekDay: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 18,
+  },
+  done: { backgroundColor: colors.bgAccent },
+  today: { borderWidth: 1.5, borderColor: colors.bgAccent },
+  pending: { backgroundColor: colors.bgRaised },
   section: { gap: space.s10 },
-  rows: { gap: 6 },
+  sectionHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  list: {
+    overflow: 'hidden',
+    borderRadius: radius.xl,
+    borderWidth: 1,
+    borderColor: colors.borderHair,
+    backgroundColor: colors.bgCard,
+  },
   row: {
     flexDirection: 'row',
     alignItems: 'center',
     gap: space.s12,
     minHeight: size.targetMain,
-    paddingVertical: space.s12,
-    paddingLeft: space.s16,
-    paddingRight: space.s14,
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: colors.borderHair,
-    backgroundColor: colors.bgCard,
+    paddingVertical: space.s14,
+    paddingHorizontal: space.s16,
   },
-  rowMain: { borderColor: colors.borderAccentSoft },
-  rowTexts: { flex: 1, alignItems: 'flex-start', gap: space.s4 },
-  badge: { paddingVertical: 2, paddingHorizontal: space.s8, borderRadius: radius.full },
-  number: { color: colors.textPrimary },
-  sectionHeader: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  changeDay: { alignSelf: 'flex-start', paddingTop: space.s10 },
+  rowDivider: { borderTopWidth: 1, borderTopColor: colors.borderHair },
+  index: {
+    width: 36,
+    height: 36,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 10,
+    backgroundColor: colors.bgRaised,
+  },
+  indexMain: { backgroundColor: colors.bgAccentSoft },
+  rowTexts: { flex: 1, gap: 2 },
+  suggestion: { alignItems: 'flex-end', gap: space.s4 },
   value: { flexDirection: 'row', alignItems: 'baseline', gap: 2 },
+  delta: { paddingVertical: 2, paddingHorizontal: space.s6, borderRadius: radius.full },
 });

@@ -186,6 +186,8 @@ export const routines = {
     },
     validation: {
       emptyName: 'El nombre no puede estar vacío.',
+      /** RN-RUT-05 (#225): a day named before the limit, longer than 20. */
+      longDayName: 'Hasta 20 caracteres.',
       minOverMax: 'El mínimo no puede ser mayor que el máximo.',
       dayWithoutExercises: (day: string) => `Agregá al menos un ejercicio a ${day}.`,
       sets: 'Las series tienen que estar entre 1 y 10.',
