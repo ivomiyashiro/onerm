@@ -261,15 +261,22 @@ export function useRoutineEditorViewModel(
             ? null
             : (editing.routine.days[emptyDay.path[1] as number]?.id ?? null);
         const name = result.violations.some((v) => v.code === 'routine.name');
+        // RN-RUT-05 (#225): a day named before the 20 character limit shows its error in its sheet.
+        const longDay = result.violations.find((v) => v.code === 'day.name');
+        const longDayId =
+          longDay === undefined
+            ? null
+            : (editing.routine.days[longDay.path[1] as number]?.id ?? null);
         // Functional: an edit made while saving is kept.
         setEditing(
           (current) =>
             current && {
               ...current,
-              selectedDayId: emptyDayId ?? current.selectedDayId,
+              selectedDayId: emptyDayId ?? longDayId ?? current.selectedDayId,
               errors: { name, emptyDayId },
             },
         );
+        if (emptyDayId === null && longDayId !== null) setDaySheetOpen(true);
       } else if (editing.draft.isNew) {
         setEditing((current) => current && { ...current, dirty: false });
         setDialog({ kind: 'activate', routineName: editing.routine.name.trim() });

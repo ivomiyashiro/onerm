@@ -67,4 +67,16 @@ describe('weekProgress (RF-ENT-01.AC8, RN-GEN-01)', () => {
       today: 2,
     });
   });
+
+  it('on Sunday the week still starts on Monday; nothing done is an empty week', () => {
+    // 2026-10-25 is the Sunday of the week of the 19th.
+    const sunday = '2026-10-25' as LocalDate;
+
+    expect(weekProgress([], sunday, localDate)).toEqual({ done: 0, doneDays: [], today: 6 });
+    expect(weekProgress([finishedOn('sunday', '2026-10-25')], sunday, localDate)).toEqual({
+      done: 1,
+      doneDays: [6],
+      today: 6,
+    });
+  });
 });
