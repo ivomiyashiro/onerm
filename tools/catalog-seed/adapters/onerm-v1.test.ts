@@ -138,5 +138,4 @@ describe('onerm-v1 adapter: map (ADR-0004 §2)', () => {
       reason: expect.stringContaining('neck'),
     });
   });
-
 });
