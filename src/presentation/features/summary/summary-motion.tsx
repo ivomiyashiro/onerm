@@ -122,19 +122,30 @@ export function DoneMark({ animate }: { animate: boolean }) {
     animation.start();
     return () => animation.stop();
   }, [animate, drawn]);
+  const check = {
+    d: CHECK,
+    stroke: colors.textOnAccent,
+    strokeWidth: 5,
+    strokeLinecap: 'round',
+    strokeLinejoin: 'round',
+    fill: 'none',
+    strokeDasharray: CHECK_LENGTH,
+  } as const;
   return (
     <Svg width={MARK} height={MARK} accessible={false}>
       <Circle cx={MARK / 2} cy={MARK / 2} r={MARK / 2} fill={colors.bgAccent} />
-      <AnimatedPath
-        d={CHECK}
-        stroke={colors.textOnAccent}
-        strokeWidth={5}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-        fill="none"
-        strokeDasharray={CHECK_LENGTH}
-        strokeDashoffset={drawn.interpolate({ inputRange: [0, 1], outputRange: [CHECK_LENGTH, 0] })}
-      />
+      {animate ? (
+        <AnimatedPath
+          {...check}
+          strokeDashoffset={drawn.interpolate({
+            inputRange: [0, 1],
+            outputRange: [CHECK_LENGTH, 0],
+          })}
+        />
+      ) : (
+        // «Reduce motion» is read after the first render: then the check is drawn whole.
+        <Path {...check} strokeDashoffset={0} />
+      )}
     </Svg>
   );
 }
