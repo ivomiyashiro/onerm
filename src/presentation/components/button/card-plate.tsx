@@ -32,28 +32,30 @@ export function CardPlate() {
     <View
       style={StyleSheet.absoluteFill}
       pointerEvents="none"
-      onLayout={({ nativeEvent }) =>
-        setBox({ width: nativeEvent.layout.width, height: nativeEvent.layout.height })
-      }
+      onLayout={({ nativeEvent: { layout } }) => {
+        if (layout.width !== w || layout.height !== h) {
+          setBox({ width: layout.width, height: layout.height });
+        }
+      }}
     >
       {w > 0 && (
         <Svg width={w} height={h}>
           <Defs>
-            <LinearGradient id="plate" x1="0" y1="0" x2="0" y2="1">
+            <LinearGradient id="card-plate" x1="0" y1="0" x2="0" y2="1">
               <Stop offset="0" stopColor={colors.bgAccentTop} />
               <Stop offset="0.48" stopColor={colors.bgAccent} />
               <Stop offset="1" stopColor={colors.bgAccentBottom} />
             </LinearGradient>
-            <ClipPath id="outline">
+            <ClipPath id="card-plate-outline">
               <Path d={outline} />
             </ClipPath>
-            <ClipPath id="band">
+            <ClipPath id="card-plate-band">
               <Rect x={w - STRIPES_WIDTH} y={0} width={STRIPES_WIDTH} height={h} />
             </ClipPath>
           </Defs>
-          <Path d={outline} fill="url(#plate)" />
-          <G clipPath="url(#outline)">
-            <G clipPath="url(#band)">
+          <Path d={outline} fill="url(#card-plate)" />
+          <G clipPath="url(#card-plate-outline)">
+            <G clipPath="url(#card-plate-band)">
               <Path d={stripes.join('')} fill={colors.textOnAccent} fillOpacity={0.16} />
             </G>
           </G>
