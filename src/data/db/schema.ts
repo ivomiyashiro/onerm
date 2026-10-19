@@ -210,6 +210,8 @@ export const workouts = sqliteTable(
   (t) => [
     check('workouts_status_check', oneOf(t.status, WORKOUT_STATUSES)),
     index('workouts_started_at_idx').on(t.startedAt),
+    // The history fingerprint reads only the index (#228).
+    index('workouts_status_updated_idx').on(t.status, t.updatedAt),
   ],
 );
 
@@ -232,7 +234,9 @@ export const workoutExercises = sqliteTable(
     isUnilateral: integer('is_unilateral', { mode: 'boolean' }).notNull(),
   },
   (t) => [
-    index('workout_exercises_workout_idx').on(t.workoutId),
+    // With `updated_at` and `id` (the join to the sets), the history fingerprint reads only the
+    // index (#228).
+    index('workout_exercises_workout_idx').on(t.workoutId, t.updatedAt, t.id),
     index('workout_exercises_exercise_idx').on(t.exerciseId),
     check('workout_exercises_status_check', oneOf(t.status, WORKOUT_EXERCISE_STATUSES)),
     check('workout_exercises_load_type_check', oneOf(t.loadType, LOAD_TYPES)),
@@ -260,7 +264,8 @@ export const workoutSets = sqliteTable(
     completedAt: integer('completed_at').notNull(),
   },
   (t) => [
-    index('workout_sets_workout_exercise_idx').on(t.workoutExerciseId),
+    // With `updated_at`, the history fingerprint reads only the index (#228).
+    index('workout_sets_workout_exercise_idx').on(t.workoutExerciseId, t.updatedAt),
     // I-05: either bilateral (reps, rir) or unilateral (per side), never both. Whether it matches
     // the exercise's is_unilateral is checked by the domain: a CHECK can't read the parent row.
     check(

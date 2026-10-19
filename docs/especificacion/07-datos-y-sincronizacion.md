@@ -218,7 +218,7 @@ al autenticarse con owner = guest:
 ## 6. Migraciones de la base local
 
 - Se hacen con **Drizzle migrations**, incluidas en la app. Se ejecutan al iniciar, antes de montar la UI (ADR-0010).
-- Son **aditivas**. Si una migración falla, se muestra una pantalla de error con "Reintentar" y **nunca** se borra la base.
+- Son **aditivas**: no borran ni transforman datos (rehacer un índice cuenta como aditiva, #228). Si una migración falla, se muestra una pantalla de error con "Reintentar" y **nunca** se borra la base.
 
 ## 7. Volumen de datos esperado
 
