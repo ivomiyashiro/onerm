@@ -54,6 +54,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Bottom sheets float over the screen, inset from its edges and with every corner rounded.
 - App icon and opening with the brand mark: the lime plate on Android (adaptive and themed) and iPhone (light, dark and tinted), and a splash that takes over from the system's without a jump, grows a halo while the data opens and fades into the app (only a fade with «reduce motion»).
 - Sheets, dialogs and the full-screen rest: the dark background fades in place while the sheet slides up, and a «…» button can be tapped again as soon as its sheet closes, without waiting for the animation.
+- The exercise in a workout has no «…» menu: the swap button by its name substitutes it, «Agregar serie» under the last set adds one with the same values, and skipping it is just moving on to the next one (it shows as skipped when the workout ends without sets in it).
 
 ### Fixed
 

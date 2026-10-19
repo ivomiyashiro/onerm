@@ -343,24 +343,13 @@ describe('useWorkoutViewModel', () => {
   });
 
   describe('lifecycle (RF-ENT-08, RF-ENT-09, RF-ENT-11, RF-ENT-12)', () => {
-    it('RF-ENT-08.AC1: «Saltear ejercicio» marks it skipped and goes to the next one', async () => {
+    it('RF-ENT-08.AC1: moving on to the next one marks nothing; finishing does (RN-ENT-09)', async () => {
       const { result, workouts, content } = await renderViewModel();
 
-      await act(() => result.current.actions.skipExercise());
+      await act(() => result.current.actions.goTo(1));
 
-      expect(workouts.inProgress!.exercises[0].status).toBe('skipped');
-      expect(content()).toMatchObject({ exerciseIndex: 1, skipped: false });
-    });
-
-    it('RF-ENT-08.AC3: back on a skipped exercise its sets are logged as usual', async () => {
-      const { result, workouts, content } = await renderViewModel();
-      await act(() => result.current.actions.skipExercise());
-
-      await act(() => result.current.actions.goTo(0));
-      expect(content()).toMatchObject({ skipped: true, primary: 'done' });
-      await act(() => result.current.actions.done());
-
-      expect(workouts.inProgress!.exercises[0].status).toBe('done');
+      expect(content().exerciseIndex).toBe(1);
+      expect(workouts.inProgress!.exercises[0].status).not.toBe('skipped');
     });
 
     it('RF-ENT-09.AC1: S11 lists the same muscle first and searches any other', async () => {
@@ -408,7 +397,7 @@ describe('useWorkoutViewModel', () => {
       expect(content()).toMatchObject({ exerciseIndex: 1 });
     });
 
-    it('RF-ENT-11.AC2: with exercises without sets, D10 asks first', async () => {
+    it('RF-ENT-11.AC2, RF-ENT-08.AC1: with exercises without sets, D10 asks first; they end skipped', async () => {
       const { result, workouts } = await renderViewModel();
       await act(() => result.current.actions.done());
 

@@ -21,20 +21,6 @@ const hasEffectiveSets = (exercise: WorkoutExercise) => exercise.sets.some(isEff
 const skipped = (exercise: WorkoutExercise): WorkoutExercise =>
   hasEffectiveSets(exercise) ? exercise : { ...exercise, status: 'skipped' };
 
-/** RF-ENT-08: «Saltear ejercicio». Logging a set later makes it done again (AC3). */
-export class SkipExercise {
-  constructor(private readonly workouts: Workouts) {}
-
-  async execute(workoutExerciseId: Id): Promise<void> {
-    const workout = await inProgress(this.workouts);
-    if (!workout?.exercises.some((e) => e.id === workoutExerciseId)) return;
-    await this.workouts.save({
-      ...workout,
-      exercises: workout.exercises.map((e) => (e.id === workoutExerciseId ? skipped(e) : e)),
-    });
-  }
-}
-
 /**
  * RF-ENT-09, RN-ENT-10: a new workout exercise with the substitute, keeping the routine exercise,
  * the planned exercise and the prescription copied at start. The set format is the substitute's

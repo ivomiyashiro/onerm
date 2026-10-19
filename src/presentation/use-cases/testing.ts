@@ -64,7 +64,6 @@ import {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
-  SkipExercise,
   SubstituteExercise,
 } from '@/domain/usecases/workout-lifecycle';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
@@ -395,7 +394,6 @@ function lifecycle(
   stopRest: Pick<SkipRest, 'execute'> = { execute: async () => {} },
 ) {
   return {
-    skipExercise: new SkipExercise(workouts),
     substituteExercise: new SubstituteExercise(workouts, newId),
     finishWorkout: new FinishWorkout(workouts, stopRest, now),
     discardWorkout: new DiscardWorkout(workouts, stopRest),

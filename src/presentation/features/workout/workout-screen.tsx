@@ -221,13 +221,14 @@ function Workout({
             >
               {name}
             </Text>
+            {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={text.exerciseMenu.title(name)}
-              onPress={actions.openExerciseMenu}
+              accessibilityLabel={text.exercise.substitute(name)}
+              onPress={actions.openSubstitute}
               style={styles.iconButton}
             >
-              <Icon name="dots" color={colors.textPrimary} />
+              <Icon name="swap" color={colors.textPrimary} />
             </Pressable>
           </View>
           {exercise.plannedName !== null && (
@@ -312,6 +313,15 @@ function Workout({
                 </SwipeRow>
               );
             })}
+          </View>
+          {/* RF-ENT-05.AC1: one more set, preloaded with the values of the last one. */}
+          <View style={styles.addSet}>
+            <Button
+              variant="tertiary"
+              label={text.exercise.addSet}
+              icon="plus"
+              onPress={actions.addSet}
+            />
           </View>
         </ScrollView>
       </GestureDetector>
@@ -423,25 +433,6 @@ function Workout({
             </Pressable>
           );
         })}
-      </BottomSheet>
-      <BottomSheet
-        visible={sheet?.kind === 'exerciseMenu'}
-        title={name}
-        subtitle={text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
-        closeLabel={common.close}
-        onClose={actions.closeSheet}
-      >
-        <MenuItem
-          icon="swap"
-          label={text.exerciseMenu.substitute}
-          onPress={actions.openSubstitute}
-        />
-        <MenuItem
-          icon="skip"
-          label={text.exerciseMenu.skip}
-          onPress={() => void actions.skipExercise()}
-        />
-        <MenuItem icon="plus" label={text.exerciseMenu.addSet} onPress={actions.addSet} />
       </BottomSheet>
       <WorkoutMenu
         visible={sheet?.kind === 'workoutMenu'}
@@ -586,6 +577,7 @@ const styles = StyleSheet.create({
   effort: { gap: space.s10, paddingBottom: space.s8 },
   screen: { flex: 1, backgroundColor: colors.bgBase },
   message: { padding: space.s16 },
+  addSet: { alignSelf: 'flex-start' },
   header: {
     flexDirection: 'row',
     alignItems: 'baseline',

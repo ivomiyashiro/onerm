@@ -311,9 +311,10 @@ Escenario: AC2 — Fuera del entrenamiento
 
 ```gherkin
 Escenario: AC1 — Saltear
-  Dado que estoy en un ejercicio
-  Cuando toco "Saltear ejercicio"
-  Entonces el ejercicio queda marcado como salteado y paso al siguiente
+  Dado que estoy en un ejercicio sin series efectivas
+  Cuando deslizo al siguiente ejercicio (o elijo otro en la lista de ejercicios)
+  Entonces paso a ese ejercicio
+  Y al finalizar, el ejercicio sin series efectivas queda salteado (RN-ENT-09)
 
 Escenario: AC2 — No penaliza la progresión
   Dado que salteé un ejercicio
