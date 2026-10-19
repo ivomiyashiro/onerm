@@ -61,6 +61,8 @@ Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20
 
 El pull empieza 5 s antes del cursor (ADR-0002 R2). El seed carga cada tabla del catálogo en un solo upsert, así que todas sus filas quedan con `server_updated_at` dentro de esa ventana. Cada sync las vuelve a bajar y `writeRemoteRow` las reescribe sin comparar, lo que dispara los observadores del catálogo (hallazgo 3). Esto sale de leer el código y de la medición del re-render; falta confirmarlo contra Supabase local, y #231 lo pide como test.
 
+**Corregido en #231 (medido contra Supabase local):** confirmado: sin el cambio, un segundo pull seguido escribe filas del catálogo. Ahora el upsert del catálogo solo actualiza una fila si alguna columna cambió (`ON CONFLICT … DO UPDATE … WHERE … IS NOT excluded…`), y el test de `sync.supabase.test.ts` cuenta cero escrituras. Las tablas del catálogo no tienen `server_updated_at` en SQLite, así que se comparan los valores en la misma sentencia, sin leer antes. Las 4 requests del catálogo se mantienen: devuelven solo la ventana de 5 s y ya no escriben; cortarlas con `catalog_version` (RN-CAT-04) ahorraría 3 requests chicas por sync a cambio de otra regla.
+
 ## Supabase: requests por sync (lectura de código)
 
 | Paso | Requests |
