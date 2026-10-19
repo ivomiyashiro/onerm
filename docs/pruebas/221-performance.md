@@ -53,7 +53,7 @@ Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20
 - Una fila del catálogo reescrita igual re-renderiza S09: 2 commits y 91 renders.
 - `sharedQuery` (#141) ya resuelve esto para el historial con una huella; el resto de los `observe…()` no lo tiene.
 
-**Corregido en #230 (medido):** `observeQuery` no emite un resultado con los mismos datos que el último (`sameValue`). «Hecho» con S18 + S09: 199 → 156 renders, sin filas del historial (`ItemWithSeparator` 18 → 0). La fila del catálogo reescrita igual: 91 → 24 renders; lo que queda en ese escenario es un tick del descanso, que sigue corriendo (#229), no la escritura.
+**Corregido en #230 (medido):** `observeQuery` no emite un resultado con los mismos datos que el último (`sameValue`). «Hecho» con S18 + S09: 199 → 156 renders, sin filas del historial (`ItemWithSeparator` 18 → 0). La fila del catálogo reescrita igual: 2 → 1 commits y 91 → 24 renders; el commit que queda es un tick del descanso, que sigue corriendo en ese escenario (`RestScreen`, `RestRing`; #229), no la escritura.
 
 ### 4. La sync reescribe el catálogo cada vez → #231
 

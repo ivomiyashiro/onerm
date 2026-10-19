@@ -1,7 +1,8 @@
 /**
  * Whether two query results hold the same data (#230): plain objects and arrays compared field by
  * field, plus the `Date`, `Set` and `Map` the mappers build. A re-read that gives the same data
- * isn't emitted, so a write a screen doesn't see doesn't render it again.
+ * isn't emitted, so a write a screen doesn't see doesn't render it again. `Set` members are
+ * compared by identity (ids): a set of objects always reads as changed, which only emits.
  */
 export function sameValue(a: unknown, b: unknown): boolean {
   if (Object.is(a, b)) return true;
