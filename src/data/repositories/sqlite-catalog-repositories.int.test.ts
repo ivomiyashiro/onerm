@@ -45,6 +45,18 @@ describe('SqliteExerciseRepository', () => {
     expect(last()).toContainEqual(CATALOG_SNAPSHOT.exercises[0]);
   });
 
+  it('#230: a row rewritten with the same values emits nothing', async () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+    const { values } = lastValue<Exercise[]>((o) => repository.observeAll(o));
+    const row = t.db.select().from(exercises).limit(1).get()!;
+
+    t.db.update(exercises).set(row).where(eq(exercises.id, row.id)).run();
+    changes.emit('exercises');
+    await flush();
+
+    expect(values).toHaveLength(1);
+  });
+
   it('includes deprecated exercises, with deprecatedAt as a Date (RN-CAT-01)', async () => {
     const repository = new SqliteExerciseRepository(() => t.db, changes);
     const { last } = lastValue<Exercise[]>((o) => repository.observeAll(o));

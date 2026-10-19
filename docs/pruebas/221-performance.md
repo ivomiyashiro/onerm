@@ -53,6 +53,8 @@ Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20
 - Una fila del catálogo reescrita igual re-renderiza S09: 2 commits y 91 renders.
 - `sharedQuery` (#141) ya resuelve esto para el historial con una huella; el resto de los `observe…()` no lo tiene.
 
+**Corregido en #230 (medido):** `observeQuery` no emite un resultado con los mismos datos que el último (`sameValue`). «Hecho» con S18 + S09: 199 → 156 renders, sin filas del historial (`ItemWithSeparator` 18 → 0). La fila del catálogo reescrita igual: 91 → 24 renders; lo que queda en ese escenario es un tick del descanso, que sigue corriendo (#229), no la escritura.
+
 ### 4. La sync reescribe el catálogo cada vez → #231
 
 El pull empieza 5 s antes del cursor (ADR-0002 R2). El seed carga cada tabla del catálogo en un solo upsert, así que todas sus filas quedan con `server_updated_at` dentro de esa ventana. Cada sync las vuelve a bajar y `writeRemoteRow` las reescribe sin comparar, lo que dispara los observadores del catálogo (hallazgo 3). Esto sale de leer el código y de la medición del re-render; falta confirmarlo contra Supabase local, y #231 lo pide como test.
