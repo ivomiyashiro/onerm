@@ -12,6 +12,7 @@ import type { RoutineRepository } from '@/domain/repositories/routine-repository
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { daysBetween } from '@/domain/rules/calendar';
 import { sortByPosition } from '@/domain/rules/position-order';
+import { workoutsThisWeek } from '@/domain/rules/progress/workout-stats';
 import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
 import { lastDoneByDay } from '@/domain/rules/routine/last-done';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
@@ -58,6 +59,8 @@ export type NextDayOverview =
       readonly dayKind: DayKind;
       /** The unit the suggested loads are shown in (RN-PERF-05). */
       readonly unit: LoadUnit;
+      /** RF-ENT-01.AC8: workouts finished this week (RN-GEN-01) against the days per week. */
+      readonly week: { readonly done: number; readonly goal: number };
       /** Every day of the routine, for S08; `day` is the recommended one. */
       readonly days: DayChoice[];
     };
@@ -134,6 +137,10 @@ export class ObserveNextDay {
               day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
             ),
             unit: inputs.profile.unit,
+            week: {
+              done: workoutsThisWeek(finished, today, this.localDate),
+              goal: inputs.profile.daysPerWeek,
+            },
             days: sortByPosition(routine.days).map((d) => {
               const done = lastDone.get(d.id);
               return {

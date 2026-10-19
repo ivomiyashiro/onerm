@@ -1,5 +1,6 @@
 import type { WorkoutSet } from '@/domain/models/workout';
-import { totalLoadKg } from '@/domain/rules/progress/workout-stats';
+import type { LocalDate } from '@/domain/models/local-date';
+import { totalLoadKg, workoutsThisWeek } from '@/domain/rules/progress/workout-stats';
 import {
   aBilateralSet,
   aUnilateralSet,
@@ -43,5 +44,22 @@ describe('totalLoadKg (RN-ENT-13)', () => {
     const workout = workoutWith([aBilateralSet({ loadKg: null, reps: 12 })]);
 
     expect(totalLoadKg(workout)).toBeNull();
+  });
+});
+
+describe('workoutsThisWeek (RF-ENT-01.AC8, RN-GEN-01)', () => {
+  const localDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
+  const finishedOn = (id: string, day: string) =>
+    aWorkout({ id, finishedAt: new Date(`${day}T19:00:00Z`) });
+
+  it('counts the workouts finished from Monday to today, not the week before', () => {
+    // 2026-10-19 is a Monday; today is Wednesday 21.
+    const finished = [
+      finishedOn('sunday-before', '2026-10-18'),
+      finishedOn('monday', '2026-10-19'),
+      finishedOn('wednesday', '2026-10-21'),
+    ];
+
+    expect(workoutsThisWeek(finished, '2026-10-21' as LocalDate, localDate)).toBe(2);
   });
 });

@@ -1,4 +1,6 @@
+import type { LocalDate } from '@/domain/models/local-date';
 import type { Workout } from '@/domain/models/workout';
+import { startOfWeek } from '@/domain/rules/calendar';
 import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
 
 /** Whole minutes from start to finish; never negative, even after a correction. */
@@ -28,4 +30,21 @@ export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null 
     total = (total ?? 0) + set.loadKg * reps;
   }
   return total;
+}
+
+/**
+ * RF-ENT-01.AC8: the workouts finished this week, Monday to `today` (RN-GEN-01), against the
+ * days per week of the profile on S07.
+ */
+export function workoutsThisWeek(
+  finished: readonly Pick<Workout, 'finishedAt'>[],
+  today: LocalDate,
+  localDate: (instant: Date) => LocalDate,
+): number {
+  const monday = startOfWeek(today);
+  return finished.filter((w) => {
+    if (w.finishedAt === null) return false;
+    const day = localDate(w.finishedAt);
+    return day >= monday && day <= today;
+  }).length;
 }
