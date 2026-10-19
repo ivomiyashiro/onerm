@@ -53,7 +53,7 @@ describe('weekProgress (RF-ENT-01.AC8, RN-GEN-01)', () => {
     aWorkout({ id, finishedAt: new Date(`${day}T19:00:00Z`) });
 
   it('the days trained from Monday to today, today, and how many workouts', () => {
-    // 2026-10-19 is a Monday; today is Wednesday 21. Two workouts on Monday count as two.
+    // 2026-10-19 is a Monday; today is Wednesday 21. Two workouts on Monday are one day (D3).
     const finished = [
       finishedOn('sunday-before', '2026-10-18'),
       finishedOn('monday', '2026-10-19'),
@@ -62,7 +62,7 @@ describe('weekProgress (RF-ENT-01.AC8, RN-GEN-01)', () => {
     ];
 
     expect(weekProgress(finished, '2026-10-21' as LocalDate, localDate)).toEqual({
-      done: 3,
+      done: 2,
       doneDays: [0, 2],
       today: 2,
     });

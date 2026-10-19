@@ -34,15 +34,15 @@ export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null 
 
 /** RF-ENT-01.AC8: this week in S07, Monday (0) to Sunday (6). */
 export interface WeekProgress {
-  /** Workouts finished from Monday to today. */
+  /** Days trained from Monday to today: two workouts on one day count once (D3), like the goal. */
   readonly done: number;
-  /** The days with at least one of them, in order. */
+  /** The days with at least one finished workout, in order. */
   readonly doneDays: readonly number[];
   readonly today: number;
 }
 
 /**
- * RF-ENT-01.AC8: the workouts finished this week, Monday to `today` (RN-GEN-01), and on which days,
+ * RF-ENT-01.AC8: the days trained this week, Monday to `today` (RN-GEN-01), and which ones,
  * for the week strip of S07.
  */
 export function weekProgress(
@@ -56,9 +56,10 @@ export function weekProgress(
     .map((w) => localDate(w.finishedAt!))
     .filter((day) => day >= monday && day <= today)
     .map((day) => daysBetween(monday, day));
+  const doneDays = [...new Set(days)].sort((a, b) => a - b);
   return {
-    done: days.length,
-    doneDays: [...new Set(days)].sort((a, b) => a - b),
+    done: doneDays.length,
+    doneDays,
     today: daysBetween(monday, today),
   };
 }

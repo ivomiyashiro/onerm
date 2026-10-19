@@ -81,7 +81,7 @@ Escenario: AC7 — Desde cualquier pestaña
 Escenario: AC8 — Qué me espera hoy
   Dado que veo el próximo día
   Entonces la tarjeta muestra el día, su rutina, el tiempo estimado, los ejercicios y las series, y "Empezar" ("Continuar" con el tiempo si hay uno en curso)
-  Y la semana muestra los siete días, de lunes a domingo (RN-GEN-01): los días con un entrenamiento terminado marcados, hoy resaltado y cuántos hice sobre mis días por semana («2 de 3»)
+  Y la semana muestra los siete días, de lunes a domingo (RN-GEN-01): los días con un entrenamiento terminado marcados, hoy resaltado y en cuántos días entrené sobre mis días por semana («2 de 3»; dos entrenamientos el mismo día cuentan uno)
   Y en «Lo de hoy» cada ejercicio va numerado, con su músculo principal y su prescripción («Cuádriceps · 3 × 8–12»), su sugerencia y qué cambia contra la última vez: «↑ 2,5 kg», «+1 rep», «Igual» o «↓ 5 kg» (sin nada si se calibra, #196)
   Y los ejercicios principales van destacados (rol de RF-RUT-03)
 
