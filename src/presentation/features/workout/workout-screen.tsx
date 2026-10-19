@@ -577,7 +577,7 @@ const styles = StyleSheet.create({
   effort: { gap: space.s10, paddingBottom: space.s8 },
   screen: { flex: 1, backgroundColor: colors.bgBase },
   message: { padding: space.s16 },
-  addSet: { alignSelf: 'flex-start' },
+  addSet: { alignSelf: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'baseline',
