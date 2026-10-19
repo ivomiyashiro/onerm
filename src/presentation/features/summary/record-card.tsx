@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, Easing, StyleSheet, View } from 'react-native';
 
 import type { LoadUnit } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
@@ -17,8 +18,19 @@ const { summary: strings } = text;
 export const loadText = (kg: number, unit: LoadUnit) =>
   `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
 
-/** Figma «RecordCard»: a record beaten in a workout (RF-PROG-05.AC2), in S12 and S19. */
-export function RecordCard({ record, unit }: { record: SummaryRecord; unit: LoadUnit }) {
+/**
+ * Figma «RecordCard»: a record beaten in a workout (RF-PROG-05.AC2), in S12 and S19. With
+ * `shineAt` (ms), a light sweeps the trophy once (marca §8: the record's shine, one pass).
+ */
+export function RecordCard({
+  record,
+  unit,
+  shineAt = null,
+}: {
+  record: SummaryRecord;
+  unit: LoadUnit;
+  shineAt?: number | null;
+}) {
   const [kind, value] =
     record.kind === 'heaviestLoad'
       ? [
@@ -35,6 +47,7 @@ export function RecordCard({ record, unit }: { record: SummaryRecord; unit: Load
     <View style={styles.record}>
       <View style={styles.trophy}>
         <Icon name="trophy" color={colors.textOnAccent} />
+        {shineAt !== null && <Shine at={shineAt} />}
       </View>
       <View style={styles.texts}>
         <Text style={[typography.label, { color: colors.textAccent }]}>
@@ -49,7 +62,49 @@ export function RecordCard({ record, unit }: { record: SummaryRecord; unit: Load
   );
 }
 
+const TROPHY = 48;
+
+/** A light band crossing the trophy once. */
+function Shine({ at }: { at: number }) {
+  const [sweep] = useState(() => new Animated.Value(0));
+  useEffect(() => {
+    const animation = Animated.timing(sweep, {
+      toValue: 1,
+      duration: 600,
+      delay: at,
+      easing: Easing.inOut(Easing.cubic),
+      useNativeDriver: true,
+    });
+    animation.start();
+    return () => animation.stop();
+  }, [at, sweep]);
+  return (
+    <Animated.View
+      pointerEvents="none"
+      style={[
+        styles.shine,
+        {
+          transform: [
+            {
+              translateX: sweep.interpolate({ inputRange: [0, 1], outputRange: [-TROPHY, TROPHY] }),
+            },
+            { rotate: '20deg' },
+          ],
+        },
+      ]}
+    />
+  );
+}
+
 const styles = StyleSheet.create({
+  shine: {
+    position: 'absolute',
+    top: -8,
+    bottom: -8,
+    width: 14,
+    opacity: 0.45,
+    backgroundColor: colors.textPrimary,
+  },
   record: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -61,8 +116,9 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
   },
   trophy: {
-    width: 48,
-    height: 48,
+    width: TROPHY,
+    height: TROPHY,
+    overflow: 'hidden',
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 14,

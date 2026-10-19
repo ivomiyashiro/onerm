@@ -16,6 +16,11 @@ export function parseDecimal(text: string): number | null {
   return /^\d+(\.\d+)?$/.test(normalized) ? Number(normalized) : null;
 }
 
+/** A whole number with a dot every three digits: «4.250» (RN-ENT-13, the total load). */
+export function wholeNumber(value: number): string {
+  return String(Math.round(value)).replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
 /** One decimal at most, with a comma: «2,3», «2». */
 export function decimal(value: number): string {
   return String(Number(value.toFixed(1))).replace('.', ',');

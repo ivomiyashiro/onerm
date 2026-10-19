@@ -242,3 +242,15 @@ Hasta ahora el ícono y el splash eran los de ejemplo de Expo (fondo azul). Se d
 3. **Reducir movimiento:** sin halo ni escala, la capa se desvanece en 200 ms.
 
 Se anima con `Animated` y el driver nativo, como el resto de la app: corre en el hilo de la interfaz aunque JavaScript esté ocupado con las migraciones. No se usa Lottie.
+
+## 17. Resumen del entrenamiento (S12, 2026-10-19, #223)
+
+El cierre de cada entrenamiento tenía que sentirse como un logro. En Figma: «S12 · Resumen con récords (#223)» y «S12 · Resumen sin récords (#223)», en la página 04; los marcos anteriores quedan como referencia.
+
+- **Encabezado:** la marca de completado (disco lima con el check, que se dibuja una vez) arriba de «Entrenamiento · {día}» en lima y «TERMINADO» en display. Al lado del título no entraba.
+- **El número es el héroe (§1):** la **carga total** (RN-ENT-13) grande, en Archivo, con la unidad al lado; duración, series y ejercicios abajo, más chicos, separados por una línea. Sin carga (todo peso corporal), el número grande es la duración. La tarjeta lleva el borde de acento suave.
+- **Récords primero**, con el título en lima y el trofeo con su brillo de una pasada. Sin récords, una línea que cuenta lo sumado («Hoy sumaste 17 series. Así se progresa.») para que la pantalla no quede vacía.
+- **«Lo que hiciste»:** cada ejercicio con una pastilla por serie (carga × reps); la mejor, en lima con borde. El ícono de qué cambia la próxima vez sigue a la derecha. TalkBack lee la fila entera, no pastilla por pastilla.
+- **Próximo entrenamiento:** una tarjeta al final, cerca de «Listo», en lugar del texto chico del encabezado de la sección.
+- **Movimiento (una sola pasada, < 1 s):** encabezado → números → récords → lista → próximo, cada bloque sube 12 px y aparece en 300 ms, 150 ms después del anterior; el número principal cuenta desde 0 en 700 ms. Con «Reducir movimiento», todo aparece quieto y con sus valores. Se anima con `Animated` (driver nativo, salvo el trazo del check, que es SVG).
+- **Háptica:** la de éxito cuando el número termina de contar, y otra cuando entran los récords.

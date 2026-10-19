@@ -96,7 +96,7 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 | RF-ENT-07 | Must | 02 | — | S09 | M | RF02 |
 | RF-ENT-08 | Must | 02 | RN-ENT-09 | S09 | U | RF02 |
 | RF-ENT-09 | Should | 02 | RN-ENT-10 | S11 | U, M | RF02 |
-| RF-ENT-11 | Must | 02 | RN-ENT-09, RN-RUT-01 | S12 | U, M | RF02 |
+| RF-ENT-11 | Must | 02 | RN-ENT-09, RN-ENT-13, RN-RUT-01 | S12 | U, M | RF02 |
 | RF-ENT-12 | Must | 02 | RN-SYNC-04 | S09 | U | RF02 |
 | RF-ENT-13 | Must | 02 | RN-ENT-07, 11 | S09, D02 | M | RF02 |
 | RF-ENT-14 | Should | 02 | RN-ENT-12 | S09 | U, M | RF02 |

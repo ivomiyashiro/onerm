@@ -379,7 +379,7 @@ Escenario: AC5 — Marcado en el historial
 
 | Prioridad | Estado | Actor | Reglas |
 |---|---|---|---|
-| Must | Borrador | Usuario | RN-ENT-09, RN-RUT-01 |
+| Must | Borrador | Usuario | RN-ENT-09, RN-ENT-13, RN-RUT-01 |
 
 ```gherkin
 Escenario: AC1 — Finalizar completo
@@ -412,7 +412,16 @@ Escenario: AC5 — Sin series efectivas
   Y si lo descarto, el próximo día no cambia y el historial queda igual (RF-ENT-12)
 ```
 
-**Notas:** AC5 es la decisión D2 de la revisión de F5 (2026-10-14). Un entrenamiento abandonado (RN-ENT-11) se puede finalizar igual desde D02.
+```gherkin
+Escenario: AC6 — La carga total es el dato principal
+  Dado que finalicé un entrenamiento con series con carga
+  Cuando veo el resumen
+  Entonces el dato principal es la carga total levantada (RN-ENT-13), en mi unidad
+  Y la duración, las series y los ejercicios quedan como datos secundarios
+  Pero si todas las series efectivas fueron de peso corporal, el dato principal es la duración
+```
+
+**Notas:** AC5 es la decisión D2 de la revisión de F5 (2026-10-14). AC6 y el rediseño de S12 son de #223 (2026-10-18/19). Un entrenamiento abandonado (RN-ENT-11) se puede finalizar igual desde D02.
 
 ---
 
