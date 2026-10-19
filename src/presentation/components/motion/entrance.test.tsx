@@ -1,11 +1,18 @@
 import { act, render, screen } from '@testing-library/react-native';
 
-import { CountUp } from '@/presentation/features/summary/summary-motion';
+import { CountUp } from '@/presentation/components/motion/entrance';
 
 jest.useFakeTimers();
 
 const count = (value: number) => (
-  <CountUp value={value} format={(n) => String(Math.round(n))} animate delayMs={0} style={{}} />
+  <CountUp
+    value={value}
+    format={(n) => String(Math.round(n))}
+    animate
+    delayMs={0}
+    durationMs={700}
+    style={{}}
+  />
 );
 
 describe('CountUp (#223)', () => {
