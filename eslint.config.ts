@@ -58,6 +58,11 @@ export default defineConfig([
   {
     files: ['**/*.ts', '**/*.tsx'],
     extends: [tseslint.recommended],
+    rules: {
+      // tsc already fails on a missing member of `import * as ns`, and this rule took a third of
+      // the lint time (#233). typescript-eslint recommends turning it off in TypeScript projects.
+      'import/namespace': 'off',
+    },
   },
   // Clean Architecture layer rules (12 §1, ADR-0011, RNF-11). Never disabled.
   {
