@@ -187,7 +187,7 @@ export class ObserveWorkoutSummary {
               (total, line) => total + (line.status === 'done' ? line.sets.length : 0),
               0,
             ),
-            totalLoadKg: totalLoadKg(workout),
+            totalLoadKg: totalLoadKg(workout, (id) => catalog.get(id)),
             exercisesDone: lines.filter((line) => line.status === 'done').length,
             exercisesTotal: lines.length,
             records,

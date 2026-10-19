@@ -1,4 +1,6 @@
+import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
+import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import { daysBetween, startOfWeek } from '@/domain/rules/calendar';
 import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
@@ -18,16 +20,33 @@ export function effectiveSets(workout: Pick<Workout, 'exercises'>): number {
 }
 
 /**
- * RN-ENT-13: the total load (tonnage) of a workout, load × reps of its effective sets; a
- * unilateral set adds both sides. Bodyweight sets have no load and add nothing: null when no
- * effective set has one. Not the weekly volume (RN-PROG-04).
+ * RN-ENT-13 (D2): the bilateral dumbbell exercises held with one dumbbell. Every other one is
+ * loaded per dumbbell with two of them (RN-ENT-05), so its load counts twice.
  */
-export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null {
+export const ONE_DUMBBELL_SLUGS: ReadonlySet<string> = new Set(['sentadilla-goblet-mancuerna']);
+
+/**
+ * RN-ENT-13: the total load (tonnage) of a workout, load × reps of its effective sets; a
+ * unilateral set adds both sides and a bilateral one with two dumbbells counts both (D2).
+ * Bodyweight sets and sets at 0 kg have no load and add nothing: null when no effective set has
+ * one. Not the weekly volume (RN-PROG-04). `exerciseOf` gives the catalog entry of each exercise.
+ */
+export function totalLoadKg(
+  workout: Pick<Workout, 'exercises'>,
+  exerciseOf: (exerciseId: Id) => Pick<Exercise, 'slug' | 'primaryEquipment'> | undefined = () =>
+    undefined,
+): number | null {
   let total: number | null = null;
-  for (const set of workout.exercises.flatMap((e) => e.sets).filter(isEffectiveSet)) {
-    if (set.loadKg === null) continue;
-    const reps = set.isUnilateral ? set.repsLeft + set.repsRight : set.reps;
-    total = (total ?? 0) + set.loadKg * reps;
+  for (const exercise of workout.exercises) {
+    const entry = exerciseOf(exercise.exerciseId);
+    const twoDumbbells =
+      entry?.primaryEquipment === 'dumbbell' && !ONE_DUMBBELL_SLUGS.has(entry.slug);
+    for (const set of exercise.sets.filter(isEffectiveSet)) {
+      if (set.loadKg === null || set.loadKg <= 0) continue;
+      const reps = set.isUnilateral ? set.repsLeft + set.repsRight : set.reps;
+      const dumbbells = twoDumbbells && !set.isUnilateral ? 2 : 1;
+      total = (total ?? 0) + set.loadKg * reps * dumbbells;
+    }
   }
   return total;
 }
