@@ -54,7 +54,10 @@ export interface WorkoutContent {
   exerciseIndex: number;
   exercises: readonly WorkoutExerciseView[];
   exercise: WorkoutExerciseView;
-  /** RF-ENT-08: the current exercise was skipped; its sets can still be logged (AC3). */
+  /**
+   * The current exercise is skipped: an original replaced without effective sets (RN-ENT-10). Its
+   * sets can still be logged (RF-ENT-08.AC3).
+   */
   skipped: boolean;
   rows: SetRowView[];
   /** RF-SUG-07.AC1: the reason of the suggestion, under the exercise. */

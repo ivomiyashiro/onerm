@@ -397,7 +397,7 @@ describe('useWorkoutViewModel', () => {
       expect(content()).toMatchObject({ exerciseIndex: 1 });
     });
 
-    it('RF-ENT-11.AC2: with exercises without sets, D10 asks first', async () => {
+    it('RF-ENT-11.AC2, RF-ENT-08.AC1: with exercises without sets, D10 asks first; they end skipped', async () => {
       const { result, workouts } = await renderViewModel();
       await act(() => result.current.actions.done());
 
