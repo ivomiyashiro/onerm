@@ -25,6 +25,7 @@ import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';
 import { loadNumber } from '@/presentation/strings/numbers';
 import { profile } from '@/presentation/strings/profile';
+import { CardPlate } from '@/presentation/components/button/card-plate';
 import { colors, fonts, radius, size, space, typography } from '@/presentation/theme';
 
 interface HomeScreenProps {
@@ -207,6 +208,7 @@ function DayCard({
   ];
   return (
     <View style={styles.card}>
+      <CardPlate />
       <Text style={styles.letter} accessible={false} importantForAccessibility="no">
         {letter}
       </Text>
@@ -419,8 +421,8 @@ const styles = StyleSheet.create({
   card: {
     gap: space.s8,
     padding: 18,
-    borderRadius: 28,
-    backgroundColor: colors.bgAccent,
+    // The primary button's plate (#225): its radius and cut corners, at card size.
+    borderRadius: radius.md,
     overflow: 'hidden',
   },
   // The day's letter, huge and tone on tone (marca §18).
