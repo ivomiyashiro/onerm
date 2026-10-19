@@ -27,6 +27,12 @@ Pipeline: `extract → map → normalize → validate → curate → dedupe → 
   ours and never changes (RN-CAT-01). To add an exercise, add an entry (find the wger id in
   `https://wger.de/api/v2/exerciseinfo/?language=4`), run the seed and commit the new snapshot.
 - `manual.json` holds our own exercises (source `manual`), with no API.
+- `onerm-v1/catalog.ts` is the catalog of OneRM v1 (the Flutter version), copied into the repo (source
+  `onerm-v1`, #244): bases × equipment, with its own taxonomy that `adapters/onerm-v1.ts` maps to ours.
+  The adapter rejects the band variants (no load the engine can progress, ADR-0005) and those without a
+  primary muscle of ours (neck, tibialis). Left out of the curation on purpose: the variants the catalog
+  already has from wger, the isometric ones (plank, wall sit: measured in seconds), the assisted ones
+  (more weight is easier) and those whose load is not what moves (barbell rollout, Smith inverted row).
 - The seed fails (exit code 1) if a curated exercise can't be built; it never half-publishes.
 - Running it twice changes nothing: the snapshot version only goes up when the content changes, and
   `--load` only writes the rows that differ, so the apps don't pull what didn't change.
