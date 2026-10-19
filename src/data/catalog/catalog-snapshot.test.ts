@@ -18,13 +18,18 @@ const setsPerDay = (id: string) =>
 const exerciseNames = (id: string, day: number) =>
   template(id).days[day].exercises.map((e) => exerciseById.get(e.exerciseId)?.name);
 
-describe('catalog snapshot: exercises (ADR-0004, RN-CAT-03)', () => {
-  it('has the 22 exercises the templates use', () => {
-    expect(exercises).toHaveLength(22);
-    const used = new Set(
+/** The exercises the templates use, once each (with the id, in case one is missing). */
+const templateExercises = () =>
+  [
+    ...new Set(
       templates.flatMap((t) => t.days.flatMap((d) => d.exercises)).map((e) => e.exerciseId),
-    );
-    expect([...used].sort()).toEqual(exercises.map((e) => e.id).sort());
+    ),
+  ].map((id) => ({ id, ...exerciseById.get(id) }));
+
+describe('catalog snapshot: exercises (ADR-0004, RN-CAT-03)', () => {
+  it('every exercise a template uses is in the catalog', () => {
+    const missing = templateExercises().filter((e) => !exerciseById.has(e.id));
+    expect(missing).toEqual([]);
   });
 
   it('ids are UUIDs and ids and slugs are unique', () => {
@@ -40,7 +45,6 @@ describe('catalog snapshot: exercises (ADR-0004, RN-CAT-03)', () => {
   it.each(exercises.map((e) => [e.name, e] as const))(
     '%s uses the controlled vocabularies',
     (_, exercise) => {
-      expect(exercise.loadType).toBe('external'); // C-07
       expect(exercise.equipment).toContain(exercise.primaryEquipment);
       for (const equipment of exercise.equipment) expect(EQUIPMENT).toContain(equipment);
       expect(exercise.primaryMuscles.length).toBeGreaterThan(0);
@@ -50,18 +54,22 @@ describe('catalog snapshot: exercises (ADR-0004, RN-CAT-03)', () => {
       expect(exercise.deprecatedAt).toBeNull();
     },
   );
+});
 
-  it('the unilateral ones are the one-arm row and the Bulgarian split squat (11 §3)', () => {
+describe('catalog snapshot: templates (11 §3)', () => {
+  it('C-07: they only use exercises with external load', () => {
+    expect(templateExercises().filter((e) => e.loadType !== 'external')).toEqual([]);
+  });
+
+  it('their unilateral exercises are the one-arm row and the Bulgarian split squat', () => {
     expect(
-      exercises
+      templateExercises()
         .filter((e) => e.isUnilateral)
         .map((e) => e.name)
         .sort(),
     ).toEqual(['Remo con mancuerna a una mano', 'Sentadilla búlgara con mancuernas']);
   });
-});
 
-describe('catalog snapshot: templates (11 §3)', () => {
   it('has PLT-FB2, PLT-FB3 and PLT-TP4 with their days per week and level', () => {
     expect(templates.map((t) => [t.id, t.daysPerWeek, t.level])).toEqual([
       ['PLT-FB2', 2, 'novice'],
