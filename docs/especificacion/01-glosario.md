@@ -66,6 +66,7 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **Marca** | Par (carga de trabajo, repeticiones totales con esa carga), usado para detectar estancamiento. | `PerformanceMark` |
 | **Reentrada** | Reducción de la carga al volver después de una pausa (RN-SUG-05). | `Reentry` |
 | **Serie fraccional** | Unidad de volumen semanal: las series directas valen 1 y las indirectas 0,5 (P-03). | — |
+| **Carga total** | También «tonelaje»: la suma de carga × repeticiones de las series efectivas de un entrenamiento (RN-ENT-13). Es el dato principal de su resumen (S12). **No** es el volumen semanal, que se cuenta en series fraccionales por músculo (RN-PROG-04). | `totalLoadKg` |
 
 ## Cuenta y sincronización
 
