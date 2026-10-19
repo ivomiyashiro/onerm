@@ -108,8 +108,6 @@ describe('ObserveNextDay', () => {
       sets: 5,
       // 3 × (40 + 120) + 2 × (40 + 90) = 740 s.
       minutes: 12,
-      // Prensa works the quads (the builder's default); curl is not in the catalog.
-      dayKind: 'lower',
       unit: 'kg',
       // NOW is Thursday 2026-10-08.
       week: { done: 0, doneDays: [], today: 3, goal: defaultProfile().daysPerWeek },

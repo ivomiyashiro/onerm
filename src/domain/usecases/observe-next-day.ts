@@ -13,7 +13,6 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { daysBetween } from '@/domain/rules/calendar';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { weekProgress, type WeekProgress } from '@/domain/rules/progress/workout-stats';
-import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
 import { lastDoneByDay } from '@/domain/rules/routine/last-done';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
@@ -57,8 +56,6 @@ export type NextDayOverview =
       readonly sets: number;
       /** C-06. */
       readonly minutes: number;
-      /** Picks the photo of Inicio (marca §9). */
-      readonly dayKind: DayKind;
       /** The unit the suggested loads are shown in (RN-PERF-05). */
       readonly unit: LoadUnit;
       /** RF-ENT-01.AC8: this week by day (RN-GEN-01), against the days per week of the profile. */
@@ -160,9 +157,6 @@ export class ObserveNextDay {
             },
             sets: prescriptions.reduce((total, { sets }) => total + sets, 0),
             minutes: sessionMinutes(prescriptions),
-            dayKind: dayKind(
-              day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
-            ),
             unit: inputs.profile.unit,
             week: {
               ...weekProgress(finished, today, this.localDate),
