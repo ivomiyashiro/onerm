@@ -14,3 +14,18 @@ export function workoutMinutes(workout: Pick<Workout, 'startedAt' | 'finishedAt'
 export function effectiveSets(workout: Pick<Workout, 'exercises'>): number {
   return workout.exercises.reduce((n, e) => n + e.sets.filter(isEffectiveSet).length, 0);
 }
+
+/**
+ * RN-ENT-13: the total load (tonnage) of a workout, load × reps of its effective sets; a
+ * unilateral set adds both sides. Bodyweight sets have no load and add nothing: null when no
+ * effective set has one. Not the weekly volume (RN-PROG-04).
+ */
+export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null {
+  let total: number | null = null;
+  for (const set of workout.exercises.flatMap((e) => e.sets).filter(isEffectiveSet)) {
+    if (set.loadKg === null) continue;
+    const reps = set.isUnilateral ? set.repsLeft + set.repsRight : set.reps;
+    total = (total ?? 0) + set.loadKg * reps;
+  }
+  return total;
+}
