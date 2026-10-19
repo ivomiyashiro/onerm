@@ -49,10 +49,21 @@ export function DaySheet({
         <TextField
           label={text.editor.day.name}
           value={day.name}
+          // RN-RUT-05 (#225): 20 characters, so it fits two lines in the card of Inicio.
           onChangeText={(name) =>
-            onRename(Array.from(name).slice(0, ROUTINE_LIMITS.nameLength.max).join(''))
+            onRename(Array.from(name).slice(0, ROUTINE_LIMITS.dayNameLength.max).join(''))
           }
-          error={day.name.trim() === '' ? text.editor.validation.emptyName : undefined}
+          error={
+            day.name.trim() === ''
+              ? text.editor.validation.emptyName
+              : Array.from(day.name.trim()).length > ROUTINE_LIMITS.dayNameLength.max
+                ? text.editor.validation.longDayName
+                : undefined
+          }
+          help={text.editor.notesCount(
+            Array.from(day.name).length,
+            ROUTINE_LIMITS.dayNameLength.max,
+          )}
         />
         <View style={styles.actions}>
           {!isFirst && (

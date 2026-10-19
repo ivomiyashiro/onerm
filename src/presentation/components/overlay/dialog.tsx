@@ -65,6 +65,7 @@ function DialogCard({ title, body, actions, testID }: Omit<DialogProps, 'visible
                 variant={VARIANT[action.kind]}
                 label={action.label}
                 onPress={action.onPress}
+                block
               />
             ))}
           </View>

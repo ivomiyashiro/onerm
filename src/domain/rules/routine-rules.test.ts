@@ -36,6 +36,13 @@ describe('I-02 · RN-RUT-05 · a valid routine', () => {
     expect(codes(aRoutine({ days: days(8) }))).toEqual(['routine.days']);
   });
 
+  it('RN-RUT-05 (#225): a day name has 20 characters at most', () => {
+    expect(codes(aRoutine({ days: [aRoutineDay({ name: 'Pecho, hombros y trí' })] }))).toEqual([]);
+    expect(
+      validateRoutine(aRoutine({ days: [aRoutineDay({ name: 'Pecho, hombros y tríceps' })] })),
+    ).toEqual([{ code: 'day.name', path: ['days', 0, 'name'] }]);
+  });
+
   it('each day has a name', () => {
     expect(
       validateRoutine(aRoutine({ days: [aRoutineDay(), aRoutineDay({ name: ' ' })] })),

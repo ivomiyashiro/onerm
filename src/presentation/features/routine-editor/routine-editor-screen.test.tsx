@@ -221,6 +221,18 @@ describe('RoutineEditorScreen', () => {
     expect(screen.queryByRole('button', { name: text.editor.day.remove })).not.toBeOnTheScreen();
   });
 
+  it('RN-RUT-05 (#225): a day name keeps 20 characters at most, with its count', async () => {
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
+    const field = screen.getByLabelText(text.editor.day.name);
+
+    await user.clear(field);
+    await user.type(field, 'Pecho, hombros y tríceps');
+
+    expect(field).toHaveDisplayValue('Pecho, hombros y trí');
+    expect(screen.getByText(text.editor.notesCount(20, 20))).toBeOnTheScreen();
+  });
+
   it('#192: removing a day with exercises asks with D19 first', async () => {
     const { user } = await renderScreen();
     await user.press(await screen.findByRole('button', { name: text.editor.addDay }));

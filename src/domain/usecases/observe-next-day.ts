@@ -3,7 +3,7 @@ import type { LocalDate } from '@/domain/models/local-date';
 import type { Prescription } from '@/domain/models/prescription';
 import type { Profile } from '@/domain/models/profile';
 import type { RotationDay, Routine } from '@/domain/models/routine';
-import type { Id, LoadUnit } from '@/domain/models/vocabulary';
+import type { Id, LoadUnit, Muscle } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
@@ -12,6 +12,7 @@ import type { RoutineRepository } from '@/domain/repositories/routine-repository
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { daysBetween } from '@/domain/rules/calendar';
 import { sortByPosition } from '@/domain/rules/position-order';
+import { weekProgress, type WeekProgress } from '@/domain/rules/progress/workout-stats';
 import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
 import { lastDoneByDay } from '@/domain/rules/routine/last-done';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
@@ -26,6 +27,8 @@ export interface NextDayExercise {
   readonly exerciseId: Id;
   /** Null while the exercise is not in the local catalog (RN-CAT-04). */
   readonly name: string | null;
+  /** RF-ENT-01.AC8: its main muscle; null without the catalog entry. */
+  readonly muscle: Muscle | null;
   readonly prescription: Prescription;
   /** RF-SUG-01.AC1: a load and reps, or the instruction to calibrate. */
   readonly suggestion: Suggestion;
@@ -58,6 +61,8 @@ export type NextDayOverview =
       readonly dayKind: DayKind;
       /** The unit the suggested loads are shown in (RN-PERF-05). */
       readonly unit: LoadUnit;
+      /** RF-ENT-01.AC8: this week by day (RN-GEN-01), against the days per week of the profile. */
+      readonly week: WeekProgress & { readonly goal: number };
       /** Every day of the routine, for S08; `day` is the recommended one. */
       readonly days: DayChoice[];
     };
@@ -121,6 +126,7 @@ export class ObserveNextDay {
                 id,
                 exerciseId,
                 name: catalog.get(exerciseId)?.name ?? null,
+                muscle: catalog.get(exerciseId)?.primaryMuscles[0] ?? null,
                 prescription,
                 suggestion: suggestionFor(
                   { routineExerciseId: id, exerciseId, prescription },
@@ -134,6 +140,10 @@ export class ObserveNextDay {
               day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
             ),
             unit: inputs.profile.unit,
+            week: {
+              ...weekProgress(finished, today, this.localDate),
+              goal: inputs.profile.daysPerWeek,
+            },
             days: sortByPosition(routine.days).map((d) => {
               const done = lastDone.get(d.id);
               return {

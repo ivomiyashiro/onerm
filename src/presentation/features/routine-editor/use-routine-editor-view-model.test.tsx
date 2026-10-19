@@ -154,6 +154,28 @@ describe('useRoutineEditorViewModel', () => {
     expect(content(result.current).orderHint).toBe(true);
   });
 
+  it('RN-RUT-05 (#225): a day name longer than 20, saved before the limit, opens its sheet', async () => {
+    const legacy = aRoutine({
+      name: 'Mi rutina',
+      days: [
+        aRoutineDay({ id: 'day-1', exercises: [aRoutineExercise({ id: 're-1' })] }),
+        aRoutineDay({
+          id: 'day-2',
+          name: 'Tren superior con énfasis en espalda',
+          exercises: [aRoutineExercise({ id: 're-2' })],
+        }),
+      ],
+    });
+    const { result, routines, onClose } = await renderViewModel({ routines: [legacy] });
+
+    await act(() => result.current.actions.save());
+
+    expect(content(result.current).selectedDayId).toBe('day-2');
+    expect(result.current.daySheetOpen).toBe(true);
+    expect(onClose).not.toHaveBeenCalled();
+    expect(routines.routines[0].days[1].name).toBe('Tren superior con énfasis en espalda');
+  });
+
   describe('a new routine', () => {
     it('RF-RUT-03.AC4: a day without exercises is not saved and says which day', async () => {
       const { result, routines } = await renderViewModel({ routineId: null, routines: [] });

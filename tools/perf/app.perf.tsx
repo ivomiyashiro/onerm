@@ -195,7 +195,12 @@ describe('#221 performance', () => {
     await measure('S07 mount', seeded, async () => {
       await mount(
         seeded,
-        <HomeScreen onChooseRoutine={noop} onCreateRoutine={noop} onChangeDay={noop} />,
+        <HomeScreen
+          onChooseRoutine={noop}
+          onCreateRoutine={noop}
+          onChangeDay={noop}
+          onOpenWorkout={noop}
+        />,
       );
       await settle();
     });

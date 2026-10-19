@@ -1,8 +1,8 @@
-import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Easing, type StyleProp, type TextStyle } from 'react-native';
+import { useEffect, useState } from 'react';
+import { Animated, Easing } from 'react-native';
 import Svg, { Circle, Path } from 'react-native-svg';
 
-import { Text } from '@/presentation/components/text';
+import { ENTRANCE_STEP_MS } from '@/presentation/components/motion/entrance';
 import { colors } from '@/presentation/theme';
 
 /**
@@ -16,94 +16,13 @@ export const ENTRANCE = {
   list: 450,
   next: 600,
   /** Each block takes this long to come in. */
-  step: 300,
+  step: ENTRANCE_STEP_MS,
   /** The main figure counts up meanwhile. */
   countUp: 700,
   /** The success haptic: when the main figure lands. */
   landed: 150 + 700,
 } as const;
-const TOTAL_MS = ENTRANCE.next + ENTRANCE.step;
-const RISE = 12;
-
-/** The progress of the whole entrance, 0 to 1, run once; already at 1 with «reduce motion». */
-export function useEntrance(animate: boolean): Animated.Value {
-  const [progress] = useState(() => new Animated.Value(animate ? 0 : 1));
-  useEffect(() => {
-    if (!animate) {
-      progress.setValue(1);
-      return;
-    }
-    const animation = Animated.timing(progress, {
-      toValue: 1,
-      duration: TOTAL_MS,
-      easing: Easing.linear,
-      useNativeDriver: true,
-    });
-    animation.start();
-    return () => animation.stop();
-  }, [animate, progress]);
-  return progress;
-}
-
-/** A block of the entrance: it fades up from `at` ms, for one step. */
-export function EntranceStep({
-  progress,
-  at,
-  children,
-}: {
-  progress: Animated.Value;
-  at: number;
-  children: ReactNode;
-}) {
-  const inputRange = [at / TOTAL_MS, (at + ENTRANCE.step) / TOTAL_MS];
-  const ease = { inputRange, extrapolate: 'clamp' } as const;
-  return (
-    <Animated.View
-      style={{
-        opacity: progress.interpolate({ ...ease, outputRange: [0, 1] }),
-        transform: [{ translateY: progress.interpolate({ ...ease, outputRange: [RISE, 0] }) }],
-      }}
-    >
-      {children}
-    </Animated.View>
-  );
-}
-
-/**
- * A number that counts from 0 to `value` once, easing out; a leaf, so only its text renders while
- * it counts (#229). Without `animate`, or once it counted, it shows `value` as it is.
- */
-export function CountUp({
-  value,
-  format,
-  animate,
-  delayMs,
-  style,
-}: {
-  value: number;
-  format: (value: number) => string;
-  animate: boolean;
-  delayMs: number;
-  style: StyleProp<TextStyle>;
-}) {
-  const [shown, setShown] = useState(0);
-  const [counted, setCounted] = useState(false);
-  useEffect(() => {
-    if (!animate || counted) return;
-    let frame = 0;
-    let start: number | null = null;
-    const tick = (now: number) => {
-      start ??= now + delayMs;
-      const t = Math.min(1, Math.max(0, (now - start) / ENTRANCE.countUp));
-      setShown(value * (1 - (1 - t) ** 3));
-      if (t < 1) frame = requestAnimationFrame(tick);
-      else setCounted(true);
-    };
-    frame = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(frame);
-  }, [animate, counted, delayMs, value]);
-  return <Text style={style}>{format(animate && !counted ? shown : value)}</Text>;
-}
+export const ENTRANCE_TOTAL_MS = ENTRANCE.next + ENTRANCE.step;
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);
 const MARK = 64;

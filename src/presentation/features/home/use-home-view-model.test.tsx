@@ -22,6 +22,7 @@ async function renderViewModel(
   profile: Profile | null = { ...defaultProfile(), activeRoutineId: 'routine-1' },
   inProgress = null as ReturnType<typeof aWorkout> | null,
 ) {
+  let id = 0;
   const repositories = {
     routines: new InMemoryRoutineRepository([aRoutine()]),
     templates: new InMemoryRoutineTemplateRepository(),
@@ -29,7 +30,9 @@ async function renderViewModel(
     workouts: new InMemoryWorkoutRepository(inProgress),
   };
   const wrapper = ({ children }: { children: ReactNode }) => (
-    <UseCasesProvider useCases={someUseCases(routineUseCasesOver(repositories))}>
+    <UseCasesProvider
+      useCases={someUseCases(routineUseCasesOver({ ...repositories, newId: () => `id-${++id}` }))}
+    >
       {children}
     </UseCasesProvider>
   );
@@ -71,6 +74,31 @@ describe('useHomeViewModel', () => {
 
     await act(() => result.current.actions.retry());
     expect(result.current.state.status).toBe('content');
+  });
+
+  it('RF-ENT-01.AC1: «Empezar» in the card starts the next day, then it can be opened', async () => {
+    const { result, workouts } = await renderViewModel();
+
+    let ready = false;
+    await act(async () => {
+      ready = await result.current.actions.start();
+    });
+
+    expect(ready).toBe(true);
+    expect(workouts.inProgress?.routineDayId).toBe('day-1');
+  });
+
+  it('RF-ENT-01.AC4: with one in progress, «Continuar» starts nothing new', async () => {
+    const running = aWorkout({ id: 'running', status: 'in_progress', finishedAt: null });
+    const { result, workouts } = await renderViewModel(undefined, running);
+
+    let ready = false;
+    await act(async () => {
+      ready = await result.current.actions.start();
+    });
+
+    expect(ready).toBe(true);
+    expect(workouts.inProgress?.id).toBe('running');
   });
 
   it('RF-ENT-01.AC4: the start of the workout in progress, or null', async () => {

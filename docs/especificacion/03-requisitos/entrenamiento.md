@@ -42,7 +42,7 @@ Escenario: AC1 — Próximo día
   Dado que tengo una rutina activa
   Cuando abro la app
   Entonces el inicio muestra el próximo día (RN-RUT-01) con sus ejercicios y la carga sugerida de cada uno
-  Y la acción principal es "Empezar" (botón central de la barra de pestañas, 08 §2)
+  Y la acción principal es "Empezar", en la tarjeta del día y en el botón central de la barra de pestañas (08 §2)
 
 Escenario: AC2 — Empezar
   Dado que veo el próximo día
@@ -77,6 +77,18 @@ Escenario: AC7 — Desde cualquier pestaña
   Cuando toco el botón central de la barra de pestañas
   Entonces empiezo el próximo día, o vuelvo al entrenamiento en curso si hay uno
   Y sin rutina activa el botón está deshabilitado
+
+Escenario: AC8 — Qué me espera hoy
+  Dado que veo el próximo día
+  Entonces la tarjeta muestra el día, su rutina, el tiempo estimado, los ejercicios y las series, y "Empezar" ("Continuar" con el tiempo si hay uno en curso)
+  Y la semana muestra los siete días, de lunes a domingo (RN-GEN-01): los días con un entrenamiento terminado marcados, hoy resaltado y cuántos hice sobre mis días por semana («2 de 3»)
+  Y en «Lo de hoy» cada ejercicio va numerado, con su músculo principal y su prescripción («Cuádriceps · 3 × 8–12»), su sugerencia y qué cambia contra la última vez: «↑ 2,5 kg», «+1 rep», «Igual» o «↓ 5 kg» (sin nada si se calibra, #196)
+  Y los ejercicios principales van destacados (rol de RF-RUT-03)
+
+Escenario: AC9 — Nombre de día largo
+  Dado que el día se llama «Tren superior A»
+  Cuando veo la tarjeta
+  Entonces el nombre se achica según su largo y ocupa dos líneas como máximo, terminando en «…» si no entra (un nombre viejo de más de 20 caracteres, RN-RUT-05)
 ```
 
 ---

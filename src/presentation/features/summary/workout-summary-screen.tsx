@@ -18,12 +18,11 @@ import { Text } from '@/presentation/components/text';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { useAccountNudgeViewModel } from '@/presentation/features/summary/use-account-nudge-view-model';
 import { loadText, RecordCard } from '@/presentation/features/summary/record-card';
+import { CountUp, EntranceStep, useEntrance } from '@/presentation/components/motion/entrance';
 import {
-  CountUp,
   DoneMark,
   ENTRANCE,
-  EntranceStep,
-  useEntrance,
+  ENTRANCE_TOTAL_MS,
 } from '@/presentation/features/summary/summary-motion';
 import { useWorkoutSummaryViewModel } from '@/presentation/features/summary/use-workout-summary-view-model';
 import { reasonIcon } from '@/presentation/features/workout/reason-text';
@@ -100,7 +99,7 @@ export function WorkoutSummaryScreen({
 
 function Summary({ summary }: { summary: WorkoutSummary }) {
   const animate = !useReduceMotion();
-  const progress = useEntrance(animate);
+  const progress = useEntrance(animate, ENTRANCE_TOTAL_MS);
   const { records, unit } = summary;
   const hasRecords = records.length > 0;
 
@@ -122,7 +121,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
 
   return (
     <ScrollView contentContainerStyle={styles.content}>
-      <EntranceStep progress={progress} at={ENTRANCE.header}>
+      <EntranceStep progress={progress} totalMs={ENTRANCE_TOTAL_MS} at={ENTRANCE.header}>
         <View style={styles.header}>
           <DoneMark animate={animate} />
           <View style={styles.headerTexts}>
@@ -138,7 +137,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
           </View>
         </View>
       </EntranceStep>
-      <EntranceStep progress={progress} at={ENTRANCE.numbers}>
+      <EntranceStep progress={progress} totalMs={ENTRANCE_TOTAL_MS} at={ENTRANCE.numbers}>
         <View style={styles.numbers}>
           <View
             accessible
@@ -155,6 +154,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
                 format={mainFormat}
                 animate={animate}
                 delayMs={ENTRANCE.numbers}
+                durationMs={ENTRANCE.countUp}
                 style={[typography.numberHero, { color: colors.textPrimary }]}
               />
               <Text style={[typography.titleM, { color: colors.textSecondary }]}>{mainUnit}</Text>
@@ -170,7 +170,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
           </View>
         </View>
       </EntranceStep>
-      <EntranceStep progress={progress} at={ENTRANCE.records}>
+      <EntranceStep progress={progress} totalMs={ENTRANCE_TOTAL_MS} at={ENTRANCE.records}>
         {hasRecords ? (
           <View style={styles.section}>
             <Text style={[typography.titleM, { color: colors.textAccent }]}>
@@ -194,7 +194,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
           </View>
         )}
       </EntranceStep>
-      <EntranceStep progress={progress} at={ENTRANCE.list}>
+      <EntranceStep progress={progress} totalMs={ENTRANCE_TOTAL_MS} at={ENTRANCE.list}>
         <View style={styles.section}>
           <Text style={[typography.titleM, { color: colors.textPrimary }]}>
             {strings.whatYouDid}
@@ -207,7 +207,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
         </View>
       </EntranceStep>
       {summary.nextDayName !== null && (
-        <EntranceStep progress={progress} at={ENTRANCE.next}>
+        <EntranceStep progress={progress} totalMs={ENTRANCE_TOTAL_MS} at={ENTRANCE.next}>
           <View style={styles.next}>
             <View style={styles.flex}>
               <Text style={[typography.label, { color: colors.textSecondary }]}>

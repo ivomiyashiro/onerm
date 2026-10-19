@@ -72,6 +72,8 @@ const mono = (size: number, lineHeight: number, tracking = 0) =>
 /** The Figma text styles, one entry per style («Display/XL» → displayXl). */
 export const typography = {
   displayXl: display(72, 86, -2.5),
+  /** #225: the day of the card of Inicio, up to 6 characters. */
+  displayHero: display(64, 90, -2.5),
   displayMl: display(40, 92, -2.5),
   displayL: display(46, 86, -2.5),
   displayM: display(34, 95, -2),

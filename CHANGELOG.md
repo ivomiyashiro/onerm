@@ -46,6 +46,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Inicio has a new look: the day on a lime card with «Empezar» right there (or «Continuar»), its time, exercises and sets; this week day by day; and each exercise numbered with its main muscle, its prescription, the suggestion and what changes against last time («↑ 5 kg», «+1 rep», «Igual»). A day name now has up to 20 characters, so it fits the card. It comes in once, still with «reduce motion».
 - The workout summary feels like a finish: a done mark that draws itself, the total load lifted as the big number (counting up; the duration when everything was bodyweight), the records first with the trophy shining once, a chip per set in each exercise, the next workout as a card and a success vibration. The entrance runs once and not at all with «reduce motion».
 - Text uses the Geist font; numbers and the «DÍA A» display stay in Archivo, so they stand out more.
 - Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones». It scrolls without a scroll bar when it doesn't fit.

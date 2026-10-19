@@ -4,11 +4,14 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Profile } from '@/domain/models/profile';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import {
+  aBilateralSet,
   aPrescription,
   aRoutine,
   aRoutineDay,
   aRoutineExercise,
   anExercise,
+  aWorkout,
+  aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
   InMemoryProfileRepository,
@@ -48,21 +51,38 @@ const FULL_BODY = aRoutine({
   ],
 });
 
+/** Day A done on Monday 2026-10-05: the leg press at 100 kg × 12, the top of its range. */
+const LAST_TIME = aWorkout({
+  exercises: [
+    aWorkoutExercise({
+      exerciseId: 'leg-press',
+      plannedExerciseId: 'leg-press',
+      status: 'done',
+      sets: [0, 1, 2].map((position) =>
+        aBilateralSet({ id: `s${position}`, position, loadKg: 100, reps: 12, rir: 2 }),
+      ),
+    }),
+  ],
+});
+
 async function renderScreen({
   profile = { ...defaultProfile(), activeRoutineId: 'routine-1' } as Profile | null,
   useCases = undefined as UseCases | undefined,
+  finished = [] as ReturnType<typeof aWorkout>[],
 } = {}) {
   const repositories = {
     routines: new InMemoryRoutineRepository([FULL_BODY]),
     templates: new InMemoryRoutineTemplateRepository(),
     profiles: new InMemoryProfileRepository(profile),
-    workouts: new InMemoryWorkoutRepository(),
+    workouts: new InMemoryWorkoutRepository(null, finished),
   };
   const callbacks = {
     onChooseRoutine: jest.fn(),
     onCreateRoutine: jest.fn(),
     onChangeDay: jest.fn(),
+    onOpenWorkout: jest.fn(),
   };
+  let id = 0;
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
       <UseCasesProvider
@@ -72,6 +92,9 @@ async function renderScreen({
             routineUseCasesOver({
               ...repositories,
               exercises: [anExercise({ id: 'leg-press', name: 'Prensa de piernas' })],
+              // Wednesday 2026-10-07: LAST_TIME, on Monday, is this week.
+              now: () => new Date('2026-10-07T12:00:00Z'),
+              newId: () => `id-${++id}`,
             }),
           )
         }
@@ -92,22 +115,46 @@ describe('HomeScreen (S07)', () => {
     ).not.toHaveLength(0);
   });
 
-  it('RF-RUT-02.AC1: «Hoy toca» the next day, with its routine, totals and exercises', async () => {
+  it('RF-RUT-02.AC1, RF-ENT-01.AC8: the day, its routine and what it takes', async () => {
     await renderScreen();
 
     expect(screen.getByText(home.todayIs)).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: 'Día A' })).toBeOnTheScreen();
     expect(screen.getByText('Cuerpo completo A/B')).toBeOnTheScreen();
-    expect(screen.getByText(home.stats.exercises(1))).toBeOnTheScreen();
-    expect(screen.getByText(home.stats.approxMinutes(8))).toBeOnTheScreen();
+    expect(screen.getByText(home.minutes(8))).toBeOnTheScreen();
+    expect(screen.getByText(home.exercises(1))).toBeOnTheScreen();
     expect(screen.getByText(home.todayList)).toBeOnTheScreen();
-    expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-01.AC1: «Empezar» in the card starts the day and opens the workout', async () => {
+    const { user, workouts, onOpenWorkout } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: home.startDay('Día A') }));
+
+    expect(workouts.inProgress?.dayNameSnapshot).toBe('Día A');
+    expect(onOpenWorkout).toHaveBeenCalled();
+  });
+
+  it('RF-ENT-01.AC8: the week, day by day, against the days per week', async () => {
+    await renderScreen({ finished: [LAST_TIME] });
+
+    expect(screen.getByLabelText(home.weekName(1, defaultProfile().daysPerWeek))).toBeOnTheScreen();
+    expect(screen.getByLabelText(home.weekDay(0, 'done'))).toBeOnTheScreen();
+    expect(screen.getByLabelText(home.weekDay(2, 'today'))).toBeOnTheScreen();
+  });
+
+  it('RF-ENT-01.AC8: each exercise numbered, with its muscle, prescription and what changes', async () => {
+    await renderScreen({ finished: [LAST_TIME] });
+
+    // 3 × 12 at the top of 8–12 → one machine step more, 5 kg (RN-SUG-03); a main exercise.
+    expect(screen.getByText(home.exerciseDetail(true, 'Cuádriceps', 3, 8, 12))).toBeOnTheScreen();
+    expect(screen.getByText(home.delta.up('5 kg'))).toBeOnTheScreen();
   });
 
   it('#196: an exercise never done shows no suggestion and no «Calibrar» pill', async () => {
     await renderScreen();
 
-    expect(screen.getByText('Prensa de piernas')).toBeOnTheScreen();
+    expect(screen.getAllByText('Prensa de piernas').length).toBeGreaterThan(0);
     expect(screen.queryByText('Calibrar')).not.toBeOnTheScreen();
   });
 
@@ -142,6 +189,7 @@ describe('HomeScreen (S07)', () => {
             onChooseRoutine={jest.fn()}
             onCreateRoutine={jest.fn()}
             onChangeDay={jest.fn()}
+            onOpenWorkout={jest.fn()}
           />
         </UseCasesProvider>
       </SafeAreaProvider>,

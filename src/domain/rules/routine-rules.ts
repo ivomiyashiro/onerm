@@ -9,6 +9,8 @@ import type { Violation } from '@/domain/rules/violation';
 /** RN-RUT-05 limits. */
 export const ROUTINE_LIMITS = {
   nameLength: { min: 1, max: 50 },
+  /** #225: two lines in the card of Inicio. */
+  dayNameLength: { min: 1, max: 20 },
   days: { min: 1, max: 7 },
   exercisesPerDay: { min: 1, max: 20 },
   /** RF-RUT-06. */
@@ -30,7 +32,13 @@ function nameLength(name: string): number {
 
 /** I-02 and I-03: what a routine needs to be saved (RN-RUT-05, RN-RUT-04). */
 export function validateRoutine(routine: Routine): Violation<RoutineViolationCode>[] {
-  const { nameLength: nameLimits, days, exercisesPerDay, notesLength } = ROUTINE_LIMITS;
+  const {
+    nameLength: nameLimits,
+    dayNameLength,
+    days,
+    exercisesPerDay,
+    notesLength,
+  } = ROUTINE_LIMITS;
   const violations: Violation<RoutineViolationCode>[] = [];
 
   if (!isWholeBetween(nameLength(routine.name), nameLimits.min, nameLimits.max)) {
@@ -40,7 +48,7 @@ export function validateRoutine(routine: Routine): Violation<RoutineViolationCod
     violations.push({ code: 'routine.days', path: ['days'] });
   }
   routine.days.forEach((day, dayIndex) => {
-    if (nameLength(day.name) === 0) {
+    if (!isWholeBetween(nameLength(day.name), dayNameLength.min, dayNameLength.max)) {
       violations.push({ code: 'day.name', path: ['days', dayIndex, 'name'] });
     }
     if (!isWholeBetween(day.exercises.length, exercisesPerDay.min, exercisesPerDay.max)) {

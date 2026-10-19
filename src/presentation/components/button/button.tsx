@@ -23,6 +23,8 @@ interface ButtonProps {
   /** Shown next to the spinner while loading (for example "Guardando…"). */
   loadingLabel?: string;
   accessibilityHint?: string;
+  /** Full width and the full height whatever the variant: the actions of a dialog are one size. */
+  block?: boolean;
 }
 
 /**
@@ -40,6 +42,7 @@ export function Button({
   loading = false,
   loadingLabel,
   accessibilityHint,
+  block = false,
 }: ButtonProps) {
   const text = loading && loadingLabel ? loadingLabel : label;
   const inactive = disabled || loading;
@@ -56,6 +59,7 @@ export function Button({
       style={({ pressed }) => [
         styles.base,
         SHAPE[variant][size],
+        block && styles.block,
         background(variant, { pressed, disabled }),
       ]}
     >
@@ -134,6 +138,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 10,
   },
+  block: { minHeight: 56, alignSelf: 'stretch' },
   // Figma has no pressed look for the plate: it sinks slightly ("presión" motion token).
   pressedPlate: { transform: [{ scale: 0.98 }] },
   underlined: {

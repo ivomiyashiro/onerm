@@ -156,7 +156,7 @@ Fotos de prueba: Eduardo Cano Photo Co., Alora Griffiths y Victor Freitas, en Un
 Auditoría automática del archivo de Figma más dos jueces ciegos (usabilidad y cobertura de la especificación). Decisiones aplicadas:
 
 - **Opción elegida en lima suave** en todos los controles (segmentado, esfuerzo, RIR, días): fondo `accent-soft`, borde `accent-border-soft` y texto `accent-text`. El blanco sólido competía con la acción principal.
-- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos.
+- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos. Todas las acciones miden lo mismo: 56 de alto y el ancho del diálogo, cada una con sus colores (#225).
 - **Sin jerga para el novato:** "Máximo estimado" sin la sigla e1RM, sin "RTF", "reserva 2" en lugar de "RIR 2" en el editor y "La última vez" en lugar de "Última W". La versión técnica queda para el detalle avanzado.
 - **Acciones destructivas fuera del lugar de la principal:** en la edición de S19 abajo va "Listo", y "Eliminar entrenamiento" pasa al menú. En las hojas de editar serie, "Eliminar serie" queda más separada.
 - **Un solo verbo:** "Respaldar ahora" (antes "Sincronizar ahora"). La acción del estado de respaldo va debajo del mensaje, para que no se aplaste con la fuente grande.
@@ -254,3 +254,14 @@ El cierre de cada entrenamiento tenía que sentirse como un logro. En Figma: «S
 - **Próximo entrenamiento:** una tarjeta al final, cerca de «Listo», en lugar del texto chico del encabezado de la sección.
 - **Movimiento (una sola pasada, < 1 s):** encabezado → números → récords → lista → próximo, cada bloque sube 12 px y aparece en 300 ms, 150 ms después del anterior; el número principal cuenta desde 0 en 700 ms. Con «Reducir movimiento», todo aparece quieto y con sus valores. Se anima con `Animated` (driver nativo, salvo el trazo del check, que es SVG).
 - **Háptica:** la de éxito cuando el número termina de contar, y otra cuando entran los récords.
+
+## 18. Inicio: la placa lima (S07, 2026-10-19, #225)
+
+Se exploraron varias direcciones en Figma (página 04, «S07 · Dirección A/B/C», «Rediseño 2» y «Tarjeta sin foto · 1/2/3»). La foto de fondo se descartó: las fotos son de 1024 × 683 y la tarjeta mide unos 400 dp de alto, así que se veían ampliadas casi al doble y tapadas por el velo (borrosas, sin sujeto claro). El usuario eligió **«Tarjeta sin foto · 1 Placa lima»**.
+
+- **La tarjeta es la placa de la marca:** fondo lima, texto oscuro. Arriba, la pastilla «HOY TOCA» (oscura, texto lima) y «Cambiar día ›». El día grande en Archivo, con su inicial gigante de fondo, tono sobre tono (8 %). La rutina, una fila con íconos (~min · ejercicios · series) y el botón oscuro **«EMPEZAR {DÍA} →»** con texto lima («CONTINUAR» si hay uno en curso).
+- **El nombre del día:** 64 pt hasta 6 caracteres, 46 hasta 12 y 34 después; dos líneas como máximo, con «…» (Figma «Placa lima · nombres largos · regla propuesta»). El nombre de un día tiene hasta 20 caracteres (RN-RUT-05): con eso entra entero en dos líneas.
+- **La semana, en su propia tarjeta:** «ESTA SEMANA · 2 de 3» y L M M J V S D: los días hechos en lima, hoy con borde lima y el resto en gris.
+- **«Lo de hoy», una tarjeta con filas numeradas:** el número (lima en los principales), el ejercicio, «Principal · Cuádriceps · 3 × 8–12», la sugerencia y debajo qué cambia contra la última vez: «↑ 5 kg» (lima), «+1 rep» (verde azulado), «Igual» (gris), «↓ 5 kg» (naranja). Nada al calibrar (#196).
+- **Movimiento:** la tarjeta, la semana y la lista entran en una pasada (`components/motion`, como S12); nada con «Reducir movimiento».
+- Solo modo oscuro: la variante en claro que pedía la card no aplica.
