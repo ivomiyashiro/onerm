@@ -98,9 +98,6 @@ export function WorkoutSummaryScreen({
   );
 }
 
-/** «min», next to the duration when it is the main figure. */
-const MINUTES = 'min';
-
 function Summary({ summary }: { summary: WorkoutSummary }) {
   const animate = !useReduceMotion();
   const progress = useEntrance(animate);
@@ -110,7 +107,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
   // A success haptic when the main figure lands, and one more when the records come in.
   const haptics = useEffectEvent(() => {
     const success = () => void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-    const timers = [setTimeout(success, animate ? ENTRANCE.numbers + ENTRANCE.countUp : 0)];
+    const timers = [setTimeout(success, animate ? ENTRANCE.landed : 0)];
     if (hasRecords) timers.push(setTimeout(success, animate ? ENTRANCE.records : 150));
     return () => timers.forEach(clearTimeout);
   });
@@ -120,7 +117,7 @@ function Summary({ summary }: { summary: WorkoutSummary }) {
   const mainLabel = byLoad ? strings.totalLoad : strings.duration;
   const mainValue =
     summary.totalLoadKg === null ? summary.minutes : toUnit(summary.totalLoadKg, unit);
-  const mainUnit = byLoad ? common.units[unit] : MINUTES;
+  const mainUnit = byLoad ? common.units[unit] : strings.minutesUnit;
   const mainFormat = byLoad ? wholeNumber : (n: number) => String(Math.round(n));
 
   return (

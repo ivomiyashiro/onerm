@@ -19,6 +19,8 @@ export const ENTRANCE = {
   step: 300,
   /** The main figure counts up meanwhile. */
   countUp: 700,
+  /** The success haptic: when the main figure lands. */
+  landed: 150 + 700,
 } as const;
 const TOTAL_MS = ENTRANCE.next + ENTRANCE.step;
 const RISE = 12;
@@ -69,7 +71,7 @@ export function EntranceStep({
 
 /**
  * A number that counts from 0 to `value` once, easing out; a leaf, so only its text renders while
- * it counts (#229). Without `animate` it shows `value` at once.
+ * it counts (#229). Without `animate`, or once it counted, it shows `value` as it is.
  */
 export function CountUp({
   value,
@@ -85,8 +87,9 @@ export function CountUp({
   style: StyleProp<TextStyle>;
 }) {
   const [shown, setShown] = useState(0);
+  const [counted, setCounted] = useState(false);
   useEffect(() => {
-    if (!animate) return;
+    if (!animate || counted) return;
     let frame = 0;
     let start: number | null = null;
     const tick = (now: number) => {
@@ -94,11 +97,12 @@ export function CountUp({
       const t = Math.min(1, Math.max(0, (now - start) / ENTRANCE.countUp));
       setShown(value * (1 - (1 - t) ** 3));
       if (t < 1) frame = requestAnimationFrame(tick);
+      else setCounted(true);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [animate, delayMs, value]);
-  return <Text style={style}>{format(animate ? shown : value)}</Text>;
+  }, [animate, counted, delayMs, value]);
+  return <Text style={style}>{format(animate && !counted ? shown : value)}</Text>;
 }
 
 const AnimatedPath = Animated.createAnimatedComponent(Path);

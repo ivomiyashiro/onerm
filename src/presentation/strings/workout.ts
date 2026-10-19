@@ -209,6 +209,8 @@ export const workout = {
     exerciseLineBodyweight: (sets: number, reps: number) =>
       `${count(sets, 'serie', 'series')} · mejor × ${reps}`,
     minutes: (n: number) => `${n} min`,
+    /** Next to the duration when it is the main figure. */
+    minutesUnit: 'min',
     title: (day: string) => `Entrenamiento · ${day}`,
     recordTitle: (record: string) => `Nuevo récord · ${record}`,
     approximate: (value: string) => `${value} (aprox.)`,
