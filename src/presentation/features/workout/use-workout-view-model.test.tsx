@@ -352,6 +352,29 @@ describe('useWorkoutViewModel', () => {
       expect(workouts.inProgress!.exercises[0].status).not.toBe('skipped');
     });
 
+    it('RF-ENT-08.AC1 (D1): what was passed over without sets does not come back; then Finalizar', async () => {
+      const { result, content } = await renderViewModel();
+      await act(() => result.current.actions.goTo(1));
+
+      while (content().rows.some((row) => row.kind === 'current')) {
+        await act(() => result.current.actions.done());
+      }
+
+      expect(content().exerciseIndex).toBe(1);
+      expect(content().primary).toBe('finish');
+    });
+
+    it('RF-ENT-08.AC1 (D1): passed over is still pending: Finalizar asks with D10', async () => {
+      const { result, content } = await renderViewModel();
+      await act(() => result.current.actions.goTo(1));
+      while (content().rows.some((row) => row.kind === 'current')) {
+        await act(() => result.current.actions.done());
+      }
+
+      expect(await act(() => result.current.actions.finish())).toBeNull();
+      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 1 });
+    });
+
     it('RF-ENT-09.AC1: S11 lists the same muscle first and searches any other', async () => {
       const { result } = await renderViewModel();
 

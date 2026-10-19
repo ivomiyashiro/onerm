@@ -326,7 +326,10 @@ Escenario: AC1 — Saltear
   Dado que estoy en un ejercicio sin series efectivas
   Cuando deslizo al siguiente ejercicio (o elijo otro en la lista de ejercicios)
   Entonces paso a ese ejercicio
-  Y al finalizar, el ejercicio sin series efectivas queda salteado (RN-ENT-09)
+  Y «Hecho» ya no vuelve a él al terminar las series de otro (RF-ENT-02.AC7)
+  Y cuando no queda otro ejercicio pendiente, la acción principal es «Finalizar entrenamiento»
+  Y al finalizar, D10 lo lista y queda salteado si no tiene series efectivas (RN-ENT-09)
+  Y si vuelvo a él, cuenta otra vez como pendiente
 
 Escenario: AC2 — No penaliza la progresión
   Dado que salteé un ejercicio
