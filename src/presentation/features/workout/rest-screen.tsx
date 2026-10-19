@@ -6,6 +6,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { EffortMode } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { Button } from '@/presentation/components/button/button';
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Text } from '@/presentation/components/text';
@@ -27,7 +28,6 @@ const PULL_START = 12;
 interface RestScreenProps {
   rest: RestView;
   visible: boolean;
-  remainingMs: number;
   effortMode: EffortMode;
   onAdd: () => void;
   onRestart: () => void;
@@ -52,7 +52,6 @@ export function RestScreen({ visible, ...props }: RestScreenProps) {
 
 function RestPanel({
   rest,
-  remainingMs,
   effortMode,
   onAdd,
   onRestart,
@@ -60,6 +59,8 @@ function RestPanel({
   onMinimize,
   onEffort,
 }: Omit<RestScreenProps, 'visible'>) {
+  // Its own countdown, once per second (#229): the workout behind it doesn't render.
+  const remainingMs = useCountdown(rest.endsAt) ?? 0;
   const insets = useSafeAreaInsets();
   // It comes up over the workout, and goes down when minimized.
   const progress = useOverlayProgress();

@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-native';
 import { AppState, type AppStateStatus } from 'react-native';
 
-import { useCountdown } from '@/presentation/features/workout/use-countdown';
-import { useElapsed } from '@/presentation/features/workout/use-elapsed';
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
+import { useElapsed } from '@/presentation/components/clock/use-elapsed';
 
 jest.useFakeTimers();
 

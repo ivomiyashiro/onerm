@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
+import { useOnScreenSince } from '@/presentation/components/clock/use-on-screen-since';
 
 import { elapsed } from '@/presentation/strings/numbers';
 
