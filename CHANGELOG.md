@@ -47,7 +47,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Changed
 
 - Text uses the Geist font; numbers and the «DÍA A» display stay in Archivo, so they stand out more.
-- Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones».
+- Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones». It scrolls without a scroll bar when it doesn't fit.
 - Swipe a row left to edit or delete it, in your routines, the exercises of the routine editor and the sets of the workout; screen readers get the same actions. The routine editor reorders only with the handle (no arrows).
 - The full-screen rest closes by pulling it down too, and its button is now an «X». Inicio no longer shows a «Calibrar» pill in today's list; the calibration is explained inside the exercise.
 - Set sheet: a load still to choose shows a grey 0 instead of «—», and asks for it only when confirmed; under the load, the last one you logged in that exercise. Load and reps keep their ± buttons level.
