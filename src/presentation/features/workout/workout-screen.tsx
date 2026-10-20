@@ -85,6 +85,8 @@ export function WorkoutScreen({ onClose, onFinished }: WorkoutScreenProps) {
           content={state}
           bottomInset={insets.bottom}
           finish={async (run) => {
+            // #241: the dialog stays open while it finishes; a second tap finishes nothing.
+            if (closed.current) return;
             // Finishing leaves no workout in progress: S12 replaces the screen, not «back».
             closed.current = true;
             const id = await run();

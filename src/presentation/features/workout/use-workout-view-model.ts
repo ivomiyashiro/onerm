@@ -257,10 +257,18 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         }
       : sheet;
 
+  /**
+   * #241: a finished workout leaves its dialog or sheet open; S12 replaces the screen with them.
+   * Closing an overlay in the same moment as the navigation made Android (Fabric) insert a view
+   * that still had a parent. They only close when it couldn't finish.
+   */
   async function finishNow(): Promise<Id | null> {
-    setConfirm(null);
-    setSheet(null);
-    return finishWorkout.execute();
+    const id = await finishWorkout.execute();
+    if (id === null) {
+      setConfirm(null);
+      setSheet(null);
+    }
+    return id;
   }
 
   return {
