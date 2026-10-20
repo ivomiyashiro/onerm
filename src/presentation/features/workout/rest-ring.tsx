@@ -33,7 +33,7 @@ export function RestRing({
 
   return (
     <Animated.View style={{ width: size, height: size, transform: [{ scale: pulse }] }}>
-      {/* The halo is the ring's own stroke: the circle's stroke spans the outer 10 dp of the box. */}
+      {/* The halo is the ring's own stroke: the circle's stroke spans the outer `strokeWidth` of the box. */}
       {finished && (
         <Animated.View
           pointerEvents="none"
