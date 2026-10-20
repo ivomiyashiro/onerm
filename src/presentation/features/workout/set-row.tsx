@@ -1,9 +1,11 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 
 import type { EffortMode, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { toUnit } from '@/domain/rules/units';
 import { Segmented } from '@/presentation/components/choice/segmented';
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon } from '@/presentation/components/icons/icon';
 import type { SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
@@ -14,6 +16,7 @@ import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
+import { motion, spring } from '@/presentation/theme/motion';
 
 interface SetRowProps {
   row: SetRowView;
@@ -66,8 +69,10 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort, a11y }: SetRo
     .filter(Boolean)
     .join(', ');
 
+  const appear = useRowMotion(row);
+
   return (
-    <View style={[styles.wrap, asking && styles.asking]}>
+    <Animated.View style={[styles.wrap, asking && styles.asking, appear]}>
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={name}
@@ -156,8 +161,51 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort, a11y }: SetRo
           )}
         </View>
       )}
-    </View>
+    </Animated.View>
   );
+}
+
+/** A set logged less than this long ago was logged right now, on this screen. */
+const JUST_LOGGED_MS = 2000;
+
+/**
+ * #248 M1: the set just logged comes in done with a fade, and the next one lights up as current
+ * with a spring. A done row mounts anew (it moves into its swipe row), so «just logged» comes
+ * from its time; the next row keeps its place and changes kind. Nothing with «reduce motion».
+ */
+function useRowMotion(row: SetRowView) {
+  const reduce = useReduceMotion();
+  const [opacity] = useState(() => new Animated.Value(1));
+  const [scale] = useState(() => new Animated.Value(1));
+  const previous = useRef(row.kind);
+  const completedAt = row.kind === 'done' ? row.set.completedAt.getTime() : null;
+
+  useLayoutEffect(() => {
+    const from = previous.current;
+    previous.current = row.kind;
+    if (reduce) return;
+    const justLogged = completedAt !== null && Date.now() - completedAt < JUST_LOGGED_MS;
+    const lit = row.kind === 'current' && from === 'pending';
+    if (!justLogged && !lit) return;
+    opacity.setValue(justLogged ? 0.4 : 0.6);
+    scale.setValue(justLogged ? 0.98 : 0.97);
+    const fade = { toValue: 1, duration: motion.state, useNativeDriver: true };
+    const animation = Animated.parallel([
+      Animated.timing(opacity, { ...fade, easing: Easing.out(Easing.cubic) }),
+      justLogged
+        ? Animated.timing(scale, { ...fade, easing: Easing.out(Easing.cubic) })
+        : Animated.spring(scale, { toValue: 1, ...spring, useNativeDriver: true }),
+    ]);
+    animation.start();
+    return () => {
+      // Stopped halfway (the row changed again): it rests in place, never half faded.
+      animation.stop();
+      opacity.setValue(1);
+      scale.setValue(1);
+    };
+  }, [row.kind, completedAt, reduce, opacity, scale]);
+
+  return { opacity, transform: [{ scale }] };
 }
 
 /** The short effort of a logged set (13 §10): «2 o 3 más», or «reserva 2» with the RIR scale. */

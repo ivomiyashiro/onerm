@@ -169,7 +169,11 @@ function useRoll(value: string) {
     animation.start(({ finished }) => {
       if (finished) setPressed(null);
     });
-    return () => animation.stop();
+    return () => {
+      // Stopped halfway (another ± or a typed value): the value rests in place.
+      animation.stop();
+      progress.setValue(1);
+    };
   }, [rolling, value, progress]);
 
   const travel = (pressed?.direction ?? 1) * ROLL;
