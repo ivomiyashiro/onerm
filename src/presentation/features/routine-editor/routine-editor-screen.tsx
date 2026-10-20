@@ -100,6 +100,7 @@ function Editor({
   const day = routine.days[dayIndex];
   const exercises = day?.exercises ?? [];
   const addDisabled = exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max;
+  const addColor = addDisabled ? colors.textTertiary : colors.textAccent;
   // Measured by each row, read only when one is dropped.
   const rowLayouts = useRef<RowLayout[]>([]);
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
@@ -150,6 +151,25 @@ function Editor({
             </Pressable>
           )}
         </View>
+        {/* Reachable on opening the day, however many exercises it has (#256). */}
+        {day && (
+          <View style={styles.listHeader}>
+            <Text style={[typography.titleM, { color: colors.textPrimary }]}>
+              {text.editor.exerciseCount(exercises.length)}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={text.editor.addExercise}
+              accessibilityState={{ disabled: addDisabled }}
+              disabled={addDisabled}
+              onPress={actions.openPicker}
+              style={[styles.addExercise, addDisabled && styles.addExerciseDisabled]}
+            >
+              <Icon name="plus" size={18} color={addColor} />
+              <Text style={[typography.bodyMBold, { color: addColor }]}>{text.editor.add}</Text>
+            </Pressable>
+          </View>
+        )}
         {day &&
           (exercises.length === 0 ? (
             <EmptyDay dayName={day.name} afterSave={errors.emptyDayId === day.id} />
@@ -204,24 +224,8 @@ function Editor({
           </Text>
         )}
       </ScrollView>
-      {/* Always in sight, in the thumb's zone: a day can hold many exercises (#256). */}
-      <View
-        testID="editor-bottom-bar"
-        style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}
-      >
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel={text.editor.addExercise}
-          accessibilityState={{ disabled: addDisabled }}
-          disabled={addDisabled}
-          onPress={actions.openPicker}
-          style={[styles.addExercise, addDisabled && styles.addExerciseDisabled]}
-        >
-          <Icon name="plus" color={addDisabled ? colors.textTertiary : colors.textPrimary} />
-        </Pressable>
-        <View style={styles.save}>
-          <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />
-        </View>
+      <View style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}>
+        <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />
       </View>
       <PrescriptionSheet
         sheet={sheet}
@@ -382,22 +386,23 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   bottom: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.s10,
     paddingTop: space.s10,
     paddingHorizontal: space.s16,
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
-  addExercise: {
-    width: 64,
-    height: 64,
+  listHeader: {
+    flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.md,
-    backgroundColor: colors.bgRaised,
+    justifyContent: 'space-between',
+  },
+  // 48 dp high: the touch target of the header action.
+  addExercise: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.s6,
+    paddingHorizontal: space.s8,
   },
   addExerciseDisabled: { opacity: 0.5 },
-  save: { flex: 1 },
 });
