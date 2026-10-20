@@ -40,6 +40,20 @@ describe('firstIncomplete (RF-ENT-02.AC7)', () => {
     expect(firstIncomplete(exercises, 0)).toBe(2);
   });
 
+  it('RF-ENT-08.AC1: «Hecho» goes on with the ones ahead even if they were only looked at', () => {
+    const exercises = [1, 2, 3, 4, 5].map((n) => exercise(1, [], String(n)));
+    const lookedAt = new Set(['3', '4']);
+
+    expect(firstIncomplete(exercises, 1, undefined, lookedAt)).toBe(2);
+  });
+
+  it('RF-ENT-08.AC1: the ones left behind are not asked for again when wrapping around', () => {
+    const exercises = [1, 2, 3, 4].map((n) => exercise(1, [], String(n)));
+
+    expect(firstIncomplete(exercises, 3, undefined, new Set(['1', '2', '3']))).toBeNull();
+    expect(firstIncomplete(exercises, 3, undefined, new Set(['1', '3']))).toBe(1);
+  });
+
   it('null when everything is done', () => {
     expect(firstIncomplete([exercise(1, [{}])], 0)).toBeNull();
   });

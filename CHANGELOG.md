@@ -63,6 +63,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- After finishing an exercise with «Hecho», the workout goes on with the next one ahead even if you only looked at it on the way; the ones left behind are still not asked for again.
 - On iPhone, coming back to a tab from Perfil no longer leaves it black.
 - Swiping a row looks like iOS: the card moves whole, with its four corners, and its actions come in beside it as round buttons.
 - On iPhone, swiping a set no longer opens «Editar serie»; the swipe offers only «Eliminar» (tap the set to edit it). Routines lose the «⋯»: tap one to edit it, swipe it to activate or delete it.
