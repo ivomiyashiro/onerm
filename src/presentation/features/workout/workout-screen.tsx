@@ -10,6 +10,7 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Snackbar } from '@/presentation/components/feedback/snackbar';
 import { Icon } from '@/presentation/components/icons/icon';
 import { SwipeRow, type SwipeA11y } from '@/presentation/components/list/swipe-row';
+import { Reveal } from '@/presentation/components/motion/reveal';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
@@ -330,7 +331,14 @@ function Workout({
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
         {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}
         {rest && restMinimized && (
-          <RestBar rest={rest} onAdd={() => void actions.addRest()} onExpand={actions.expandRest} />
+          // #248 M1: the minimized rest rises over «Hecho».
+          <Reveal>
+            <RestBar
+              rest={rest}
+              onAdd={() => void actions.addRest()}
+              onExpand={actions.expandRest}
+            />
+          </Reveal>
         )}
         {content.awaitingEffort && (
           <CalibrationEffort
