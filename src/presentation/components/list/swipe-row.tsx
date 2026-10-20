@@ -64,7 +64,10 @@ export function SwipeRow({
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
   const [shown, setShown] = useState(false);
-  const [shift] = useState(() => Animated.add(x, width));
+  // The actions travel with the row from just past its right edge (x + width).
+  const [shift] = useState(() =>
+    x.interpolate({ inputRange: [-width, 0], outputRange: [0, width], extrapolate: 'clamp' }),
+  );
   // At rest they sit just past the row's edge, inside the list's margin: invisible until it moves,
   // so they don't linger there while the spring settles (#254).
   const [fade] = useState(() =>
