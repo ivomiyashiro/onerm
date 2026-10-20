@@ -265,3 +265,22 @@ Se exploraron varias direcciones en Figma (página 04, «S07 · Dirección A/B/C
 - **«Lo de hoy», una tarjeta con filas numeradas:** el número (lima en los principales), el ejercicio, «Principal · Cuádriceps · 3 × 8–12», la sugerencia y debajo qué cambia contra la última vez: «↑ 5 kg» (lima), «+1 rep» (verde azulado), «Igual» (gris), «↓ 5 kg» (naranja). Nada al calibrar (#196).
 - **Movimiento:** la tarjeta, la semana y la lista entran en una pasada (`components/motion`, como S12); nada con «Reducir movimiento».
 - Solo modo oscuro: la variante en claro que pedía la card no aplica.
+
+## 19. Movimiento en los momentos que se repiten (2026-10-20, #248)
+
+Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame con su línea de tiempo y su ficha). Los tiempos salen de `src/presentation/theme/motion.ts`, que fija los tokens de §6: presión 120 ms, estado 300 ms, entrada 320 ms y un resorte corto. Se usa `Animated` de React Native con el driver nativo (salvo las propiedades de SVG), como en S07 y S12.
+
+| | Dónde | Qué hace |
+|---|---|---|
+| M1 | S09 · registrar serie | El botón principal se hunde a 0,96 y vuelve con resorte; la serie recién registrada entra con un fundido y una escala leve, y la siguiente se enciende como actual con resorte; el descanso minimizado sube sobre «Hecho» |
+| M2 | ± de carga y repeticiones | Los ± se hunden a 0,92; el valor rueda en la dirección del cambio (sube con +, baja con −). No rueda al escribirlo ni en un límite |
+| M3 | Descanso terminado | El anillo pulsa una vez (1 → 1,05 → 1) y su halo se expande y se apaga; «¡Descanso terminado!» y el botón entran. Solo si terminó en pantalla |
+| M4 | Barra de pestañas | Una sola píldora que se desliza hasta la pestaña nueva, estirándose un poco en el camino |
+| M5 | S20 · gráfico | La línea se dibuja de izquierda a derecha, cada punto aparece cuando llega la línea y el récord hace pop. Al abrir y al cambiar de período |
+| M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |
+| M7 | Cambio de pestaña | Fundido de 260 ms con una subida de 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
+
+- **Nada en bucle** y todo en una sola pasada (§7).
+- **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos; quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
+- **Diferencia con el Figma:** en M1, después de «Hecho» sube a pantalla completa el descanso, que ya tenía su entrada; la barra de descanso sube cuando se minimiza.
+

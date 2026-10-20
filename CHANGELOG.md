@@ -58,6 +58,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - App icon and opening with the brand mark: the lime plate on Android (adaptive and themed) and iPhone (light, dark and tinted), and a splash that takes over from the system's without a jump, grows a halo while the data opens and fades into the app (only a fade with «reduce motion»).
 - Sheets, dialogs and the full-screen rest: the dark background fades in place while the sheet slides up, and a «…» button can be tapped again as soon as its sheet closes, without waiting for the animation.
 - The exercise in a workout has no «…» menu: the swap button by its name substitutes it, «Agregar serie» under the last set adds one with the same values, and skipping it is just moving on to the next one (it shows as skipped when the workout ends without sets in it).
+- Motion in the moments that repeat most: «Hecho» and the ± discs sink and spring back, the load and reps roll the way they changed, the set just logged fades in done while the next one lights up, the minimized rest rises over «Hecho», the rest ring pulses once with a halo when the rest ends, the tab pill slides to the new tab while the screens cross-fade, the S20 chart draws its line, and the weekly volume bars grow one after the other. Nothing loops, and with «reduce motion» only the changes of state remain.
 
 ### Fixed
 
