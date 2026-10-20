@@ -298,6 +298,6 @@ Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251
 - **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
 - Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
 
-## 21. «Agregar ejercicio» en la barra inferior de S15 (2026-10-20, #256)
+## 21. «Agregar ejercicio» en el encabezado de la lista de S15 (2026-10-20, #256)
 
-Con un día de muchos ejercicios, el botón al final de la lista quedaba fuera de la pantalla. Pasa a la **barra inferior fija**, a la izquierda de «Guardar»: un botón «+» cuadrado de 64 (el alto de «Guardar») (`bg/raised`, `radius/md`, icono `plus` en `text/primary`), a 10 (`space/10`) de «Guardar», que ocupa el resto del ancho. Con el máximo de ejercicios del día queda deshabilitado (icono en `text/tertiary`, 50 % de opacidad). Conserva el nombre accesible «Agregar ejercicio»; no hay textos nuevos. Pendiente: llevarlo al frame de S15 en Figma.
+Con un día de muchos ejercicios, el botón al final de la lista quedaba fuera de la pantalla. Pasa a un **encabezado de la lista**, sobre las filas del día: a la izquierda «Ejercicios · N» (`titleM`, `text/primary`) y a la derecha «+ Agregar» (icono `plus` de 18 y `bodyMBold` en `text/accent`, de 48 de alto como zona de toque). Se ve al abrir el día, también si está vacío. Con el máximo de ejercicios del día queda deshabilitado (`text/tertiary`, 50 % de opacidad). El nombre accesible sigue siendo «Agregar ejercicio»; la barra inferior vuelve a tener solo «Guardar». Pendiente: llevarlo al frame de S15 en Figma.
