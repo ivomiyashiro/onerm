@@ -1,7 +1,7 @@
 import { useKeepAwake } from 'expo-keep-awake';
 import { useEffect, useRef } from 'react';
-import { Pressable, ScrollView, StyleSheet, Vibration, View } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { Animated, Pressable, ScrollView, StyleSheet, Vibration, View } from 'react-native';
+import { GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Badge } from '@/presentation/components/badge/badge';
@@ -22,6 +22,7 @@ import { RestBar } from '@/presentation/features/workout/rest-bar';
 import { RestNotice } from '@/presentation/features/workout/rest-notice';
 import { RestScreen } from '@/presentation/features/workout/rest-screen';
 import type { RirField } from '@/presentation/features/workout/set-form';
+import { useExerciseSwipe } from '@/presentation/features/workout/use-exercise-swipe';
 import { SetRow } from '@/presentation/features/workout/set-row';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import { SetSheet } from '@/presentation/features/workout/set-sheet';
@@ -48,11 +49,6 @@ import { colors, radius, space, typography } from '@/presentation/theme';
 const LOGGED_VIBRATION_MS = 30;
 /** The end of the rest with the app open (RF-ENT-06.AC6): longer, so it is felt in a pocket. */
 const REST_END_VIBRATION = [0, 400, 200, 400];
-/** How far the exercise has to be swiped to change it (08 §5). */
-const SWIPE_DISTANCE = 64;
-/** The swipe starts after this much sideways, and gives way to the scroll after this much down. */
-const SWIPE_START = 24;
-const SCROLL_START = 12;
 
 interface WorkoutScreenProps {
   /** No workout in progress any more: back to the tabs. */
@@ -126,18 +122,12 @@ function Workout({
   const { prescription } = exercise.exercise;
   const currentNumber = rows.find((r) => r.kind === 'current')?.number ?? rows.length;
 
-  // 08 §5: swiping changes the exercise, without wrapping; screen readers use «Ver todos». Horizontal
-  // only, so the list still scrolls. On the JS thread: it only ends in a state change.
-  const swipe = Gesture.Pan()
-    .runOnJS(true)
-    .withTestId('swipe exercise')
-    .activeOffsetX([-SWIPE_START, SWIPE_START])
-    .failOffsetY([-SCROLL_START, SCROLL_START])
-    .onEnd(({ translationX }) => {
-      if (Math.abs(translationX) < SWIPE_DISTANCE) return;
-      const to = exerciseIndex + (translationX < 0 ? 1 : -1);
-      if (to >= 0 && to < exercises.length) actions.goTo(to);
-    });
+  // 08 §5, #258: swiping changes the exercise, without wrapping; screen readers use «Ver todos».
+  const swipe = useExerciseSwipe({
+    exerciseIndex,
+    count: exercises.length,
+    goTo: actions.goTo,
+  });
 
   async function done() {
     if ((await actions.done()) === 'logged') Vibration.vibrate(LOGGED_VIBRATION_MS);
@@ -215,112 +205,115 @@ function Workout({
           />
         ))}
       </View>
-      <GestureDetector gesture={swipe}>
-        <ScrollView contentContainerStyle={styles.content}>
-          <View style={styles.title}>
-            <Text
-              style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
-              accessibilityRole="header"
-            >
-              {name}
-            </Text>
-            {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={text.exercise.substitute(name)}
-              onPress={actions.openSubstitute}
-              style={styles.iconButton}
-            >
-              <Icon name="swap" color={colors.textPrimary} />
-            </Pressable>
-          </View>
-          {exercise.plannedName !== null && (
-            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {text.substitution.insteadOf(exercise.plannedName)}
-            </Text>
-          )}
-          <View style={styles.facts}>
-            <Badge
-              label={text.set.prescription(
-                prescription.sets,
-                routines.repRange(prescription.repRange),
-              )}
-              tone="inverse"
+      <GestureDetector gesture={swipe.gesture}>
+        <Animated.View style={[styles.flex, swipe.style]}>
+          <ScrollView contentContainerStyle={styles.content}>
+            <View style={styles.title}>
+              <Text
+                style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
+                accessibilityRole="header"
+              >
+                {name}
+              </Text>
+              {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={text.exercise.substitute(name)}
+                onPress={actions.openSubstitute}
+                style={styles.iconButton}
+              >
+                <Icon name="swap" color={colors.textPrimary} />
+              </Pressable>
+            </View>
+            {exercise.plannedName !== null && (
+              <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+                {text.substitution.insteadOf(exercise.plannedName)}
+              </Text>
+            )}
+            <View style={styles.facts}>
+              <Badge
+                label={text.set.prescription(
+                  prescription.sets,
+                  routines.repRange(prescription.repRange),
+                )}
+                tone="inverse"
+              />
+              {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
+              {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
+              {content.skipped && <Badge label={text.exerciseList.skipped} />}
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
+              </Text>
+              <View style={styles.seeAll}>
+                <Button
+                  variant="tertiary"
+                  label={text.header.seeAll}
+                  onPress={actions.openExercises}
+                />
+              </View>
+            </View>
+            {exercise.notes && (
+              <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+                {exercise.notes}
+              </Text>
+            )}
+            <ReasonRow
+              line={content.reason.line}
+              icon={content.reason.icon}
+              onWhy={actions.openWhy}
             />
-            {exercise.exercise.isUnilateral && <Badge label={text.set.unilateral} />}
-            {exercise.plannedName !== null && <Badge label={text.substitution.substitute} />}
-            {content.skipped && <Badge label={text.exerciseList.skipped} />}
-            <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-              {text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
-            </Text>
-            <View style={styles.seeAll}>
+            {exercise.name === null && (
+              <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
+                {text.unavailable.body}
+              </Text>
+            )}
+            <View style={styles.rows}>
+              {rows.map((row) => {
+                const setRow = (a11y?: SwipeA11y) => (
+                  <SetRow
+                    row={row}
+                    unit={unit}
+                    effortMode={effortMode}
+                    onPress={() =>
+                      row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
+                    }
+                    onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
+                    a11y={a11y}
+                  />
+                );
+                if (row.kind !== 'done')
+                  return <View key={`pending-${row.number}`}>{setRow()}</View>;
+                // #198, #254: a done set is deleted (with «Deshacer») swiping it; tapping it edits it.
+                return (
+                  <SwipeRow
+                    key={row.set.id}
+                    testID={`set ${row.number}`}
+                    actions={[
+                      {
+                        key: 'delete',
+                        label: common.swipe.delete,
+                        icon: 'trash',
+                        destructive: true,
+                        onPress: () => void actions.deleteSet(row.set.id),
+                      },
+                    ]}
+                  >
+                    {setRow}
+                  </SwipeRow>
+                );
+              })}
+            </View>
+            {/* RF-ENT-05.AC1: one more set, preloaded with the values of the last one. */}
+            <View style={styles.addSet}>
               <Button
                 variant="tertiary"
-                label={text.header.seeAll}
-                onPress={actions.openExercises}
+                label={text.exercise.addSet}
+                icon="plus"
+                onPress={actions.addSet}
               />
             </View>
-          </View>
-          {exercise.notes && (
-            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {exercise.notes}
-            </Text>
-          )}
-          <ReasonRow
-            line={content.reason.line}
-            icon={content.reason.icon}
-            onWhy={actions.openWhy}
-          />
-          {exercise.name === null && (
-            <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {text.unavailable.body}
-            </Text>
-          )}
-          <View style={styles.rows}>
-            {rows.map((row) => {
-              const setRow = (a11y?: SwipeA11y) => (
-                <SetRow
-                  row={row}
-                  unit={unit}
-                  effortMode={effortMode}
-                  onPress={() =>
-                    row.kind === 'done' ? actions.openSet(row.set.id) : actions.openAdjust()
-                  }
-                  onEffort={(set, field, rir) => void actions.chooseEffort(set, field, rir)}
-                  a11y={a11y}
-                />
-              );
-              if (row.kind !== 'done') return <View key={`pending-${row.number}`}>{setRow()}</View>;
-              // #198, #254: a done set is deleted (with «Deshacer») swiping it; tapping it edits it.
-              return (
-                <SwipeRow
-                  key={row.set.id}
-                  testID={`set ${row.number}`}
-                  actions={[
-                    {
-                      key: 'delete',
-                      label: common.swipe.delete,
-                      icon: 'trash',
-                      destructive: true,
-                      onPress: () => void actions.deleteSet(row.set.id),
-                    },
-                  ]}
-                >
-                  {setRow}
-                </SwipeRow>
-              );
-            })}
-          </View>
-          {/* RF-ENT-05.AC1: one more set, preloaded with the values of the last one. */}
-          <View style={styles.addSet}>
-            <Button
-              variant="tertiary"
-              label={text.exercise.addSet}
-              icon="plus"
-              onPress={actions.addSet}
-            />
-          </View>
-        </ScrollView>
+          </ScrollView>
+        </Animated.View>
       </GestureDetector>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
         {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}

@@ -1,5 +1,5 @@
 import { act, render, screen, userEvent, within } from '@testing-library/react-native';
-import { AppState, Vibration, type AppStateStatus } from 'react-native';
+import { AccessibilityInfo, AppState, Vibration, type AppStateStatus } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -270,13 +270,28 @@ describe('WorkoutScreen (S09)', () => {
       );
 
     await swipe(-120);
-    expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: PRESS.name })).toBeOnTheScreen();
     await swipe(-120);
     expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
     await swipe(120);
-    expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+    expect(await screen.findByRole('header', { name: ROW.name })).toBeOnTheScreen();
     await swipe(120);
     expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+  });
+
+  it('#258: with «reduce motion» the swipe still changes the exercise', async () => {
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
+    await renderScreen();
+
+    await act(() =>
+      fireGestureHandler(getByGestureTestId('swipe exercise'), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -60 },
+        { state: State.END, translationX: -120 },
+      ]),
+    );
+
+    expect(await screen.findByRole('header', { name: PRESS.name })).toBeOnTheScreen();
   });
 
   it('08 §5: a short swipe stays on the exercise', async () => {

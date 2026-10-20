@@ -279,6 +279,7 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
 | M5 | S20 · gráfico | La línea se dibuja de izquierda a derecha, cada punto aparece cuando llega la línea y el récord hace pop. Al abrir y al cambiar de período |
 | M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |
 | M7 | Cambio de pestaña | 300 ms: la pantalla que sale se apaga en la primera mitad y la que entra aparece en la segunda, subiendo 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
+| M8 | S09 · deslizar entre ejercicios (#258) | El ejercicio sigue al dedo; al pasar el umbral (64 dp) sale hacia el lado del gesto en 150 ms y el nuevo entra desde el lado contrario con el resorte corto; si no llega, vuelve con el resorte. En el primero y el último hay un tope elástico (25 % del recorrido, máx. 24 dp) y vuelve. Con «Reducir movimiento» no se desplaza: el ejercicio se funde (150 ms y 150 ms). Pendiente: llevarlo a la página «11 Animaciones (propuesta)» de Figma |
 
 - **Nada en bucle** y todo en una sola pasada (§7).
 - **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos; quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
