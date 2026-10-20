@@ -1,4 +1,4 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent } from '@testing-library/react-native';
 import { StyleSheet } from 'react-native';
 
 import { LoadStepper } from '@/presentation/components/stepper/load-stepper';
@@ -69,5 +69,29 @@ describe('LoadStepper', () => {
     const input = screen.getByLabelText('Carga');
     expect(input.props.value).toBe('');
     expect(input.props.placeholder).toBe('—');
+  });
+
+  it('#248 M2: after ±, the old value rolls out hidden from the screen reader, and leaves', async () => {
+    const user = userEvent.setup();
+    const { rerender } = await render(<LoadStepper {...baseProps} />);
+
+    await user.press(screen.getByRole('button', { name: 'Subir la carga' }));
+    await rerender(<LoadStepper {...baseProps} value="65" />);
+
+    expect(screen.getByLabelText('Carga 65 kg')).toBeOnTheScreen();
+    expect(screen.queryByText('62,5')).toBeNull();
+    expect(screen.getByText('62,5', { includeHiddenElements: true })).toBeOnTheScreen();
+
+    await act(() => jest.advanceTimersByTime(1000));
+
+    expect(screen.queryByText('62,5', { includeHiddenElements: true })).toBeNull();
+  });
+
+  it('#248 M2: a typed value does not roll', async () => {
+    const { rerender } = await render(<LoadStepper {...baseProps} onChangeText={jest.fn()} />);
+
+    await rerender(<LoadStepper {...baseProps} value="65" onChangeText={jest.fn()} />);
+
+    expect(screen.queryByText('62,5', { includeHiddenElements: true })).toBeNull();
   });
 });
