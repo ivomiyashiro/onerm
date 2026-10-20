@@ -135,9 +135,7 @@ export function SwipeRow({
         </Animated.View>
       )}
       <GestureDetector gesture={swipe}>
-        <Animated.View style={{ transform: [{ translateX: x }] }}>
-          {children(a11y)}
-        </Animated.View>
+        <Animated.View style={{ transform: [{ translateX: x }] }}>{children(a11y)}</Animated.View>
       </GestureDetector>
     </View>
   );
