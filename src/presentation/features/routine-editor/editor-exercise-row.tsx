@@ -8,7 +8,7 @@ import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
 import { rowShift } from '@/presentation/features/routine-editor/drop-index';
 import { colors, elevation, size, typography } from '@/presentation/theme';
-import { reorderSpring } from '@/presentation/theme/motion';
+import { motion, reorderSpring } from '@/presentation/theme/motion';
 
 /** The row being dragged and how tall it is: the others make room of that much. */
 export interface RowDrag {
@@ -93,15 +93,19 @@ export function EditorExerciseRow({
         ]),
   ];
   const [dragging, setDragging] = useState(false);
+  // How raised the row looks (Figma «Dragging»): it fades in and out instead of switching.
+  const [lift] = useState(() => new Animated.Value(0));
   const [offset] = useState(() => new Animated.Value(0));
   // From where it was dropped it springs to its place; raised until then. With «reduce motion» it
   // lands at once.
   const settle = (from: number) => {
     if (!animate) {
       offset.setValue(0);
+      lift.setValue(0);
       setDragging(false);
       return;
     }
+    Animated.timing(lift, { toValue: 0, duration: motion.state, useNativeDriver: true }).start();
     offset.setValue(from);
     Animated.spring(offset, { toValue: 0, ...reorderSpring, useNativeDriver: true }).start(() =>
       setDragging(false),
@@ -114,6 +118,15 @@ export function EditorExerciseRow({
     .withTestId(`drag ${name}`)
     .onStart(() => {
       setDragging(true);
+      if (animate) {
+        Animated.timing(lift, {
+          toValue: 1,
+          duration: motion.press,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        lift.setValue(1);
+      }
       onDragStart();
     })
     .onUpdate((event) => {
@@ -151,6 +164,10 @@ export function EditorExerciseRow({
         { transform: [{ translateY: offset }, ...(shift ? [{ translateY: shift }] : [])] },
       ]}
     >
+      <Animated.View
+        pointerEvents="none"
+        style={[StyleSheet.absoluteFill, styles.lifted, { opacity: lift }]}
+      />
       <SwipeRow testID={name} actions={swipeActions}>
         {(a11y) => (
           <View style={styles.content}>
@@ -202,7 +219,8 @@ const styles = StyleSheet.create({
     paddingRight: 6,
   },
   // Figma «EditorExerciseRow» (Dragging): raised over the others.
-  dragging: { zIndex: 1, backgroundColor: colors.bgRaised, ...elevation.toast },
+  dragging: { zIndex: 1 },
+  lifted: { borderRadius: 14, backgroundColor: colors.bgRaised, ...elevation.toast },
   handle: { width: 44, height: size.targetMain, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, gap: 3, justifyContent: 'center', minHeight: size.targetMin },
 });
