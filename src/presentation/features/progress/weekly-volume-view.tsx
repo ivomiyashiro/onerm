@@ -30,11 +30,11 @@ const STAGGER_MS = 60;
 const EASE_STEPS = [0, 0.15, 0.3, 0.5, 0.7, 1];
 
 /**
- * #248 M6: the bars grow from the left one after the other when the week shows (on entering and
- * on changing week), while the guide stays still. One value drives them all; with «reduce
+ * #248 M6: the bars grow from the left one after the other when a week shows (on entering and
+ * when another week's data arrives), while the guide stays still. One value drives them all; with «reduce
  * motion» they are full at once.
  */
-function useBarsGrow(week: number | null, bars: number) {
+function useBarsGrow(week: string | null, bars: number) {
   const reduce = useReduceMotion();
   const [progress] = useState(() => new Animated.Value(1));
   const total = BAR_MS + STAGGER_MS * Math.max(0, bars - 1);
@@ -76,8 +76,9 @@ const dayOf = (date: LocalDate) => {
 export function WeeklyVolumeView() {
   const { state, weeksAgo, actions } = useWeeklyVolumeViewModel();
   const [why, setWhy] = useState(false);
-  const bars = state.status === 'content' ? state.volume.muscles.length : 0;
-  const grow = useBarsGrow(bars > 0 ? weeksAgo : null, bars);
+  // Keyed by the week shown, not by `weeksAgo`: its data comes a moment after the arrow.
+  const shown = state.status === 'content' ? state.volume : null;
+  const grow = useBarsGrow(shown?.weekStart ?? null, shown?.muscles.length ?? 0);
 
   if (state.status === 'loading') return <SkeletonRow testID="volume-skeleton" />;
   if (state.status === 'error') {
