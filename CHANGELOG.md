@@ -61,6 +61,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Moving on from an exercise without sets no longer sends you back to it: «Hecho» carries on with the others and then offers «Finalizar», which still lists what was left.
+- A set at 0 kg adds no load to the summary's total load: with only those, the summary shows the duration.
+- Inicio's week counts the days you trained, like your goal: two workouts on one day count once.
+- With a workout in progress, Inicio's card shows that day, not the one that would come next.
 - Visual details on iPhone: every button shares one corner radius; text fields center their text; the central tab button's shadow is no longer cut; the welcome photo is sharp on high-density screens; «Continuar con Google» shows the Google logo.
 - On iPhone the load of a set no longer shows cut when it gains a digit: going from 5 to 10 kg with «+» showed «1».
 - On iPhone the rest notifications are asked once, with the system prompt alone, instead of our explanation followed by the system's.

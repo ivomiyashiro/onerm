@@ -18,14 +18,15 @@ export function effectiveSets(workout: Pick<Workout, 'exercises'>): number {
 }
 
 /**
- * RN-ENT-13: the total load (tonnage) of a workout, load × reps of its effective sets; a
- * unilateral set adds both sides. Bodyweight sets have no load and add nothing: null when no
- * effective set has one. Not the weekly volume (RN-PROG-04).
+ * RN-ENT-13: the total load (tonnage) of a workout, load × reps of its effective sets, the load
+ * as it is recorded (RN-ENT-05: per dumbbell, D2); a unilateral set adds both sides. Bodyweight
+ * sets and sets at 0 kg have no load and add nothing: null when no effective set has one. Not the
+ * weekly volume (RN-PROG-04).
  */
 export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null {
   let total: number | null = null;
   for (const set of workout.exercises.flatMap((e) => e.sets).filter(isEffectiveSet)) {
-    if (set.loadKg === null) continue;
+    if (set.loadKg === null || set.loadKg <= 0) continue;
     const reps = set.isUnilateral ? set.repsLeft + set.repsRight : set.reps;
     total = (total ?? 0) + set.loadKg * reps;
   }
@@ -34,15 +35,15 @@ export function totalLoadKg(workout: Pick<Workout, 'exercises'>): number | null 
 
 /** RF-ENT-01.AC8: this week in S07, Monday (0) to Sunday (6). */
 export interface WeekProgress {
-  /** Workouts finished from Monday to today. */
+  /** Days trained from Monday to today: two workouts on one day count once (D3), like the goal. */
   readonly done: number;
-  /** The days with at least one of them, in order. */
+  /** The days with at least one finished workout, in order. */
   readonly doneDays: readonly number[];
   readonly today: number;
 }
 
 /**
- * RF-ENT-01.AC8: the workouts finished this week, Monday to `today` (RN-GEN-01), and on which days,
+ * RF-ENT-01.AC8: the days trained this week, Monday to `today` (RN-GEN-01), and which ones,
  * for the week strip of S07.
  */
 export function weekProgress(
@@ -56,9 +57,10 @@ export function weekProgress(
     .map((w) => localDate(w.finishedAt!))
     .filter((day) => day >= monday && day <= today)
     .map((day) => daysBetween(monday, day));
+  const doneDays = [...new Set(days)].sort((a, b) => a - b);
   return {
-    done: days.length,
-    doneDays: [...new Set(days)].sort((a, b) => a - b),
+    done: doneDays.length,
+    doneDays,
     today: daysBetween(monday, today),
   };
 }

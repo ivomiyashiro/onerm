@@ -9,17 +9,10 @@ export const home = {
   sets: (n: number) => count(n, 'serie', 'series'),
   minutes: (n: number) => `~${n} min`,
   /** The hero numbers: the figure big, the word under it («6 / ejercicios», «~49 / min»). */
-  stats: {
-    exercises: (n: number) => (n === 1 ? 'ejercicio' : 'ejercicios'),
-    sets: (n: number) => (n === 1 ? 'serie' : 'series'),
-    approxMinutes: (n: number) => `~${n}`,
-    minutes: 'min',
-  },
   thisWeek: 'Esta semana',
   weekProgress: (done: number, goal: number) => `${done} de ${goal}`,
   /** RF-ENT-01.AC8: what TalkBack reads for the week dots. */
-  weekName: (done: number, goal: number) =>
-    `Esta semana, ${done} de ${count(goal, 'entrenamiento', 'entrenamientos')}`,
+  weekName: (done: number, goal: number) => `Esta semana, ${done} de ${count(goal, 'día', 'días')}`,
   /** RF-ENT-01.AC8: the week strip, Monday to Sunday (RN-GEN-01). */
   weekDayLetters: ['L', 'M', 'M', 'J', 'V', 'S', 'D'],
   weekDay: (index: number, state: 'done' | 'today' | 'pending') =>
@@ -40,7 +33,6 @@ export const home = {
     moreReps: '+ reps',
     same: 'Igual',
   },
-  today: 'Hoy',
   todayList: 'Lo de hoy',
   goesUpIn: (n: number) => `Sube en ${n}`,
   addsRepsIn: (n: number) => `suma reps en ${n}`,
@@ -48,7 +40,6 @@ export const home = {
   inProgressSince: (time: string) => `En curso · ${time}`,
   /** «×8» after the suggested load. */
   timesReps: (n: number) => `×${n}`,
-  startToday: 'Arrancá hoy',
   start: 'Empezar',
   continueWorkout: 'Continuar entrenamiento',
   changeDay: 'Cambiar día',

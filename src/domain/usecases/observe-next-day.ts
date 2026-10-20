@@ -13,7 +13,6 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { daysBetween } from '@/domain/rules/calendar';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { weekProgress, type WeekProgress } from '@/domain/rules/progress/workout-stats';
-import { dayKind, type DayKind } from '@/domain/rules/routine/day-kind';
 import { lastDoneByDay } from '@/domain/rules/routine/last-done';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
@@ -57,8 +56,6 @@ export type NextDayOverview =
       readonly sets: number;
       /** C-06. */
       readonly minutes: number;
-      /** Picks the photo of Inicio (marca §9). */
-      readonly dayKind: DayKind;
       /** The unit the suggested loads are shown in (RN-PERF-05). */
       readonly unit: LoadUnit;
       /** RF-ENT-01.AC8: this week by day (RN-GEN-01), against the days per week of the profile. */
@@ -78,30 +75,54 @@ export class ObserveNextDay {
   constructor(
     private readonly profiles: Pick<ProfileRepository, 'observe'>,
     private readonly routines: Pick<RoutineRepository, 'observeAll' | 'observeRotationDays'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeFinished'>,
+    private readonly workouts: Pick<WorkoutRepository, 'observeFinished' | 'observeInProgress'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
     private readonly now: () => Date,
     private readonly localDate: (instant: Date) => LocalDate,
   ) {}
 
+  /**
+   * The day of the workout in progress. It emits only when that day changes, not on every set
+   * logged: the next day folds the history, which logging a set never does (RNF-03, #221).
+   */
+  private observeDayInProgress(observer: Observer<Id | null>): Unsubscribe {
+    let last: Id | null | undefined;
+    return this.workouts.observeInProgress({
+      next: (workout) => {
+        const dayId = workout?.routineDayId ?? null;
+        if (dayId === last) return;
+        last = dayId;
+        observer.next(dayId);
+      },
+      error: (error) => observer.error(error),
+    });
+  }
+
   execute(observer: Observer<NextDayOverview>): Unsubscribe {
-    return observeTogether<[Profile | null, Routine[], RotationDay[], Workout[], Exercise[]]>(
+    return observeTogether<
+      [Profile | null, Routine[], RotationDay[], Workout[], Exercise[], Id | null]
+    >(
       [
         (o) => this.profiles.observe(o),
         (o) => this.routines.observeAll(o),
         (o) => this.routines.observeRotationDays(o),
         (o) => this.workouts.observeFinished(o),
         (o) => this.exercises.observeAll(o),
+        (o) => this.observeDayInProgress(o),
       ],
       {
-        next: ([profile, routines, rotationDays, finished, exercises]) => {
+        next: ([profile, routines, rotationDays, finished, exercises, dayInProgress]) => {
           const routine = routines.find((r) => r.id === profile?.activeRoutineId);
           if (routine === undefined) return observer.next(NO_ACTIVE_ROUTINE);
-          const dayId = nextDay(
-            routine.id,
-            rotationDays.filter((day) => day.routineId === routine.id),
-            finished,
-          );
+          // RF-ENT-01.AC4: with a day of this routine in progress, the card is that day.
+          const running = routine.days.find((d) => d.id === dayInProgress);
+          const dayId =
+            running?.id ??
+            nextDay(
+              routine.id,
+              rotationDays.filter((day) => day.routineId === routine.id),
+              finished,
+            );
           const day = routine.days.find((d) => d.id === dayId);
           if (day === undefined) return observer.next(NO_ACTIVE_ROUTINE);
 
@@ -136,9 +157,6 @@ export class ObserveNextDay {
             },
             sets: prescriptions.reduce((total, { sets }) => total + sets, 0),
             minutes: sessionMinutes(prescriptions),
-            dayKind: dayKind(
-              day.exercises.map((e) => catalog.get(e.exerciseId)?.primaryMuscles ?? []),
-            ),
             unit: inputs.profile.unit,
             week: {
               ...weekProgress(finished, today, this.localDate),

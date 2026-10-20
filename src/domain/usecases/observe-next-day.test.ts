@@ -52,13 +52,14 @@ function observe({
   profile = ACTIVE as Profile | null,
   routines = [ROUTINE] as Routine[],
   finished = [] as Workout[],
+  inProgress = null as Workout | null,
 } = {}) {
   const routineRepository = new InMemoryRoutineRepository(routines);
   const values: NextDayOverview[] = [];
   new ObserveNextDay(
     new InMemoryProfileRepository(profile),
     routineRepository,
-    new InMemoryWorkoutRepository(null, finished),
+    new InMemoryWorkoutRepository(inProgress, finished),
     { observeAll: (o) => (o.next([anExercise({ id: 'leg-press', name: 'Prensa' })]), () => {}) },
     () => NOW,
     localDate,
@@ -107,8 +108,6 @@ describe('ObserveNextDay', () => {
       sets: 5,
       // 3 × (40 + 120) + 2 × (40 + 90) = 740 s.
       minutes: 12,
-      // Prensa works the quads (the builder's default); curl is not in the catalog.
-      dayKind: 'lower',
       unit: 'kg',
       // NOW is Thursday 2026-10-08.
       week: { done: 0, doneDays: [], today: 3, goal: defaultProfile().daysPerWeek },
@@ -141,6 +140,43 @@ describe('ObserveNextDay', () => {
     }).last();
 
     expect(next).toMatchObject({ week: { done: 2, doneDays: [0, 2], today: 3, goal: 4 } });
+  });
+
+  it('RF-ENT-01.AC4: with a workout in progress, the day is that one, whatever comes next', () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const next = observe({ inProgress: running }).last();
+
+    expect(next.kind === 'nextDay' && next.day.id).toBe('B');
+  });
+
+  it('#221: logging a set of the workout in progress emits nothing new', async () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const workouts = new InMemoryWorkoutRepository(running);
+    const next = jest.fn();
+    new ObserveNextDay(
+      new InMemoryProfileRepository(ACTIVE),
+      new InMemoryRoutineRepository([ROUTINE]),
+      workouts,
+      { observeAll: (o) => (o.next([]), () => {}) },
+      () => NOW,
+      localDate,
+    ).execute({ next, error: jest.fn() });
+
+    await workouts.save({ ...running, notes: 'one more set' });
+
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
   it('RN-RUT-01: after day A comes day B', () => {
