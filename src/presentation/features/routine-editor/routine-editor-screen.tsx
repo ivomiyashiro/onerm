@@ -391,8 +391,8 @@ const styles = StyleSheet.create({
     borderTopColor: colors.borderHair,
   },
   addExercise: {
-    width: 56,
-    height: 56,
+    width: 64,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.md,
