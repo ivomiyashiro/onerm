@@ -73,6 +73,17 @@ describe('SwipeRow (#198)', () => {
     expect(await claims(180, 130)).toBe(false);
   });
 
+  it('#254: open, swiping it back to the right also takes the touch', async () => {
+    await renderRow();
+    await swipe(-160);
+    const row = screen.getByRole('button', { name: 'Press de banca' });
+    const touch = (pageX: number) => ({ nativeEvent: { pageX, pageY: 100 } });
+
+    await fireEvent(row, 'startShouldSetResponderCapture', touch(100));
+
+    expect(await fireEvent(row, 'moveShouldSetResponderCapture', touch(130))).toBe(true);
+  });
+
   it('RNF-18: a screen reader reaches the same actions on the row', async () => {
     const { onEdit } = await renderRow();
     const row = screen.getByRole('button', { name: 'Press de banca' });
