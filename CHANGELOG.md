@@ -63,7 +63,9 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
-- Swiping a row looks like iOS: the card moves whole, with its four corners, and «Editar» and «Eliminar» come in beside it as separate rounded buttons.
+- On iPhone, coming back to a tab from Perfil no longer leaves it black.
+- Swiping a row looks like iOS: the card moves whole, with its four corners, and its actions come in beside it as round buttons.
+- On iPhone, swiping a set no longer opens «Editar serie»; the swipe offers only «Eliminar» (tap the set to edit it). Routines lose the «⋯»: tap one to edit it, swipe it to activate or delete it.
 - On Android, «Finalizar igual» no longer closes the app: it opens the summary.
 - Moving on from an exercise without sets no longer sends you back to it: «Hecho» carries on with the others and then offers «Finalizar», which still lists what was left.
 - A set at 0 kg adds no load to the summary's total load: with only those, the summary shows the duration.

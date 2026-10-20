@@ -31,6 +31,9 @@ export default function TabsLayout() {
         tabBar={(props) => (
           <RouterTabBar tabs={TABS} action={action} bottomInset={insets.bottom} {...props} />
         )}
+        // #250: on iOS, detaching the tab that just faded out could leave the one coming back at
+        // opacity 0 (black). The four tabs stay attached, hidden behind the focused one.
+        detachInactiveScreens={false}
         screenOptions={{ headerShown: false, ...tabTransition(reduceMotion) }}
       />
       {/* RF-ENT-13: the tabs mount once per app start, so this runs on opening the app. */}
