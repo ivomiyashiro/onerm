@@ -288,3 +288,12 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
   - Un campo de texto movido con una transformación nativa quedaba fuera de su línea base en Android: la carga de la hoja solo se funde.
   - Con las dos pantallas a media opacidad a la vez, los textos se mezclaban: M7 las muestra una después de la otra.
 
+## 20. Filas deslizadas como en iOS (2026-10-20, #251)
+
+Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251)» (componente `SwipeAction` y filas de S09, S13 y S15 a medias y abiertas). Corrige el patrón de #198, donde la fila se recortaba con un solo radio y las acciones eran un bloque recto detrás de ella.
+
+- **La tarjeta se corre entera**, con sus cuatro esquinas, y sale por el borde de la pantalla: nada la recorta antes ni hay un fondo detrás.
+- **Las acciones son botones propios** de 76 de ancho y el alto de la fila, con las esquinas de la tarjeta (`radius/lg`; `radius/xl` en S13), a 8 (`space/8`) de la tarjeta y entre sí. «Editar» en `bg/raised`; «Eliminar» en `bg/err-soft-strong` con el texto en `text/err`.
+- **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
+- **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
+- Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
