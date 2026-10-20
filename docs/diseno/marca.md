@@ -287,6 +287,7 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
   - Las filas de S09 no escalan: en Android, una escala nativa en la fila le cortaba los toques dentro del gesto para cambiar de ejercicio.
   - Un campo de texto movido con una transformación nativa quedaba fuera de su línea base en Android: la carga de la hoja solo se funde.
   - Con las dos pantallas a media opacidad a la vez, los textos se mezclaban: M7 las muestra una después de la otra.
+- **En iOS (#250):** al desacoplar la pestaña que terminaba de apagarse, la que volvía podía quedar en opacidad 0 (en negro). Las cuatro pestañas quedan montadas (`detachInactiveScreens={false}`), escondidas detrás de la activa.
 
 ## 20. Filas deslizadas como en iOS (2026-10-20, #251 y #254)
 
