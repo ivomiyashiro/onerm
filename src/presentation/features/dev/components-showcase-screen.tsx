@@ -190,13 +190,13 @@ export function ComponentsShowcaseScreen() {
         closeLabel={t.overlays.close}
         onClose={closeSheet}
       >
+        <MenuItem icon="flag" label={strings.workout.workoutMenu.finish} onPress={closeSheet} />
         <MenuItem
-          icon="swap"
-          label={strings.workout.exerciseMenu.substitute}
+          icon="trash"
+          label={strings.workout.workoutMenu.discard}
+          destructive
           onPress={closeSheet}
         />
-        <MenuItem icon="skip" label={strings.workout.exerciseMenu.skip} onPress={closeSheet} />
-        <MenuItem icon="plus" label={strings.workout.exerciseMenu.addSet} onPress={closeSheet} />
       </BottomSheet>
 
       <Dialog

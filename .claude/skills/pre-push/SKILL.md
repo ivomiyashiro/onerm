@@ -5,7 +5,7 @@ description: Review before every push in OneRM. Runs typecheck, lint and tests, 
 
 # Pre-push review
 
-`.claude/hooks/require-pre-push.mjs` blocks every `git push` that Claude runs if `HEAD` wasn't approved by this skill. Pushes made by hand in a terminal aren't affected.
+`.claude/hooks/require-pre-push.ts` blocks every `git push` that Claude runs if `HEAD` wasn't approved by this skill. Pushes made by hand in a terminal aren't affected.
 
 **Token budget:** at most one `code-reviewer` per push, plus `security-reviewer` only when it applies, and only on commits nobody has reviewed yet.
 
@@ -30,7 +30,7 @@ Launch the ones that apply **in parallel, in one message**, with the `Agent` too
 
 | Agent | When |
 |---|---|
-| `code-reviewer` | When the range touches code: `src/`, `app/`, `tools/`, `supabase/` or the root config (`package.json`, `app.config.ts`, `eslint.config.js`…). Standards, architecture and React, and correctness in one pass. |
+| `code-reviewer` | When the range touches code: `src/`, `app/`, `tools/`, `supabase/` or the root config (`package.json`, `app.config.ts`, `eslint.config.ts`…). Standards, architecture and React, and correctness in one pass. |
 | `security-reviewer` | When the range touches `src/data/`, `src/di/`, adds or renames a route in `app/` (a new deep link), `app.config.ts`, `supabase/`, `.github/`, `.claude/`, `package.json`, `bun.lock` or any `.env*` file, or adds a URL, key or token anywhere. |
 
 If neither applies (a range of `docs/`, `CHANGELOG.md` or other Markdown only), the checks of §1 are enough.

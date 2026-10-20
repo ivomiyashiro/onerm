@@ -1,0 +1,93 @@
+# Análisis de performance: re-renders, consultas y Supabase (#221)
+
+**Fecha:** 18 de octubre de 2026.
+Primero se midió y después se escribió la regla (CLAUDE.md, «Performance»). Cada hallazgo que vale la pena corregir tiene su card.
+
+## Cómo se midió
+
+`bun run perf` (`tools/perf/app.perf.tsx`, con `jest.perf.config.json`) monta las **pantallas reales** con sus ViewModels, casos de uso y repositorios sobre una base SQLite real (`better-sqlite3` en memoria, con las migraciones de la app). Los datos son la rutina PLT-FB3, un entrenamiento en curso y **1.000 entrenamientos terminados** de 6 ejercicios con 3 series cada uno (RNF-03, RNF-14).
+
+- **Compilado con React Compiler**, como Metro compila la app (`experiments.reactCompiler`). La suite de tests normal no lo usa: sin él, los re-renders contados no serían los de la app.
+- **Renders por componente:** `tools/perf/render-counter.ts` reemplaza el runtime de JSX y cuenta cada render de cada componente función. Un **commit** es una actualización de la pantalla (`React.Profiler`).
+- **SQL:** `tools/perf/measured-database.ts` cuenta cada sentencia, y cada escritura que cambió filas avisa a los observadores, como `expo-sqlite` en el teléfono.
+- **Las esperas son en tiempo real y fuera de `act()`**, así React programa cada actualización como en el teléfono. Adentro de `act()` todas se juntarían en un solo commit.
+- **Los tiempos son de Node** (V8, modo desarrollo) y solo sirven para comparar. La referencia es el teléfono: RNF-03 sigue pendiente de medirse en uno físico ([50](50-verificacion-rnf.md)).
+- `PressabilityDebugView` aparece en los conteos porque Jest corre en modo desarrollo; en la build de release no existe.
+- **Límites del arnés:** cuenta los componentes función; los envueltos en `React.memo` o `forwardRef` son objetos y no entran en el conteo (la app casi no los usa: React Compiler memoiza sin `memo`). No cuenta requests a Supabase: la tabla de la sync sale de leer el código. Sus tests **imprimen, no vigilan**: «4 passed» quiere decir que los escenarios corrieron, no que los números estén bien. Las cards de corrección agregan tests de verdad en la suite normal.
+- Cada afirmación dice de dónde sale: **medido** con `bun run perf`, **prueba manual** (un cambio temporal que no se commiteó) o **lectura de código**.
+
+## Resultados (1.000 entrenamientos, 3 corridas)
+
+Un rango indica que el valor cambió entre corridas: los commits dependen de en qué momento caen los timers reales respecto de las esperas.
+
+| Escenario | Commits | Renders | SQL (lect. + escr.) | Último commit |
+|---|---|---|---|---|
+| S07 · montar | 3 | 85 | 17 + 0 | 195–202 ms |
+| S07 · 3 s en pantalla, con un entrenamiento en curso | 3 | 6 | 0 | — |
+| S09 · montar | 4 | 83 | 15 + 0 | 208–212 ms |
+| S09 · 3 s en pantalla | 3 | 12 | 0 | — |
+| S09 · «Hecho» | 2–4 | 131–156 | 22 + 7 | 111–133 ms |
+| S09 · 3 s de descanso | **14–16** | **267–292** | 0 | — |
+| S09 · la sync reescribe una fila del catálogo | 2 | 91 | 2 + 1 | 50–74 ms |
+| `logSet` → emisión de `observeWorkout`, sin React | — | — | 20 + 5 | **39–42 ms** (11 ms sin historial) |
+| S18 + S09 · montar | 4 | 203 | 16 + 0 | 228–255 ms |
+| S18 + S09 · «Hecho» | 3–4 | 199–200 | 24 + 7 | 79–81 ms |
+
+## Hallazgos
+
+### 1. Cada serie recorre todo el historial (RNF-03) → #228
+
+Con 0 o con 1.000 entrenamientos, confirmar una serie corre **el mismo SQL** (20 lecturas + 5 escrituras), pero el tiempo hasta que `observeWorkout` emite pasa de 11 a 41 ms. La diferencia es CPU de JavaScript: en cada emisión, `ObserveWorkout` arma `historyKey` con un `JSON.stringify` de las ~18.000 series del historial. Si se anula `historyKey` a modo de prueba (**prueba manual**), baja a 20 ms. `observeFinished` ya devuelve el mismo array mientras el historial no cambia (#141), así que se puede cachear por referencia. En Hermes, en un teléfono de gama media, este tiempo se multiplica. Es el riesgo más concreto para RNF-03.
+
+**Corregido en #228 (medido):** `ObserveWorkout` guarda lo que deriva del historial (explicaciones, orden, última carga de #195) por la referencia del array de `observeFinished`, y la huella de `sharedQuery` se responde con índices cubrientes (migración `0002`). `logSet` → emisión: 41 → 10–13 ms con 1.000 entrenamientos, frente a 8–10 ms sin historial. Lo que queda de diferencia es la huella en SQLite (≈ 3 ms).
+
+### 2. Los relojes re-renderizan la pantalla entera → #229
+
+- **Descanso (medido):** `useCountdown` actualiza el estado cada 250 ms con `Date.now()`. Son 14–16 commits y 267–292 renders en 3 s (cerca de 90 renders por segundo), aunque el número visible cambia una vez por segundo. Se re-renderizan `Workout` (todo S09), `RestScreen`, `RestRing` y los dos `Chip`, que reciben un `onPress` nuevo en cada tick.
+- **Tiempo transcurrido:** `useElapsed` vive en `Workout`. Cada segundo se re-renderiza la pantalla y también la hoja del menú del entrenamiento **cerrada**, porque su subtítulo usa la hora. En S07 pasa lo mismo con la card `NextDay`.
+- #180 ya hizo que los relojes no corran en segundo plano. Esto es lo que cuestan en primer plano.
+
+**Corregido en #229 (medido):** `useCountdown` cambia su estado solo cuando cambia el segundo que se muestra, y los relojes viven en componentes hoja que reciben `startedAt`/`endsAt`: el tiempo del encabezado (`ElapsedText`, quieto mientras el descanso a pantalla completa lo tapa), el panel y la barra del descanso, la vibración del final y el menú del entrenamiento (solo corre abierto). El disco de la barra de pestañas calcula su tiempo: antes lo hacía el layout de las pestañas, que re-renderizaba el navegador entero cada segundo. S09 con el descanso: 14–16 → 3 commits y 267–292 → 18 renders en 3 s, sin `Workout`. S09 y S07 en pantalla: `Workout`/`NextDay` → solo `ElapsedText`.
+
+### 3. Los observadores avisan aunque nada cambió → #230
+
+`observeQuery` vuelve a leer con cada cambio de sus tablas y **siempre emite un objeto nuevo**. El ViewModel hace `setState` con él y React no puede saltear el render, tampoco con React Compiler.
+
+- **Medido:** con S18 (Historial) montada, cada serie vuelve a correr `observePendingWorkouts`. Una serie en curso nunca está pendiente (RN-SYNC-13), pero llega un `Set` nuevo y `ObserveHistory` rearma los 1.000 ítems: un commit más y 18 filas de la lista re-renderizadas por cada serie.
+- Una fila del catálogo reescrita igual re-renderiza S09: 2 commits y 91 renders.
+- `sharedQuery` (#141) ya resuelve esto para el historial con una huella; el resto de los `observe…()` no lo tiene.
+
+**Corregido en #230 (medido):** `observeQuery` no emite un resultado con los mismos datos que el último (`sameValue`). «Hecho» con S18 + S09: 199 → 156 renders, sin filas del historial (`ItemWithSeparator` 18 → 0). La fila del catálogo reescrita igual: 2 → 1 commits y 91 → 24 renders; el commit que queda es un tick del descanso, que sigue corriendo en ese escenario (`RestScreen`, `RestRing`; #229), no la escritura.
+
+### 4. La sync reescribe el catálogo cada vez → #231
+
+El pull empieza 5 s antes del cursor (ADR-0002 R2). El seed carga cada tabla del catálogo en un solo upsert, así que todas sus filas quedan con `server_updated_at` dentro de esa ventana. Cada sync las vuelve a bajar y `writeRemoteRow` las reescribe sin comparar, lo que dispara los observadores del catálogo (hallazgo 3). Esto sale de leer el código y de la medición del re-render; falta confirmarlo contra Supabase local, y #231 lo pide como test.
+
+**Corregido en #231 (medido contra Supabase local):** confirmado: sin el cambio, un segundo pull seguido escribe filas del catálogo. Ahora el upsert del catálogo solo actualiza una fila si alguna columna cambió (`ON CONFLICT … DO UPDATE … WHERE … IS NOT excluded…`), y el test de `sync.supabase.test.ts` cuenta cero escrituras. Las tablas del catálogo no tienen `server_updated_at` en SQLite, así que se comparan los valores en la misma sentencia, sin leer antes. Las 4 requests del catálogo se mantienen: devuelven solo la ventana de 5 s y ya no escriben; cortarlas con `catalog_version` (RN-CAT-04) ahorraría 3 requests chicas por sync a cambio de otra regla.
+
+## Supabase: requests por sync (lectura de código)
+
+| Paso | Requests |
+|---|---|
+| Versión mínima (`app_config`, RN-SYNC-14) | 1 |
+| Pull del catálogo (4 tablas, aunque no haya cambios) | 4 |
+| Push (7 tablas): solo las que tienen filas pendientes, en lotes de 200 | 0 sin cambios |
+| Pull de las tablas del usuario (7 tablas, paginado por keyset) | 7 |
+| **Total de una sync sin cambios** | **12** |
+
+- **Cuándo corre:** al abrir la app y al volver al primer plano, al reconectar, 3 s después de una escritura que dejó algo para subir, y a mano. Nunca por sondeo (RNF-22). Las series de un entrenamiento en curso no la disparan (`countPending` da 0, RN-SYNC-13).
+- **Está bien:** sin polling, una sola sync a la vez, escrituras agrupadas, paginación por keyset con su índice y push en lotes. Lo único evitable son las 4 requests del catálogo, más su reescritura (hallazgo 4).
+- `getSession()` es local: no sale a la red salvo para refrescar el token.
+
+## Lo que está bien y no se toca
+
+- `sharedQuery` comparte la lectura del historial entre todas las pantallas y no lo relee si su huella no cambió (#141). Con 1.000 entrenamientos, una serie **no relee el historial**: solo corre la huella, un `count`/`sum` en SQL sobre las filas terminadas. Recorre toda la tabla, pero dentro de SQLite y sin armar objetos.
+- Montar S07 o S09 lee el historial una vez. Con 0 entrenamientos el último commit llega a los 71 ms y con 1.000 a unos 210 ms, pero la pantalla aparece antes con su esqueleto. Si crece, el camino es leer solo lo que el motor necesita (las últimas exposiciones por ejercicio).
+- El historial (S18) usa una lista virtualizada (`SectionList`): con 1.000 entrenamientos monta 9 filas (**medido**: `ItemWithSeparator 9` al montar). La búsqueda de ejercicios y la de sustitutos también usan listas virtualizadas; el resto de los `ScrollView` + `map` recorren datos acotados (los ejercicios de un día, las series de un ejercicio).
+- La escritura de una serie es una sola transacción local (5 escrituras).
+
+## Fuera de este análisis
+
+- **#182:** el bucle de frames de Reanimated que usa CPU con la app quieta. Ya tiene card.
+- **Tiempo de arranque:** no se midió. En Node no dice nada del teléfono (el arranque es nativo: Hermes, fuentes, base de datos). Se mide en el teléfono físico junto con RNF-03.
+- **Tiempos en el teléfono:** este arnés cuenta trabajo, no lo cronometra en un teléfono. Para RNF-03 sigue valiendo la medición en un teléfono físico de [52](52-recorrido-modo-avion.md#pendiente-para-una-persona).

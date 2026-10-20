@@ -19,12 +19,20 @@ export interface HomeViewModel {
   inProgressSince: Date | null;
   /** RF-SYNC-06.AC2: changes waiting to be backed up, or null. */
   backupNotice: BackupNotice | null;
-  actions: { retry(): void };
+  actions: {
+    retry(): void;
+    /**
+     * RF-ENT-01.AC1, AC4: «Empezar» in the card starts the next day, or «Continuar» the one in
+     * progress. True when there is a workout to open.
+     */
+    start(): Promise<boolean>;
+  };
 }
 
 /** S07 · Inicio: the next day of the active routine (RN-RUT-01), from the local database. */
 export function useHomeViewModel(): HomeViewModel {
-  const { observeNextDay, observeWorkoutInProgress, observeBackupNotice } = useUseCases();
+  const { observeNextDay, observeWorkoutInProgress, observeBackupNotice, startWorkout } =
+    useUseCases();
   const [backupNotice, setBackupNotice] = useState<BackupNotice | null>(null);
   const [inProgressSince, setInProgressSince] = useState<Date | null>(null);
   const [state, setState] = useState<HomeState>({ status: 'loading' });
@@ -70,5 +78,12 @@ export function useHomeViewModel(): HomeViewModel {
     setAttempt((n) => n + 1);
   }
 
-  return { state, inProgressSince, backupNotice, actions: { retry } };
+  async function start() {
+    if (inProgressSince !== null) return true;
+    if (state.status !== 'content') return false;
+    const result = await startWorkout.execute(state.nextDay.day.id);
+    return result.status !== 'missing';
+  }
+
+  return { state, inProgressSince, backupNotice, actions: { retry, start } };
 }

@@ -67,11 +67,11 @@ export const workout = {
     nextExercise: 'Siguiente ejercicio',
     finish: 'Finalizar entrenamiento',
   },
-  exerciseMenu: {
-    /** Accessibility label of the ⋯ of the exercise (like S13's). */
-    title: (exercise: string) => `Opciones de ${exercise}`,
-    substitute: 'Sustituir ejercicio',
-    skip: 'Saltear ejercicio',
+  /** #222: the exercise has no menu; skipping it is moving on (RF-ENT-08). */
+  exercise: {
+    /** Accessibility label of the swap button by the name (RF-ENT-09). */
+    substitute: (exercise: string) => `Sustituir ${exercise}`,
+    /** Under the last set (RF-ENT-05). */
     addSet: 'Agregar serie',
   },
   workoutMenu: {
@@ -209,11 +209,20 @@ export const workout = {
     exerciseLineBodyweight: (sets: number, reps: number) =>
       `${count(sets, 'serie', 'series')} · mejor × ${reps}`,
     minutes: (n: number) => `${n} min`,
+    /** Next to the duration when it is the main figure. */
+    minutesUnit: 'min',
     title: (day: string) => `Entrenamiento · ${day}`,
     recordTitle: (record: string) => `Nuevo récord · ${record}`,
     approximate: (value: string) => `${value} (aprox.)`,
     skipped: 'Salteado',
-    nextDay: (day: string) => `Próximo: ${day}`,
+    /** RN-ENT-13: the main figure (RF-ENT-11.AC6); the duration takes its place without load. */
+    totalLoad: 'Carga total',
+    /** Accessible name of the main figure: its final value, also while it counts up. */
+    mainFigure: (label: string, value: string) => `${label}: ${value}`,
+    /** Accessible name of a line of «Lo que hiciste», instead of reading each chip. */
+    exerciseName: (exercise: string, detail: string) => `${exercise}, ${detail}`,
+    noRecords: (sets: number) => `Hoy sumaste ${count(sets, 'serie', 'series')}. Así se progresa.`,
+    nextWorkout: 'Próximo entrenamiento',
     ready: 'Listo',
   },
 } as const;

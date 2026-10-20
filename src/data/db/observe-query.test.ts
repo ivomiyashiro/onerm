@@ -5,7 +5,7 @@ import { ManualTableChanges } from '@/data/db/table-changes';
 /** Lets the batched re-run (a microtask) happen. */
 const flush = () => new Promise<void>((resolve) => setTimeout(resolve, 0));
 
-function setup(query: () => number = jest.fn(() => 1)) {
+function setup(query: () => unknown = jest.fn(() => 1)) {
   const changes = new ManualTableChanges();
   const observer = { next: jest.fn(), error: jest.fn() };
   const unsubscribe = observeQuery(changes, [exercises, routineTemplates], query, observer);
@@ -31,6 +31,17 @@ describe('observeQuery (ADR-0011 §3)', () => {
     expect(observer.next).toHaveBeenLastCalledWith(2);
   });
 
+  it('#230: a change that leaves the result as it was is not emitted', async () => {
+    let value = { id: 'squat', aliases: ['sentadilla'] };
+    const { changes, observer } = setup(() => value);
+
+    value = { id: 'squat', aliases: ['sentadilla'] };
+    changes.emit('exercises');
+    await flush();
+
+    expect(observer.next).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores changes in other tables', async () => {
     const { changes, observer } = setup();
 
@@ -41,8 +52,10 @@ describe('observeQuery (ADR-0011 §3)', () => {
   });
 
   it('runs once for a burst of changes (one per row)', async () => {
-    const { changes, observer } = setup();
+    let value = 1;
+    const { changes, observer } = setup(() => value);
 
+    value = 2;
     changes.emit('exercises');
     changes.emit('exercises');
     changes.emit('routine_templates');

@@ -16,6 +16,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 - Local database on the phone, created on first launch and upgraded on every start; if preparing it fails, a screen offers to retry without losing data.
 - Exercise catalog and the three routine templates (full body 2 and 3 days, upper/lower 4 days) bundled with the app, available offline from the first launch.
 - Exercise search by name or alias, ignoring accents and case, with muscle and equipment filters; works offline.
+- A larger exercise catalog: 203 exercises (from 22), with barbell, dumbbell, machine, cable, kettlebell and bodyweight variants, searchable in Spanish or English and available offline.
 - Exercise detail with its muscles, equipment, description when there is one and a link to your progress once you trained it; and an About screen with the version and the credits (photos and fonts).
 - Routines tab: your routines with the active one highlighted, and the templates with the one recommended for you. A template shows its days, exercises and the prescription for your goal, explains why it is built that way, with its criteria and their scientific sources, and can be adopted as your routine with one tap; a routine can be activated or deleted, never while a workout is in progress. Works offline.
 - Home shows the next day of your active routine over a photo of its kind of day (legs, upper body or full body), with its exercises, sets and estimated time; without an active routine it offers to choose one of the templates or create your own.
@@ -46,18 +47,30 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- In the routine editor, «Agregar ejercicio» moves to the header of the exercise list («Ejercicios · 6» with «+ Agregar»), so a day with many exercises no longer needs scrolling to add one more.
+- Inicio has a new look: the day on a lime card with «Empezar» right there (or «Continuar»), its time, exercises and sets; this week day by day; and each exercise numbered with its main muscle, its prescription, the suggestion and what changes against last time («↑ 5 kg», «+1 rep», «Igual»). A day name now has up to 20 characters, so it fits the card. It comes in once, still with «reduce motion».
+- The workout summary feels like a finish: a done mark that draws itself, the total load lifted as the big number (counting up; the duration when everything was bodyweight), the records first with the trophy shining once, a chip per set in each exercise, the next workout as a card and a success vibration. The entrance runs once and not at all with «reduce motion».
 - Text uses the Geist font; numbers and the «DÍA A» display stay in Archivo, so they stand out more.
-- Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones».
+- Adding an exercise to a routine takes two steps: pick it, then its sets, reps, effort and rest already filled in («Listo», or close to keep them). The prescription sheet is shorter: role, notes, replace and remove fold under «Más opciones». It scrolls without a scroll bar when it doesn't fit.
 - Swipe a row left to edit or delete it, in your routines, the exercises of the routine editor and the sets of the workout; screen readers get the same actions. The routine editor reorders only with the handle (no arrows).
 - The full-screen rest closes by pulling it down too, and its button is now an «X». Inicio no longer shows a «Calibrar» pill in today's list; the calibration is explained inside the exercise.
 - Set sheet: a load still to choose shows a grey 0 instead of «—», and asks for it only when confirmed; under the load, the last one you logged in that exercise. Load and reps keep their ± buttons level.
 - Bottom sheets float over the screen, inset from its edges and with every corner rounded.
 - App icon and opening with the brand mark: the lime plate on Android (adaptive and themed) and iPhone (light, dark and tinted), and a splash that takes over from the system's without a jump, grows a halo while the data opens and fades into the app (only a fade with «reduce motion»).
 - Sheets, dialogs and the full-screen rest: the dark background fades in place while the sheet slides up, and a «…» button can be tapped again as soon as its sheet closes, without waiting for the animation.
+- The exercise in a workout has no «…» menu: the swap button by its name substitutes it, «Agregar serie» under the last set adds one with the same values, and skipping it is just moving on to the next one (it shows as skipped when the workout ends without sets in it).
+- Motion in the moments that repeat most: «Hecho» and the ± discs sink and spring back, the load and reps roll the way they changed, the set just logged fades in done while the next one lights up, the minimized rest rises over «Hecho», the rest ring pulses once with a halo when the rest ends, the tab pill slides to the new tab while the screens cross-fade, the S20 chart draws its line, and the weekly volume bars grow one after the other. Nothing loops, and with «reduce motion» only the changes of state remain.
 
 ### Fixed
 
+- Swiping a row looks like iOS: the card moves whole, with its four corners, and «Editar» and «Eliminar» come in beside it as separate rounded buttons.
+- On Android, «Finalizar igual» no longer closes the app: it opens the summary.
+- Moving on from an exercise without sets no longer sends you back to it: «Hecho» carries on with the others and then offers «Finalizar», which still lists what was left.
+- A set at 0 kg adds no load to the summary's total load: with only those, the summary shows the duration.
+- Inicio's week counts the days you trained, like your goal: two workouts on one day count once.
+- With a workout in progress, Inicio's card shows that day, not the one that would come next.
 - Visual details on iPhone: every button shares one corner radius; text fields center their text; the central tab button's shadow is no longer cut; the welcome photo is sharp on high-density screens; «Continuar con Google» shows the Google logo.
+- On iPhone the load of a set no longer shows cut when it gains a digit: going from 5 to 10 kg with «+» showed «1».
 - On iPhone the rest notifications are asked once, with the system prompt alone, instead of our explanation followed by the system's.
 - Routine editor: each day has a visible «…» with its options, so a day can be removed while creating a routine too; removing one with exercises asks first.
 - Rest notice: «Activar» in the workout shows the system prompt when the phone never asked (after «Ahora no»), instead of opening the settings, where iPhone has no notifications option for the app yet. The notice also appears right after «Ahora no».

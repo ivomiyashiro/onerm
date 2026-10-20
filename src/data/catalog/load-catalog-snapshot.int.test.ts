@@ -35,7 +35,7 @@ function counts() {
 }
 
 const EXPECTED = {
-  exercises: 22,
+  exercises: CATALOG_SNAPSHOT.exercises.length,
   templates: 3,
   days: 8,
   templateExercises: 12 + 12 + 22,
@@ -142,7 +142,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
 
       loadCatalogSnapshot(t.db, newer);
 
-      expect(counts()).toEqual({ ...EXPECTED, exercises: 23 });
+      expect(counts()).toEqual({ ...EXPECTED, exercises: EXPECTED.exercises + 1 });
       const names = t.db
         .select({ name: exercises.name })
         .from(exercises)
@@ -160,7 +160,7 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
       loadCatalogSnapshot(t.db, CATALOG_SNAPSHOT);
 
       expect(t.db.select().from(appState).get()?.catalogVersion).toBe(newer.version);
-      expect(counts()).toEqual({ ...EXPECTED, exercises: 23 });
+      expect(counts()).toEqual({ ...EXPECTED, exercises: EXPECTED.exercises + 1 });
     });
   });
 });

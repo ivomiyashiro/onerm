@@ -1,22 +1,21 @@
-#!/usr/bin/env node
 // Audits the screen showing on the Android emulator (#48, RNF-16 and RNF-18).
 // Reads the accessibility tree with `uiautomator dump` and lists every node TalkBack can
 // activate (clickable or long-clickable) with what it reads and its size in dp. Flags:
 //   NO LABEL  the node has no content-desc and no text below it: TalkBack only says "button".
 //   < 48 dp   the node is smaller than RNF-16's minimum. hitSlop doesn't show in the tree:
 //             a flagged node may still have a larger touch area, so check it in the code.
-// Usage: node tools/a11y/audit.mjs [name]   (adb on the PATH, one device connected)
+// Usage: bun tools/a11y/audit.ts [name]   (adb on the PATH, one device connected)
 import { execFileSync } from 'node:child_process';
 
 const MIN_DP = 48;
 
-const adb = (...args) => execFileSync('adb', args, { encoding: 'utf8' });
+const adb = (...args: string[]) => execFileSync('adb', args, { encoding: 'utf8' });
 
 const densityMatch = /(\d+)\s*$/.exec(adb('shell', 'wm', 'density').trim());
 if (!densityMatch) throw new Error('could not read the screen density with `adb shell wm density`');
 const density = Number(densityMatch[1]) / 160;
 // The dump fails now and then while something animates (the workout clock): try again.
-function dump() {
+function dump(): string {
   for (let attempt = 1; attempt <= 5; attempt++) {
     adb('shell', 'rm', '-f', '/sdcard/a11y.xml');
     // --compressed leaves out the views that aren't important for accessibility: what TalkBack sees.
@@ -27,21 +26,30 @@ function dump() {
 }
 const xml = dump();
 
-const attr = (tag, name) => new RegExp(`${name}="([^"]*)"`).exec(tag)?.[1] ?? '';
+const attr = (tag: string, name: string) => new RegExp(`${name}="([^"]*)"`).exec(tag)?.[1] ?? '';
+
+interface A11yNode {
+  desc: string;
+  texts: string[];
+  actionable: boolean;
+  width: number;
+  height: number;
+}
 
 // Walks the flat XML keeping a stack, so each node knows the text of its descendants.
-const stack = [];
-const results = [];
+const stack: A11yNode[] = [];
+const results: A11yNode[] = [];
 for (const [token] of xml.matchAll(/<node [^>]*?\/?>|<\/node>/g)) {
   if (token === '</node>') {
     const node = stack.pop();
+    if (!node) throw new Error('uiautomator dump has an unbalanced </node>');
     if (stack.length) stack[stack.length - 1].texts.push(...node.texts);
     if (node.actionable) results.push(node);
     continue;
   }
   const text = attr(token, 'text');
-  const [x1, y1, x2, y2] = attr(token, 'bounds').match(/\d+/g).map(Number);
-  const node = {
+  const [x1, y1, x2, y2] = (attr(token, 'bounds').match(/\d+/g) ?? []).map(Number);
+  const node: A11yNode = {
     desc: attr(token, 'content-desc'),
     texts: text ? [text] : [],
     actionable: attr(token, 'clickable') === 'true' || attr(token, 'long-clickable') === 'true',

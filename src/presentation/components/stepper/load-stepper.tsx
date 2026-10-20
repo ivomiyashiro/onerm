@@ -1,7 +1,10 @@
-import { StyleSheet, TextInput, View } from 'react-native';
+import { useLayoutEffect, useState } from 'react';
+import { Animated, Easing, StyleSheet, TextInput, View } from 'react-native';
 
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Plate } from '@/presentation/components/stepper/plate';
 import { colors, radius, typography } from '@/presentation/theme';
+import { motion } from '@/presentation/theme/motion';
 import { Text } from '@/presentation/components/text';
 
 interface LoadStepperProps {
@@ -36,6 +39,16 @@ export function LoadStepper({
   onIncrement,
   onChangeText,
 }: LoadStepperProps) {
+  const roll = useRoll(value);
+  // Where the number is in its row: the leaving value is drawn over it.
+  const [box, setBox] = useState<{ x: number; width: number } | null>(null);
+  const typed = onChangeText
+    ? (text: string) => {
+        // A typed value doesn't roll: only the ± do (#248 M2).
+        roll.cancel();
+        onChangeText(text);
+      }
+    : undefined;
   return (
     <View style={[styles.card, error && styles.cardError]}>
       <View
@@ -47,26 +60,64 @@ export function LoadStepper({
           {label}
         </Text>
         <View style={styles.value}>
-          {onChangeText ? (
-            <TextInput
-              accessibilityLabel={label}
-              value={value}
-              placeholder={placeholder}
-              placeholderTextColor={colors.textSecondary}
-              onChangeText={onChangeText}
-              keyboardType="decimal-pad"
-              style={[typography.numberHero, styles.input]}
-            />
-          ) : (
-            <Text
+          {roll.from !== null && (
+            <Animated.View
               style={[
-                typography.numberHero,
-                { color: value ? colors.textPrimary : colors.textSecondary },
+                styles.leaving,
+                // Not measured yet: over the whole row.
+                box
+                  ? { left: box.x - LEAVING_SLACK, width: box.width + LEAVING_SLACK * 2 }
+                  : { left: 0, right: 0 },
+                roll.leaving,
               ]}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
             >
-              {value || placeholder}
-            </Text>
+              <Text style={[typography.numberHero, { color: colors.textPrimary }]}>
+                {roll.from}
+              </Text>
+            </Animated.View>
           )}
+          {/* No extra wrapper: the row aligns the number and its unit by their baseline. */}
+          <Animated.View
+            style={onChangeText ? roll.comingField : roll.coming}
+            onLayout={(event) => {
+              const { x, width } = event.nativeEvent.layout;
+              setBox((old) => (old?.x === x && old.width === width ? old : { x, width }));
+            }}
+          >
+            {onChangeText ? (
+              // iOS sizes a TextInput by its previous value: right after «5», «10» showed «1» (#220).
+              // A hidden Text with the same value gives the width in the same render.
+              <>
+                <Text
+                  style={[typography.numberHero, styles.sizer]}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  {value || placeholder}
+                </Text>
+                <TextInput
+                  accessibilityLabel={label}
+                  value={value}
+                  placeholder={placeholder}
+                  placeholderTextColor={colors.textSecondary}
+                  onChangeText={typed}
+                  keyboardType="decimal-pad"
+                  style={[typography.numberHero, styles.input]}
+                />
+              </>
+            ) : (
+              <Text
+                style={[
+                  typography.numberHero,
+                  { color: value ? colors.textPrimary : colors.textSecondary },
+                ]}
+              >
+                {value || placeholder}
+              </Text>
+            )}
+          </Animated.View>
           {unit && (
             <Text style={[typography.bodyLStrong, { color: colors.textSecondary }]}>{unit}</Text>
           )}
@@ -85,11 +136,86 @@ export function LoadStepper({
         </Text>
       )}
       <View style={styles.plates}>
-        <Plate sign="minus" accessibilityLabel={decrementLabel} onPress={onDecrement} />
-        <Plate sign="plus" accessibilityLabel={incrementLabel} onPress={onIncrement} />
+        <Plate
+          sign="minus"
+          accessibilityLabel={decrementLabel}
+          onPress={() => {
+            roll.start(-1);
+            onDecrement();
+          }}
+        />
+        <Plate
+          sign="plus"
+          accessibilityLabel={incrementLabel}
+          onPress={() => {
+            roll.start(1);
+            onIncrement();
+          }}
+        />
       </View>
     </View>
   );
+}
+
+/** How far the values travel while they roll. */
+const ROLL = 20;
+/** Room on each side of the number for a wider leaving value («62,5» after «65»). */
+const LEAVING_SLACK = 40;
+
+/**
+ * #248 M2: after a ±, the value rolls the way it changed: the old one leaves up and the new one
+ * comes from below with +, the other way with − (a typed field only fades in). Nothing rolls
+ * with «reduce motion», when the value is typed or when the ± didn't change it (a limit).
+ */
+function useRoll(value: string) {
+  const reduce = useReduceMotion();
+  const [pressed, setPressed] = useState<{ from: string; direction: 1 | -1 } | null>(null);
+  const [progress] = useState(() => new Animated.Value(1));
+  const rolling = !reduce && pressed !== null && pressed.from !== value;
+
+  useLayoutEffect(() => {
+    if (!rolling) return;
+    progress.setValue(0);
+    const animation = Animated.timing(progress, {
+      toValue: 1,
+      duration: motion.state,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
+    animation.start(({ finished }) => {
+      if (finished) setPressed(null);
+    });
+    return () => {
+      // Stopped halfway (another ± or a typed value): the value rests in place.
+      animation.stop();
+      progress.setValue(1);
+    };
+  }, [rolling, value, progress]);
+
+  const travel = (pressed?.direction ?? 1) * ROLL;
+  return {
+    from: rolling ? pressed.from : null,
+    leaving: {
+      opacity: progress.interpolate({
+        inputRange: [0, 0.6],
+        outputRange: [1, 0],
+        extrapolate: 'clamp',
+      }),
+      transform: [
+        { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [0, -travel] }) },
+      ],
+    },
+    coming: {
+      opacity: progress,
+      transform: [
+        { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [travel, 0] }) },
+      ],
+    },
+    // A field only fades in: moved by a native transform, Android left its text out of line.
+    comingField: { opacity: progress },
+    start: (direction: 1 | -1) => setPressed({ from: value, direction }),
+    cancel: () => setPressed(null),
+  };
 }
 
 const styles = StyleSheet.create({
@@ -114,8 +240,16 @@ const styles = StyleSheet.create({
     gap: 3,
     minHeight: 56,
   },
+  // Centred over the coming value, whatever their widths.
+  leaving: { position: 'absolute', top: 0, alignItems: 'center' },
   note: { textAlign: 'center' },
-  input: { minWidth: 48, padding: 0, textAlign: 'center', color: colors.textPrimary },
+  sizer: { minWidth: 48, opacity: 0 },
+  input: {
+    ...StyleSheet.absoluteFill,
+    padding: 0,
+    textAlign: 'center',
+    color: colors.textPrimary,
+  },
   // At the bottom: side by side, load and reps keep their ± level whatever their notes (#195).
   plates: { flexDirection: 'row', gap: 10, marginTop: 'auto' },
 });

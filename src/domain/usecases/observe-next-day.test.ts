@@ -52,13 +52,14 @@ function observe({
   profile = ACTIVE as Profile | null,
   routines = [ROUTINE] as Routine[],
   finished = [] as Workout[],
+  inProgress = null as Workout | null,
 } = {}) {
   const routineRepository = new InMemoryRoutineRepository(routines);
   const values: NextDayOverview[] = [];
   new ObserveNextDay(
     new InMemoryProfileRepository(profile),
     routineRepository,
-    new InMemoryWorkoutRepository(null, finished),
+    new InMemoryWorkoutRepository(inProgress, finished),
     { observeAll: (o) => (o.next([anExercise({ id: 'leg-press', name: 'Prensa' })]), () => {}) },
     () => NOW,
     localDate,
@@ -88,6 +89,8 @@ describe('ObserveNextDay', () => {
             id: 'A1',
             exerciseId: 'leg-press',
             name: 'Prensa',
+            // RF-ENT-01.AC8: its main muscle (the builder's default).
+            muscle: 'quads',
             prescription: aPrescription({ sets: 3, restSeconds: 120 }),
             // RF-SUG-01.AC1: never done, the instruction is to calibrate.
             suggestion: calibrate,
@@ -96,6 +99,7 @@ describe('ObserveNextDay', () => {
             id: 'A2',
             exerciseId: 'curl',
             name: null,
+            muscle: null,
             prescription: aPrescription({ role: 'accessory', sets: 2, restSeconds: 90 }),
             suggestion: calibrate,
           },
@@ -104,9 +108,9 @@ describe('ObserveNextDay', () => {
       sets: 5,
       // 3 × (40 + 120) + 2 × (40 + 90) = 740 s.
       minutes: 12,
-      // Prensa works the quads (the builder's default); curl is not in the catalog.
-      dayKind: 'lower',
       unit: 'kg',
+      // NOW is Thursday 2026-10-08.
+      week: { done: 0, doneDays: [], today: 3, goal: defaultProfile().daysPerWeek },
       days: [
         { id: 'A', name: 'Día A', daysAgo: null, exerciseNames: ['Prensa', null] },
         { id: 'B', name: 'Día B', daysAgo: null, exerciseNames: ['Prensa', null] },
@@ -119,6 +123,60 @@ describe('ObserveNextDay', () => {
     const next = observe({ finished: [doneOn('A')] }).last();
 
     expect(next.kind === 'nextDay' && next.days.map((d) => d.daysAgo)).toEqual([3, null]);
+  });
+
+  it('RF-ENT-01.AC8: the workouts of this week against the days per week', () => {
+    // NOW is Thursday 2026-10-08: Monday 5 counts, Sunday 4 doesn't.
+    const on = (day: string) =>
+      aWorkout({
+        id: day,
+        routineId: 'r1',
+        routineDayId: 'A',
+        finishedAt: new Date(`${day}T19:00:00Z`),
+      });
+    const next = observe({
+      profile: { ...ACTIVE, daysPerWeek: 4 },
+      finished: [on('2026-10-04'), on('2026-10-05'), on('2026-10-07')],
+    }).last();
+
+    expect(next).toMatchObject({ week: { done: 2, doneDays: [0, 2], today: 3, goal: 4 } });
+  });
+
+  it('RF-ENT-01.AC4: with a workout in progress, the day is that one, whatever comes next', () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const next = observe({ inProgress: running }).last();
+
+    expect(next.kind === 'nextDay' && next.day.id).toBe('B');
+  });
+
+  it('#221: logging a set of the workout in progress emits nothing new', async () => {
+    const running = aWorkout({
+      id: 'running',
+      routineId: 'r1',
+      routineDayId: 'B',
+      status: 'in_progress',
+      finishedAt: null,
+    });
+    const workouts = new InMemoryWorkoutRepository(running);
+    const next = jest.fn();
+    new ObserveNextDay(
+      new InMemoryProfileRepository(ACTIVE),
+      new InMemoryRoutineRepository([ROUTINE]),
+      workouts,
+      { observeAll: (o) => (o.next([]), () => {}) },
+      () => NOW,
+      localDate,
+    ).execute({ next, error: jest.fn() });
+
+    await workouts.save({ ...running, notes: 'one more set' });
+
+    expect(next).toHaveBeenCalledTimes(1);
   });
 
   it('RN-RUT-01: after day A comes day B', () => {

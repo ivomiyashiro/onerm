@@ -328,5 +328,911 @@
     "equipment": ["machine"],
     "mechanic": "isolation",
     "isUnilateral": false
+  },
+  {
+    "id": "d7ef046c-e739-490b-b1e3-d1ae42d3c4af",
+    "source": "onerm-v1",
+    "externalId": "barbell-bench-press"
+  },
+  {
+    "id": "eac33cf1-28be-426b-915e-247748825bc3",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-bench-press"
+  },
+  {
+    "id": "c5f177d8-9a56-4be3-b221-01f4b4d72489",
+    "source": "onerm-v1",
+    "externalId": "barbell-incline-bench-press"
+  },
+  {
+    "id": "309da41b-d4bb-4906-be1e-6f5f602a718c",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-incline-bench-press"
+  },
+  {
+    "id": "6da2d2c3-3014-4a12-9f9d-5bec92305bc9",
+    "source": "onerm-v1",
+    "externalId": "barbell-decline-bench-press"
+  },
+  {
+    "id": "ec1cf648-0e3a-40b1-9b93-b72f3b25c393",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-decline-bench-press"
+  },
+  {
+    "id": "eac09014-9d75-4f4f-9fe9-d56ba65dac97",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-decline-bench-press"
+  },
+  {
+    "id": "24d8175d-e2af-4c8a-8fa2-8a87f8aa003d",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-chest-press"
+  },
+  {
+    "id": "0972f748-cc00-47ef-a435-e9e9412b47e4",
+    "source": "onerm-v1",
+    "externalId": "cable-chest-press"
+  },
+  {
+    "id": "0a76a246-3c35-4db0-a727-4c1d893071d9",
+    "source": "onerm-v1",
+    "externalId": "barbell-floor-press"
+  },
+  {
+    "id": "ee8bd5f9-e4fd-4600-bfbd-c799646225c0",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-floor-press"
+  },
+  {
+    "id": "b8eb7b3a-caf2-428c-8c26-e929cada8e13",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-floor-press"
+  },
+  {
+    "id": "a867608e-2dc2-4504-97a0-00ce2e616a09",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-push-up"
+  },
+  {
+    "id": "56e5f3a1-c911-4e35-a646-d62ade921358",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-push-up"
+  },
+  {
+    "id": "f8453f87-7258-4cc9-b28e-24661d01dc55",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-chest-fly"
+  },
+  {
+    "id": "c471a389-cea0-4267-b74d-5e626f2a9e47",
+    "source": "onerm-v1",
+    "externalId": "cable-chest-fly"
+  },
+  {
+    "id": "b2d2a5d4-2de9-4633-a479-a9dad3a43dc8",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-chest-fly"
+  },
+  {
+    "id": "4af832be-9d85-4928-9e60-d21ebefab809",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-incline-chest-fly"
+  },
+  {
+    "id": "ab7023a3-65d0-4642-84a3-aee601d685fe",
+    "source": "onerm-v1",
+    "externalId": "cable-incline-chest-fly"
+  },
+  {
+    "id": "2746be35-b306-4c2d-82c9-2573ae151a99",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-incline-chest-fly"
+  },
+  {
+    "id": "b17704ca-5ea1-4bb2-981a-39a06c228c15",
+    "source": "onerm-v1",
+    "externalId": "cable-crossover"
+  },
+  {
+    "id": "15d98f36-427f-4f97-a5ee-899046c0dc2d",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-crossover"
+  },
+  {
+    "id": "bea0c74e-3684-4285-a1cb-4caece03fe01",
+    "source": "onerm-v1",
+    "externalId": "cable-low-to-high-fly"
+  },
+  {
+    "id": "14acdedf-e466-4695-a98f-bc07e6d27c32",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-low-to-high-fly"
+  },
+  {
+    "id": "bae1ac34-5ce7-4531-816c-268c7309f68e",
+    "source": "onerm-v1",
+    "externalId": "cable-high-to-low-fly"
+  },
+  {
+    "id": "7c55af95-4b5b-4bf0-8af3-c981ffd16076",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-high-to-low-fly"
+  },
+  {
+    "id": "170be0bc-7f61-4f64-8d96-2a43b22a3dea",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-pullover"
+  },
+  {
+    "id": "ff1524d6-7943-478d-a9f3-80c58e0c86fd",
+    "source": "onerm-v1",
+    "externalId": "cable-pullover"
+  },
+  {
+    "id": "d5e5ce62-f9e5-4911-95fa-bbf6924d5636",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-pullover"
+  },
+  {
+    "id": "f3052cd5-e078-4ffb-b4d9-78bf3837e5f2",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-shoulder-press"
+  },
+  {
+    "id": "e89de5b0-d680-485a-ab2b-6fcc6a09bf81",
+    "source": "onerm-v1",
+    "externalId": "barbell-overhead-press"
+  },
+  {
+    "id": "f4edf7ba-e4a2-4f9c-9668-b941cc00af39",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-overhead-press"
+  },
+  {
+    "id": "92dd32ec-bc69-46cd-895b-fd8667882617",
+    "source": "onerm-v1",
+    "externalId": "landmine-angled-press"
+  },
+  {
+    "id": "97d65654-b21e-4951-a07b-40f74ec2b9e7",
+    "source": "onerm-v1",
+    "externalId": "barbell-angled-press"
+  },
+  {
+    "id": "54719aeb-efb1-4dc8-ba0a-e780f41598f1",
+    "source": "onerm-v1",
+    "externalId": "barbell-bent-over-row"
+  },
+  {
+    "id": "4a096e52-90bb-48a3-b9c7-b4cc105925cd",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-bent-over-row"
+  },
+  {
+    "id": "806206b9-b09f-49a2-a3f0-ad4ae24d7438",
+    "source": "onerm-v1",
+    "externalId": "landmine-bent-over-row"
+  },
+  {
+    "id": "1c021076-4516-4684-8b03-e1e9b78b2c08",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-supported-row"
+  },
+  {
+    "id": "80833b8e-5a30-4745-ab1b-5ada31cf7e60",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-supported-row"
+  },
+  {
+    "id": "38d4ef9b-b1ef-428f-bab9-9d1683a2aeb0",
+    "source": "onerm-v1",
+    "externalId": "cable-single-arm-row"
+  },
+  {
+    "id": "e3f713ba-9764-4ea0-9946-dde2b2a1be2c",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-single-arm-row"
+  },
+  {
+    "id": "0cb84a64-3aba-4131-9de8-d3135c6d8bde",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-chest-supported-row"
+  },
+  {
+    "id": "13793689-d81d-49fc-9d36-e26605245a28",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-chest-supported-row"
+  },
+  {
+    "id": "cde19d38-8241-4ab5-b63b-fe471d2c9228",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-chest-supported-row"
+  },
+  {
+    "id": "36d35236-de65-4887-af2e-c9d948c03d4c",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-seated-row"
+  },
+  {
+    "id": "f33ab8e0-2b1b-46de-ad44-70e83e2e6e41",
+    "source": "onerm-v1",
+    "externalId": "landmine-close-grip-row"
+  },
+  {
+    "id": "54e47f4d-41c2-4b2c-a68c-1acd8a829a39",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-close-grip-row"
+  },
+  {
+    "id": "4624b39d-fdc4-4158-81bc-9ff4b7c3d64f",
+    "source": "onerm-v1",
+    "externalId": "barbell-close-grip-row"
+  },
+  {
+    "id": "4fee0ea5-9484-4a49-93c3-d2d6db071786",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-inverted-row"
+  },
+  {
+    "id": "74d082d4-e48d-4287-a106-932390a48c8f",
+    "source": "onerm-v1",
+    "externalId": "suspension-trainer-inverted-row"
+  },
+  {
+    "id": "849c3919-255e-48e6-bf54-0bc069ff47b7",
+    "source": "onerm-v1",
+    "externalId": "barbell-upright-row"
+  },
+  {
+    "id": "d907af08-8fc7-4cf5-b657-6278ff22b8a7",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-upright-row"
+  },
+  {
+    "id": "29084bb9-57f7-4c6f-a93a-6243222921d6",
+    "source": "onerm-v1",
+    "externalId": "cable-upright-row"
+  },
+  {
+    "id": "5c547e6e-6033-4ceb-9c4c-b06354f801bd",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-rear-delt-row"
+  },
+  {
+    "id": "8dd377c8-f9cc-4e46-a2b2-9df7badf4144",
+    "source": "onerm-v1",
+    "externalId": "cable-rear-delt-row"
+  },
+  {
+    "id": "09a15bf3-a141-4d2c-9f81-a1db6fc27650",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-rear-delt-row"
+  },
+  {
+    "id": "aed583bb-4516-4978-a9ee-43a599de7186",
+    "source": "onerm-v1",
+    "externalId": "barbell-shrug"
+  },
+  {
+    "id": "fd8b654a-4ac6-4530-8b9e-49ed7991a4ac",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-shrug"
+  },
+  {
+    "id": "e835398d-5c32-4dd0-bb78-75aa696394f1",
+    "source": "onerm-v1",
+    "externalId": "trap-bar-shrug"
+  },
+  {
+    "id": "1931bfbb-b692-487b-922f-81395892be9d",
+    "source": "onerm-v1",
+    "externalId": "cable-face-pull"
+  },
+  {
+    "id": "3bf8f2db-1715-4da3-b6ab-7688ee383c27",
+    "source": "onerm-v1",
+    "externalId": "suspension-trainer-face-pull"
+  },
+  {
+    "id": "a2d2e3eb-5389-4887-a178-55e0e3881f88",
+    "source": "onerm-v1",
+    "externalId": "cable-neutral-grip-pulldown"
+  },
+  {
+    "id": "d4668381-2e75-4e25-a467-908476224a03",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-neutral-grip-pulldown"
+  },
+  {
+    "id": "6148a016-2839-48c1-966b-3e043988e169",
+    "source": "onerm-v1",
+    "externalId": "cable-straight-arm-pulldown"
+  },
+  {
+    "id": "e76b14e7-b0f0-42d5-81bc-89cd95ca775b",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-straight-arm-pulldown"
+  },
+  {
+    "id": "07a80971-58a1-4ed4-aa2e-d0091f150fb3",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-pull-up"
+  },
+  {
+    "id": "6afbc3c9-6ec5-4790-a126-dbb93055325f",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-chin-up"
+  },
+  {
+    "id": "c4e91131-0ddb-458d-9c28-43ed646594d2",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-seated-pullover"
+  },
+  {
+    "id": "7d1d8a23-2345-401e-846e-df265c896192",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-seated-pullover"
+  },
+  {
+    "id": "5eccbee2-2eb3-4e9d-86bc-59de4d6b6106",
+    "source": "onerm-v1",
+    "externalId": "cable-seated-pullover"
+  },
+  {
+    "id": "8d37d7d7-8274-48f6-a407-106124e093f7",
+    "source": "onerm-v1",
+    "externalId": "barbell-strict-curl"
+  },
+  {
+    "id": "a89ff17f-bea3-4c91-b4fc-b82961cf24c2",
+    "source": "onerm-v1",
+    "externalId": "ez-bar-strict-curl"
+  },
+  {
+    "id": "6ac710c0-dc39-4335-b3a9-81b32b49bb71",
+    "source": "onerm-v1",
+    "externalId": "cable-strict-curl"
+  },
+  {
+    "id": "eef9d9a4-f8f7-4700-b754-557d7958a509",
+    "source": "onerm-v1",
+    "externalId": "cable-supinated-curl"
+  },
+  {
+    "id": "fca7a8cf-bc01-405d-a69e-a13c6943fa8b",
+    "source": "onerm-v1",
+    "externalId": "cable-hammer-curl"
+  },
+  {
+    "id": "dedd37b0-eb78-4d9d-b98f-1fbb9d09c9d6",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-incline-curl"
+  },
+  {
+    "id": "04aadaf4-ca24-45c2-a5fb-704a6ccb555f",
+    "source": "onerm-v1",
+    "externalId": "cable-incline-curl"
+  },
+  {
+    "id": "8f977413-280a-4927-bb6d-3fc53ee931b8",
+    "source": "onerm-v1",
+    "externalId": "ez-bar-preacher-curl"
+  },
+  {
+    "id": "dcdeb5b1-9a86-4cf6-954b-7e085a323b33",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-preacher-curl"
+  },
+  {
+    "id": "6a2341e2-96fc-449e-bdb6-610313caa00b",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-preacher-curl"
+  },
+  {
+    "id": "f32190e2-d255-4d72-8166-573c37f13db1",
+    "source": "onerm-v1",
+    "externalId": "cable-standing-curl"
+  },
+  {
+    "id": "752fbb81-e7f4-438c-9484-48ce16be0ff8",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-concentration-curl"
+  },
+  {
+    "id": "6a1a8f94-ce92-4067-979b-2df2c0b5f6fb",
+    "source": "onerm-v1",
+    "externalId": "cable-concentration-curl"
+  },
+  {
+    "id": "5a1c5138-d382-4584-b8c5-c4ac36c2f926",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-concentration-curl"
+  },
+  {
+    "id": "146af01a-e502-4ded-921f-5706a04df6da",
+    "source": "onerm-v1",
+    "externalId": "barbell-reverse-curl"
+  },
+  {
+    "id": "5ffee8d9-f9e7-4d87-bf88-f63f4403e27e",
+    "source": "onerm-v1",
+    "externalId": "ez-bar-reverse-curl"
+  },
+  {
+    "id": "b896acd5-0a1c-47e7-98e5-969fb94eb84c",
+    "source": "onerm-v1",
+    "externalId": "cable-reverse-curl"
+  },
+  {
+    "id": "75d7bbba-7a0b-4516-a87c-403c6dada2ad",
+    "source": "onerm-v1",
+    "externalId": "barbell-wrist-curl"
+  },
+  {
+    "id": "40543580-9e24-41ce-8c06-dde3378b6dd7",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-wrist-curl"
+  },
+  {
+    "id": "31eded8f-99d7-471e-b38c-396d5be474f6",
+    "source": "onerm-v1",
+    "externalId": "cable-wrist-curl"
+  },
+  {
+    "id": "351a9167-c56a-4c79-af5b-65e79cb769c2",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-overhead-triceps-extension"
+  },
+  {
+    "id": "5cfc7723-faf0-42d1-b089-fe249a622d85",
+    "source": "onerm-v1",
+    "externalId": "ez-bar-overhead-triceps-extension"
+  },
+  {
+    "id": "653ae3dc-7c60-4e2a-8d69-e2728db1deb7",
+    "source": "onerm-v1",
+    "externalId": "ez-bar-lying-triceps-extension"
+  },
+  {
+    "id": "0aed4746-d1ea-4bbc-97e8-b85633bfbe88",
+    "source": "onerm-v1",
+    "externalId": "barbell-lying-triceps-extension"
+  },
+  {
+    "id": "878cb45f-1dab-48c1-9ced-cce3bc6b074e",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-lying-triceps-extension"
+  },
+  {
+    "id": "75d6a84c-20a2-4ad0-bfd3-21afbe6659b2",
+    "source": "onerm-v1",
+    "externalId": "barbell-close-grip-press"
+  },
+  {
+    "id": "da62bfa5-9620-4840-a311-2b2913248be6",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-close-grip-press"
+  },
+  {
+    "id": "b155bf38-38fc-4d7d-8596-b397471f7a09",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-close-grip-press"
+  },
+  {
+    "id": "7ba4b832-b5b1-4366-875a-c8e17cc7fc15",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-bent-over-triceps-extension"
+  },
+  {
+    "id": "2a0b5c83-f466-4de8-9aae-c8c9cafe321f",
+    "source": "onerm-v1",
+    "externalId": "cable-bent-over-triceps-extension"
+  },
+  {
+    "id": "34ad1997-b1fb-43aa-853c-a769fe6586ff",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-dip"
+  },
+  {
+    "id": "57097447-96c9-4808-a660-a01fc7e8c57d",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-dip"
+  },
+  {
+    "id": "05882099-4055-4693-8d55-871778e790bd",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-bench-dip"
+  },
+  {
+    "id": "49819915-9a9c-4a2e-9678-3ae66d1454ad",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-bench-dip"
+  },
+  {
+    "id": "5568a7b3-1327-4064-b33e-55ec825c5244",
+    "source": "onerm-v1",
+    "externalId": "cable-triceps-kickback"
+  },
+  {
+    "id": "7c31a433-db94-4413-9c46-1d31747d066b",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-triceps-kickback"
+  },
+  {
+    "id": "8a8b0535-01dc-4a1e-9cd6-0982f241b4b9",
+    "source": "onerm-v1",
+    "externalId": "barbell-back-squat"
+  },
+  {
+    "id": "039c0072-407a-49b6-ab47-1d1bdf80dfc7",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-back-squat"
+  },
+  {
+    "id": "7637e98b-6219-4d77-8bca-604bc397ab0b",
+    "source": "onerm-v1",
+    "externalId": "barbell-front-squat"
+  },
+  {
+    "id": "e67df4d3-9e88-4729-8289-fc52c1b8235b",
+    "source": "onerm-v1",
+    "externalId": "smith-machine-front-squat"
+  },
+  {
+    "id": "e67ebe1a-b66c-43c8-96d1-00f39b9faf87",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-front-squat"
+  },
+  {
+    "id": "89415d02-0f7b-4cab-b380-66a731a53881",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-goblet-squat"
+  },
+  {
+    "id": "32d36f80-18d8-4f4a-bbc1-541b0c741c86",
+    "source": "onerm-v1",
+    "externalId": "barbell-box-squat"
+  },
+  {
+    "id": "74b630e8-29c9-4f6e-9ef5-68b2f7d7efe1",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-box-squat"
+  },
+  {
+    "id": "49e985fe-818d-41e8-b2e9-34b8a4e3e54a",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-box-squat"
+  },
+  {
+    "id": "957e295d-f4ac-485d-a35b-7d9a76b78ca4",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-hack-squat"
+  },
+  {
+    "id": "cd9ba214-04e3-4c2f-b7c1-153a68d112dc",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-hack-squat"
+  },
+  {
+    "id": "0312bf1a-94b8-4318-ba92-43e717ce8517",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-split-squat"
+  },
+  {
+    "id": "e78494a4-09b8-49a3-aa98-9de019b47070",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-split-squat"
+  },
+  {
+    "id": "ee3fe618-aa0c-4b0a-aa5e-6c0d361640d0",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-bulgarian-split-squat"
+  },
+  {
+    "id": "92079555-72e4-40a8-a63a-159dcdc60be4",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-sissy-squat"
+  },
+  {
+    "id": "e2edd52e-d315-4842-a739-0d25dd5040df",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-sissy-squat"
+  },
+  {
+    "id": "039d864e-56e5-48a4-821a-442537d659a4",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-step-up"
+  },
+  {
+    "id": "86ddc30d-2609-4e8d-9b34-ec0ca522fcdd",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-step-up"
+  },
+  {
+    "id": "09a83fe9-a697-4767-aa2e-5b78376d57bc",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-reverse-nordic-curl"
+  },
+  {
+    "id": "ffdc173a-8be0-4f18-9a31-168052068fdb",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-reverse-nordic-curl"
+  },
+  {
+    "id": "ec78e553-3548-4809-828e-511cb9479cb8",
+    "source": "onerm-v1",
+    "externalId": "barbell-deadlift"
+  },
+  {
+    "id": "9c53af07-d882-4d23-8d03-49bd91fb9d40",
+    "source": "onerm-v1",
+    "externalId": "trap-bar-deadlift"
+  },
+  {
+    "id": "47e923a2-cac0-4d16-b90d-68a1e70f3cc5",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-deadlift"
+  },
+  {
+    "id": "caec373e-6d50-46a9-92ed-6cabbb20f9cf",
+    "source": "onerm-v1",
+    "externalId": "barbell-romanian-deadlift"
+  },
+  {
+    "id": "1dc1af9b-22ed-4713-8222-eddeb8f18b12",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-romanian-deadlift"
+  },
+  {
+    "id": "a2c12cb6-cc78-4155-b539-096d3d596d7c",
+    "source": "onerm-v1",
+    "externalId": "barbell-stiff-leg-deadlift"
+  },
+  {
+    "id": "1a8889c8-ca3c-4241-8ab7-2a819c8d5692",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-stiff-leg-deadlift"
+  },
+  {
+    "id": "e9ca565f-3b3c-4e37-b520-4bf28e1a96df",
+    "source": "onerm-v1",
+    "externalId": "barbell-good-morning"
+  },
+  {
+    "id": "8228caa7-af8d-45ac-a5c1-e5174319313f",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-hip-thrust"
+  },
+  {
+    "id": "b3098bfa-8d2c-4cc4-ad85-6699c576ea46",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-hip-thrust"
+  },
+  {
+    "id": "8c201a69-c25c-494d-8287-b8751ca3b10c",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-glute-bridge"
+  },
+  {
+    "id": "7b141786-71a9-4d2f-9413-767fe48da48b",
+    "source": "onerm-v1",
+    "externalId": "barbell-glute-bridge"
+  },
+  {
+    "id": "0052c7cc-f392-4031-bf8d-82ef00f48af3",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-back-extension"
+  },
+  {
+    "id": "7df1bf02-ef76-43fb-a0a9-902065ec3b40",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-back-extension"
+  },
+  {
+    "id": "94e1962e-e2f8-4881-a1d4-9ed7c59a411c",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-single-leg-hip-thrust"
+  },
+  {
+    "id": "3024a8c3-bb2e-4ea1-b28f-466cd30fb9bb",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-single-leg-hip-thrust"
+  },
+  {
+    "id": "42cc398d-af93-451d-99d3-c5367d3df52c",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-hip-swing"
+  },
+  {
+    "id": "57fe1218-4de0-43e3-bc76-533ba326e3b6",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-hip-swing"
+  },
+  {
+    "id": "71740c3e-e2f0-4ff3-b562-f11af1b6a0f7",
+    "source": "onerm-v1",
+    "externalId": "cable-pull-through"
+  },
+  {
+    "id": "abcde2ac-2834-45ab-a8fb-d9e8d6957d37",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-forward-lunge"
+  },
+  {
+    "id": "b84e9d70-46d7-44f1-ae30-cfda3fac1db1",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-forward-lunge"
+  },
+  {
+    "id": "bb15cd15-b949-4261-87fe-86c61aeb3bc1",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-reverse-lunge"
+  },
+  {
+    "id": "d9531428-e51e-4084-95de-6fc0f2c07565",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-reverse-lunge"
+  },
+  {
+    "id": "71831eda-4ce4-46aa-ab3e-fdf357b385ec",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-walking-lunge"
+  },
+  {
+    "id": "a9d1f158-89bc-4e85-a7e7-ea2b21b5c627",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-walking-lunge"
+  },
+  {
+    "id": "18125ba7-4e7f-4057-aeea-db1ad934f21b",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-lateral-lunge"
+  },
+  {
+    "id": "629c202c-8ba8-42da-a402-9859c2542976",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-lateral-lunge"
+  },
+  {
+    "id": "574bf5c4-6ab7-4a36-aae5-1ffbda0c8ca8",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-curtsy-lunge"
+  },
+  {
+    "id": "1757243a-4b8e-4e0f-a7c7-1e270f6ee077",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-curtsy-lunge"
+  },
+  {
+    "id": "b6d1eaa7-57ce-45f6-ba16-d695a7d03a06",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-single-leg-press"
+  },
+  {
+    "id": "3e238cf2-539b-4cc0-834b-9762a39614ca",
+    "source": "onerm-v1",
+    "externalId": "plate-loaded-machine-single-leg-press"
+  },
+  {
+    "id": "63adf115-c235-496b-b45a-5f17cad88812",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-single-leg-deadlift"
+  },
+  {
+    "id": "04753774-5742-48cd-b1a7-f517ba1cfe52",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-single-leg-deadlift"
+  },
+  {
+    "id": "4316b99d-282e-4c2c-9012-be6b69af8bdb",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-cossack-squat"
+  },
+  {
+    "id": "0548c45f-bbeb-4683-92c9-7f2c8af57c3a",
+    "source": "onerm-v1",
+    "externalId": "kettlebell-cossack-squat"
+  },
+  {
+    "id": "ec97902b-305f-4c82-b78a-7fa37d09e38d",
+    "source": "onerm-v1",
+    "externalId": "stability-ball-leg-curl"
+  },
+  {
+    "id": "438b8d1e-5824-4bab-8ed7-b9adb248bb31",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-hip-abduction"
+  },
+  {
+    "id": "0f66680a-c1bb-43f0-bbc8-93a6dccb303c",
+    "source": "onerm-v1",
+    "externalId": "selectorized-machine-hip-adduction"
+  },
+  {
+    "id": "5a2c95a0-e615-4906-be0e-849482870daf",
+    "source": "onerm-v1",
+    "externalId": "cable-hip-adduction"
+  },
+  {
+    "id": "4e83d80f-fcc7-42c4-8ee6-a9d2c16664c3",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-standing-calf-raise",
+    "name": "Elevación de talones de pie con peso corporal"
+  },
+  {
+    "id": "c17719d1-3c4b-4f14-bb80-71781f6326d0",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-standing-calf-raise"
+  },
+  {
+    "id": "896274b6-400f-4ead-8253-3ff5b734b019",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-seated-calf-raise"
+  },
+  {
+    "id": "0ad96ff2-9072-4234-bed4-aa71ca924bbb",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-single-leg-calf-raise"
+  },
+  {
+    "id": "93490aa5-0a7c-4168-8102-27fb8352b7fd",
+    "source": "onerm-v1",
+    "externalId": "dumbbell-single-leg-calf-raise"
+  },
+  {
+    "id": "f024273f-ea60-4dba-ac82-8b946971e4ed",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-crunch"
+  },
+  {
+    "id": "6c5b8cd2-6f7d-4874-99b8-b23c4e919074",
+    "source": "onerm-v1",
+    "externalId": "stability-ball-crunch"
+  },
+  {
+    "id": "9b2519ee-a2d8-409e-bfb1-7634ab89ba5c",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-crunch"
+  },
+  {
+    "id": "5d6c2180-4948-47e0-bea4-46cb602d8223",
+    "source": "onerm-v1",
+    "externalId": "cable-kneeling-crunch"
+  },
+  {
+    "id": "85b6c26f-9c89-4243-b38c-cd6414a95882",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-leg-raise"
+  },
+  {
+    "id": "f937a33f-2258-4392-af3a-b62a3bb18822",
+    "source": "onerm-v1",
+    "externalId": "suspension-trainer-leg-raise"
+  },
+  {
+    "id": "b32f328d-27b5-4070-9e3b-94765a468f4a",
+    "source": "onerm-v1",
+    "externalId": "ab-wheel-rollout"
+  },
+  {
+    "id": "1b249363-2031-4090-aabe-379b87f0a2cf",
+    "source": "onerm-v1",
+    "externalId": "bodyweight-russian-twist"
+  },
+  {
+    "id": "1c42777c-32d0-4a20-bcfb-fac40ccc4039",
+    "source": "onerm-v1",
+    "externalId": "weight-plate-russian-twist"
+  },
+  {
+    "id": "56551482-9b4e-43cf-a23f-a38eca946983",
+    "source": "onerm-v1",
+    "externalId": "cable-pallof-press"
+  },
+  {
+    "id": "d9aea94a-727b-4013-8910-716f7a627a89",
+    "source": "onerm-v1",
+    "externalId": "cable-external-rotation"
   }
 ]

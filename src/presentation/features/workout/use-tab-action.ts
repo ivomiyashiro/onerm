@@ -1,23 +1,24 @@
 import type { TabAction } from '@/presentation/components/navigation/tab-bar';
-import { useElapsed } from '@/presentation/features/workout/use-elapsed';
 import {
   useWorkoutAction,
   type WorkoutAction,
 } from '@/presentation/features/workout/use-workout-action';
 import { navigation } from '@/presentation/strings/navigation';
 
-/** The central tab button with its texts and the running time (RF-ENT-01.AC4, AC7). */
+/**
+ * The central tab button with its texts (RF-ENT-01.AC4, AC7). The running time is the disc's own
+ * clock (#229): here it would render the whole tab navigator every second.
+ */
 export function useTabAction(onOpenWorkout: () => void): TabAction {
   const { action, run } = useWorkoutAction(onOpenWorkout);
-  const time = useElapsed(action.kind === 'continue' ? action.startedAt : null);
   const onPress = () => void run();
-  const accessibilityLabel = tabActionName(action, time);
+  const accessibilityLabel = (time: string | null) => tabActionName(action, time);
   if (action.kind === 'continue') {
     return {
       kind: 'continue',
       label: navigation.action.continue,
       accessibilityLabel,
-      time: time ?? undefined,
+      startedAt: action.startedAt,
       onPress,
     };
   }

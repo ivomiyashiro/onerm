@@ -1,5 +1,4 @@
-// Plain CommonJS: Expo only transpiles app.config.ts itself, not the local files it imports.
-const { withAppDelegate, withInfoPlist } = require('expo/config-plugins');
+import { type ConfigPlugin, withAppDelegate, withInfoPlist } from 'expo/config-plugins';
 
 // iOS 27 aborts at launch any app that doesn't adopt the scene-based life cycle (#181).
 // Expo 57 ships the scene delegate (ExpoAppSceneDelegate, exposed to Objective-C as
@@ -14,11 +13,7 @@ const PROVIDER_DECLARATION = 'class AppDelegate: ExpoAppDelegate, ExpoReactNativ
 const WINDOW_START =
   /\n#if os\(iOS\) \|\| os\(tvOS\)\n\s*window = UIWindow\(frame: UIScreen\.main\.bounds\)\n\s*factory\.startReactNative\([^)]*\)\n#endif\n/;
 
-/**
- * @template {Record<string, unknown>} T
- * @param {T} infoPlist
- */
-function addSceneManifest(infoPlist) {
+export function addSceneManifest<T extends Record<string, unknown>>(infoPlist: T) {
   return {
     ...infoPlist,
     UIApplicationSceneManifest: {
@@ -35,11 +30,7 @@ function addSceneManifest(infoPlist) {
   };
 }
 
-/**
- * @param {string} appDelegate
- * @returns {string}
- */
-function adoptSceneLifecycle(appDelegate) {
+export function adoptSceneLifecycle(appDelegate: string): string {
   if (appDelegate.includes(PROVIDER_DECLARATION) && !WINDOW_START.test(appDelegate)) {
     return appDelegate;
   }
@@ -51,8 +42,7 @@ function adoptSceneLifecycle(appDelegate) {
   return appDelegate.replace(CLASS_DECLARATION, PROVIDER_DECLARATION).replace(WINDOW_START, '');
 }
 
-/** @type {import('expo/config-plugins').ConfigPlugin} */
-const withSceneLifecycle = (config) => {
+const withSceneLifecycle: ConfigPlugin = (config) => {
   config = withInfoPlist(config, (mod) => {
     mod.modResults = addSceneManifest(mod.modResults);
     return mod;
@@ -66,6 +56,4 @@ const withSceneLifecycle = (config) => {
   });
 };
 
-module.exports = withSceneLifecycle;
-module.exports.addSceneManifest = addSceneManifest;
-module.exports.adoptSceneLifecycle = adoptSceneLifecycle;
+export default withSceneLifecycle;

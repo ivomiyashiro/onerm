@@ -105,6 +105,7 @@ Una card pasa a `Hecho` cuando:
 - [ ] Tiene tests: unitarios en el dominio y de integración en datos o sync, según la matriz de 09 §2.
 - [ ] La CI pasa: typecheck, lint (incluidas las reglas de capas) y tests.
 - [ ] Los textos de la UI salen de `presentation/strings` (RNF-21).
+- [ ] Si toca un observador, un caso de uso que observa, un ViewModel o S07, S09 o S18, el PR trae los números de `bun run perf` de antes y de después, y cumple la regla de performance de `CLAUDE.md` (#221).
 - [ ] Si cambió una decisión o un comportamiento, se actualizaron la especificación o el ADR.
 - [ ] Si el cambio es visible para el usuario, está en `CHANGELOG.md`.
 - [ ] El PR se mergeó con squash.
@@ -118,4 +119,5 @@ Una card pasa a `Hecho` cuando:
 | Estructura | La app en la raíz del repo, sin monorepo: `app/`, `src/`, `supabase/`, `tools/`, `docs/` (12 §5) |
 | Nombre y bundle id | App **OneRM** · bundle id `com.training.onerm`, igual en Android (`applicationId`) e iOS (`bundleIdentifier`). Decidido el 2026-10-02 (#1) |
 | Ramas de larga vida | Solo `main`, sin `dev`: no hay ambientes ni releases que separar. Los hitos (preentrega, entrega final) se marcan con tags SemVer sobre `main` (`v0.1.0`, `v1.0.0`) |
+| Lenguaje | **Solo TypeScript**, sin JavaScript: código, configuración, scripts y hooks. Una configuración que su herramienta no carga en TypeScript va en JSON (con comentarios donde la herramienta los acepta). Única excepción: `drizzle/migrations.js`, que genera `drizzle-kit`. `bun run lint` falla con cualquier otro `.js`, `.jsx`, `.mjs` o `.cjs` (#219) |
 | Idioma | **Inglés:** código, identificadores (glosario 01), comentarios, tests, scripts, configuración, `README.md`, `CHANGELOG.md`, ramas, commits, PR, `CLAUDE.md` y skills. **Español:** cards (issues), especificación y el resto de `docs/`, y los textos de la UI (`13-textos.md`) |

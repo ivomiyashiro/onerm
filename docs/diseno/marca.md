@@ -101,7 +101,7 @@ Tokens agregados: `line #74746C`, `ph #8C8C85`, `ycur #1B1A10`, `s4 #1D1D1B` (ho
 
 - **± de carga y repeticiones en amarillo** (acción del entrenamiento, junto con Hecho).
 - **Botón principal con carácter:** esquinas cortadas en diagonal (como chapa) y franjas de peligro en el extremo derecho, texto en mayúsculas. Alternativas en la hoja de Acciones: solo esquinas cortadas, o inclinado.
-- **Una sola hoja inferior** para todo (menús de S09, lista de ejercicios, editar serie, teclado de carga, S08, S10). Fondo negro al 74 % con desenfoque y la pantalla de atrás apagada; superficie #242422 con filo de luz. **Flotante** (2026-10-13, al estilo de las hojas de iOS 26): a 8 px de los costados y 8 px por encima de la barra del sistema (o del teclado), con las cuatro esquinas de radio 28 y el filo de luz alrededor.
+- **Una sola hoja inferior** para todo (menús de S09, lista de ejercicios, editar serie, teclado de carga, S08, S10). Fondo negro al 74 % con desenfoque y la pantalla de atrás apagada; superficie #242422 con filo de luz. **Flotante** (2026-10-13, al estilo de las hojas de iOS 26): a 8 px de los costados y 8 px por encima de la barra del sistema (o del teclado), con las cuatro esquinas de radio 28 y el filo de luz alrededor. Si el contenido no entra, la hoja scrollea **sin barra de scroll** a la vista (2026-10-19, #224: decidido con el usuario en lugar de achicar la hoja de prescripción para que entre sin scroll).
 - **Cinta de peligro solo como marca** (logo y franjas del botón). El fin del descanso invierte la tarjeta (fondo claro) y el récord usa el trofeo con brillo de una pasada: la cinta en un aviso se leía como advertencia.
 - **S09:** encabezado sin flechas (título de hasta 2 líneas + menú, "Ver todos" abre la lista); editar una serie abre una hoja; borrar muestra "Serie eliminada · Deshacer" sobre el bloque inferior.
 - **Inicio rediseñado:** menos texto. Tarjeta "Hoy toca" con el mapa de músculos del día como imagen, números clave, semana en curso y una lista compacta (peso sugerido + ícono de qué cambia; el motivo vive en S09 y S10).
@@ -156,7 +156,7 @@ Fotos de prueba: Eduardo Cano Photo Co., Alora Griffiths y Victor Freitas, en Un
 Auditoría automática del archivo de Figma más dos jueces ciegos (usabilidad y cobertura de la especificación). Decisiones aplicadas:
 
 - **Opción elegida en lima suave** en todos los controles (segmentado, esfuerzo, RIR, días): fondo `accent-soft`, borde `accent-border-soft` y texto `accent-text`. El blanco sólido competía con la acción principal.
-- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos.
+- **Diálogos:** la acción destacada va primero y rellena (lima si avanza, gris si es la opción segura). Las demás van como texto, y la destructiva en rojo. Es la regla de 13-textos §8, ahora aplicada en todos. Todas las acciones miden lo mismo: 56 de alto y el ancho del diálogo, cada una con sus colores (#225).
 - **Sin jerga para el novato:** "Máximo estimado" sin la sigla e1RM, sin "RTF", "reserva 2" en lugar de "RIR 2" en el editor y "La última vez" en lugar de "Última W". La versión técnica queda para el detalle avanzado.
 - **Acciones destructivas fuera del lugar de la principal:** en la edición de S19 abajo va "Listo", y "Eliminar entrenamiento" pasa al menú. En las hojas de editar serie, "Eliminar serie" queda más separada.
 - **Un solo verbo:** "Respaldar ahora" (antes "Sincronizar ahora"). La acción del estado de respaldo va debajo del mensaje, para que no se aplaste con la fuente grande.
@@ -242,3 +242,62 @@ Hasta ahora el ícono y el splash eran los de ejemplo de Expo (fondo azul). Se d
 3. **Reducir movimiento:** sin halo ni escala, la capa se desvanece en 200 ms.
 
 Se anima con `Animated` y el driver nativo, como el resto de la app: corre en el hilo de la interfaz aunque JavaScript esté ocupado con las migraciones. No se usa Lottie.
+
+## 17. Resumen del entrenamiento (S12, 2026-10-19, #223)
+
+El cierre de cada entrenamiento tenía que sentirse como un logro. En Figma: «S12 · Resumen con récords (#223)» y «S12 · Resumen sin récords (#223)», en la página 04; los marcos anteriores quedan como referencia.
+
+- **Encabezado:** la marca de completado (disco lima con el check, que se dibuja una vez) arriba de «Entrenamiento · {día}» en lima y «TERMINADO» en display. Al lado del título no entraba.
+- **El número es el héroe (§1):** la **carga total** (RN-ENT-13) grande, en Archivo, con la unidad al lado; duración, series y ejercicios abajo, más chicos, separados por una línea. Sin carga (todo peso corporal), el número grande es la duración. La tarjeta lleva el borde de acento suave.
+- **Récords primero**, con el título en lima y el trofeo con su brillo de una pasada. Sin récords, una línea que cuenta lo sumado («Hoy sumaste 17 series. Así se progresa.») para que la pantalla no quede vacía.
+- **«Lo que hiciste»:** cada ejercicio con una pastilla por serie (carga × reps); la mejor, en lima con borde. El ícono de qué cambia la próxima vez sigue a la derecha. TalkBack lee la fila entera, no pastilla por pastilla.
+- **Próximo entrenamiento:** una tarjeta al final, cerca de «Listo», en lugar del texto chico del encabezado de la sección.
+- **Movimiento (una sola pasada, < 1 s):** encabezado → números → récords → lista → próximo, cada bloque sube 12 px y aparece en 300 ms, 150 ms después del anterior; el número principal cuenta desde 0 en 700 ms. Con «Reducir movimiento», todo aparece quieto y con sus valores. Se anima con `Animated` (driver nativo, salvo el trazo del check, que es SVG).
+- **Háptica:** la de éxito cuando el número termina de contar, y otra cuando entran los récords.
+
+## 18. Inicio: la placa lima (S07, 2026-10-19, #225)
+
+Se exploraron varias direcciones en Figma (página 04, «S07 · Dirección A/B/C», «Rediseño 2» y «Tarjeta sin foto · 1/2/3»). La foto de fondo se descartó: las fotos son de 1024 × 683 y la tarjeta mide unos 400 dp de alto, así que se veían ampliadas casi al doble y tapadas por el velo (borrosas, sin sujeto claro). El usuario eligió **«Tarjeta sin foto · 1 Placa lima»**.
+
+- **La tarjeta es la placa de la marca:** fondo lima, texto oscuro. Arriba, la pastilla «HOY TOCA» (oscura, texto lima) y «Cambiar día ›». El día grande en Archivo, con su inicial gigante de fondo, tono sobre tono (8 %). La rutina, una fila con íconos (~min · ejercicios · series) y el botón oscuro **«EMPEZAR {DÍA} →»** con texto lima («CONTINUAR» si hay uno en curso).
+- **El nombre del día:** 64 pt hasta 6 caracteres, 46 hasta 12 y 34 después; dos líneas como máximo, con «…» (Figma «Placa lima · nombres largos · regla propuesta»). El nombre de un día tiene hasta 20 caracteres (RN-RUT-05): con eso entra entero en dos líneas.
+- **La semana, en su propia tarjeta:** «ESTA SEMANA · 2 de 3» y L M M J V S D: los días hechos en lima, hoy con borde lima y el resto en gris.
+- **«Lo de hoy», una tarjeta con filas numeradas:** el número (lima en los principales), el ejercicio, «Principal · Cuádriceps · 3 × 8–12», la sugerencia y debajo qué cambia contra la última vez: «↑ 5 kg» (lima), «+1 rep» (verde azulado), «Igual» (gris), «↓ 5 kg» (naranja). Nada al calibrar (#196).
+- **Movimiento:** la tarjeta, la semana y la lista entran en una pasada (`components/motion`, como S12); nada con «Reducir movimiento».
+- Solo modo oscuro: la variante en claro que pedía la card no aplica.
+
+## 19. Movimiento en los momentos que se repiten (2026-10-20, #248)
+
+Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame con su línea de tiempo y su ficha). Los tiempos salen de `src/presentation/theme/motion.ts`, que fija los tokens de §6: presión 120 ms, estado 300 ms, entrada 320 ms y un resorte corto. Se usa `Animated` de React Native con el driver nativo (salvo las propiedades de SVG), como en S07 y S12.
+
+| | Dónde | Qué hace |
+|---|---|---|
+| M1 | S09 · registrar serie | El botón principal se hunde a 0,96 y vuelve con resorte; la serie recién registrada entra con un fundido y la siguiente se enciende como actual con otro; el descanso minimizado sube sobre «Hecho» |
+| M2 | ± de carga y repeticiones | Los ± se hunden a 0,92; el valor rueda en la dirección del cambio (sube con +, baja con −); la carga de la hoja, que es un campo, entra solo con un fundido. No rueda al escribirlo ni en un límite |
+| M3 | Descanso terminado | El anillo pulsa una vez (1 → 1,05 → 1) y su halo se expande y se apaga; «¡Descanso terminado!» y el botón entran. Solo si terminó en pantalla |
+| M4 | Barra de pestañas | Una sola píldora que se desliza hasta la pestaña nueva, estirándose un poco en el camino |
+| M5 | S20 · gráfico | La línea se dibuja de izquierda a derecha, cada punto aparece cuando llega la línea y el récord hace pop. Al abrir y al cambiar de período |
+| M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |
+| M7 | Cambio de pestaña | 300 ms: la pantalla que sale se apaga en la primera mitad y la que entra aparece en la segunda, subiendo 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
+
+- **Nada en bucle** y todo en una sola pasada (§7).
+- **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos; quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
+- **Diferencias con el Figma, encontradas en el emulador:**
+  - En M1, después de «Hecho» sube a pantalla completa el descanso, que ya tenía su entrada; las filas cambian detrás y la barra de descanso sube cuando se minimiza.
+  - Las filas de S09 no escalan: en Android, una escala nativa en la fila le cortaba los toques dentro del gesto para cambiar de ejercicio.
+  - Un campo de texto movido con una transformación nativa quedaba fuera de su línea base en Android: la carga de la hoja solo se funde.
+  - Con las dos pantallas a media opacidad a la vez, los textos se mezclaban: M7 las muestra una después de la otra.
+
+## 20. Filas deslizadas como en iOS (2026-10-20, #251)
+
+Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251)» (componente `SwipeAction` y filas de S09, S13 y S15 a medias y abiertas). Corrige el patrón de #198, donde la fila se recortaba con un solo radio y las acciones eran un bloque recto detrás de ella.
+
+- **La tarjeta se corre entera**, con sus cuatro esquinas, y sale por el borde de la pantalla: nada la recorta antes ni hay un fondo detrás.
+- **Las acciones son botones propios** de 76 de ancho y el alto de la fila, con las esquinas de la tarjeta (`radius/lg`; `radius/xl` en S13), a 8 (`space/8`) de la tarjeta y entre sí. «Editar» en `bg/raised`; «Eliminar» en `bg/err-soft-strong` con el texto en `text/err`.
+- **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
+- **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
+- Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
+
+## 21. «Agregar ejercicio» en el encabezado de la lista de S15 (2026-10-20, #256)
+
+Con un día de muchos ejercicios, el botón al final de la lista quedaba fuera de la pantalla. Pasa a un **encabezado de la lista**, sobre las filas del día: a la izquierda «Ejercicios · N» (`titleM`, `text/primary`) y a la derecha «+ Agregar» (icono `plus` de 18 y `bodyMBold` en `text/accent`, de 48 de alto como zona de toque). Se ve al abrir el día, también si está vacío. Con el máximo de ejercicios del día queda deshabilitado (`text/tertiary`, 50 % de opacidad). El nombre accesible sigue siendo «Agregar ejercicio»; la barra inferior vuelve a tener solo «Guardar». Pendiente: llevarlo al frame de S15 en Figma.

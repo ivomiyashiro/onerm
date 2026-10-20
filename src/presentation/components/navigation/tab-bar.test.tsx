@@ -50,8 +50,9 @@ describe('TabBar', () => {
         action={{
           kind: 'continue',
           label: 'Continuar',
-          accessibilityLabel: 'Continuar entrenamiento, 18:42',
-          time: '18:42',
+          accessibilityLabel: (time) => `Continuar entrenamiento, ${time}`,
+          // #229: the disc runs its own clock from the start.
+          startedAt: new Date(Date.now() - (18 * 60 + 42) * 1000),
           onPress,
         }}
         activeKey="index"
@@ -59,6 +60,7 @@ describe('TabBar', () => {
       />,
     );
 
+    expect(screen.getByText('18:42')).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: 'Continuar entrenamiento, 18:42' }));
     expect(onPress).toHaveBeenCalled();
 
@@ -68,7 +70,7 @@ describe('TabBar', () => {
         action={{
           kind: 'disabled',
           label: 'Empezar',
-          accessibilityLabel: 'Empezar, no disponible',
+          accessibilityLabel: () => 'Empezar, no disponible',
           onPress,
         }}
         activeKey="index"

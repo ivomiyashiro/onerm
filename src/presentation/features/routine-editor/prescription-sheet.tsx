@@ -74,9 +74,10 @@ export function PrescriptionSheet({
       onClose={onClose}
     >
       {sheet && form && (
-        // The sheet scrolls when it doesn't fit (decided for #33).
+        // The sheet scrolls when it doesn't fit (decided for #33), without a scroll bar (#224).
         <ScrollView
           style={{ maxHeight: height * MAX_HEIGHT_RATIO }}
+          showsVerticalScrollIndicator={false}
           contentContainerStyle={styles.content}
           keyboardShouldPersistTaps="handled"
         >

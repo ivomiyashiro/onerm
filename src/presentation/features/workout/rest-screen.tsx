@@ -6,9 +6,11 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import type { EffortMode } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { Button } from '@/presentation/components/button/button';
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Text } from '@/presentation/components/text';
+import { Reveal } from '@/presentation/components/motion/reveal';
 import { RestRing } from '@/presentation/features/workout/rest-ring';
 import type { RestView } from '@/presentation/features/workout/rest-view';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
@@ -27,7 +29,6 @@ const PULL_START = 12;
 interface RestScreenProps {
   rest: RestView;
   visible: boolean;
-  remainingMs: number;
   effortMode: EffortMode;
   onAdd: () => void;
   onRestart: () => void;
@@ -52,7 +53,6 @@ export function RestScreen({ visible, ...props }: RestScreenProps) {
 
 function RestPanel({
   rest,
-  remainingMs,
   effortMode,
   onAdd,
   onRestart,
@@ -60,6 +60,8 @@ function RestPanel({
   onMinimize,
   onEffort,
 }: Omit<RestScreenProps, 'visible'>) {
+  // Its own countdown, once per second (#229): the workout behind it doesn't render.
+  const remainingMs = useCountdown(rest.endsAt) ?? 0;
   const insets = useSafeAreaInsets();
   // It comes up over the workout, and goes down when minimized.
   const progress = useOverlayProgress();
@@ -98,12 +100,15 @@ function RestPanel({
       >
         <View style={styles.header}>
           <View style={styles.flex}>
-            <Text
-              style={[typography.titleL, { color: colors.textPrimary }]}
-              accessibilityRole="header"
-            >
-              {finished ? text.rest.finished : text.rest.title}
-            </Text>
+            {/* #248 M3: «¡Descanso terminado!» comes in when the rest ends. */}
+            <Reveal key={finished ? 'finished' : 'running'} rise={10}>
+              <Text
+                style={[typography.titleL, { color: colors.textPrimary }]}
+                accessibilityRole="header"
+              >
+                {finished ? text.rest.finished : text.rest.title}
+              </Text>
+            </Reveal>
             <Text style={[typography.bodyS, { color: colors.textSecondary }]} numberOfLines={1}>
               {rest.exerciseName}
             </Text>
@@ -162,7 +167,9 @@ function RestPanel({
         </View>
         <View style={styles.bottom}>
           {finished ? (
-            <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
+            <Reveal key="finished" rise={24}>
+              <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
+            </Reveal>
           ) : (
             <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
           )}

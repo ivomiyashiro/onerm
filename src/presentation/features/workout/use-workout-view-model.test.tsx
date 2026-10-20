@@ -343,24 +343,36 @@ describe('useWorkoutViewModel', () => {
   });
 
   describe('lifecycle (RF-ENT-08, RF-ENT-09, RF-ENT-11, RF-ENT-12)', () => {
-    it('RF-ENT-08.AC1: «Saltear ejercicio» marks it skipped and goes to the next one', async () => {
+    it('RF-ENT-08.AC1: moving on to the next one marks nothing; finishing does (RN-ENT-09)', async () => {
       const { result, workouts, content } = await renderViewModel();
 
-      await act(() => result.current.actions.skipExercise());
+      await act(() => result.current.actions.goTo(1));
 
-      expect(workouts.inProgress!.exercises[0].status).toBe('skipped');
-      expect(content()).toMatchObject({ exerciseIndex: 1, skipped: false });
+      expect(content().exerciseIndex).toBe(1);
+      expect(workouts.inProgress!.exercises[0].status).not.toBe('skipped');
     });
 
-    it('RF-ENT-08.AC3: back on a skipped exercise its sets are logged as usual', async () => {
-      const { result, workouts, content } = await renderViewModel();
-      await act(() => result.current.actions.skipExercise());
+    it('RF-ENT-08.AC1 (D1): what was passed over without sets does not come back; then Finalizar', async () => {
+      const { result, content } = await renderViewModel();
+      await act(() => result.current.actions.goTo(1));
 
-      await act(() => result.current.actions.goTo(0));
-      expect(content()).toMatchObject({ skipped: true, primary: 'done' });
-      await act(() => result.current.actions.done());
+      while (content().rows.some((row) => row.kind === 'current')) {
+        await act(() => result.current.actions.done());
+      }
 
-      expect(workouts.inProgress!.exercises[0].status).toBe('done');
+      expect(content().exerciseIndex).toBe(1);
+      expect(content().primary).toBe('finish');
+    });
+
+    it('RF-ENT-08.AC1 (D1): passed over is still pending: Finalizar asks with D10', async () => {
+      const { result, content } = await renderViewModel();
+      await act(() => result.current.actions.goTo(1));
+      while (content().rows.some((row) => row.kind === 'current')) {
+        await act(() => result.current.actions.done());
+      }
+
+      expect(await act(() => result.current.actions.finish())).toBeNull();
+      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 1 });
     });
 
     it('RF-ENT-09.AC1: S11 lists the same muscle first and searches any other', async () => {
@@ -408,7 +420,7 @@ describe('useWorkoutViewModel', () => {
       expect(content()).toMatchObject({ exerciseIndex: 1 });
     });
 
-    it('RF-ENT-11.AC2: with exercises without sets, D10 asks first', async () => {
+    it('RF-ENT-11.AC2, RF-ENT-08.AC1: with exercises without sets, D10 asks first; they end skipped', async () => {
       const { result, workouts } = await renderViewModel();
       await act(() => result.current.actions.done());
 
@@ -418,6 +430,28 @@ describe('useWorkoutViewModel', () => {
 
       expect(id).toBe(RUNNING.id);
       expect(workouts.finished.at(-1)!.exercises.map((e) => e.status)).toEqual(['done', 'skipped']);
+    });
+
+    it('#241: finishing leaves D10 open: S12 replaces the screen with it, nothing closes first', async () => {
+      const { result } = await renderViewModel();
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.finish());
+
+      await act(() => result.current.actions.confirmFinish());
+
+      expect(result.current.confirm).toEqual({ kind: 'finish', pending: 1 });
+    });
+
+    it('#241: when it could not finish, D10 closes', async () => {
+      const { result } = await renderViewModel();
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.finish());
+      await act(() => result.current.actions.confirmFinish());
+
+      // Already finished: there is none in progress to finish.
+      expect(await act(() => result.current.actions.confirmFinish())).toBeNull();
+
+      expect(result.current.confirm).toBeNull();
     });
 
     it('RF-ENT-11.AC5: without any effective set, finishing offers to discard (D18)', async () => {

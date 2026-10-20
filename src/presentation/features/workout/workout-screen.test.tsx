@@ -218,11 +218,11 @@ describe('WorkoutScreen (S09)', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('RF-ENT-09: «Sustituir ejercicio» opens S11; the substitute says what it replaces', async () => {
+  it('RF-ENT-09: the button by the name opens S11; the substitute says what it replaces', async () => {
     const { user } = await renderScreen();
 
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.substitute }));
+    // #222: no exercise menu, the button is by the name.
+    await user.press(screen.getByRole('button', { name: text.exercise.substitute(ROW.name) }));
     expect(screen.getByText(text.substitute.sameMuscle)).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: CABLE_ROW.name }));
 
@@ -233,22 +233,20 @@ describe('WorkoutScreen (S09)', () => {
   it('S11 empty (08 §6): a search with no results says so', async () => {
     const { user } = await renderScreen();
 
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.substitute }));
+    await user.press(screen.getByRole('button', { name: text.exercise.substitute(ROW.name) }));
     await user.type(screen.getByLabelText(text.substitute.search), 'zzzz');
 
     expect(screen.getByText(text.substitute.noResultsTitle)).toBeOnTheScreen();
   });
 
-  it('RF-ENT-08: «Saltear ejercicio» goes to the next one; «Ver todos» marks it', async () => {
+  it('RF-ENT-05.AC1: «Agregar serie» under the last set adds one with its values', async () => {
     const { user } = await renderScreen();
+    const sets = () => screen.getAllByRole('button', { name: /^Serie \d/ }).length;
+    const before = sets();
 
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.title(ROW.name) }));
-    await user.press(screen.getByRole('button', { name: text.exerciseMenu.skip }));
-    expect(screen.getByRole('header', { name: PRESS.name })).toBeOnTheScreen();
-    await user.press(screen.getByRole('button', { name: text.header.seeAll }));
+    await user.press(screen.getByRole('button', { name: text.exercise.addSet }));
 
-    expect(screen.getByText(text.exerciseList.skipped)).toBeOnTheScreen();
+    expect(sets()).toBe(before + 1);
   });
 
   it('«Ver todos» goes to another exercise', async () => {

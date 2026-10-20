@@ -212,6 +212,28 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByText(dialogs.D15.title('Pierna'))).toBeOnTheScreen();
   });
 
+  it('#256: the list header counts the exercises and offers «Agregar ejercicio» at the top', async () => {
+    await renderScreen();
+    expect(screen.getByText(text.editor.exerciseCount(2))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
+  });
+
+  it('#256: an empty day also shows the header with «Agregar ejercicio»', async () => {
+    await renderScreen({ routineId: null, routines: [] });
+    expect(screen.getByText(text.editor.exerciseCount(0))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
+  });
+
+  it('#256: at the limit of exercises in a day «Agregar ejercicio» is disabled', async () => {
+    const exercises = Array.from({ length: 20 }, (_, i) =>
+      aRoutineExercise({ id: `re-${i}`, exerciseId: 'curl' }),
+    );
+    const full = aRoutine({ days: [aRoutineDay({ exercises })] });
+    await renderScreen({ routines: [full] });
+    expect(screen.getByText(text.editor.exerciseCount(20))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeDisabled();
+  });
+
   it('the day sheet: tapping the chosen day, or its options button, opens its options', async () => {
     const { user } = await renderScreen();
     await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
@@ -219,6 +241,18 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByLabelText(text.editor.day.name)).toBeOnTheScreen();
     // The only day: nothing to move or remove.
     expect(screen.queryByRole('button', { name: text.editor.day.remove })).not.toBeOnTheScreen();
+  });
+
+  it('RN-RUT-05 (#225): a day name keeps 20 characters at most, with its count', async () => {
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
+    const field = screen.getByLabelText(text.editor.day.name);
+
+    await user.clear(field);
+    await user.type(field, 'Pecho, hombros y tríceps');
+
+    expect(field).toHaveDisplayValue('Pecho, hombros y trí');
+    expect(screen.getByText(text.editor.notesCount(20, 20))).toBeOnTheScreen();
   });
 
   it('#192: removing a day with exercises asks with D19 first', async () => {

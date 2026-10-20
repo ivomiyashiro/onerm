@@ -42,7 +42,7 @@ Escenario: AC1 — Próximo día
   Dado que tengo una rutina activa
   Cuando abro la app
   Entonces el inicio muestra el próximo día (RN-RUT-01) con sus ejercicios y la carga sugerida de cada uno
-  Y la acción principal es "Empezar" (botón central de la barra de pestañas, 08 §2)
+  Y la acción principal es "Empezar", en la tarjeta del día y en el botón central de la barra de pestañas (08 §2)
 
 Escenario: AC2 — Empezar
   Dado que veo el próximo día
@@ -77,6 +77,18 @@ Escenario: AC7 — Desde cualquier pestaña
   Cuando toco el botón central de la barra de pestañas
   Entonces empiezo el próximo día, o vuelvo al entrenamiento en curso si hay uno
   Y sin rutina activa el botón está deshabilitado
+
+Escenario: AC8 — Qué me espera hoy
+  Dado que veo el próximo día
+  Entonces la tarjeta muestra el día, su rutina, el tiempo estimado, los ejercicios y las series, y "Empezar" ("Continuar" con el tiempo si hay uno en curso)
+  Y la semana muestra los siete días, de lunes a domingo (RN-GEN-01): los días con un entrenamiento terminado marcados, hoy resaltado y en cuántos días entrené sobre mis días por semana («2 de 3»; dos entrenamientos el mismo día cuentan uno)
+  Y en «Lo de hoy» cada ejercicio va numerado, con su músculo principal y su prescripción («Cuádriceps · 3 × 8–12»), su sugerencia y qué cambia contra la última vez: «↑ 2,5 kg», «+1 rep», «Igual» o «↓ 5 kg» (sin nada si se calibra, #196)
+  Y los ejercicios principales van destacados (rol de RF-RUT-03)
+
+Escenario: AC9 — Nombre de día largo
+  Dado que el día se llama «Tren superior A»
+  Cuando veo la tarjeta
+  Entonces el nombre se achica según su largo y ocupa dos líneas como máximo, terminando en «…» si no entra (un nombre viejo de más de 20 caracteres, RN-RUT-05)
 ```
 
 ---
@@ -311,9 +323,13 @@ Escenario: AC2 — Fuera del entrenamiento
 
 ```gherkin
 Escenario: AC1 — Saltear
-  Dado que estoy en un ejercicio
-  Cuando toco "Saltear ejercicio"
-  Entonces el ejercicio queda marcado como salteado y paso al siguiente
+  Dado que estoy en un ejercicio sin series efectivas
+  Cuando deslizo al siguiente ejercicio (o elijo otro en la lista de ejercicios)
+  Entonces paso a ese ejercicio
+  Y «Hecho» ya no vuelve a él al terminar las series de otro (RF-ENT-02.AC7)
+  Y cuando no queda otro ejercicio pendiente, la acción principal es «Finalizar entrenamiento»
+  Y al finalizar, D10 lo lista y queda salteado si no tiene series efectivas (RN-ENT-09)
+  Y si vuelvo a él, cuenta otra vez como pendiente
 
 Escenario: AC2 — No penaliza la progresión
   Dado que salteé un ejercicio
@@ -378,7 +394,7 @@ Escenario: AC5 — Marcado en el historial
 
 | Prioridad | Estado | Actor | Reglas |
 |---|---|---|---|
-| Must | Borrador | Usuario | RN-ENT-09, RN-RUT-01 |
+| Must | Borrador | Usuario | RN-ENT-09, RN-ENT-13, RN-RUT-01 |
 
 ```gherkin
 Escenario: AC1 — Finalizar completo
@@ -411,7 +427,16 @@ Escenario: AC5 — Sin series efectivas
   Y si lo descarto, el próximo día no cambia y el historial queda igual (RF-ENT-12)
 ```
 
-**Notas:** AC5 es la decisión D2 de la revisión de F5 (2026-10-14). Un entrenamiento abandonado (RN-ENT-11) se puede finalizar igual desde D02.
+```gherkin
+Escenario: AC6 — La carga total es el dato principal
+  Dado que finalicé un entrenamiento con series con carga
+  Cuando veo el resumen
+  Entonces el dato principal es la carga total levantada (RN-ENT-13), en mi unidad
+  Y la duración, las series y los ejercicios quedan como datos secundarios
+  Pero si todas las series efectivas fueron de peso corporal, el dato principal es la duración
+```
+
+**Notas:** AC5 es la decisión D2 de la revisión de F5 (2026-10-14). AC6 y el rediseño de S12 son de #223 (2026-10-18/19). Un entrenamiento abandonado (RN-ENT-11) se puede finalizar igual desde D02.
 
 ---
 

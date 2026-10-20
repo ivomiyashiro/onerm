@@ -12,7 +12,7 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import { limitingSide } from '@/domain/rules/limiting-side';
 import { sortByPosition } from '@/domain/rules/position-order';
 import { personalRecords, workoutRecords } from '@/domain/rules/progress/personal-records';
-import { workoutMinutes } from '@/domain/rules/progress/workout-stats';
+import { totalLoadKg, workoutMinutes } from '@/domain/rules/progress/workout-stats';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import type { E1rm } from '@/domain/rules/suggestion/e1rm';
@@ -33,12 +33,19 @@ export type SummaryRecord =
     }
   | { readonly kind: 'e1rm'; readonly name: string | null; readonly e1rm: E1rm };
 
+/** A set as S12 shows it: one side's reps for a unilateral set, by its limiting side. */
+export interface SummarySet {
+  readonly loadKg: number | null;
+  readonly reps: number;
+}
+
 /** «Lo que hiciste»: one line per workout exercise. */
 export type SummaryLine =
   | {
       readonly name: string | null;
       readonly status: 'done';
-      readonly sets: number;
+      /** Its effective sets, in order (#223: one chip each). */
+      readonly sets: readonly SummarySet[];
       /** The heaviest effective set, by its limiting side; the most reps on a tie. */
       readonly best: { readonly loadKg: number | null; readonly reps: number };
       /** What the engine suggests next time, for its icon. */
@@ -52,6 +59,8 @@ export interface WorkoutSummary {
   readonly minutes: number;
   /** Effective sets (RN-SUG-01). */
   readonly sets: number;
+  /** RN-ENT-13: the main figure (RF-ENT-11.AC6); null when no effective set has a load. */
+  readonly totalLoadKg: number | null;
   readonly exercisesDone: number;
   readonly exercisesTotal: number;
   readonly records: readonly SummaryRecord[];
@@ -87,14 +96,22 @@ export function recordsOf(
   return records;
 }
 
-function bestSet(exercise: WorkoutExercise) {
-  let best: { loadKg: number | null; reps: number } | null = null;
-  for (const set of exercise.sets.filter(isEffectiveSet)) {
-    const reps = set.isUnilateral ? limitingSide(set).reps : set.reps;
-    const load = set.loadKg ?? 0;
+function summarySets(exercise: WorkoutExercise): SummarySet[] {
+  return sortByPosition(exercise.sets)
+    .filter(isEffectiveSet)
+    .map((set) => ({
+      loadKg: set.loadKg,
+      reps: set.isUnilateral ? limitingSide(set).reps : set.reps,
+    }));
+}
+
+function bestSet(sets: readonly SummarySet[]) {
+  let best: SummarySet | null = null;
+  for (const { loadKg, reps } of sets) {
+    const load = loadKg ?? 0;
     const bestLoad = best?.loadKg ?? 0;
     if (best === null || load > bestLoad || (load === bestLoad && reps > best.reps)) {
-      best = { loadKg: set.loadKg, reps };
+      best = { loadKg, reps };
     }
   }
   return best;
@@ -143,11 +160,11 @@ export class ObserveWorkoutSummary {
 
           const lines = ordered.map((exercise): SummaryLine => {
             const name = nameOf(exercise.exerciseId);
-            const best = bestSet(exercise);
+            const sets = summarySets(exercise);
+            const best = bestSet(sets);
             if (best === null) return { name, status: 'skipped' };
             const routineExerciseId = isSubstitution(exercise) ? null : exercise.routineExerciseId;
             const next = suggestionFor({ ...exercise, routineExerciseId }, inputs).reason.code;
-            const sets = exercise.sets.filter(isEffectiveSet).length;
             return { name, status: 'done', sets, best, next };
           });
 
@@ -167,9 +184,10 @@ export class ObserveWorkoutSummary {
             dayName: workout.dayNameSnapshot,
             minutes,
             sets: lines.reduce(
-              (total, line) => total + (line.status === 'done' ? line.sets : 0),
+              (total, line) => total + (line.status === 'done' ? line.sets.length : 0),
               0,
             ),
+            totalLoadKg: totalLoadKg(workout),
             exercisesDone: lines.filter((line) => line.status === 'done').length,
             exercisesTotal: lines.length,
             records,

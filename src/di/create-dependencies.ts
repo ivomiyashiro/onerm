@@ -95,7 +95,6 @@ import {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
-  SkipExercise,
   SubstituteExercise,
 } from '@/domain/usecases/workout-lifecycle';
 import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
@@ -401,7 +400,6 @@ export function createDependencies(
       skipRest: stopRest,
       askRestPermission: new AskRestPermission(restTimerRepository, permissions),
       readRestPermissions: new ReadRestPermissions(restTimerRepository, permissions),
-      skipExercise: new SkipExercise(workoutRepository),
       substituteExercise: new SubstituteExercise(workoutRepository, newId),
       finishWorkout: new FinishWorkout(workoutRepository, stopRest, now),
       discardWorkout: new DiscardWorkout(workoutRepository, stopRest),

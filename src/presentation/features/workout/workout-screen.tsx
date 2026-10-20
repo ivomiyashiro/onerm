@@ -10,6 +10,7 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Snackbar } from '@/presentation/components/feedback/snackbar';
 import { Icon } from '@/presentation/components/icons/icon';
 import { SwipeRow, type SwipeA11y } from '@/presentation/components/list/swipe-row';
+import { Reveal } from '@/presentation/components/motion/reveal';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
@@ -25,9 +26,10 @@ import { SetRow } from '@/presentation/features/workout/set-row';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import { SetSheet } from '@/presentation/features/workout/set-sheet';
 import { SubstituteSheet } from '@/presentation/features/workout/substitute-sheet';
-import { useOnScreenSince } from '@/presentation/features/workout/use-on-screen-since';
-import { useCountdown } from '@/presentation/features/workout/use-countdown';
-import { useElapsed } from '@/presentation/features/workout/use-elapsed';
+import { ElapsedText } from '@/presentation/components/clock/elapsed-text';
+import { useOnScreenSince } from '@/presentation/components/clock/use-on-screen-since';
+import { useCountdown } from '@/presentation/components/clock/use-countdown';
+import { useElapsed } from '@/presentation/components/clock/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
 import {
   useWorkoutViewModel,
@@ -84,6 +86,8 @@ export function WorkoutScreen({ onClose, onFinished }: WorkoutScreenProps) {
           content={state}
           bottomInset={insets.bottom}
           finish={async (run) => {
+            // #241: the dialog stays open while it finishes; a second tap finishes nothing.
+            if (closed.current) return;
             // Finishing leaves no workout in progress: S12 replaces the screen, not «back».
             closed.current = true;
             const id = await run();
@@ -114,26 +118,9 @@ function Workout({
   finish: (run: () => Promise<Id | null>) => Promise<void>;
 }) {
   const { sheet, deleted, actions, rest, restMinimized, dialog, notice, confirm } = viewModel;
-  const remaining = useCountdown(rest?.endsAt ?? null);
-  const restEnded = remaining !== null && remaining <= 0;
-
-  // RF-ENT-06.AC6: once, when it ends with the app open (not when opening an old one, nor when
-  // coming back to one that ended in the background: the notification already said so).
-  const onScreen = useOnScreenSince() !== null;
-  const wasRunning = useRef(false);
-  useEffect(() => {
-    if (remaining === null || !onScreen) {
-      wasRunning.current = false;
-      return;
-    }
-    if (!restEnded) wasRunning.current = true;
-    else if (wasRunning.current) {
-      wasRunning.current = false;
-      Vibration.vibrate(REST_END_VIBRATION);
-    }
-  }, [remaining, restEnded, onScreen]);
+  // #229: the clocks live in leaf components (the time, the rest, its vibration, the menu), so
+  // their ticks don't render the whole screen.
   const { exercise, exercises, exerciseIndex, rows, effortMode } = content;
-  const time = useElapsed(content.startedAt);
   const unit = exercise.grid?.unit ?? null;
   const name = exercise.name ?? catalog.detail.unavailable;
   const { prescription } = exercise.exercise;
@@ -199,7 +186,11 @@ function Workout({
         <Text style={[typography.bodyLStrong, { color: colors.textPrimary }]}>
           {content.dayName}
         </Text>
-        <Text style={[typography.monoS, styles.flex, { color: colors.textSecondary }]}>{time}</Text>
+        <ElapsedText
+          // Under the full-screen rest nobody sees it: it doesn't tick (#229).
+          startedAt={rest && !restMinimized ? null : content.startedAt}
+          style={[typography.monoS, styles.flex, { color: colors.textSecondary }]}
+        />
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={text.workoutMenu.title}
@@ -233,13 +224,14 @@ function Workout({
             >
               {name}
             </Text>
+            {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
             <Pressable
               accessibilityRole="button"
-              accessibilityLabel={text.exerciseMenu.title(name)}
-              onPress={actions.openExerciseMenu}
+              accessibilityLabel={text.exercise.substitute(name)}
+              onPress={actions.openSubstitute}
               style={styles.iconButton}
             >
-              <Icon name="dots" color={colors.textPrimary} />
+              <Icon name="swap" color={colors.textPrimary} />
             </Pressable>
           </View>
           {exercise.plannedName !== null && (
@@ -325,17 +317,28 @@ function Workout({
               );
             })}
           </View>
+          {/* RF-ENT-05.AC1: one more set, preloaded with the values of the last one. */}
+          <View style={styles.addSet}>
+            <Button
+              variant="tertiary"
+              label={text.exercise.addSet}
+              icon="plus"
+              onPress={actions.addSet}
+            />
+          </View>
         </ScrollView>
       </GestureDetector>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s8 }]}>
         {notice && <RestNotice notice={notice} onPress={() => void actions.openNotice()} />}
-        {rest && restMinimized && remaining !== null && (
-          <RestBar
-            rest={rest}
-            remainingMs={remaining}
-            onAdd={() => void actions.addRest()}
-            onExpand={actions.expandRest}
-          />
+        {rest && restMinimized && (
+          // #248 M1: the minimized rest rises over «Hecho».
+          <Reveal>
+            <RestBar
+              rest={rest}
+              onAdd={() => void actions.addRest()}
+              onExpand={actions.expandRest}
+            />
+          </Reveal>
         )}
         {content.awaitingEffort && (
           <CalibrationEffort
@@ -391,11 +394,11 @@ function Workout({
         onClose={actions.closeSheet}
       />
       <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />
-      {rest && remaining !== null && (
+      <RestEndVibration endsAt={rest?.endsAt ?? null} />
+      {rest && (
         <RestScreen
           rest={rest}
           visible={!restMinimized}
-          remainingMs={remaining}
           effortMode={effortMode}
           onAdd={() => void actions.addRest()}
           onRestart={() => void actions.restartRest()}
@@ -441,44 +444,14 @@ function Workout({
           );
         })}
       </BottomSheet>
-      <BottomSheet
-        visible={sheet?.kind === 'exerciseMenu'}
-        title={name}
-        subtitle={text.header.exerciseOf(exerciseIndex + 1, exercises.length)}
-        closeLabel={common.close}
-        onClose={actions.closeSheet}
-      >
-        <MenuItem
-          icon="swap"
-          label={text.exerciseMenu.substitute}
-          onPress={actions.openSubstitute}
-        />
-        <MenuItem
-          icon="skip"
-          label={text.exerciseMenu.skip}
-          onPress={() => void actions.skipExercise()}
-        />
-        <MenuItem icon="plus" label={text.exerciseMenu.addSet} onPress={actions.addSet} />
-      </BottomSheet>
-      <BottomSheet
+      <WorkoutMenu
         visible={sheet?.kind === 'workoutMenu'}
-        title={text.workoutMenu.title}
-        subtitle={text.workoutMenu.subtitle(content.dayName, time ?? '')}
-        closeLabel={common.close}
+        dayName={content.dayName}
+        startedAt={content.startedAt}
+        onFinish={() => void finish(actions.finish)}
+        onDiscard={actions.discard}
         onClose={actions.closeSheet}
-      >
-        <MenuItem
-          icon="flag"
-          label={text.workoutMenu.finish}
-          onPress={() => void finish(actions.finish)}
-        />
-        <MenuItem
-          icon="trash"
-          label={text.workoutMenu.discard}
-          destructive
-          onPress={actions.discard}
-        />
-      </BottomSheet>
+      />
       <SubstituteSheet
         sheet={sheet?.kind === 'substitute' ? sheet : null}
         originalName={name}
@@ -533,6 +506,61 @@ function Workout({
 }
 
 /**
+ * RF-ENT-06.AC6: a vibration once, when the rest ends with the app open (not when opening an old
+ * one, nor when coming back to one that ended in the background: the notification already said
+ * so). A leaf with its own countdown, so its ticks render nothing else (#229).
+ */
+function RestEndVibration({ endsAt }: { endsAt: Date | null }) {
+  const remaining = useCountdown(endsAt);
+  const restEnded = remaining !== null && remaining <= 0;
+  const onScreen = useOnScreenSince() !== null;
+  const wasRunning = useRef(false);
+  useEffect(() => {
+    if (remaining === null || !onScreen) {
+      wasRunning.current = false;
+      return;
+    }
+    if (!restEnded) wasRunning.current = true;
+    else if (wasRunning.current) {
+      wasRunning.current = false;
+      Vibration.vibrate(REST_END_VIBRATION);
+    }
+  }, [remaining, restEnded, onScreen]);
+  return null;
+}
+
+/** The workout's «…» (08 §5): its subtitle has the running time, which only ticks while open. */
+function WorkoutMenu({
+  visible,
+  dayName,
+  startedAt,
+  onFinish,
+  onDiscard,
+  onClose,
+}: {
+  visible: boolean;
+  dayName: string;
+  startedAt: Date;
+  onFinish: () => void;
+  onDiscard: () => void;
+  onClose: () => void;
+}) {
+  const time = useElapsed(visible ? startedAt : null);
+  return (
+    <BottomSheet
+      visible={visible}
+      title={text.workoutMenu.title}
+      subtitle={text.workoutMenu.subtitle(dayName, time ?? '')}
+      closeLabel={common.close}
+      onClose={onClose}
+    >
+      <MenuItem icon="flag" label={text.workoutMenu.finish} onPress={onFinish} />
+      <MenuItem icon="trash" label={text.workoutMenu.discard} destructive onPress={onDiscard} />
+    </BottomSheet>
+  );
+}
+
+/**
  * RF-SUG-02.AC4 (Figma «S09 · Calibración»): the effort of a calibration set, required before the
  * next one; one row per side when the sides differ.
  */
@@ -559,6 +587,7 @@ const styles = StyleSheet.create({
   effort: { gap: space.s10, paddingBottom: space.s8 },
   screen: { flex: 1, backgroundColor: colors.bgBase },
   message: { padding: space.s16 },
+  addSet: { alignSelf: 'center' },
   header: {
     flexDirection: 'row',
     alignItems: 'baseline',

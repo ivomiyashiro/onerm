@@ -142,8 +142,10 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
   /**
    * Changes whenever a row of a finished workout does: every write moves its `updated_at`
    * (RN-SYNC-02), and a new or deleted row changes a count. The sum and the latest stamp together
-   * make a change that leaves both as they were practically impossible (accepted). Deleted rows count too, so a delete
-   * shows. Three aggregate queries over indexed columns: cheap next to reading the history.
+   * make a change that leaves both as they were practically impossible (accepted). Deleted rows
+   * count too, so a delete shows. Three aggregate queries answered from covering indexes, without
+   * reading a row (#228): cheap next to reading the history, and run on every write to the workout
+   * tables.
    */
   private finishedFingerprint(): string {
     const db = this.db();

@@ -41,7 +41,7 @@ In `.claude/skills/` (pinned in `skills-lock.json`; updated with `npx skills upd
 | `expo-upgrade` | expo/skills | Upgrading the Expo SDK and fixing dependencies |
 | `react-native-testing` | callstackincubator/agent-skills | Tests with Testing Library v14 (async render and userEvent) |
 
-**Pre-push review:** every push by Claude goes through `/pre-push`. It runs the checks and read-only reviewers on Sonnet, defined in `.claude/agents/`: `code-reviewer` on every code change (standards, architecture and React, and correctness against the card and the specification) and `security-reviewer` only when sensitive paths change (secrets, RNF-07/08/09, RLS, dependencies, CI). After the first push, only the new commits are reviewed. The `.claude/hooks/require-pre-push.mjs` hook blocks a push whose `HEAD` wasn't approved; pushes made by hand aren't affected.
+**Pre-push review:** every push by Claude goes through `/pre-push`. It runs the checks and read-only reviewers on Sonnet, defined in `.claude/agents/`: `code-reviewer` on every code change (standards, architecture and React, and correctness against the card and the specification) and `security-reviewer` only when sensitive paths change (secrets, RNF-07/08/09, RLS, dependencies, CI). After the first push, only the new commits are reviewed. The `.claude/hooks/require-pre-push.ts` hook blocks a push whose `HEAD` wasn't approved; pushes made by hand aren't affected.
 
 Discarded: the EAS ones (cloud builds and stores, paid and out of scope), `expo-dev-client` (assumes EAS; here we build locally with `expo run:android`), `expo-native-ui`/`expo-ui`/`expo-design-system` (the design comes from Figma and our own tokens), `react-navigation` (we use Expo Router) and `react-native-best-practices` (6 MB of images; the required performance is in the engine, which is pure TypeScript; may be added in F9).
 
@@ -78,12 +78,12 @@ The `tdd` skill has the detail: what each layer's tests own, the tests not to wr
   - repositories take `AppDatabase` (`BaseSQLiteDatabase<'sync', unknown>`), so the same code runs on `expo-sqlite` and `better-sqlite3`;
   - the change notifications behind `observe…()` don't exist in Jest: test the query and the re-run on a manual change event, and check the live wiring on the emulator;
   - Jest's SQLite (3.53) is newer than the device's (3.50): don't rely on newer SQL features;
-  - `bun run test` runs the unit tests and `bun run test:int` the integration tests (`jest.int.config.js`, plain Node; also `*.int.test.tsx` for wiring tests such as `AppProviders`), both in CI;
+  - `bun run test` runs the unit tests and `bun run test:int` the integration tests (`jest.int.config.json`, plain Node; also `*.int.test.tsx` for wiring tests such as `AppProviders`), both in CI;
   - repositories observe through `observeQuery` and `TableChanges`: `ManualTableChanges.emit('<table>')` plays a write in the tests;
   - a schema change in `src/data/db/schema.ts` needs `bunx drizzle-kit generate`, and a merged migration is never edited (07 §6: additive). Metro caches the `.sql` inlined in `drizzle/migrations.js`: after regenerating an unmerged migration, restart it with `--clear`.
 - Server rules (RLS, LWW triggers) against local Supabase (spike #12), both run by `bun run test:supabase` and the `supabase` CI job:
   - **pgTAP** in `supabase/tests/*.sql` for the trigger and RLS rules, one transaction with `rollback` per file;
-  - **Jest + supabase-js** in `*.supabase.test.ts` (with `jest.supabase.config.js`, plain Node: `jest-expo` replaces `fetch`) for what the client sees through PostgREST, with two real users;
+  - **Jest + supabase-js** in `*.supabase.test.ts` (with `jest.supabase.config.json`, plain Node: `jest-expo` replaces `fetch`) for what the client sees through PostgREST, with two real users;
   - start the stack first with `bunx supabase start` (Docker; project `onerm-mvp`, ports 553xx).
 - ViewModels: always tested, with fake repositories injected, covering every state of the union.
 - Screens: one Testing Library test per state (`loading`, `content`, `empty`, `error`…) checking what is shown and that actions call the ViewModel. Fine visual details are checked against Figma, not with tests.
@@ -91,14 +91,26 @@ The `tdd` skill has the detail: what each layer's tests own, the tests not to wr
 - **No tests in `app/`:** Expo Router treats every file in `app/` as a route. The screen lives in `src/presentation/features/<feature>/<x>-screen.tsx` (with its test next to it) and the `app/` file only re-exports it.
 - No production code without a test that calls for it, except config and purely visual components.
 
+## Performance (#221, `docs/pruebas/221-performance.md`)
+
+Measure before and after: a change to an observer, a use case that observes, a ViewModel or the screens S07, S09 or S18 runs `bun run perf` (the real screens on SQLite with 1.000 workouts, compiled with React Compiler) and puts the before/after numbers in the PR.
+
+- **Emit only what changed.** An observer or use case doesn't emit an equal result, and a ViewModel doesn't `setState` a new object with the same data: React Compiler can't skip a render whose props are new.
+- **Work per write doesn't grow with the history.** Logging a set (RNF-03) never reads or folds the whole history; derive from it only when it changed (`sharedQuery` keeps the same array while it doesn't).
+- **Clocks live in leaf components**, with state at the precision shown (whole seconds for «01:14»). A screen passes `startedAt`/`endsAt`, never the ticking value, and nothing hidden reads it.
+- **Stable props in lists and per-tick components:** handlers and objects passed to rows and to components that re-render often don't change on every render.
+- **Unbounded data goes in a virtualized list** (`FlatList`/`SectionList`) with stable keys, never `ScrollView` + `map`.
+- **The network never runs for the UI**, and the sync writes only rows that changed: a rewrite with the same values still wakes every observer of the table.
+
 ## Commands
 
 ```bash
 bun install
 bun run typecheck
-bun run lint           # ESLint, fails on any warning
+bun run lint           # ESLint, fails on any warning; cached in node_modules/.cache/eslint/ (only changed files are re-linted: cross-file rules like import/no-unresolved are left to tsc and CI, which runs cold)
 bun run format         # Prettier (format:check in CI)
 bun run test           # Jest (jest-expo); test:watch, test:coverage
+bun run perf           # renders and SQL per scenario (#221); it prints, it doesn't guard
 bun run android        # development build on the emulator (expo run:android)
 bun run start          # Metro only, with the app already installed
 ```
@@ -109,6 +121,7 @@ Don't start Metro with `CI=1`: it disables file watching and Fast Refresh.
 
 - Commits in Conventional Commits, in English (`feat(sug): …`). One commit per finished TDD step, not one giant commit at the end.
 - Files in kebab-case (`log-set.ts`, `workout-screen.tsx`); symbols in PascalCase (types, components, use cases) or camelCase (functions, variables).
+- **No JavaScript:** code, config, scripts and hooks are TypeScript (`.ts`/`.tsx`). A config its tool can't load as TypeScript goes in JSON (`babel.config.json`, `jest*.config.json`, with comments). The only exception is `drizzle/migrations.js`, generated by `drizzle-kit`. `bun run lint` fails on any other `.js`/`.jsx`/`.mjs`/`.cjs` (`tools/ci/no-javascript.sh`).
 - "Session" never stands alone: in code it is `AuthSession` or `Workout`; in Spanish texts, "sesión de autenticación" or "entrenamiento" (glossary).
 - Don't add dependencies without justifying them in the PR (what problem they solve, the simpler alternative). The stack's are in the plan §4.
 - The Supabase `service_role` key never goes into the app (RNF-08).

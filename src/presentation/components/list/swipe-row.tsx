@@ -11,7 +11,7 @@ import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
-import { colors, radius, typography } from '@/presentation/theme';
+import { colors, radius, space, typography } from '@/presentation/theme';
 
 export interface SwipeAction {
   /** The accessibility action's name. */
@@ -30,6 +30,8 @@ export interface SwipeA11y {
 
 /** Each action's width, a 48 dp target and its label (RNF-16). */
 const ACTION_WIDTH = 76;
+/** #251: the space before each action, so they read as buttons apart from the row. */
+const ACTION_GAP = space.s8;
 /** The swipe starts after this much sideways, and gives way to the scroll after this much down. */
 const SWIPE_START = 16;
 const SCROLL_START = 10;
@@ -40,6 +42,9 @@ const FLICK = 500;
  * #198: the one pattern to edit and delete in a list, like iOS: swiping the row left uncovers its
  * actions; an action, or swiping back, closes it. Screen readers get the same actions on the row
  * (RNF-18): `children` receives them to spread on its focusable element.
+ *
+ * #251: nothing clips the row, so it moves whole, with its four corners, and leaves through the
+ * edge of the screen; the actions are separate buttons that come in with it from the right.
  */
 export function SwipeRow({
   actions,
@@ -50,11 +55,11 @@ export function SwipeRow({
   actions: SwipeAction[];
   /** The gesture is `swipe {testID}` in tests. */
   testID: string;
-  /** The row's corners, so the actions follow them. */
+  /** The row's corners, so the actions take them. */
   borderRadius?: number;
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
-  const width = actions.length * ACTION_WIDTH;
+  const width = actions.length * (ACTION_GAP + ACTION_WIDTH);
   const [x] = useState(() => new Animated.Value(0));
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
@@ -91,11 +96,12 @@ export function SwipeRow({
   };
 
   return (
-    <View style={[styles.row, { borderRadius }]}>
+    <View>
       {shown && (
-        // Only reachable once open: until then they are half uncovered.
-        <View
-          style={[styles.actions, { width }]}
+        // Only reachable once open: until then they are half uncovered. They move with the row, from
+        // just past its right edge, so they are inside the row (and touchable on Android) once open.
+        <Animated.View
+          style={[styles.actions, { width, transform: [{ translateX: Animated.add(x, width) }] }]}
           accessibilityElementsHidden={!open}
           importantForAccessibility={open ? 'auto' : 'no-hide-descendants'}
         >
@@ -108,7 +114,7 @@ export function SwipeRow({
                 snap(false);
                 action.onPress();
               }}
-              style={[styles.action, action.destructive && styles.destructive]}
+              style={[styles.action, { borderRadius }, action.destructive && styles.destructive]}
             >
               <Icon
                 name={action.icon}
@@ -126,25 +132,24 @@ export function SwipeRow({
               </Text>
             </Pressable>
           ))}
-        </View>
+        </Animated.View>
       )}
       <GestureDetector gesture={swipe}>
-        <Animated.View style={[styles.content, { transform: [{ translateX: x }] }]}>
-          {children(a11y)}
-        </Animated.View>
+        <Animated.View style={{ transform: [{ translateX: x }] }}>{children(a11y)}</Animated.View>
       </GestureDetector>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  row: { overflow: 'hidden' },
   actions: {
     position: 'absolute',
     top: 0,
     right: 0,
     bottom: 0,
     flexDirection: 'row',
+    gap: ACTION_GAP,
+    paddingLeft: ACTION_GAP,
   },
   action: {
     width: ACTION_WIDTH,
@@ -154,6 +159,4 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   destructive: { backgroundColor: colors.bgErrSoftStrong },
-  // Opaque, so the actions only show where the row moved away.
-  content: { backgroundColor: colors.bgBase },
 });

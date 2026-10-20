@@ -160,6 +160,10 @@ export const routines = {
     name: 'Nombre de la rutina',
     addDay: '+ Día',
     addExercise: 'Agregar ejercicio',
+    /** The short label of the add button in the list header (#256); its accessible name is addExercise. */
+    add: 'Agregar',
+    /** The list header of the chosen day (#256). */
+    exerciseCount: (count: number) => `Ejercicios · ${count}`,
     /** The folded part of the prescription sheet: role, notes, replace, remove (#197). */
     moreOptions: 'Más opciones',
     reorderHelp:
@@ -186,6 +190,8 @@ export const routines = {
     },
     validation: {
       emptyName: 'El nombre no puede estar vacío.',
+      /** RN-RUT-05 (#225): a day named before the limit, longer than 20. */
+      longDayName: 'Hasta 20 caracteres.',
       minOverMax: 'El mínimo no puede ser mayor que el máximo.',
       dayWithoutExercises: (day: string) => `Agregá al menos un ejercicio a ${day}.`,
       sets: 'Las series tienen que estar entre 1 y 10.',

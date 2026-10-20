@@ -52,6 +52,8 @@ Sumar una fuente = escribir un adaptador nuevo. El pipeline, el modelo y la app 
 
 Una fuente **`manual`** (archivo versionado en el repo) permite cargar ejercicios propios sin ninguna API.
 
+La fuente **`onerm-v1`** (#244) es el catálogo de la versión anterior de OneRM (Flutter), copiado al repo: 100 ejercicios base × equipamiento, con su propia taxonomía (33 músculos, 16 equipamientos) que el adaptador mapea a la nuestra. Es un catálogo propio: su atribución es «OneRM · Catálogo propio».
+
 ### 3. Pipeline del seed
 
 ```

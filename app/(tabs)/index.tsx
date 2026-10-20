@@ -13,6 +13,7 @@ export default function S07Route() {
         })
       }
       onChangeDay={() => router.push('/choose-day')}
+      onOpenWorkout={() => router.push('/workout')}
       onCreateRoutine={() =>
         router.push({ pathname: '/routine-editor/[id]', params: { id: 'new' } })
       }
