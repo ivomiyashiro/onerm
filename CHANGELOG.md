@@ -61,6 +61,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- On Android, «Finalizar igual» no longer closes the app: it opens the summary.
 - Moving on from an exercise without sets no longer sends you back to it: «Hecho» carries on with the others and then offers «Finalizar», which still lists what was left.
 - A set at 0 kg adds no load to the summary's total load: with only those, the summary shows the duration.
 - Inicio's week counts the days you trained, like your goal: two workouts on one day count once.
