@@ -57,6 +57,22 @@ describe('SwipeRow (#198)', () => {
     expect(screen.queryByRole('button', { name: 'Eliminar' })).not.toBeOnTheScreen();
   });
 
+  it('#254: once it is a swipe, it takes the touch from the row, so the row is not pressed', async () => {
+    await renderRow();
+    const row = screen.getByRole('button', { name: 'Press de banca' });
+    const touch = (pageX: number, pageY = 100) => ({ nativeEvent: { pageX, pageY } });
+    const claims = (pageX: number, pageY?: number) =>
+      fireEvent(row, 'moveShouldSetResponderCapture', touch(pageX, pageY));
+
+    await fireEvent(row, 'startShouldSetResponderCapture', touch(200));
+
+    expect(await claims(190)).toBe(false);
+    expect(await claims(170)).toBe(true);
+    // Rightwards is left to the screen (S09 changes exercise), and down to the scroll.
+    expect(await claims(230)).toBe(false);
+    expect(await claims(180, 130)).toBe(false);
+  });
+
   it('RNF-18: a screen reader reaches the same actions on the row', async () => {
     const { onEdit } = await renderRow();
     const row = screen.getByRole('button', { name: 'Press de banca' });

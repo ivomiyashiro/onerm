@@ -1,4 +1,4 @@
-import { useState, type ReactNode } from 'react';
+import { useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
   Pressable,
@@ -6,12 +6,12 @@ import {
   View,
   type AccessibilityActionEvent,
   type AccessibilityActionInfo,
+  type GestureResponderEvent,
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
-import { Text } from '@/presentation/components/text';
-import { colors, radius, space, typography } from '@/presentation/theme';
+import { colors, radius, size, space } from '@/presentation/theme';
 
 export interface SwipeAction {
   /** The accessibility action's name. */
@@ -28,8 +28,8 @@ export interface SwipeA11y {
   onAccessibilityAction: (event: AccessibilityActionEvent) => void;
 }
 
-/** Each action's width, a 48 dp target and its label (RNF-16). */
-const ACTION_WIDTH = 76;
+/** #254: each action is a round 48 dp target (RNF-16), its name left to the screen reader. */
+const ACTION_SIZE = size.targetMin;
 /** #251: the space before each action, so they read as buttons apart from the row. */
 const ACTION_GAP = space.s8;
 /** The swipe starts after this much sideways, and gives way to the scroll after this much down. */
@@ -45,21 +45,21 @@ const FLICK = 500;
  *
  * #251: nothing clips the row, so it moves whole, with its four corners, and leaves through the
  * edge of the screen; the actions are separate buttons that come in with it from the right.
+ *
+ * #254: once the touch is a swipe, the row takes it from its content, so lifting the finger never
+ * presses the row (iOS let the content's press through, since it moved under the finger).
  */
 export function SwipeRow({
   actions,
   testID,
-  borderRadius = radius.lg,
   children,
 }: {
   actions: SwipeAction[];
   /** The gesture is `swipe {testID}` in tests. */
   testID: string;
-  /** The row's corners, so the actions take them. */
-  borderRadius?: number;
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
-  const width = actions.length * (ACTION_GAP + ACTION_WIDTH);
+  const width = actions.length * (ACTION_GAP + ACTION_SIZE);
   const [x] = useState(() => new Animated.Value(0));
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
@@ -89,6 +89,19 @@ export function SwipeRow({
       snap(from + translationX < -width / 2 || velocityX < -FLICK),
     );
 
+  // Where the touch started, to tell a swipe from a press. Same offsets as the gesture.
+  const start = useRef({ x: 0, y: 0 });
+  const touchStarts = ({ nativeEvent }: GestureResponderEvent) => {
+    start.current = { x: nativeEvent.pageX, y: nativeEvent.pageY };
+    return false;
+  };
+  const isSwipe = ({ nativeEvent }: GestureResponderEvent) => {
+    const dx = nativeEvent.pageX - start.current.x;
+    const dy = nativeEvent.pageY - start.current.y;
+    if (Math.abs(dy) >= SCROLL_START) return false;
+    return open ? Math.abs(dx) >= SWIPE_START : dx <= -SWIPE_START;
+  };
+
   const a11y: SwipeA11y = {
     accessibilityActions: actions.map((action) => ({ name: action.key, label: action.label })),
     onAccessibilityAction: (event) =>
@@ -96,7 +109,7 @@ export function SwipeRow({
   };
 
   return (
-    <View>
+    <View onStartShouldSetResponderCapture={touchStarts} onMoveShouldSetResponderCapture={isSwipe}>
       {shown && (
         // Only reachable once open: until then they are half uncovered. They move with the row, from
         // just past its right edge, so they are inside the row (and touchable on Android) once open.
@@ -114,22 +127,13 @@ export function SwipeRow({
                 snap(false);
                 action.onPress();
               }}
-              style={[styles.action, { borderRadius }, action.destructive && styles.destructive]}
+              style={[styles.action, action.destructive && styles.destructive]}
             >
               <Icon
                 name={action.icon}
                 size={20}
                 color={action.destructive ? colors.textErr : colors.textPrimary}
               />
-              <Text
-                style={[
-                  typography.bodyS,
-                  { color: action.destructive ? colors.textErr : colors.textPrimary },
-                ]}
-                numberOfLines={1}
-              >
-                {action.label}
-              </Text>
             </Pressable>
           ))}
         </Animated.View>
@@ -148,14 +152,16 @@ const styles = StyleSheet.create({
     right: 0,
     bottom: 0,
     flexDirection: 'row',
+    alignItems: 'center',
     gap: ACTION_GAP,
     paddingLeft: ACTION_GAP,
   },
   action: {
-    width: ACTION_WIDTH,
+    width: ACTION_SIZE,
+    height: ACTION_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
-    gap: 4,
+    borderRadius: radius.full,
     backgroundColor: colors.bgRaised,
   },
   destructive: { backgroundColor: colors.bgErrSoftStrong },
