@@ -99,6 +99,8 @@ function Editor({
   const dayIndex = routine.days.findIndex((day) => day.id === selectedDayId);
   const day = routine.days[dayIndex];
   const exercises = day?.exercises ?? [];
+  const addDisabled = exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max;
+  const addColor = addDisabled ? colors.textTertiary : colors.textAccent;
   // Measured by each row, read only when one is dropped.
   const rowLayouts = useRef<RowLayout[]>([]);
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
@@ -149,6 +151,25 @@ function Editor({
             </Pressable>
           )}
         </View>
+        {/* Reachable on opening the day, however many exercises it has (#256). */}
+        {day && (
+          <View style={styles.listHeader}>
+            <Text style={[typography.titleM, { color: colors.textPrimary }]}>
+              {text.editor.exerciseCount(exercises.length)}
+            </Text>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={text.editor.addExercise}
+              accessibilityState={{ disabled: addDisabled }}
+              disabled={addDisabled}
+              onPress={actions.openPicker}
+              style={[styles.addExercise, addDisabled && styles.addExerciseDisabled]}
+            >
+              <Icon name="plus" size={18} color={addColor} />
+              <Text style={[typography.bodyMBold, { color: addColor }]}>{text.editor.add}</Text>
+            </Pressable>
+          </View>
+        )}
         {day &&
           (exercises.length === 0 ? (
             <EmptyDay dayName={day.name} afterSave={errors.emptyDayId === day.id} />
@@ -196,13 +217,6 @@ function Editor({
               ))}
             </View>
           ))}
-        <Button
-          variant="secondary"
-          label={text.editor.addExercise}
-          icon="plus"
-          disabled={exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max}
-          onPress={actions.openPicker}
-        />
         {state.orderHint && <Notice message={text.editor.mainFirstHelp} />}
         {exercises.length > 1 && (
           <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
@@ -377,4 +391,18 @@ const styles = StyleSheet.create({
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
+  listHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  // 48 dp high: the touch target of the header action.
+  addExercise: {
+    minHeight: 48,
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.s6,
+    paddingHorizontal: space.s8,
+  },
+  addExerciseDisabled: { opacity: 0.5 },
 });
