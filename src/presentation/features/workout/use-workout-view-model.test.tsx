@@ -442,6 +442,18 @@ describe('useWorkoutViewModel', () => {
       expect(result.current.confirm).toEqual({ kind: 'finish', pending: 1 });
     });
 
+    it('#241: when it could not finish, D10 closes', async () => {
+      const { result } = await renderViewModel();
+      await act(() => result.current.actions.done());
+      await act(() => result.current.actions.finish());
+      await act(() => result.current.actions.confirmFinish());
+
+      // Already finished: there is none in progress to finish.
+      expect(await act(() => result.current.actions.confirmFinish())).toBeNull();
+
+      expect(result.current.confirm).toBeNull();
+    });
+
     it('RF-ENT-11.AC5: without any effective set, finishing offers to discard (D18)', async () => {
       const { result, workouts } = await renderViewModel();
 
