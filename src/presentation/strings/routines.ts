@@ -163,8 +163,6 @@ export const routines = {
     exerciseCount: (count: number) => `Ejercicios · ${count}`,
     /** The folded part of the prescription sheet: role, notes, replace, remove (#197). */
     moreOptions: 'Más opciones',
-    reorderHelp:
-      'Arrastrá desde el asa para cambiar el orden; deslizá un ejercicio para editarlo o quitarlo.',
     save: 'Guardar',
     emptyDay: {
       title: 'Este día no tiene ejercicios',

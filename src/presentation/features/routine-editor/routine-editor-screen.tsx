@@ -218,11 +218,6 @@ function Editor({
             </View>
           ))}
         {state.orderHint && <Notice message={text.editor.mainFirstHelp} />}
-        {exercises.length > 1 && (
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {text.editor.reorderHelp}
-          </Text>
-        )}
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}>
         <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />

@@ -274,6 +274,13 @@ describe('RoutineEditorScreen', () => {
     expect(screen.queryByRole('checkbox', { name: 'Día A' })).not.toBeOnTheScreen();
   });
 
+  it('RF-RUT-05.AC2: the rows carry no reorder help text, screen readers get «Subir» and «Bajar»', async () => {
+    await renderScreen();
+    await screen.findByDisplayValue('Mi rutina de pierna');
+
+    expect(screen.queryByText(/Arrastrá desde el asa/)).not.toBeOnTheScreen();
+  });
+
   it('RF-RUT-05.AC1: dragging an exercise by its handle drops it in another position', async () => {
     const { user, routines } = await renderScreen();
     await screen.findByDisplayValue('Mi rutina de pierna');
