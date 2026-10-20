@@ -157,12 +157,19 @@ describe('RoutinesScreen (S13)', () => {
     expect(screen.queryByRole('button', { name: common.swipe.activate })).not.toBeOnTheScreen();
   });
 
-  it('#198, RF-RUT-08.AC1: swiping a routine edits or deletes it (D11 first)', async () => {
+  it('#254: tapping a routine opens it in the editor, and its swipe has no «Editar»', async () => {
     const { user, onEditRoutine } = await renderScreen();
 
     await swipe('Mi rutina de pierna');
-    await user.press(screen.getByRole('button', { name: common.swipe.edit }));
+    expect(screen.queryByRole('button', { name: common.swipe.edit })).not.toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: /^Mi rutina de pierna/ }));
+
     expect(onEditRoutine).toHaveBeenCalledWith('legs');
+  });
+
+  it('#198, RF-RUT-08.AC1: swiping a routine deletes it (D11 first)', async () => {
+    const { user } = await renderScreen();
+
     await swipe('Mi rutina de pierna');
     await user.press(screen.getByRole('button', { name: common.swipe.delete }));
     expect(
@@ -179,7 +186,6 @@ describe('RoutinesScreen (S13)', () => {
 
     expect(routine.props.accessibilityActions.map((a: { label: string }) => a.label)).toEqual([
       common.swipe.activate,
-      common.swipe.edit,
       common.swipe.delete,
     ]);
     await fireEvent(routine, 'accessibilityAction', { nativeEvent: { actionName: 'activate' } });

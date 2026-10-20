@@ -296,7 +296,8 @@ Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251
 - **Las acciones son botones redondos** de 48 (`radius/full`, RNF-16) con su ícono, centrados en el alto de la fila, a 8 (`space/8`) de la tarjeta y entre sí (#254: del alto de la tarjeta se veían como bloques en S13). El nombre queda para el lector de pantalla. «Activar» y «Editar» en `bg/raised`; «Eliminar» en `bg/err-soft-strong` con el ícono en `text/err`.
 - **Deslizar no toca la fila** (#254): en cuanto el gesto es un deslizamiento, la fila deja de contar como tocada; en iOS, al levantar el dedo se abría «Editar serie».
 - **S09:** solo «Eliminar»; tocar la serie la edita (RF-ENT-04).
-- **S13:** sin «⋯»: «Activar» (si no es la activa), «Editar» y «Eliminar» se ofrecen al deslizar.
+- **S13:** sin «⋯»: tocar la tarjeta abre el editor; deslizar ofrece «Activar» (si no es la activa) y «Eliminar».
+- **En reposo no se ve nada** de las acciones: aparecen con el movimiento de la fila (opacidad según lo que se corrió), para que no queden en el margen de la lista mientras el resorte se asienta.
 - **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
 - **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
 - Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.

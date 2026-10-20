@@ -12,7 +12,7 @@ interface RoutineCardProps {
   label?: string;
   /** The active routine: state background and soft lime border (S13 «Rutina activa destacada»). */
   highlighted?: boolean;
-  /** Opens the card (a template's detail). */
+  /** Opens the card: a template's detail, or an own routine in the editor. */
   onPress?: () => void;
   /** An own routine's swipe actions, for screen readers too (#198, #254). */
   a11y?: SwipeA11y;
@@ -33,8 +33,7 @@ export function RoutineCard({
       accessibilityLabel={a11y && [name, summary, label].filter(Boolean).join(', ')}
       {...a11y}
       onPress={onPress}
-      // Enabled with swipe actions, so a screen reader runs them (RNF-18).
-      disabled={onPress === undefined && a11y === undefined}
+      disabled={onPress === undefined}
       style={[styles.card, highlighted && styles.highlighted]}
     >
       <Text style={[typography.titleM, styles.name]}>{name}</Text>

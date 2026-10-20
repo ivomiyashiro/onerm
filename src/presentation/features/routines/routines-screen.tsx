@@ -134,7 +134,8 @@ function MyRoutines({
   }
 
   const isActive = (routine: RoutineSummary) => routine.id === overview.activeRoutineId;
-  // #198, #254: a routine is activated, edited and deleted swiping it; screen readers get the same.
+  // #198, #254: a routine is opened tapping it, and activated or deleted swiping it; screen readers
+  // get the swipe's actions.
   // «Duplicar» (RF-RUT-09) is a Could left for later.
   const swipeActions = (routine: RoutineSummary): SwipeAction[] => [
     ...(isActive(routine)
@@ -147,12 +148,6 @@ function MyRoutines({
             onPress: () => void actions.activate(routine.id),
           },
         ]),
-    {
-      key: 'edit',
-      label: common.swipe.edit,
-      icon: 'edit',
-      onPress: () => onEditRoutine(routine.id),
-    },
     {
       key: 'delete',
       label: common.swipe.delete,
@@ -170,6 +165,7 @@ function MyRoutines({
           summary={summaryOf(routine)}
           highlighted={isActive(routine)}
           label={isActive(routine) ? text.list.active : undefined}
+          onPress={() => onEditRoutine(routine.id)}
           a11y={a11y}
         />
       )}

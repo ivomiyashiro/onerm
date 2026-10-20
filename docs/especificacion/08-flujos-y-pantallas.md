@@ -199,7 +199,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S10 ¿Por qué? | — | ✅ versión novato · versión avanzado | — | — | ✅ | — | Uno por código de motivo (13 §4) |
 | S11 Sustituir | — | ✅ mismo músculo primero + búsqueda | ✅ sin resultados | — | ✅ | — | — |
 | S12 Resumen | — | ✅ con récords · sin récords | — | — | ✅ | — | Invitado: D13 |
-| S13 Rutinas | ✅ | ✅ | ✅ sin rutinas propias | ✅ | ✅ | — | Rutina activa destacada · deslizar una rutina: Activar (si no es la activa) / Editar / Eliminar (#198, #254; sin «⋯») |
+| S13 Rutinas | ✅ | ✅ | ✅ sin rutinas propias | ✅ | ✅ | — | Rutina activa destacada · tocar una rutina la abre en el editor · deslizar una rutina: Activar (si no es la activa) / Eliminar (#198, #254; sin «⋯») |
 | S14 Plantilla | — | ✅ + ¿por qué? | — | — | ✅ | — | Prescripción calculada para mi objetivo |
 | S15 Editor | — | ✅ | ✅ día sin ejercicios | ✅ validaciones (RN-RUT-04/05) | ✅ | — | Reordenando (arrastrar el asa; subir-bajar como acciones accesibles) · deslizar una fila: Editar / Quitar (#198) · advertencia de RIR 0 (en el campo) · D08 · D15 |
 | S16 Buscador | ✅ | ✅ | ✅ sin resultados | — | ✅ | — | Filtros activos |
