@@ -64,6 +64,12 @@ export function SwipeRow({
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
   const [shown, setShown] = useState(false);
+  const [shift] = useState(() => Animated.add(x, width));
+  // At rest they sit just past the row's edge, inside the list's margin: invisible until it moves,
+  // so they don't linger there while the spring settles (#254).
+  const [fade] = useState(() =>
+    x.interpolate({ inputRange: [-ACTION_SIZE, 0], outputRange: [1, 0], extrapolate: 'clamp' }),
+  );
 
   const snap = (opened: boolean) => {
     setOpen(opened);
@@ -114,7 +120,8 @@ export function SwipeRow({
         // Only reachable once open: until then they are half uncovered. They move with the row, from
         // just past its right edge, so they are inside the row (and touchable on Android) once open.
         <Animated.View
-          style={[styles.actions, { width, transform: [{ translateX: Animated.add(x, width) }] }]}
+          testID={`actions ${testID}`}
+          style={[styles.actions, { width, opacity: fade, transform: [{ translateX: shift }] }]}
           accessibilityElementsHidden={!open}
           importantForAccessibility={open ? 'auto' : 'no-hide-descendants'}
         >

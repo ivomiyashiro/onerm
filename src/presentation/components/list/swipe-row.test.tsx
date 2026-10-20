@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
-import { Pressable, Text } from 'react-native';
+import { Pressable, StyleSheet, Text } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 
@@ -82,6 +82,25 @@ describe('SwipeRow (#198)', () => {
     await fireEvent(row, 'startShouldSetResponderCapture', touch(100));
 
     expect(await fireEvent(row, 'moveShouldSetResponderCapture', touch(130))).toBe(true);
+  });
+
+  it('#254: with the row back in place the actions are invisible, even while the spring settles', async () => {
+    await renderRow();
+    const at = (translationX: number) =>
+      act(() =>
+        fireGestureHandler(getByGestureTestId('swipe Press'), [
+          { state: State.BEGAN, translationX: 0 },
+          { state: State.ACTIVE, translationX },
+        ]),
+      );
+    const opacity = () =>
+      StyleSheet.flatten(
+        screen.getByTestId('actions Press', { includeHiddenElements: true }).props.style,
+      ).opacity;
+
+    await at(0);
+
+    expect(opacity()).toBe(0);
   });
 
   it('RNF-18: a screen reader reaches the same actions on the row', async () => {
