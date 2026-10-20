@@ -1,9 +1,10 @@
 import type { ReactNode } from 'react';
-import { Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Animated, Pressable, StyleSheet, View, type ViewStyle } from 'react-native';
 
 import { PrimaryPlate } from '@/presentation/components/button/primary-plate';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { Spinner } from '@/presentation/components/icons/spinner';
+import { usePressScale } from '@/presentation/components/motion/use-press-scale';
 import { colors, elevation, radius, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
 
@@ -47,8 +48,11 @@ export function Button({
   const text = loading && loadingLabel ? loadingLabel : label;
   const inactive = disabled || loading;
   const foreground = disabled ? colors.textTertiary : FOREGROUND[variant];
+  // The plate sinks while pressed and comes back with a spring (marca §6, #248 M1).
+  const press = usePressScale(PRESSED_PLATE);
+  const plate = variant === 'primary';
 
-  return (
+  const button = (
     <Pressable
       accessibilityRole="button"
       accessibilityLabel={text}
@@ -56,6 +60,8 @@ export function Button({
       accessibilityState={{ disabled, busy: loading }}
       disabled={inactive}
       onPress={onPress}
+      onPressIn={plate ? press.onPressIn : undefined}
+      onPressOut={plate ? press.onPressOut : undefined}
       style={({ pressed }) => [
         styles.base,
         SHAPE[variant][size],
@@ -75,6 +81,8 @@ export function Button({
       )}
     </Pressable>
   );
+  if (!plate) return button;
+  return <Animated.View style={[styles.stretch, press.style]}>{button}</Animated.View>;
 }
 
 const FOREGROUND: Record<ButtonVariant, string> = {
@@ -96,7 +104,7 @@ function background(
 ): ViewStyle {
   switch (variant) {
     case 'primary':
-      return pressed ? styles.pressedPlate : {};
+      return {};
     case 'secondary':
       return pressed || disabled
         ? { backgroundColor: colors.bgField }
@@ -110,6 +118,9 @@ function background(
       return { backgroundColor: pressed ? colors.bgErrSoft : colors.bgErrSoftStrong };
   }
 }
+
+/** Figma has no pressed look for the plate: it sinks («presión» token, #248 M1). */
+const PRESSED_PLATE = 0.96;
 
 // #194: one radius for every button. The primary plate keeps its two cut corners and
 // rounds the other two with it.
@@ -139,8 +150,8 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   block: { minHeight: 56, alignSelf: 'stretch' },
-  // Figma has no pressed look for the plate: it sinks slightly ("presión" motion token).
-  pressedPlate: { transform: [{ scale: 0.98 }] },
+  // The plate's wrapper, which carries its press scale: it stretches like the plate.
+  stretch: { alignSelf: 'stretch' },
   underlined: {
     paddingTop: 4,
     paddingBottom: 3,

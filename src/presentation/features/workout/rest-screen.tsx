@@ -10,6 +10,7 @@ import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Text } from '@/presentation/components/text';
+import { Reveal } from '@/presentation/components/motion/reveal';
 import { RestRing } from '@/presentation/features/workout/rest-ring';
 import type { RestView } from '@/presentation/features/workout/rest-view';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
@@ -99,12 +100,15 @@ function RestPanel({
       >
         <View style={styles.header}>
           <View style={styles.flex}>
-            <Text
-              style={[typography.titleL, { color: colors.textPrimary }]}
-              accessibilityRole="header"
-            >
-              {finished ? text.rest.finished : text.rest.title}
-            </Text>
+            {/* #248 M3: «¡Descanso terminado!» comes in when the rest ends. */}
+            <Reveal key={finished ? 'finished' : 'running'} rise={10}>
+              <Text
+                style={[typography.titleL, { color: colors.textPrimary }]}
+                accessibilityRole="header"
+              >
+                {finished ? text.rest.finished : text.rest.title}
+              </Text>
+            </Reveal>
             <Text style={[typography.bodyS, { color: colors.textSecondary }]} numberOfLines={1}>
               {rest.exerciseName}
             </Text>
@@ -163,7 +167,9 @@ function RestPanel({
         </View>
         <View style={styles.bottom}>
           {finished ? (
-            <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
+            <Reveal key="finished" rise={24}>
+              <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
+            </Reveal>
           ) : (
             <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
           )}

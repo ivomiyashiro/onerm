@@ -1,10 +1,13 @@
-import { Pressable, StyleSheet, View } from 'react-native';
+import { useLayoutEffect, useRef, useState } from 'react';
+import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 
 import { useElapsed } from '@/presentation/components/clock/use-elapsed';
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, size, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
+import { spring } from '@/presentation/theme/motion';
 
 export interface TabItem {
   key: string;
@@ -42,6 +45,11 @@ interface TabBarProps {
  */
 export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: TabBarProps) {
   const half = Math.ceil(tabs.length / 2);
+  // Where each tab and its pill are, once laid out: the one pill slides between them (#248 M4).
+  const [tabX, setTabX] = useState<Record<string, number>>({});
+  const [pillY, setPillY] = useState<number | null>(null);
+  const [pillX, setPillX] = useState(0);
+  const pill = useSlidingPill(tabX[activeKey]);
   const renderTab = (tab: TabItem) => {
     const active = tab.key === activeKey;
     const color = active ? colors.textPrimary : colors.textSecondary;
@@ -52,10 +60,20 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
         accessibilityLabel={tab.label}
         accessibilityState={{ selected: active }}
         onPress={() => onSelect(tab.key)}
+        onLayout={(event) => {
+          const { x } = event.nativeEvent.layout;
+          setTabX((all) => (all[tab.key] === x ? all : { ...all, [tab.key]: x }));
+        }}
         style={styles.tab}
       >
-        <View style={styles.pill}>
-          {active && <View testID="tab-pill" style={styles.pillActive} />}
+        <View
+          style={styles.pill}
+          onLayout={(event) => {
+            const { x, y } = event.nativeEvent.layout;
+            setPillY(y);
+            setPillX(x);
+          }}
+        >
           <Icon name={tab.icon} size={21} color={color} />
         </View>
         <Text {...BAR_TEXT} style={[typography.tab, { color }]}>
@@ -69,6 +87,21 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
       accessibilityRole="tablist"
       style={[styles.bar, { paddingBottom: Math.max(bottomInset, 8) }]}
     >
+      {/* First, so it goes behind the icons. */}
+      {pill.at !== null && pillY !== null && (
+        <Animated.View
+          testID="tab-pill"
+          pointerEvents="none"
+          style={[
+            styles.pillActive,
+            {
+              top: pillY + styles.bar.paddingTop,
+              left: pillX,
+              transform: [{ translateX: pill.at }, { scaleX: pill.stretch }],
+            },
+          ]}
+        />
+      )}
       {tabs.slice(0, half).map(renderTab)}
       {action && <ActionLabel action={action} />}
       {tabs.slice(half).map(renderTab)}
@@ -83,6 +116,50 @@ export function TabBar({ tabs, action, activeKey, onSelect, bottomInset = 0 }: T
       <ActionDisc action={action} />
     </View>
   );
+}
+
+/**
+ * #248 M4: the pill of the active tab slides to the new one with a spring, stretching a bit on
+ * the way. It appears in place the first time, and moves at once with «reduce motion».
+ */
+function useSlidingPill(x: number | undefined) {
+  const reduce = useReduceMotion();
+  const [at] = useState(() => new Animated.Value(0));
+  const [stretch] = useState(() => new Animated.Value(1));
+  const placed = useRef(false);
+
+  useLayoutEffect(() => {
+    if (x === undefined) return;
+    if (!placed.current || reduce) {
+      placed.current = true;
+      at.setValue(x);
+      return;
+    }
+    const animation = Animated.parallel([
+      Animated.spring(at, { toValue: x, ...spring, useNativeDriver: true }),
+      Animated.sequence([
+        Animated.timing(stretch, {
+          toValue: 1.18,
+          duration: 150,
+          easing: Easing.out(Easing.cubic),
+          useNativeDriver: true,
+        }),
+        Animated.timing(stretch, {
+          toValue: 1,
+          duration: 250,
+          easing: Easing.inOut(Easing.cubic),
+          useNativeDriver: true,
+        }),
+      ]),
+    ]);
+    animation.start();
+    return () => {
+      animation.stop();
+      stretch.setValue(1);
+    };
+  }, [x, reduce, at, stretch]);
+
+  return { at: x === undefined ? null : at, stretch };
 }
 
 /**
@@ -219,14 +296,12 @@ const styles = StyleSheet.create({
     borderRadius: DISC / 2,
     overflow: 'hidden',
   },
-  // Its own view, mounted when the tab turns active: on Android (Fabric) a background added
-  // later to a view with a border radius showed up square.
+  // One view that moves, with its background from the start: on Android (Fabric) a background
+  // added later to a view with a border radius showed up square.
   pillActive: {
     position: 'absolute',
-    top: 0,
-    right: 0,
-    bottom: 0,
-    left: 0,
+    width: 58,
+    height: 32,
     borderRadius: 16,
     backgroundColor: colors.bgRaised,
   },
