@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import { createClient } from '@supabase/supabase-js';
 
 import { manualAdapter } from './adapters/manual';
+import { onermV1Adapter } from './adapters/onerm-v1';
 import { wgerAdapter } from './adapters/wger';
 import { buildExercisesFile, type ExercisesFile } from './export';
 import { loadCatalog } from './load';
@@ -26,7 +27,10 @@ async function main(): Promise<void> {
   const manual = readJson<ExerciseCandidate[]>(join(here, 'manual.json'));
 
   console.log('Extracting from wger…');
-  const report = await runPipeline([wgerAdapter(), manualAdapter(manual)], curation);
+  const report = await runPipeline(
+    [wgerAdapter(), manualAdapter(manual), onermV1Adapter()],
+    curation,
+  );
 
   console.log(
     `${report.exercises.length} curated exercises, ${report.rejected.length} candidates rejected by the mapping.`,

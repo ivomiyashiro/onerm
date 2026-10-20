@@ -77,6 +77,8 @@ describe('SqliteLocalDatabase (07 §6)', () => {
 
     await local.prepare();
     const [sqlite] = connections;
-    expect(sqlite.prepare('select count(*) as n from exercises').get()).toEqual({ n: 22 });
+    expect(sqlite.prepare('select count(*) as n from exercises').get()).toEqual({
+      n: CATALOG_SNAPSHOT.exercises.length,
+    });
   });
 });
