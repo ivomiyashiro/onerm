@@ -40,6 +40,8 @@ export function LoadStepper({
   onChangeText,
 }: LoadStepperProps) {
   const roll = useRoll(value);
+  // Where the number is in its row: the leaving value is drawn over it.
+  const [box, setBox] = useState<{ x: number; width: number } | null>(null);
   const typed = onChangeText
     ? (text: string) => {
         // A typed value doesn't roll: only the ± do (#248 M2).
@@ -58,52 +60,64 @@ export function LoadStepper({
           {label}
         </Text>
         <View style={styles.value}>
-          <View style={styles.number}>
-            {roll.from !== null && (
-              <Animated.View
-                style={[styles.leaving, roll.leaving]}
-                accessibilityElementsHidden
-                importantForAccessibility="no-hide-descendants"
-              >
-                <Text style={[typography.numberHero, { color: colors.textPrimary }]}>
-                  {roll.from}
-                </Text>
-              </Animated.View>
-            )}
-            <Animated.View style={roll.coming}>
-              {onChangeText ? (
-                // iOS sizes a TextInput by its previous value: right after «5», «10» showed «1» (#220).
-                // A hidden Text with the same value gives the width in the same render.
-                <View>
-                  <Text
-                    style={[typography.numberHero, styles.sizer]}
-                    accessibilityElementsHidden
-                    importantForAccessibility="no-hide-descendants"
-                  >
-                    {value || placeholder}
-                  </Text>
-                  <TextInput
-                    accessibilityLabel={label}
-                    value={value}
-                    placeholder={placeholder}
-                    placeholderTextColor={colors.textSecondary}
-                    onChangeText={typed}
-                    keyboardType="decimal-pad"
-                    style={[typography.numberHero, styles.input]}
-                  />
-                </View>
-              ) : (
+          {roll.from !== null && (
+            <Animated.View
+              style={[
+                styles.leaving,
+                // Not measured yet: over the whole row.
+                box
+                  ? { left: box.x - LEAVING_SLACK, width: box.width + LEAVING_SLACK * 2 }
+                  : { left: 0, right: 0 },
+                roll.leaving,
+              ]}
+              accessibilityElementsHidden
+              importantForAccessibility="no-hide-descendants"
+            >
+              <Text style={[typography.numberHero, { color: colors.textPrimary }]}>
+                {roll.from}
+              </Text>
+            </Animated.View>
+          )}
+          {/* No extra wrapper: the row aligns the number and its unit by their baseline. */}
+          <Animated.View
+            style={onChangeText ? roll.comingField : roll.coming}
+            onLayout={(event) => {
+              const { x, width } = event.nativeEvent.layout;
+              setBox((old) => (old?.x === x && old.width === width ? old : { x, width }));
+            }}
+          >
+            {onChangeText ? (
+              // iOS sizes a TextInput by its previous value: right after «5», «10» showed «1» (#220).
+              // A hidden Text with the same value gives the width in the same render.
+              <>
                 <Text
-                  style={[
-                    typography.numberHero,
-                    { color: value ? colors.textPrimary : colors.textSecondary },
-                  ]}
+                  style={[typography.numberHero, styles.sizer]}
+                  accessibilityElementsHidden
+                  importantForAccessibility="no-hide-descendants"
                 >
                   {value || placeholder}
                 </Text>
-              )}
-            </Animated.View>
-          </View>
+                <TextInput
+                  accessibilityLabel={label}
+                  value={value}
+                  placeholder={placeholder}
+                  placeholderTextColor={colors.textSecondary}
+                  onChangeText={typed}
+                  keyboardType="decimal-pad"
+                  style={[typography.numberHero, styles.input]}
+                />
+              </>
+            ) : (
+              <Text
+                style={[
+                  typography.numberHero,
+                  { color: value ? colors.textPrimary : colors.textSecondary },
+                ]}
+              >
+                {value || placeholder}
+              </Text>
+            )}
+          </Animated.View>
           {unit && (
             <Text style={[typography.bodyLStrong, { color: colors.textSecondary }]}>{unit}</Text>
           )}
@@ -145,11 +159,13 @@ export function LoadStepper({
 
 /** How far the values travel while they roll. */
 const ROLL = 20;
+/** Room on each side of the number for a wider leaving value («62,5» after «65»). */
+const LEAVING_SLACK = 40;
 
 /**
  * #248 M2: after a ±, the value rolls the way it changed: the old one leaves up and the new one
- * comes from below with +, the other way with −. Nothing rolls with «reduce motion», when the
- * value is typed or when the ± didn't change it (a limit).
+ * comes from below with +, the other way with − (a typed field only fades in). Nothing rolls
+ * with «reduce motion», when the value is typed or when the ± didn't change it (a limit).
  */
 function useRoll(value: string) {
   const reduce = useReduceMotion();
@@ -195,6 +211,8 @@ function useRoll(value: string) {
         { translateY: progress.interpolate({ inputRange: [0, 1], outputRange: [travel, 0] }) },
       ],
     },
+    // A field only fades in: moved by a native transform, Android left its text out of line.
+    comingField: { opacity: progress },
     start: (direction: 1 | -1) => setPressed({ from: value, direction }),
     cancel: () => setPressed(null),
   };
@@ -222,9 +240,8 @@ const styles = StyleSheet.create({
     gap: 3,
     minHeight: 56,
   },
-  // The leaving value is centred over the coming one, whatever their widths.
-  number: { alignItems: 'center' },
-  leaving: { position: 'absolute', top: 0, left: -40, right: -40, alignItems: 'center' },
+  // Centred over the coming value, whatever their widths.
+  leaving: { position: 'absolute', top: 0, alignItems: 'center' },
   note: { textAlign: 'center' },
   sizer: { minWidth: 48, opacity: 0 },
   input: {
