@@ -56,6 +56,8 @@ export function useExerciseSwipe({
     .withTestId('swipe exercise')
     .activeOffsetX([-SWIPE_START, SWIPE_START])
     .failOffsetY([-SCROLL_START, SCROLL_START])
+    // A new swipe while the page is still leaving or coming in takes it from where it is.
+    .onBegin(() => x.stopAnimation())
     .onUpdate(({ translationX }) => {
       if (reduce) return;
       const to = exerciseIndex + (translationX < 0 ? 1 : -1);
