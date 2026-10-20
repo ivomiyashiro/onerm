@@ -16,7 +16,7 @@ import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
-import { motion, spring } from '@/presentation/theme/motion';
+import { motion } from '@/presentation/theme/motion';
 
 interface SetRowProps {
   row: SetRowView;
@@ -169,14 +169,14 @@ export function SetRow({ row, unit, effortMode, onPress, onEffort, a11y }: SetRo
 const JUST_LOGGED_MS = 2000;
 
 /**
- * #248 M1: the set just logged comes in done with a fade, and the next one lights up as current
- * with a spring. A done row mounts anew (it moves into its swipe row), so «just logged» comes
- * from its time; the next row keeps its place and changes kind. Nothing with «reduce motion».
+ * #248 M1: the set just logged fades in done, and the next one lights up as current. A done row
+ * mounts anew (it moves into its swipe row), so «just logged» comes from its time; the next row
+ * keeps its place and changes kind. Only a fade: a scale on the row stopped its taps inside the
+ * exercise's swipe gesture on Android. Nothing with «reduce motion».
  */
 function useRowMotion(row: SetRowView) {
   const reduce = useReduceMotion();
   const [opacity] = useState(() => new Animated.Value(1));
-  const [scale] = useState(() => new Animated.Value(1));
   const previous = useRef(row.kind);
   const completedAt = row.kind === 'done' ? row.set.completedAt.getTime() : null;
 
@@ -188,24 +188,21 @@ function useRowMotion(row: SetRowView) {
     const lit = row.kind === 'current' && from === 'pending';
     if (!justLogged && !lit) return;
     opacity.setValue(justLogged ? 0.4 : 0.6);
-    scale.setValue(justLogged ? 0.98 : 0.97);
-    const fade = { toValue: 1, duration: motion.state, useNativeDriver: true };
-    const animation = Animated.parallel([
-      Animated.timing(opacity, { ...fade, easing: Easing.out(Easing.cubic) }),
-      justLogged
-        ? Animated.timing(scale, { ...fade, easing: Easing.out(Easing.cubic) })
-        : Animated.spring(scale, { toValue: 1, ...spring, useNativeDriver: true }),
-    ]);
+    const animation = Animated.timing(opacity, {
+      toValue: 1,
+      duration: motion.state,
+      easing: Easing.out(Easing.cubic),
+      useNativeDriver: true,
+    });
     animation.start();
     return () => {
       // Stopped halfway (the row changed again): it rests in place, never half faded.
       animation.stop();
       opacity.setValue(1);
-      scale.setValue(1);
     };
-  }, [row.kind, completedAt, reduce, opacity, scale]);
+  }, [row.kind, completedAt, reduce, opacity]);
 
-  return { opacity, transform: [{ scale }] };
+  return { opacity };
 }
 
 /** The short effort of a logged set (13 §10): «2 o 3 más», or «reserva 2» with the RIR scale. */
