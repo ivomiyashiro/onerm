@@ -288,12 +288,15 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
   - Un campo de texto movido con una transformación nativa quedaba fuera de su línea base en Android: la carga de la hoja solo se funde.
   - Con las dos pantallas a media opacidad a la vez, los textos se mezclaban: M7 las muestra una después de la otra.
 
-## 20. Filas deslizadas como en iOS (2026-10-20, #251)
+## 20. Filas deslizadas como en iOS (2026-10-20, #251 y #254)
 
 Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251)» (componente `SwipeAction` y filas de S09, S13 y S15 a medias y abiertas). Corrige el patrón de #198, donde la fila se recortaba con un solo radio y las acciones eran un bloque recto detrás de ella.
 
 - **La tarjeta se corre entera**, con sus cuatro esquinas, y sale por el borde de la pantalla: nada la recorta antes ni hay un fondo detrás.
-- **Las acciones son botones propios** de 76 de ancho y el alto de la fila, con las esquinas de la tarjeta (`radius/lg`; `radius/xl` en S13), a 8 (`space/8`) de la tarjeta y entre sí. «Editar» en `bg/raised`; «Eliminar» en `bg/err-soft-strong` con el texto en `text/err`.
+- **Las acciones son botones redondos** de 48 (`radius/full`, RNF-16) con su ícono, centrados en el alto de la fila, a 8 (`space/8`) de la tarjeta y entre sí (#254: del alto de la tarjeta se veían como bloques en S13). El nombre queda para el lector de pantalla. «Activar» y «Editar» en `bg/raised`; «Eliminar» en `bg/err-soft-strong` con el ícono en `text/err`.
+- **Deslizar no toca la fila** (#254): en cuanto el gesto es un deslizamiento, la fila deja de contar como tocada; en iOS, al levantar el dedo se abría «Editar serie».
+- **S09:** solo «Eliminar»; tocar la serie la edita (RF-ENT-04).
+- **S13:** sin «⋯»: «Activar» (si no es la activa), «Editar» y «Eliminar» se ofrecen al deslizar.
 - **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
 - **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
 - Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
