@@ -272,15 +272,19 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
 
 | | Dónde | Qué hace |
 |---|---|---|
-| M1 | S09 · registrar serie | El botón principal se hunde a 0,96 y vuelve con resorte; la serie recién registrada entra con un fundido y una escala leve, y la siguiente se enciende como actual con resorte; el descanso minimizado sube sobre «Hecho» |
-| M2 | ± de carga y repeticiones | Los ± se hunden a 0,92; el valor rueda en la dirección del cambio (sube con +, baja con −). No rueda al escribirlo ni en un límite |
+| M1 | S09 · registrar serie | El botón principal se hunde a 0,96 y vuelve con resorte; la serie recién registrada entra con un fundido y la siguiente se enciende como actual con otro; el descanso minimizado sube sobre «Hecho» |
+| M2 | ± de carga y repeticiones | Los ± se hunden a 0,92; el valor rueda en la dirección del cambio (sube con +, baja con −); la carga de la hoja, que es un campo, entra solo con un fundido. No rueda al escribirlo ni en un límite |
 | M3 | Descanso terminado | El anillo pulsa una vez (1 → 1,05 → 1) y su halo se expande y se apaga; «¡Descanso terminado!» y el botón entran. Solo si terminó en pantalla |
 | M4 | Barra de pestañas | Una sola píldora que se desliza hasta la pestaña nueva, estirándose un poco en el camino |
 | M5 | S20 · gráfico | La línea se dibuja de izquierda a derecha, cada punto aparece cuando llega la línea y el récord hace pop. Al abrir y al cambiar de período |
 | M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |
-| M7 | Cambio de pestaña | Fundido de 260 ms con una subida de 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
+| M7 | Cambio de pestaña | 300 ms: la pantalla que sale se apaga en la primera mitad y la que entra aparece en la segunda, subiendo 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
 
 - **Nada en bucle** y todo en una sola pasada (§7).
 - **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos; quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
-- **Diferencia con el Figma:** en M1, después de «Hecho» sube a pantalla completa el descanso, que ya tenía su entrada; la barra de descanso sube cuando se minimiza.
+- **Diferencias con el Figma, encontradas en el emulador:**
+  - En M1, después de «Hecho» sube a pantalla completa el descanso, que ya tenía su entrada; las filas cambian detrás y la barra de descanso sube cuando se minimiza.
+  - Las filas de S09 no escalan: en Android, una escala nativa en la fila le cortaba los toques dentro del gesto para cambiar de ejercicio.
+  - Un campo de texto movido con una transformación nativa quedaba fuera de su línea base en Android: la carga de la hoja solo se funde.
+  - Con las dos pantallas a media opacidad a la vez, los textos se mezclaban: M7 las muestra una después de la otra.
 
