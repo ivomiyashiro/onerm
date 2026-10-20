@@ -46,7 +46,7 @@ import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
 import { colors, radius, space, typography } from '@/presentation/theme';
-import { layoutSpring, spring } from '@/presentation/theme/motion';
+import { layoutSpring, reorderSpring } from '@/presentation/theme/motion';
 
 interface RoutineEditorScreenProps {
   /** Null creates a routine (RF-RUT-03). */
@@ -252,7 +252,7 @@ function Editor({
                     lastTarget.current = to;
                     Animated.spring(target, {
                       toValue: to,
-                      ...spring,
+                      ...reorderSpring,
                       useNativeDriver: true,
                     }).start();
                   }}

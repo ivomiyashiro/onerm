@@ -268,7 +268,7 @@ Se exploraron varias direcciones en Figma (página 04, «S07 · Dirección A/B/C
 
 ## 19. Movimiento en los momentos que se repiten (2026-10-20, #248)
 
-Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame con su línea de tiempo y su ficha). Los tiempos salen de `src/presentation/theme/motion.ts`, que fija los tokens de §6: presión 120 ms, estado 300 ms, entrada 320 ms y un resorte corto. Se usa `Animated` de React Native con el driver nativo (salvo las propiedades de SVG), como en S07 y S12.
+Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame con su línea de tiempo y su ficha; M9, propuesto en #261, con su ficha). Los tiempos salen de `src/presentation/theme/motion.ts`, que fija los tokens de §6: presión 120 ms, estado 300 ms, entrada 320 ms y un resorte corto. Se usa `Animated` de React Native con el driver nativo (salvo las propiedades de SVG), como en S07 y S12.
 
 | | Dónde | Qué hace |
 |---|---|---|
@@ -280,9 +280,11 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
 | M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |
 | M7 | Cambio de pestaña | 300 ms: la pantalla que sale se apaga en la primera mitad y la que entra aparece en la segunda, subiendo 8 px. Las pantallas apiladas (S09, detalles, hojas) conservan la transición nativa |
 | M8 | S09 · deslizar entre ejercicios (#258) | El ejercicio sigue al dedo; al pasar el umbral (64 dp) sale hacia el lado del gesto en 150 ms y el nuevo entra desde el lado contrario con el resorte corto; si no llega, vuelve con el resorte. En el primero y el último hay un tope elástico (25 % del recorrido, máx. 24 dp) y vuelve. Con «Reducir movimiento» no se desplaza: el ejercicio se funde (150 ms y 150 ms). Pendiente: llevarlo a la página «11 Animaciones (propuesta)» de Figma |
+| M9 | S15 · reordenar ejercicios (#261) | Al arrastrar el asa, la fila sigue al dedo y las filas que va pasando se corren una altura para dejarle el lugar, con el resorte de `reorderSpring`. Al soltar, la fila se acomoda en su lugar con ese resorte, sin saltos. «Subir» y «Bajar» (lector de pantalla) deslizan las dos filas a su nuevo lugar (`layoutSpring`, 300 ms). Sin el texto de ayuda debajo de la lista |
 
 - **Nada en bucle** y todo en una sola pasada (§7).
-- **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos; quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
+- **M9 (#261), cómo se hace:** un solo valor animado (el índice al que caería la fila) mueve a las demás por interpolación, así que arrastrar no re-renderiza la lista por cuadro. Al soltar, la fila arranca desde donde la dejó el dedo (su offset menos lo que recorrió en la lista) y vuelve a 0 con resorte, mientras las demás dejan de correrse en el mismo cuadro en que cambia el orden. Con `Animated` y el driver nativo, sin dependencias nuevas.
+- **«Reducir movimiento»:** sin escalas animadas, desplazamientos, halos ni trazos (en M9 el orden cambia de golpe); quedan los cambios de estado (el hundimiento de un botón pasa de golpe y M7 queda en un fundido).
 - **Diferencias con el Figma, encontradas en el emulador:**
   - En M1, después de «Hecho» sube a pantalla completa el descanso, que ya tenía su entrada; las filas cambian detrás y la barra de descanso sube cuando se minimiza.
   - Las filas de S09 no escalan: en Android, una escala nativa en la fila le cortaba los toques dentro del gesto para cambiar de ejercicio.

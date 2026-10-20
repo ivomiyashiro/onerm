@@ -48,6 +48,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- Reordering the exercises of a routine in the editor now moves: while one is dragged the others make room, and on drop it settles with a short spring (or at once with «Reducir movimiento»); «Subir» and «Bajar» glide too. The help text under the list is gone (#261).
 - In the routine editor, «Agregar ejercicio» moves to the header of the exercise list («Ejercicios · 6» with «+ Agregar»), so a day with many exercises no longer needs scrolling to add one more.
 - Inicio has a new look: the day on a lime card with «Empezar» right there (or «Continuar»), its time, exercises and sets; this week day by day; and each exercise numbered with its main muscle, its prescription, the suggestion and what changes against last time («↑ 5 kg», «+1 rep», «Igual»). A day name now has up to 20 characters, so it fits the card. It comes in once, still with «reduce motion».
 - The workout summary feels like a finish: a done mark that draws itself, the total load lifted as the big number (counting up; the duration when everything was bodyweight), the records first with the trophy shining once, a chip per set in each exercise, the next workout as a card and a success vibration. The entrance runs once and not at all with «reduce motion».

@@ -8,7 +8,7 @@ import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
 import { rowShift } from '@/presentation/features/routine-editor/drop-index';
 import { colors, elevation, size, typography } from '@/presentation/theme';
-import { spring } from '@/presentation/theme/motion';
+import { reorderSpring } from '@/presentation/theme/motion';
 
 /** The row being dragged and how tall it is: the others make room of that much. */
 export interface RowDrag {
@@ -103,7 +103,7 @@ export function EditorExerciseRow({
       return;
     }
     offset.setValue(from);
-    Animated.spring(offset, { toValue: 0, ...spring, useNativeDriver: true }).start(() =>
+    Animated.spring(offset, { toValue: 0, ...reorderSpring, useNativeDriver: true }).start(() =>
       setDragging(false),
     );
   };

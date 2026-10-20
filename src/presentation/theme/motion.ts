@@ -19,3 +19,6 @@ export const layoutSpring = {
   duration: motion.state,
   update: { type: 'spring', springDamping: 0.8 },
 } as const;
+
+/** A reordered row settles into its place, and the rows in its way slide, with a slower spring. */
+export const reorderSpring = { speed: 11, bounciness: 4 } as const;
