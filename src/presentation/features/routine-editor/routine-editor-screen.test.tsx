@@ -1,4 +1,5 @@
 import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { AccessibilityInfo, LayoutAnimation } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -92,6 +93,10 @@ const rowAction = (row: string, actionName: string) =>
     nativeEvent: { actionName },
   });
 
+beforeEach(() => {
+  jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(false);
+});
+
 describe('RoutineEditorScreen', () => {
   it('loading: shows only the top bar', async () => {
     await renderScreen({ useCases: someUseCases() });
@@ -149,6 +154,29 @@ describe('RoutineEditorScreen', () => {
 
     await act(() => rowAction('Curl de bíceps', 'moveUp'));
 
+    expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
+  });
+
+  it('RF-RUT-05.AC2: «Subir» glides the rows to their new places', async () => {
+    const configureNext = jest.spyOn(LayoutAnimation, 'configureNext').mockClear();
+    await renderScreen();
+    await screen.findByDisplayValue('Mi rutina de pierna');
+
+    await act(() => rowAction('Curl de bíceps', 'moveUp'));
+
+    expect(configureNext).toHaveBeenCalledTimes(1);
+  });
+
+  it('RF-RUT-05.AC2: with «Reducir movimiento» the order changes at once', async () => {
+    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
+    const configureNext = jest.spyOn(LayoutAnimation, 'configureNext').mockClear();
+    await renderScreen();
+    await screen.findByDisplayValue('Mi rutina de pierna');
+    await act(async () => {});
+
+    await act(() => rowAction('Curl de bíceps', 'moveUp'));
+
+    expect(configureNext).not.toHaveBeenCalled();
     expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
   });
 

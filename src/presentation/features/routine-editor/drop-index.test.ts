@@ -1,4 +1,8 @@
-import { dropDistance, dropIndex, rowShift } from '@/presentation/features/routine-editor/drop-index';
+import {
+  dropDistance,
+  dropIndex,
+  rowShift,
+} from '@/presentation/features/routine-editor/drop-index';
 
 /** Three 72 dp rows and a taller one, as `onLayout` measures them. */
 const ROWS = [

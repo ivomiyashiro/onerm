@@ -6,10 +6,26 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { SwipeRow, type SwipeAction } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
+import { rowShift } from '@/presentation/features/routine-editor/drop-index';
 import { colors, elevation, size, typography } from '@/presentation/theme';
+import { spring } from '@/presentation/theme/motion';
+
+/** The row being dragged and how tall it is: the others make room of that much. */
+export interface RowDrag {
+  readonly from: number;
+  readonly height: number;
+}
 
 interface EditorExerciseRowProps {
   name: string;
+  index: number;
+  count: number;
+  /** Set while some row is dragged. */
+  drag: RowDrag | null;
+  /** The index the dragged row would land on, animated; the rows in its way shift with it. */
+  target: Animated.Value;
+  /** False with «reduce motion»: no row shifts and the order changes at once. */
+  animate: boolean;
   /** «3 × 8–12 · reserva 2 · 2 min». */
   line: string;
   isFirst: boolean;
@@ -22,8 +38,12 @@ interface EditorExerciseRowProps {
   swipeActions: SwipeAction[];
   /** Where the row sits in the list, for the drop (RF-RUT-05.AC1). */
   onLayout: (layout: LayoutRectangle) => void;
-  /** The row was dropped `translationY` away from where it was. */
-  onDrop: (translationY: number) => void;
+  onDragStart: () => void;
+  onDragMove: (translationY: number) => void;
+  /** Dropped `translationY` away from where it was. Returns where it settles from if it moved. */
+  onDrop: (translationY: number) => number | null;
+  /** The drag was cancelled without a drop. */
+  onDragCancel: () => void;
 }
 
 /**
@@ -33,6 +53,11 @@ interface EditorExerciseRowProps {
  */
 export function EditorExerciseRow({
   name,
+  index,
+  count,
+  drag,
+  target,
+  animate,
   line,
   isFirst,
   isLast,
@@ -40,7 +65,10 @@ export function EditorExerciseRow({
   onMove,
   swipeActions,
   onLayout,
+  onDragStart,
+  onDragMove,
   onDrop,
+  onDragCancel,
 }: EditorExerciseRowProps) {
   const moves: SwipeAction[] = [
     ...(isFirst
@@ -66,29 +94,68 @@ export function EditorExerciseRow({
   ];
   const [dragging, setDragging] = useState(false);
   const [offset] = useState(() => new Animated.Value(0));
-  // On the JS thread: the drop needs the layouts and the ViewModel, and a row is light to move.
-  const drag = Gesture.Pan()
-    .runOnJS(true)
-    .withTestId(`drag ${name}`)
-    .onStart(() => setDragging(true))
-    .onUpdate((event) => offset.setValue(event.translationY))
-    .onEnd((event) => onDrop(event.translationY))
-    .onFinalize(() => {
+  // From where it was dropped it springs to its place; raised until then. With «reduce motion» it
+  // lands at once.
+  const settle = (from: number) => {
+    if (!animate) {
       offset.setValue(0);
       setDragging(false);
+      return;
+    }
+    offset.setValue(from);
+    Animated.spring(offset, { toValue: 0, ...spring, useNativeDriver: true }).start(() =>
+      setDragging(false),
+    );
+  };
+
+  // On the JS thread: the drop needs the layouts and the ViewModel, and a row is light to move.
+  const pan = Gesture.Pan()
+    .runOnJS(true)
+    .withTestId(`drag ${name}`)
+    .onStart(() => {
+      setDragging(true);
+      onDragStart();
+    })
+    .onUpdate((event) => {
+      offset.setValue(event.translationY);
+      onDragMove(event.translationY);
+    })
+    // The new order commits with this, so the row starts from where the finger left it and not from
+    // its old place: `onDrop` says how far that is.
+    .onEnd((event) => settle(onDrop(event.translationY) ?? event.translationY))
+    .onFinalize((event, success) => {
+      if (success) return;
+      onDragCancel();
+      settle(event.translationY);
     });
+
+  // The rows in the way of the dragged one make room for it.
+  const shift =
+    drag && animate && count > 1 && index !== drag.from
+      ? target.interpolate({
+          inputRange: Array.from({ length: count }, (_, to) => to),
+          outputRange: Array.from({ length: count }, (_, to) =>
+            rowShift(index, drag.from, to, drag.height),
+          ),
+          extrapolate: 'clamp',
+        })
+      : null;
 
   return (
     <Animated.View
       testID={`row ${name}`}
       onLayout={(event) => onLayout(event.nativeEvent.layout)}
-      style={[styles.row, dragging && styles.dragging, { transform: [{ translateY: offset }] }]}
+      style={[
+        styles.row,
+        dragging && styles.dragging,
+        { transform: [{ translateY: offset }, ...(shift ? [{ translateY: shift }] : [])] },
+      ]}
     >
       <SwipeRow testID={name} actions={swipeActions}>
         {(a11y) => (
           <View style={styles.content}>
             {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
-            <GestureDetector gesture={drag}>
+            <GestureDetector gesture={pan}>
               <View
                 style={styles.handle}
                 accessible={false}
