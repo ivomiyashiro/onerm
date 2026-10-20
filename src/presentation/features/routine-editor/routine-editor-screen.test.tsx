@@ -218,6 +218,12 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
   });
 
+  it('#256: an empty day also shows the header with «Agregar ejercicio»', async () => {
+    await renderScreen({ routineId: null, routines: [] });
+    expect(screen.getByText(text.editor.exerciseCount(0))).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
+  });
+
   it('#256: at the limit of exercises in a day «Agregar ejercicio» is disabled', async () => {
     const exercises = Array.from({ length: 20 }, (_, i) =>
       aRoutineExercise({ id: `re-${i}`, exerciseId: 'curl' }),
