@@ -1,9 +1,11 @@
 import { Easing, type Animated } from 'react-native';
 
+import { colors } from '@/presentation/theme';
+
 /** How far the screen rises while it fades in. */
 const RISE = 8;
-/** The cross-fade, between the «estado» and «entrada» tokens. */
-const FADE_MS = 260;
+/** The whole change: the old screen fades out in its first half, the new one in the second. */
+const FADE_MS = 300;
 
 /**
  * #248 M7: changing tabs cross-fades the screens, and the one coming in rises 8 dp. The tab bar
@@ -12,6 +14,9 @@ const FADE_MS = 260;
  */
 export function tabTransition(reduceMotion: boolean) {
   return {
+    // The scenes come with the light background of the default navigation theme: it showed grey
+    // while they faded.
+    sceneStyle: { backgroundColor: colors.bgBase },
     animation: 'fade',
     transitionSpec: {
       animation: 'timing',
@@ -23,10 +28,11 @@ export function tabTransition(reduceMotion: boolean) {
       current: { progress: Animated.AnimatedInterpolation<number> };
     }) => ({
       sceneStyle: {
-        // -1 and 1 are the screens on each side, 0 the focused one.
+        // -1 and 1 are the screens on each side, 0 the focused one. The one leaving is gone
+        // halfway and only then the new one fades in: crossed at half opacity, their texts mixed.
         opacity: current.progress.interpolate({
-          inputRange: [-1, 0, 1],
-          outputRange: [0, 1, 0],
+          inputRange: [-1, -0.5, 0, 0.5, 1],
+          outputRange: [0, 0, 1, 0, 0],
         }),
         transform: reduceMotion
           ? []
