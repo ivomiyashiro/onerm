@@ -212,6 +212,19 @@ describe('RoutineEditorScreen', () => {
     expect(screen.getByText(dialogs.D15.title('Pierna'))).toBeOnTheScreen();
   });
 
+  it('#256: with a full day «Agregar ejercicio» stays in the bottom bar, and at the limit it is disabled', async () => {
+    const exercises = (count: number) =>
+      Array.from({ length: count }, (_, i) =>
+        aRoutineExercise({ id: `re-${i}`, exerciseId: 'curl' }),
+      );
+    const full = aRoutine({ days: [aRoutineDay({ exercises: exercises(20) })] });
+    await renderScreen({ routines: [full] });
+    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeDisabled();
+    expect(screen.getByTestId('editor-bottom-bar')).toContainElement(
+      screen.getByRole('button', { name: text.editor.addExercise }),
+    );
+  });
+
   it('the day sheet: tapping the chosen day, or its options button, opens its options', async () => {
     const { user } = await renderScreen();
     await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));

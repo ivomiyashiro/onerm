@@ -99,6 +99,7 @@ function Editor({
   const dayIndex = routine.days.findIndex((day) => day.id === selectedDayId);
   const day = routine.days[dayIndex];
   const exercises = day?.exercises ?? [];
+  const addDisabled = exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max;
   // Measured by each row, read only when one is dropped.
   const rowLayouts = useRef<RowLayout[]>([]);
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
@@ -196,13 +197,6 @@ function Editor({
               ))}
             </View>
           ))}
-        <Button
-          variant="secondary"
-          label={text.editor.addExercise}
-          icon="plus"
-          disabled={exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max}
-          onPress={actions.openPicker}
-        />
         {state.orderHint && <Notice message={text.editor.mainFirstHelp} />}
         {exercises.length > 1 && (
           <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
@@ -210,8 +204,24 @@ function Editor({
           </Text>
         )}
       </ScrollView>
-      <View style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}>
-        <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />
+      {/* Always in sight, in the thumb's zone: a day can hold many exercises (#256). */}
+      <View
+        testID="editor-bottom-bar"
+        style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}
+      >
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={text.editor.addExercise}
+          accessibilityState={{ disabled: addDisabled }}
+          disabled={addDisabled}
+          onPress={actions.openPicker}
+          style={[styles.addExercise, addDisabled && styles.addExerciseDisabled]}
+        >
+          <Icon name="plus" color={addDisabled ? colors.textTertiary : colors.textPrimary} />
+        </Pressable>
+        <View style={styles.save}>
+          <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />
+        </View>
       </View>
       <PrescriptionSheet
         sheet={sheet}
@@ -372,9 +382,22 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   bottom: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: space.s10,
     paddingTop: space.s10,
     paddingHorizontal: space.s16,
     borderTopWidth: 1,
     borderTopColor: colors.borderHair,
   },
+  addExercise: {
+    width: 64,
+    height: 64,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.md,
+    backgroundColor: colors.bgRaised,
+  },
+  addExerciseDisabled: { opacity: 0.5 },
+  save: { flex: 1 },
 });
