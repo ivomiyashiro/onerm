@@ -27,6 +27,7 @@ const MIN_SCALE = 14;
 /** #248 M6: each bar grows in this long, this long after the one above. */
 const BAR_MS = 550;
 const STAGGER_MS = 60;
+const EASE_STEPS = [0, 0.15, 0.3, 0.5, 0.7, 1];
 
 /**
  * #248 M6: the bars grow from the left one after the other when the week shows (on entering and
@@ -56,10 +57,11 @@ function useBarsGrow(week: number | null, bars: number) {
 
   return (index: number) => {
     const start = (index * STAGGER_MS) / total;
+    const span = BAR_MS / total;
+    // The native driver takes no easing in an interpolation: an ease-out in a few straight steps.
     return progress.interpolate({
-      inputRange: [start, Math.min(1, start + BAR_MS / total)],
-      outputRange: [0, 1],
-      easing: Easing.out(Easing.cubic),
+      inputRange: EASE_STEPS.map((t) => start + t * span),
+      outputRange: EASE_STEPS.map((t) => 1 - (1 - t) ** 3),
       extrapolate: 'clamp',
     });
   };
