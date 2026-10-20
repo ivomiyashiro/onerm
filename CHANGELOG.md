@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Training (S09): swiping between exercises now follows the finger like turning a page, with an elastic stop at the first and last exercise and a short fade with «reduce motion» (#258).
 - MVP specification, design and the Stage 1 deliverable.
 - Phased implementation plan, working conventions, and issue and PR templates.
 - App skeleton: navigation with the Inicio, Rutinas, Progreso and Perfil tabs, and every screen as a placeholder.
