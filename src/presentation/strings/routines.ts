@@ -41,11 +41,8 @@ export const routines = {
       [count(days, 'día', 'días'), level && levels[level], `~${minutes} min`]
         .filter(Boolean)
         .join(' · '),
-    /** Accessible name of the «⋯» of a card. */
-    options: (routine: string) => `Opciones de ${routine}`,
     templatesHelp:
       'Las plantillas se copian a Mis rutinas cuando las usás: después podés cambiarlas sin afectar el original.',
-    menu: { edit: 'Editar', activate: 'Activar', duplicate: 'Duplicar', delete: 'Eliminar rutina' },
     empty: {
       title: 'Sin rutinas',
       body: 'Tus rutinas van a aparecer acá.',
@@ -160,6 +157,10 @@ export const routines = {
     name: 'Nombre de la rutina',
     addDay: '+ Día',
     addExercise: 'Agregar ejercicio',
+    /** The short label of the add button in the list header (#256); its accessible name is addExercise. */
+    add: 'Agregar',
+    /** The list header of the chosen day (#256). */
+    exerciseCount: (count: number) => `Ejercicios · ${count}`,
     /** The folded part of the prescription sheet: role, notes, replace, remove (#197). */
     moreOptions: 'Más opciones',
     reorderHelp:

@@ -331,7 +331,7 @@ describe('WorkoutScreen (S09)', () => {
     expect(screen.getByText(text.set.lastLoad('57,5 kg'), { exact: false })).toBeOnTheScreen();
   });
 
-  it('#198, RF-ENT-04.AC2: swiping a done set deletes it, with «Deshacer»', async () => {
+  it('#198, #254, RF-ENT-04.AC2: swiping a done set offers only «Eliminar», with «Deshacer»', async () => {
     const { user, workouts } = await renderScreen({
       inProgress: {
         ...RUNNING,
@@ -351,6 +351,8 @@ describe('WorkoutScreen (S09)', () => {
         { state: State.END, translationX: -200 },
       ]),
     );
+    // Tapping the set edits it (RF-ENT-04.AC1): the swipe doesn't repeat it.
+    expect(screen.queryByRole('button', { name: common.swipe.edit })).not.toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: common.swipe.delete }));
 
     expect(workouts.inProgress!.exercises[0].sets).toEqual([]);
