@@ -1,4 +1,5 @@
-import { useRef, useState, type ReactNode } from 'react';
+import { useIsFocused } from 'expo-router';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import {
   Animated,
   Pressable,
@@ -48,6 +49,9 @@ const FLICK = 500;
  *
  * #254: once the touch is a swipe, the row takes it from its content, so lifting the finger never
  * presses the row (iOS let the content's press through, since it moved under the finger).
+ *
+ * #257: the tabs stay mounted behind the active one, so a row left open would still be open on
+ * coming back: it closes, without animation, when its screen loses focus.
  */
 export function SwipeRow({
   actions,
@@ -84,6 +88,20 @@ export function SwipeRow({
       if (finished && !opened) setShown(false);
     });
   };
+  const focused = useIsFocused();
+  const [wasFocused, setWasFocused] = useState(focused);
+  if (focused !== wasFocused) {
+    setWasFocused(focused);
+    if (!focused) {
+      setOpen(false);
+      setShown(false);
+    }
+  }
+  useEffect(() => {
+    if (focused) return;
+    x.stopAnimation();
+    x.setValue(0);
+  }, [focused, x]);
   const from = open ? -width : 0;
   const swipe = Gesture.Pan()
     .runOnJS(true)
