@@ -1,4 +1,4 @@
-import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -64,8 +64,6 @@ async function renderScreen({
 }
 
 const card = (name: string) => screen.getByText(name);
-const openMenu = (user: ReturnType<typeof userEvent.setup>, routine: string) =>
-  user.press(screen.getByRole('button', { name: text.list.options(routine) }));
 
 describe('RoutinesScreen (S13)', () => {
   it('loading: placeholders under the header', async () => {
@@ -123,11 +121,26 @@ describe('RoutinesScreen (S13)', () => {
     expect(card('Cuerpo completo')).toBeOnTheScreen();
   });
 
-  it('RF-RUT-07.AC1: Activar from the menu asks with D07 and marks the new active routine', async () => {
+  const swipe = (routine: string) =>
+    act(() =>
+      fireGestureHandler(getByGestureTestId(`swipe ${routine}`), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -100 },
+        { state: State.END, translationX: -300 },
+      ]),
+    );
+
+  it('#254: a routine has no «⋯»: its actions are in the swipe', async () => {
+    await renderScreen();
+
+    expect(screen.queryByRole('button', { name: /^Opciones de/ })).not.toBeOnTheScreen();
+  });
+
+  it('RF-RUT-07.AC1: swiping a routine activates it, asking with D07', async () => {
     const { user, profiles } = await renderScreen();
 
-    await openMenu(user, 'Mi rutina de pierna');
-    await user.press(screen.getByRole('button', { name: text.list.menu.activate }));
+    await swipe('Mi rutina de pierna');
+    await user.press(screen.getByRole('button', { name: common.swipe.activate }));
     expect(
       screen.getByRole('header', { name: dialogs.D07.title('Mi rutina de pierna') }),
     ).toBeOnTheScreen();
@@ -136,19 +149,22 @@ describe('RoutinesScreen (S13)', () => {
     expect(profiles.profile?.activeRoutineId).toBe('legs');
   });
 
-  it('the active routine has no «Activar» in its menu', async () => {
-    const { user } = await renderScreen();
+  it('the active routine has no «Activar» in its swipe', async () => {
+    await renderScreen();
 
-    await openMenu(user, 'Cuerpo completo');
+    await swipe('Cuerpo completo');
 
-    expect(screen.queryByRole('button', { name: text.list.menu.activate })).not.toBeOnTheScreen();
+    expect(screen.queryByRole('button', { name: common.swipe.activate })).not.toBeOnTheScreen();
   });
 
-  it('RF-RUT-08.AC1: Eliminar rutina asks with D11 and the routine leaves the list', async () => {
-    const { user } = await renderScreen();
+  it('#198, RF-RUT-08.AC1: swiping a routine edits or deletes it (D11 first)', async () => {
+    const { user, onEditRoutine } = await renderScreen();
 
-    await openMenu(user, 'Mi rutina de pierna');
-    await user.press(screen.getByRole('button', { name: text.list.menu.delete }));
+    await swipe('Mi rutina de pierna');
+    await user.press(screen.getByRole('button', { name: common.swipe.edit }));
+    expect(onEditRoutine).toHaveBeenCalledWith('legs');
+    await swipe('Mi rutina de pierna');
+    await user.press(screen.getByRole('button', { name: common.swipe.delete }));
     expect(
       screen.getByRole('header', { name: dialogs.D11.title('Mi rutina de pierna') }),
     ).toBeOnTheScreen();
@@ -157,47 +173,39 @@ describe('RoutinesScreen (S13)', () => {
     expect(screen.queryByText('Mi rutina de pierna')).not.toBeOnTheScreen();
   });
 
-  it('#198: swiping a routine edits or deletes it (D11 first)', async () => {
-    const { user, onEditRoutine } = await renderScreen();
-    const swipe = () =>
-      act(() =>
-        fireGestureHandler(getByGestureTestId('swipe Mi rutina de pierna'), [
-          { state: State.BEGAN, translationX: 0 },
-          { state: State.ACTIVE, translationX: -100 },
-          { state: State.END, translationX: -200 },
-        ]),
-      );
+  it('RNF-18: a screen reader reaches the swipe actions on the routine', async () => {
+    const { profiles } = await renderScreen();
+    const routine = screen.getByLabelText(/^Mi rutina de pierna/);
 
-    await swipe();
-    await user.press(screen.getByRole('button', { name: common.swipe.edit }));
-    expect(onEditRoutine).toHaveBeenCalledWith('legs');
-    await swipe();
-    await user.press(screen.getByRole('button', { name: common.swipe.delete }));
+    expect(routine.props.accessibilityActions.map((a: { label: string }) => a.label)).toEqual([
+      common.swipe.activate,
+      common.swipe.edit,
+      common.swipe.delete,
+    ]);
+    await fireEvent(routine, 'accessibilityAction', { nativeEvent: { actionName: 'activate' } });
 
     expect(
-      screen.getByRole('header', { name: dialogs.D11.title('Mi rutina de pierna') }),
+      await screen.findByRole('header', { name: dialogs.D07.title('Mi rutina de pierna') }),
     ).toBeOnTheScreen();
+    expect(profiles.profile?.activeRoutineId).toBe('active');
   });
 
   it('RF-RUT-07.AC2: with a workout in progress shows D14, which goes to the workout', async () => {
     const { user, onGoToWorkout } = await renderScreen({ inProgress: IN_PROGRESS });
 
-    await openMenu(user, 'Mi rutina de pierna');
-    await user.press(screen.getByRole('button', { name: text.list.menu.activate }));
+    await swipe('Mi rutina de pierna');
+    await user.press(screen.getByRole('button', { name: common.swipe.activate }));
     expect(screen.getByText(dialogs.D14.body('changeRoutine'))).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: dialogs.D14.goToWorkout }));
 
     expect(onGoToWorkout).toHaveBeenCalled();
   });
 
-  it('«Crear rutina» and «Editar» open the editor', async () => {
-    const { user, onCreateRoutine, onEditRoutine } = await renderScreen();
+  it('«Crear rutina» opens the editor', async () => {
+    const { user, onCreateRoutine } = await renderScreen();
 
     await user.press(screen.getByRole('button', { name: text.list.create }));
-    await openMenu(user, 'Mi rutina de pierna');
-    await user.press(screen.getByRole('button', { name: text.list.menu.edit }));
 
     expect(onCreateRoutine).toHaveBeenCalled();
-    expect(onEditRoutine).toHaveBeenCalledWith('legs');
   });
 });

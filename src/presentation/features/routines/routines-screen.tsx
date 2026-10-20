@@ -9,9 +9,8 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Icon } from '@/presentation/components/icons/icon';
 import { SectionTabs } from '@/presentation/components/navigation/section-tabs';
-import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
-import { SwipeRow } from '@/presentation/components/list/swipe-row';
+import { SwipeRow, type SwipeAction } from '@/presentation/components/list/swipe-row';
 import { RoutineCard } from '@/presentation/features/routines/routine-card';
 import { RoutineChangeDialog } from '@/presentation/features/routines/routine-change-dialog';
 import {
@@ -20,7 +19,7 @@ import {
 } from '@/presentation/features/routines/use-routines-view-model';
 import { common } from '@/presentation/strings/common';
 import { routines as text } from '@/presentation/strings/routines';
-import { colors, radius, size, space, typography } from '@/presentation/theme';
+import { colors, size, space, typography } from '@/presentation/theme';
 
 type Section = 'mine' | 'templates';
 
@@ -124,9 +123,6 @@ function MyRoutines({
   onCreateRoutine: () => void;
   onEditRoutine: (routineId: Id) => void;
 }) {
-  // The routine whose menu is open.
-  const [menuFor, setMenuFor] = useState<RoutineSummary | null>(null);
-
   if (overview.routines.length === 0) {
     return (
       <>
@@ -138,92 +134,47 @@ function MyRoutines({
   }
 
   const isActive = (routine: RoutineSummary) => routine.id === overview.activeRoutineId;
+  // #198, #254: a routine is activated, edited and deleted swiping it; screen readers get the same.
+  // «Duplicar» (RF-RUT-09) is a Could left for later.
+  const swipeActions = (routine: RoutineSummary): SwipeAction[] => [
+    ...(isActive(routine)
+      ? []
+      : [
+          {
+            key: 'activate',
+            label: common.swipe.activate,
+            icon: 'check' as const,
+            onPress: () => void actions.activate(routine.id),
+          },
+        ]),
+    {
+      key: 'edit',
+      label: common.swipe.edit,
+      icon: 'edit',
+      onPress: () => onEditRoutine(routine.id),
+    },
+    {
+      key: 'delete',
+      label: common.swipe.delete,
+      icon: 'trash',
+      destructive: true,
+      onPress: () => void actions.remove(routine.id),
+    },
+  ];
 
-  return (
-    <>
-      {overview.routines.map((routine) => (
-        // #198: swiped, edit and delete; the «⋯» keeps them for screen readers, with «Activar».
-        <SwipeRow
-          key={routine.id}
-          testID={routine.name}
-          borderRadius={radius.xl}
-          actions={[
-            {
-              key: 'edit',
-              label: common.swipe.edit,
-              icon: 'edit',
-              onPress: () => onEditRoutine(routine.id),
-            },
-            {
-              key: 'delete',
-              label: common.swipe.delete,
-              icon: 'trash',
-              destructive: true,
-              onPress: () => void actions.remove(routine.id),
-            },
-          ]}
-        >
-          {() => (
-            <RoutineCard
-              name={routine.name}
-              summary={summaryOf(routine)}
-              highlighted={isActive(routine)}
-              label={isActive(routine) ? text.list.active : undefined}
-              menu={{ label: text.list.options(routine.name), onPress: () => setMenuFor(routine) }}
-            />
-          )}
-        </SwipeRow>
-      ))}
-      {menuFor && (
-        <RoutineMenu
-          routine={menuFor}
-          isActive={isActive(menuFor)}
-          onClose={() => setMenuFor(null)}
-          onEdit={() => onEditRoutine(menuFor.id)}
-          onActivate={() => void actions.activate(menuFor.id)}
-          onDelete={() => void actions.remove(menuFor.id)}
+  return overview.routines.map((routine) => (
+    <SwipeRow key={routine.id} testID={routine.name} actions={swipeActions(routine)}>
+      {(a11y) => (
+        <RoutineCard
+          name={routine.name}
+          summary={summaryOf(routine)}
+          highlighted={isActive(routine)}
+          label={isActive(routine) ? text.list.active : undefined}
+          a11y={a11y}
         />
       )}
-    </>
-  );
-}
-
-/** The «⋯» sheet of a routine. «Duplicar» (RF-RUT-09) is a Could left for later. */
-function RoutineMenu({
-  routine,
-  isActive,
-  onClose,
-  onEdit,
-  onActivate,
-  onDelete,
-}: {
-  routine: RoutineSummary;
-  isActive: boolean;
-  onClose: () => void;
-  onEdit: () => void;
-  onActivate: () => void;
-  onDelete: () => void;
-}) {
-  // Closes the sheet before acting, so a dialog never opens over it.
-  const then = (action: () => void) => () => {
-    onClose();
-    action();
-  };
-  return (
-    <BottomSheet
-      visible
-      title={routine.name}
-      subtitle={summaryOf(routine)}
-      closeLabel={common.close}
-      onClose={onClose}
-    >
-      <MenuItem icon="edit" label={text.list.menu.edit} onPress={then(onEdit)} />
-      {!isActive && (
-        <MenuItem icon="check" label={text.list.menu.activate} onPress={then(onActivate)} />
-      )}
-      <MenuItem icon="trash" label={text.list.menu.delete} destructive onPress={then(onDelete)} />
-    </BottomSheet>
-  );
+    </SwipeRow>
+  ));
 }
 
 function Templates({

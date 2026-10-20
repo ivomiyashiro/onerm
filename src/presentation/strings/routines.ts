@@ -41,11 +41,8 @@ export const routines = {
       [count(days, 'día', 'días'), level && levels[level], `~${minutes} min`]
         .filter(Boolean)
         .join(' · '),
-    /** Accessible name of the «⋯» of a card. */
-    options: (routine: string) => `Opciones de ${routine}`,
     templatesHelp:
       'Las plantillas se copian a Mis rutinas cuando las usás: después podés cambiarlas sin afectar el original.',
-    menu: { edit: 'Editar', activate: 'Activar', duplicate: 'Duplicar', delete: 'Eliminar rutina' },
     empty: {
       title: 'Sin rutinas',
       body: 'Tus rutinas van a aparecer acá.',

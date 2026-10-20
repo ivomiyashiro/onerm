@@ -1,9 +1,9 @@
 import { Pressable, StyleSheet, View } from 'react-native';
 
 import { Badge } from '@/presentation/components/badge/badge';
-import { Icon } from '@/presentation/components/icons/icon';
+import type { SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
-import { colors, radius, size, typography } from '@/presentation/theme';
+import { colors, radius, typography } from '@/presentation/theme';
 
 interface RoutineCardProps {
   name: string;
@@ -14,8 +14,8 @@ interface RoutineCardProps {
   highlighted?: boolean;
   /** Opens the card (a template's detail). */
   onPress?: () => void;
-  /** The «⋯» of an own routine, with its accessible name. */
-  menu?: { label: string; onPress: () => void };
+  /** An own routine's swipe actions, for screen readers too (#198, #254). */
+  a11y?: SwipeA11y;
 }
 
 /** Figma «RoutineCard» (S13): a routine or a template. */
@@ -25,28 +25,19 @@ export function RoutineCard({
   label,
   highlighted = false,
   onPress,
-  menu,
+  a11y,
 }: RoutineCardProps) {
   return (
     <Pressable
       accessibilityRole={onPress ? 'button' : undefined}
+      accessibilityLabel={a11y && [name, summary, label].filter(Boolean).join(', ')}
+      {...a11y}
       onPress={onPress}
-      disabled={onPress === undefined}
+      // Enabled with swipe actions, so a screen reader runs them (RNF-18).
+      disabled={onPress === undefined && a11y === undefined}
       style={[styles.card, highlighted && styles.highlighted]}
     >
-      <View style={styles.header}>
-        <Text style={[typography.titleM, styles.name]}>{name}</Text>
-        {menu && (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel={menu.label}
-            onPress={menu.onPress}
-            style={styles.menu}
-          >
-            <Icon name="dots" size={20} color={colors.textPrimary} />
-          </Pressable>
-        )}
-      </View>
+      <Text style={[typography.titleM, styles.name]}>{name}</Text>
       <Text style={[typography.bodyM, { color: colors.textSecondary }]}>{summary}</Text>
       {label && (
         <View style={styles.label}>
@@ -70,13 +61,6 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgCard,
   },
   highlighted: { borderColor: colors.borderAccentSoft, backgroundColor: colors.bgCurrent },
-  header: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  name: { flex: 1, color: colors.textPrimary },
-  menu: {
-    width: size.targetMin,
-    height: size.targetMin,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
+  name: { color: colors.textPrimary },
   label: { flexDirection: 'row' },
 });
