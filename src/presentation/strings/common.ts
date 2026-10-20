@@ -18,7 +18,7 @@ export const common = {
   skip: 'Saltear',
   why: '¿Por qué?',
   /** The actions of a swiped row (#198). */
-  swipe: { edit: 'Editar', remove: 'Quitar', delete: 'Eliminar' },
+  swipe: { activate: 'Activar', edit: 'Editar', remove: 'Quitar', delete: 'Eliminar' },
   understood: 'Entendido',
   newRecord: 'Nuevo récord',
   skipped: 'Salteado',

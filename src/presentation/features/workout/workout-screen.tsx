@@ -291,18 +291,12 @@ function Workout({
                 />
               );
               if (row.kind !== 'done') return <View key={`pending-${row.number}`}>{setRow()}</View>;
-              // #198: a done set is edited or deleted (with «Deshacer») swiping it.
+              // #198, #254: a done set is deleted (with «Deshacer») swiping it; tapping it edits it.
               return (
                 <SwipeRow
                   key={row.set.id}
                   testID={`set ${row.number}`}
                   actions={[
-                    {
-                      key: 'edit',
-                      label: common.swipe.edit,
-                      icon: 'edit',
-                      onPress: () => actions.openSet(row.set.id),
-                    },
                     {
                       key: 'delete',
                       label: common.swipe.delete,
