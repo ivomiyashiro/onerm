@@ -3,6 +3,8 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { RouterTabBar } from '@/presentation/components/navigation/router-tab-bar';
 import type { TabItem } from '@/presentation/components/navigation/tab-bar';
+import { tabTransition } from '@/presentation/components/navigation/tab-transition';
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { useTabAction } from '@/presentation/features/workout/use-tab-action';
 import { WorkoutResumeDialog } from '@/presentation/features/workout/workout-resume-dialog';
 import { navigation } from '@/presentation/strings/navigation';
@@ -21,6 +23,7 @@ const TABS: TabItem[] = [
 export default function TabsLayout() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const reduceMotion = useReduceMotion();
   const action = useTabAction(() => router.push('/workout'));
   return (
     <>
@@ -28,7 +31,7 @@ export default function TabsLayout() {
         tabBar={(props) => (
           <RouterTabBar tabs={TABS} action={action} bottomInset={insets.bottom} {...props} />
         )}
-        screenOptions={{ headerShown: false }}
+        screenOptions={{ headerShown: false, ...tabTransition(reduceMotion) }}
       />
       {/* RF-ENT-13: the tabs mount once per app start, so this runs on opening the app. */}
       <WorkoutResumeDialog
