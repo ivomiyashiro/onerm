@@ -23,6 +23,12 @@ import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-ca
 
 jest.useFakeTimers();
 
+// The rows ask whether their screen is focused (#257); there is no navigator here.
+jest.mock('expo-router', () => ({
+  ...jest.requireActual('expo-router'),
+  useIsFocused: () => true,
+}));
+
 const METRICS = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
   insets: { top: 54, left: 0, right: 0, bottom: 34 },

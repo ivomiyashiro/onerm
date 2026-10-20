@@ -30,6 +30,11 @@ import { renders, resetRenders, totalRenders } from './render-counter';
 jest.mock('expo-crypto', () => ({
   randomUUID: () => jest.requireActual('node:crypto').randomUUID(),
 }));
+// The swipe rows ask whether their screen is focused (#257); the screens render without a navigator.
+jest.mock('expo-router', () => ({
+  ...jest.requireActual('expo-router'),
+  useIsFocused: () => true,
+}));
 jest.mock('react/jsx-runtime', () =>
   jest
     .requireActual<typeof import('./render-counter')>('./render-counter')

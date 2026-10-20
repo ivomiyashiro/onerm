@@ -7,10 +7,11 @@ import { SwipeRow } from '@/presentation/components/list/swipe-row';
 
 jest.useFakeTimers();
 
-async function renderRow() {
-  const onEdit = jest.fn();
-  const onDelete = jest.fn();
-  await render(
+let mockFocused = true;
+jest.mock('expo-router', () => ({ useIsFocused: () => mockFocused }));
+
+function row(onEdit = jest.fn(), onDelete = jest.fn()) {
+  return (
     <SwipeRow
       testID="Press"
       actions={[
@@ -23,8 +24,14 @@ async function renderRow() {
           <Text>Press de banca</Text>
         </Pressable>
       )}
-    </SwipeRow>,
+    </SwipeRow>
   );
+}
+
+async function renderRow() {
+  const onEdit = jest.fn();
+  const onDelete = jest.fn();
+  await render(row(onEdit, onDelete));
   return { onEdit, onDelete };
 }
 
@@ -38,6 +45,21 @@ const swipe = (translationX: number) =>
   );
 
 describe('SwipeRow (#198)', () => {
+  beforeEach(() => {
+    mockFocused = true;
+  });
+
+  it('#257: open, it closes without animation when its screen loses focus', async () => {
+    await renderRow();
+    await swipe(-160);
+    expect(screen.getByRole('button', { name: 'Eliminar' })).toBeOnTheScreen();
+
+    mockFocused = false;
+    await screen.rerender(row());
+
+    expect(screen.queryByRole('button', { name: 'Eliminar' })).not.toBeOnTheScreen();
+  });
+
   it('swiped left, it shows its actions; one of them runs and the row closes', async () => {
     const { onDelete } = await renderRow();
     expect(screen.queryByRole('button', { name: 'Eliminar' })).not.toBeOnTheScreen();

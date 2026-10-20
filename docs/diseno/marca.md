@@ -302,6 +302,7 @@ Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251
 - **En reposo no se ve nada** de las acciones: aparecen con el movimiento de la fila (opacidad según lo que se corrió), para que no queden en el margen de la lista mientras el resorte se asienta.
 - **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
 - **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
+- **Se cierra al perder el foco** (#257): las pestañas quedan montadas detrás de la activa (#250), así que una fila abierta seguía abierta al volver. Al cambiar de pestaña, o al abrirse otra pantalla encima, la fila se cierra sin animación (`useIsFocused`) y no deja acciones visibles.
 - Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
 
 ## 21. «Agregar ejercicio» en el encabezado de la lista de S15 (2026-10-20, #256)
