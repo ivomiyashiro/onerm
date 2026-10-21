@@ -214,7 +214,7 @@ Escenario: AC3 — Reordenar días
   Entonces la rotación sigue el nuevo orden desde el último día hecho (RN-RUT-01)
 ```
 
-**Notas:** P-08: el orden afecta a la fuerza pero no a la hipertrofia, así que no se impone. Hasta #261 un AC4 mostraba un aviso al poner un accesorio antes que un principal ("Los ejercicios principales suelen ir primero para rendir más en fuerza"); se quitó a pedido del usuario.
+**Notas:** P-08: el orden afecta a la fuerza pero no a la hipertrofia, así que no se impone ni se avisa (el aviso de orden se quitó en #261).
 
 ---
 
