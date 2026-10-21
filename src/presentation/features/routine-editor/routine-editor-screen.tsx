@@ -27,13 +27,11 @@ import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise
 import {
   dropDistance,
   dropIndex,
+  rowShift,
   type RowLayout,
 } from '@/presentation/features/routine-editor/drop-index';
 import { DaySheet } from '@/presentation/features/routine-editor/day-sheet';
-import {
-  EditorExerciseRow,
-  type RowDrag,
-} from '@/presentation/features/routine-editor/editor-exercise-row';
+import { EditorExerciseRow } from '@/presentation/features/routine-editor/editor-exercise-row';
 import { PrescriptionSheet } from '@/presentation/features/routine-editor/prescription-sheet';
 import {
   useRoutineEditorViewModel,
@@ -124,10 +122,25 @@ function Editor({
   const landing = (from: number, translationY: number) =>
     dropIndex(rowLayouts.current.slice(0, exercises.length), from, translationY);
   const animate = !useReduceMotion();
-  const [drag, setDrag] = useState<RowDrag | null>(null);
-  // The index the dragged row would land on; the rows in its way follow it with a spring.
-  const [target] = useState(() => new Animated.Value(0));
-  const lastTarget = useRef(0);
+  // Each row's animated offset, and how far it is drawn from its place (see the row's `base`).
+  const offsets = useRef(new Map<Id, Animated.Value>());
+  const [bases, setBases] = useState<Readonly<Record<Id, number>>>({});
+  const baseOf = (id: Id) => bases[id] ?? 0;
+  // The dragged row, its height and where it would land.
+  const drag = useRef({ from: 0, height: 0, to: 0 });
+  // The rows the dragged one passes make room for it; the others go back to their places.
+  const shiftOthers = (to: number) => {
+    const { from, height } = drag.current;
+    exercises.forEach((exercise, index) => {
+      const offset = offsets.current.get(exercise.id);
+      if (index === from || !offset) return;
+      Animated.spring(offset, {
+        toValue: -baseOf(exercise.id) + rowShift(index, from, to, height),
+        ...reorderSpring,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
 
   return (
@@ -204,11 +217,13 @@ function Editor({
                 <EditorExerciseRow
                   key={exercise.id}
                   name={nameOf(exercise.exerciseId)}
-                  index={index}
-                  count={exercises.length}
-                  drag={drag}
-                  target={target}
+                  base={baseOf(exercise.id)}
                   animate={animate}
+                  onOffset={(offset) =>
+                    offset
+                      ? offsets.current.set(exercise.id, offset)
+                      : offsets.current.delete(exercise.id)
+                  }
                   line={text.editor.exerciseLine(
                     exercise.prescription.sets,
                     text.repRange(exercise.prescription.repRange),
@@ -242,28 +257,42 @@ function Editor({
                     rowLayouts.current[index] = layout;
                   }}
                   onDragStart={() => {
-                    lastTarget.current = index;
-                    target.setValue(index);
-                    setDrag({ from: index, height: rowLayouts.current[index]?.height ?? 0 });
+                    const height = rowLayouts.current[index]?.height ?? 0;
+                    drag.current = { from: index, height, to: index };
                   }}
                   onDragMove={(translationY) => {
                     const to = landing(index, translationY);
-                    if (to === lastTarget.current) return;
-                    lastTarget.current = to;
-                    Animated.spring(target, {
-                      toValue: to,
-                      ...reorderSpring,
-                      useNativeDriver: true,
-                    }).start();
+                    if (!animate || to === drag.current.to) return;
+                    drag.current.to = to;
+                    shiftOthers(to);
                   }}
                   onDrop={(translationY) => {
                     const to = landing(index, translationY);
-                    setDrag(null);
-                    if (to === index) return null;
+                    if (to === index) {
+                      if (animate) shiftOthers(index);
+                      return false;
+                    }
+                    // Each row keeps where it is drawn: the new order and the bases commit together.
+                    const next = { ...bases };
+                    next[exercise.id] =
+                      baseOf(exercise.id) - dropDistance(rowLayouts.current, index, to);
+                    if (animate) {
+                      exercises.forEach((other, at) => {
+                        const shift = rowShift(at, index, to, drag.current.height);
+                        const offset = offsets.current.get(other.id);
+                        if (shift === 0 || !offset) return;
+                        offset.stopAnimation();
+                        offset.setValue(-baseOf(other.id) + shift);
+                        next[other.id] = baseOf(other.id) - shift;
+                      });
+                    }
+                    setBases(next);
                     actions.moveExerciseTo(exercise.id, to);
-                    return translationY - dropDistance(rowLayouts.current, index, to);
+                    return true;
                   }}
-                  onDragCancel={() => setDrag(null)}
+                  onDragCancel={() => {
+                    if (animate) shiftOthers(index);
+                  }}
                 />
               ))}
             </View>
