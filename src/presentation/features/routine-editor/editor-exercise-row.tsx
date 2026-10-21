@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useLayoutEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View, type LayoutRectangle } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
@@ -7,9 +7,20 @@ import { SwipeRow, type SwipeAction } from '@/presentation/components/list/swipe
 import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
 import { colors, elevation, size, typography } from '@/presentation/theme';
+import { motion, reorderSpring } from '@/presentation/theme/motion';
 
 interface EditorExerciseRowProps {
   name: string;
+  /**
+   * How far the row is drawn from its place in the list, set when the order changes. Its animated
+   * offset rests at `-base`, so the two cancel out. On a drop the order and this change in the same
+   * commit, while the animated offset stays: the row doesn't move in that frame (#261).
+   */
+  base: number;
+  /** False with «reduce motion»: no row shifts and the order changes at once. */
+  animate: boolean;
+  /** The row's animated offset, for the screen to move it out of the dragged one's way. */
+  onOffset: (offset: Animated.Value | null) => void;
   /** «3 × 8–12 · reserva 2 · 2 min». */
   line: string;
   isFirst: boolean;
@@ -22,8 +33,12 @@ interface EditorExerciseRowProps {
   swipeActions: SwipeAction[];
   /** Where the row sits in the list, for the drop (RF-RUT-05.AC1). */
   onLayout: (layout: LayoutRectangle) => void;
-  /** The row was dropped `translationY` away from where it was. */
-  onDrop: (translationY: number) => void;
+  onDragStart: () => void;
+  onDragMove: (translationY: number) => void;
+  /** Dropped `translationY` away from where it was. Returns whether the order changed. */
+  onDrop: (translationY: number) => boolean;
+  /** The drag was cancelled without a drop. */
+  onDragCancel: () => void;
 }
 
 /**
@@ -33,6 +48,9 @@ interface EditorExerciseRowProps {
  */
 export function EditorExerciseRow({
   name,
+  base,
+  animate,
+  onOffset,
   line,
   isFirst,
   isLast,
@@ -40,7 +58,10 @@ export function EditorExerciseRow({
   onMove,
   swipeActions,
   onLayout,
+  onDragStart,
+  onDragMove,
   onDrop,
+  onDragCancel,
 }: EditorExerciseRowProps) {
   const moves: SwipeAction[] = [
     ...(isFirst
@@ -65,61 +86,125 @@ export function EditorExerciseRow({
         ]),
   ];
   const [dragging, setDragging] = useState(false);
-  const [offset] = useState(() => new Animated.Value(0));
+  // How raised the row looks (Figma «Dragging»): it fades in and out instead of switching.
+  const [lift] = useState(() => new Animated.Value(0));
+  const [offset] = useState(() => new Animated.Value(-base));
+  useEffect(() => {
+    onOffset(offset);
+    return () => onOffset(null);
+  }, [offset, onOffset]);
+
+  const rest = -base;
+  // Springs back to its place, raised until it is there. With «reduce motion» it lands at once.
+  const settle = () => {
+    if (!animate) {
+      offset.setValue(rest);
+      lift.setValue(0);
+      setDragging(false);
+      return;
+    }
+    Animated.timing(lift, { toValue: 0, duration: motion.state, useNativeDriver: true }).start();
+    Animated.spring(offset, { toValue: rest, ...reorderSpring, useNativeDriver: true }).start(() =>
+      setDragging(false),
+    );
+  };
+  // A new place in the list: the dropped row comes from where the finger left it.
+  useLayoutEffect(() => {
+    if (!animate) {
+      offset.setValue(-base);
+      return;
+    }
+    Animated.spring(offset, { toValue: -base, ...reorderSpring, useNativeDriver: true }).start(() =>
+      setDragging(false),
+    );
+  }, [base, animate, offset]);
+
   // On the JS thread: the drop needs the layouts and the ViewModel, and a row is light to move.
-  const drag = Gesture.Pan()
+  const pan = Gesture.Pan()
     .runOnJS(true)
     .withTestId(`drag ${name}`)
-    .onStart(() => setDragging(true))
-    .onUpdate((event) => offset.setValue(event.translationY))
-    .onEnd((event) => onDrop(event.translationY))
-    .onFinalize(() => {
-      offset.setValue(0);
-      setDragging(false);
+    .onStart(() => {
+      setDragging(true);
+      if (animate) {
+        Animated.timing(lift, {
+          toValue: 1,
+          duration: motion.press,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        lift.setValue(1);
+      }
+      onDragStart();
+    })
+    .onUpdate((event) => {
+      offset.setValue(rest + event.translationY);
+      onDragMove(event.translationY);
+    })
+    .onEnd((event) => {
+      // When the order changed, the new `base` springs it to its place.
+      if (!onDrop(event.translationY)) return settle();
+      Animated.timing(lift, {
+        toValue: 0,
+        duration: animate ? motion.state : 0,
+        useNativeDriver: true,
+      }).start();
+      if (!animate) setDragging(false);
+    })
+    .onFinalize((_, success) => {
+      if (success) return;
+      onDragCancel();
+      settle();
     });
 
   return (
-    <Animated.View
+    // A plain view for `base`, so it changes with the layout in the same commit.
+    <View
       testID={`row ${name}`}
       onLayout={(event) => onLayout(event.nativeEvent.layout)}
-      style={[styles.row, dragging && styles.dragging, { transform: [{ translateY: offset }] }]}
+      style={[dragging && styles.dragging, { transform: [{ translateY: base }] }]}
     >
-      <SwipeRow testID={name} actions={swipeActions}>
-        {(a11y) => (
-          <View style={styles.content}>
-            {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
-            <GestureDetector gesture={drag}>
-              <View
-                style={styles.handle}
-                accessible={false}
-                importantForAccessibility="no-hide-descendants"
+      <Animated.View style={[styles.row, { transform: [{ translateY: offset }] }]}>
+        <Animated.View
+          pointerEvents="none"
+          style={[StyleSheet.absoluteFill, styles.lifted, { opacity: lift }]}
+        />
+        <SwipeRow testID={name} actions={swipeActions}>
+          {(a11y) => (
+            <View style={styles.content}>
+              {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
+              <GestureDetector gesture={pan}>
+                <View
+                  style={styles.handle}
+                  accessible={false}
+                  importantForAccessibility="no-hide-descendants"
+                >
+                  <Icon name="grip" size={20} color={colors.textSecondary} />
+                </View>
+              </GestureDetector>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={name}
+                accessibilityHint={line}
+                accessibilityActions={[
+                  ...moves.map(({ key, label }) => ({ name: key, label })),
+                  ...a11y.accessibilityActions,
+                ]}
+                onAccessibilityAction={(event) => {
+                  const move = moves.find((m) => m.key === event.nativeEvent.actionName);
+                  if (move) move.onPress();
+                  else a11y.onAccessibilityAction(event);
+                }}
+                onPress={onPress}
+                style={styles.texts}
               >
-                <Icon name="grip" size={20} color={colors.textSecondary} />
-              </View>
-            </GestureDetector>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={name}
-              accessibilityHint={line}
-              accessibilityActions={[
-                ...moves.map(({ key, label }) => ({ name: key, label })),
-                ...a11y.accessibilityActions,
-              ]}
-              onAccessibilityAction={(event) => {
-                const move = moves.find((m) => m.key === event.nativeEvent.actionName);
-                if (move) move.onPress();
-                else a11y.onAccessibilityAction(event);
-              }}
-              onPress={onPress}
-              style={styles.texts}
-            >
-              <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{name}</Text>
-              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{line}</Text>
-            </Pressable>
-          </View>
-        )}
-      </SwipeRow>
-    </Animated.View>
+                <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{name}</Text>
+                <Text style={[typography.bodyS, { color: colors.textSecondary }]}>{line}</Text>
+              </Pressable>
+            </View>
+          )}
+        </SwipeRow>
+      </Animated.View>
+    </View>
   );
 }
 
@@ -135,7 +220,8 @@ const styles = StyleSheet.create({
     paddingRight: 6,
   },
   // Figma «EditorExerciseRow» (Dragging): raised over the others.
-  dragging: { zIndex: 1, backgroundColor: colors.bgRaised, ...elevation.toast },
+  dragging: { zIndex: 1 },
+  lifted: { borderRadius: 14, backgroundColor: colors.bgRaised, ...elevation.toast },
   handle: { width: 44, height: size.targetMain, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, gap: 3, justifyContent: 'center', minHeight: size.targetMin },
 });

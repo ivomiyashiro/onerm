@@ -163,8 +163,6 @@ export const routines = {
     exerciseCount: (count: number) => `Ejercicios · ${count}`,
     /** The folded part of the prescription sheet: role, notes, replace, remove (#197). */
     moreOptions: 'Más opciones',
-    reorderHelp:
-      'Arrastrá desde el asa para cambiar el orden; deslizá un ejercicio para editarlo o quitarlo.',
     save: 'Guardar',
     emptyDay: {
       title: 'Este día no tiene ejercicios',
@@ -176,7 +174,6 @@ export const routines = {
     },
     reserve: (n: number) => `reserva ${n}`,
     reserveHelp: (n: number) => `${n} = terminás cada serie sintiendo que podías hacer ${n} más.`,
-    mainFirstHelp: 'Los ejercicios principales suelen ir primero para rendir más en fuerza.',
     fields: {
       sets: 'Series',
       repMin: 'Reps mín.',

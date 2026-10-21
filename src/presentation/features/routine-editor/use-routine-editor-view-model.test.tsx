@@ -146,14 +146,6 @@ describe('useRoutineEditorViewModel', () => {
     expect(onClose).toHaveBeenCalled();
   });
 
-  it('RF-RUT-05.AC4: warns when an accessory goes before a main exercise', async () => {
-    const { result } = await renderViewModel();
-    expect(content(result.current).orderHint).toBe(false);
-
-    await act(() => result.current.actions.moveExercise('re-2', -1));
-    expect(content(result.current).orderHint).toBe(true);
-  });
-
   it('RN-RUT-05 (#225): a day name longer than 20, saved before the limit, opens its sheet', async () => {
     const legacy = aRoutine({
       name: 'Mi rutina',

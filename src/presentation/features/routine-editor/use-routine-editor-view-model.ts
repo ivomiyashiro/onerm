@@ -5,7 +5,6 @@ import type { Routine, RoutineExercise } from '@/domain/models/routine';
 import type { ExerciseRole, Id } from '@/domain/models/vocabulary';
 import { validatePrescription } from '@/domain/rules/prescription-rules';
 import {
-  hasAccessoryBeforeMain,
   moveDay,
   moveExercise,
   moveExerciseTo,
@@ -53,8 +52,6 @@ export type EditorState =
       selectedDayId: Id;
       /** RF-RUT-04.AC2 (RN-RUT-06). */
       workoutInProgress: boolean;
-      /** RF-RUT-05.AC4. */
-      orderHint: boolean;
       /** The catalog name, or null for an exercise not in the local catalog (RN-CAT-04). */
       nameOf: (exerciseId: Id) => string | null;
       /** «Repeticiones en reserva», or the RIR label in the numeric effort mode (RN-PERF-04). */
@@ -231,7 +228,6 @@ export function useRoutineEditorViewModel(
           isNew: editing.draft.isNew,
           selectedDayId: editing.selectedDayId,
           workoutInProgress: editing.draft.workoutInProgress,
-          orderHint: hasAccessoryBeforeMain(editing.routine),
           nameOf: (id) => editing.draft.exercises.get(id)?.name ?? null,
           effortMode: editing.draft.profile.effortMode,
           errors: editing.errors,

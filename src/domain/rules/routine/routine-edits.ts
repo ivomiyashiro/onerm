@@ -135,17 +135,6 @@ export function nextDayName(routine: Routine): string {
   }
 }
 
-/** RF-RUT-05.AC4 (P-08): informative only, never blocks the save. */
-export function hasAccessoryBeforeMain(routine: Routine): boolean {
-  return routine.days.some((day) => {
-    const firstAccessory = day.exercises.findIndex((e) => e.prescription.role === 'accessory');
-    return (
-      firstAccessory !== -1 &&
-      day.exercises.slice(firstAccessory).some((e) => e.prescription.role === 'main')
-    );
-  });
-}
-
 /**
  * The positions to save (RN-RUT-01): the days that were already saved share out their own
  * positions in the new order, without compacting, so the rotation still finds the next day after

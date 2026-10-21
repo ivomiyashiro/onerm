@@ -1,5 +1,14 @@
-import { useEffect, useEffectEvent, useRef } from 'react';
-import { BackHandler, Modal, Pressable, ScrollView, StyleSheet, View } from 'react-native';
+import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import {
+  Animated,
+  BackHandler,
+  LayoutAnimation,
+  Modal,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
@@ -8,13 +17,19 @@ import { Button } from '@/presentation/components/button/button';
 import { Chip } from '@/presentation/components/chip/chip';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Notice } from '@/presentation/components/feedback/notice';
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon } from '@/presentation/components/icons/icon';
 import { TextField } from '@/presentation/components/input/text-field';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
-import { dropIndex, type RowLayout } from '@/presentation/features/routine-editor/drop-index';
+import {
+  dropDistance,
+  dropIndex,
+  rowShift,
+  type RowLayout,
+} from '@/presentation/features/routine-editor/drop-index';
 import { DaySheet } from '@/presentation/features/routine-editor/day-sheet';
 import { EditorExerciseRow } from '@/presentation/features/routine-editor/editor-exercise-row';
 import { PrescriptionSheet } from '@/presentation/features/routine-editor/prescription-sheet';
@@ -29,6 +44,7 @@ import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
 import { colors, radius, space, typography } from '@/presentation/theme';
+import { layoutSpring, reorderSpring } from '@/presentation/theme/motion';
 
 interface RoutineEditorScreenProps {
   /** Null creates a routine (RF-RUT-03). */
@@ -103,6 +119,29 @@ function Editor({
   const addColor = addDisabled ? colors.textTertiary : colors.textAccent;
   // Measured by each row, read only when one is dropped.
   const rowLayouts = useRef<RowLayout[]>([]);
+  const landing = (from: number, translationY: number) =>
+    dropIndex(rowLayouts.current.slice(0, exercises.length), from, translationY);
+  const animate = !useReduceMotion();
+  // Each row's animated offset, and how far it is drawn from its place (see the row's `base`).
+  const offsets = useRef(new Map<Id, Animated.Value>());
+  const [bases, setBases] = useState<Readonly<Record<Id, number>>>({});
+  const baseOf = (id: Id) => bases[id] ?? 0;
+  // The dragged row (-1: none), its height and where it would land.
+  const drag = useRef({ from: -1, height: 0, to: -1 });
+  // The rows the dragged one passes make room for it; the others go back to their places.
+  const shiftOthers = (to: number) => {
+    const { from, height } = drag.current;
+    if (from < 0) return;
+    exercises.forEach((exercise, index) => {
+      const offset = offsets.current.get(exercise.id);
+      if (index === from || !offset) return;
+      Animated.spring(offset, {
+        toValue: -baseOf(exercise.id) + rowShift(index, from, to, height),
+        ...reorderSpring,
+        useNativeDriver: true,
+      }).start();
+    });
+  };
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
 
   return (
@@ -179,6 +218,13 @@ function Editor({
                 <EditorExerciseRow
                   key={exercise.id}
                   name={nameOf(exercise.exerciseId)}
+                  base={baseOf(exercise.id)}
+                  animate={animate}
+                  onOffset={(offset) =>
+                    offset
+                      ? offsets.current.set(exercise.id, offset)
+                      : offsets.current.delete(exercise.id)
+                  }
                   line={text.editor.exerciseLine(
                     exercise.prescription.sets,
                     text.repRange(exercise.prescription.repRange),
@@ -188,7 +234,11 @@ function Editor({
                   isFirst={index === 0}
                   isLast={index === exercises.length - 1}
                   onPress={() => actions.openExercise(exercise.id)}
-                  onMove={(offset) => actions.moveExercise(exercise.id, offset)}
+                  onMove={(offset) => {
+                    // Both rows glide to their new places instead of jumping.
+                    if (animate) LayoutAnimation.configureNext(layoutSpring);
+                    actions.moveExercise(exercise.id, offset);
+                  }}
                   swipeActions={[
                     {
                       key: 'edit',
@@ -207,22 +257,52 @@ function Editor({
                   onLayout={(layout) => {
                     rowLayouts.current[index] = layout;
                   }}
-                  onDrop={(translationY) =>
-                    actions.moveExerciseTo(
-                      exercise.id,
-                      dropIndex(rowLayouts.current.slice(0, exercises.length), index, translationY),
-                    )
-                  }
+                  onDragStart={() => {
+                    const height = rowLayouts.current[index]?.height ?? 0;
+                    drag.current = { from: index, height, to: index };
+                  }}
+                  onDragMove={(translationY) => {
+                    const to = landing(index, translationY);
+                    if (!animate || to === drag.current.to) return;
+                    drag.current.to = to;
+                    shiftOthers(to);
+                  }}
+                  onDrop={(translationY) => {
+                    const to = landing(index, translationY);
+                    if (to === index) {
+                      if (animate) shiftOthers(index);
+                      drag.current.from = -1;
+                      return false;
+                    }
+                    // Each row keeps where it is drawn: the new order and the bases commit together.
+                    const changes: Record<Id, number> = {
+                      [exercise.id]:
+                        baseOf(exercise.id) - dropDistance(rowLayouts.current, index, to),
+                    };
+                    if (animate) {
+                      exercises.forEach((other, at) => {
+                        const shift = rowShift(at, index, to, drag.current.height);
+                        const offset = offsets.current.get(other.id);
+                        if (shift === 0 || !offset) return;
+                        offset.stopAnimation();
+                        offset.setValue(-baseOf(other.id) + shift);
+                        changes[other.id] = baseOf(other.id) - shift;
+                      });
+                    }
+                    drag.current.from = -1;
+                    setBases((current) => ({ ...current, ...changes }));
+                    actions.moveExerciseTo(exercise.id, to);
+                    return true;
+                  }}
+                  onDragCancel={() => {
+                    // Also called for a touch on the handle that never became a drag.
+                    if (animate) shiftOthers(index);
+                    drag.current.from = -1;
+                  }}
                 />
               ))}
             </View>
           ))}
-        {state.orderHint && <Notice message={text.editor.mainFirstHelp} />}
-        {exercises.length > 1 && (
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {text.editor.reorderHelp}
-          </Text>
-        )}
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}>
         <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />

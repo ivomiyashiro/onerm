@@ -31,7 +31,8 @@ export interface SwipeA11y {
 
 /** #254: each action is a round 48 dp target (RNF-16), its name left to the screen reader. */
 const ACTION_SIZE = size.targetMin;
-/** #251: the space before each action, so they read as buttons apart from the row. */
+/** #251: the space before each action, so they read as buttons apart from the row; #261: and after
+ * the last one, so it doesn't touch the edge of the list. */
 const ACTION_GAP = space.s8;
 /** The swipe starts after this much sideways, and gives way to the scroll after this much down. */
 const SWIPE_START = 16;
@@ -63,7 +64,7 @@ export function SwipeRow({
   testID: string;
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
-  const width = actions.length * (ACTION_GAP + ACTION_SIZE);
+  const width = actions.length * (ACTION_GAP + ACTION_SIZE) + ACTION_GAP;
   const [x] = useState(() => new Animated.Value(0));
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
@@ -182,7 +183,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     gap: ACTION_GAP,
-    paddingLeft: ACTION_GAP,
+    paddingHorizontal: ACTION_GAP,
   },
   action: {
     width: ACTION_SIZE,

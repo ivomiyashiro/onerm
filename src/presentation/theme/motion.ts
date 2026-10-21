@@ -13,3 +13,12 @@ export const motion = {
 
 /** The spring a pressed control comes back with, and a state settles with: a short, soft bounce. */
 export const spring = { speed: 18, bounciness: 6 } as const;
+
+/** The layout spring rows move with when their order changes (S15 «Subir» and «Bajar»). */
+export const layoutSpring = {
+  duration: motion.state,
+  update: { type: 'spring', springDamping: 0.8 },
+} as const;
+
+/** A reordered row settles into its place, and the rows in its way slide, with a slower spring. */
+export const reorderSpring = { speed: 11, bounciness: 4 } as const;
