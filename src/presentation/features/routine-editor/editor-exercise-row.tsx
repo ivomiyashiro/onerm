@@ -9,6 +9,9 @@ import { routines as text } from '@/presentation/strings/routines';
 import { colors, elevation, size, typography } from '@/presentation/theme';
 import { motion, reorderSpring } from '@/presentation/theme/motion';
 
+/** The row's corners, shared by its raised background and the swipe's tint. */
+const ROW_RADIUS = 14;
+
 interface EditorExerciseRowProps {
   name: string;
   /**
@@ -168,7 +171,7 @@ export function EditorExerciseRow({
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, styles.lifted, { opacity: lift }]}
         />
-        <SwipeRow testID={name} actions={swipeActions}>
+        <SwipeRow testID={name} actions={swipeActions} borderRadius={ROW_RADIUS}>
           {(a11y) => (
             <View style={styles.content}>
               {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
@@ -209,7 +212,7 @@ export function EditorExerciseRow({
 }
 
 const styles = StyleSheet.create({
-  row: { borderRadius: 14 },
+  row: { borderRadius: ROW_RADIUS },
   content: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -221,7 +224,7 @@ const styles = StyleSheet.create({
   },
   // Figma «EditorExerciseRow» (Dragging): raised over the others.
   dragging: { zIndex: 1 },
-  lifted: { borderRadius: 14, backgroundColor: colors.bgRaised, ...elevation.toast },
+  lifted: { borderRadius: ROW_RADIUS, backgroundColor: colors.bgRaised, ...elevation.toast },
   handle: { width: 44, height: size.targetMain, alignItems: 'center', justifyContent: 'center' },
   texts: { flex: 1, gap: 3, justifyContent: 'center', minHeight: size.targetMin },
 });

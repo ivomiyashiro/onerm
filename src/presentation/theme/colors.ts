@@ -65,6 +65,8 @@ export const colors = {
   bgErrSoft: palette.redA12,
   bgErrSoftStrong: palette.redA14,
   bgScrim: palette.blackA74,
+  /** Over a row that is being swiped, so it's clear which one the actions belong to. */
+  bgSwiped: palette.whiteA7,
   /** Over a photo: black at 30 % leaves it at 70 % brightness (marca §9). */
   bgPhotoDim: palette.blackA30,
   bgTabbar: palette.neutral950A90,
