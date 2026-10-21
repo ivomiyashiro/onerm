@@ -55,21 +55,21 @@ const FLICK = 500;
  * #257: the tabs stay mounted behind the active one, so a row left open would still be open on
  * coming back: it closes, without animation, when its screen loses focus.
  *
- * The actions grow in, with the finger, filling the space the row uncovers, like iOS; with «reduce
- * motion» they stay in place and only fade. While it is
- * swiped or open the row is tinted, so it's clear which one the actions belong to.
+ * #268: the actions grow in, with the finger, filling the space the row uncovers, like iOS; with
+ * «reduce motion» they stay in place and only fade. While it is swiped or open the row is tinted,
+ * so it's clear which one the actions belong to.
  */
 export function SwipeRow({
   actions,
   testID,
-  radius: rowRadius = radius.lg,
+  borderRadius = radius.lg,
   children,
 }: {
   actions: SwipeAction[];
   /** The gesture is `swipe {testID}` in tests. */
   testID: string;
   /** The row's corner radius, for the tint to follow its shape. */
-  radius?: number;
+  borderRadius?: number;
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
   const width = actions.length * (ACTION_GAP + ACTION_SIZE) + ACTION_GAP;
@@ -202,11 +202,7 @@ export function SwipeRow({
             <Animated.View
               testID={`tint ${testID}`}
               pointerEvents="none"
-              style={[
-                StyleSheet.absoluteFill,
-                styles.tint,
-                { borderRadius: rowRadius, opacity: fade },
-              ]}
+              style={[StyleSheet.absoluteFill, styles.tint, { borderRadius, opacity: fade }]}
             />
           )}
         </Animated.View>

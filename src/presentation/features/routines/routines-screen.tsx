@@ -162,7 +162,7 @@ function MyRoutines({
       key={routine.id}
       testID={routine.name}
       actions={swipeActions(routine)}
-      radius={radius.xl}
+      borderRadius={radius.xl}
     >
       {(a11y) => (
         <RoutineCard
