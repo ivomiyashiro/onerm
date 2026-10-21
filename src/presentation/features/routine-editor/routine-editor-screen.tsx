@@ -126,11 +126,12 @@ function Editor({
   const offsets = useRef(new Map<Id, Animated.Value>());
   const [bases, setBases] = useState<Readonly<Record<Id, number>>>({});
   const baseOf = (id: Id) => bases[id] ?? 0;
-  // The dragged row, its height and where it would land.
-  const drag = useRef({ from: 0, height: 0, to: 0 });
+  // The dragged row (-1: none), its height and where it would land.
+  const drag = useRef({ from: -1, height: 0, to: -1 });
   // The rows the dragged one passes make room for it; the others go back to their places.
   const shiftOthers = (to: number) => {
     const { from, height } = drag.current;
+    if (from < 0) return;
     exercises.forEach((exercise, index) => {
       const offset = offsets.current.get(exercise.id);
       if (index === from || !offset) return;
@@ -270,12 +271,14 @@ function Editor({
                     const to = landing(index, translationY);
                     if (to === index) {
                       if (animate) shiftOthers(index);
+                      drag.current.from = -1;
                       return false;
                     }
                     // Each row keeps where it is drawn: the new order and the bases commit together.
-                    const next = { ...bases };
-                    next[exercise.id] =
-                      baseOf(exercise.id) - dropDistance(rowLayouts.current, index, to);
+                    const changes: Record<Id, number> = {
+                      [exercise.id]:
+                        baseOf(exercise.id) - dropDistance(rowLayouts.current, index, to),
+                    };
                     if (animate) {
                       exercises.forEach((other, at) => {
                         const shift = rowShift(at, index, to, drag.current.height);
@@ -283,15 +286,18 @@ function Editor({
                         if (shift === 0 || !offset) return;
                         offset.stopAnimation();
                         offset.setValue(-baseOf(other.id) + shift);
-                        next[other.id] = baseOf(other.id) - shift;
+                        changes[other.id] = baseOf(other.id) - shift;
                       });
                     }
-                    setBases(next);
+                    drag.current.from = -1;
+                    setBases((current) => ({ ...current, ...changes }));
                     actions.moveExerciseTo(exercise.id, to);
                     return true;
                   }}
                   onDragCancel={() => {
+                    // Also called for a touch on the handle that never became a drag.
                     if (animate) shiftOthers(index);
+                    drag.current.from = -1;
                   }}
                 />
               ))}

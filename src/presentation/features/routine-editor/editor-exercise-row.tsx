@@ -88,7 +88,7 @@ export function EditorExerciseRow({
   const [dragging, setDragging] = useState(false);
   // How raised the row looks (Figma «Dragging»): it fades in and out instead of switching.
   const [lift] = useState(() => new Animated.Value(0));
-  const [offset] = useState(() => new Animated.Value(0));
+  const [offset] = useState(() => new Animated.Value(-base));
   useEffect(() => {
     onOffset(offset);
     return () => onOffset(null);
