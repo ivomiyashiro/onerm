@@ -303,7 +303,6 @@ function Editor({
               ))}
             </View>
           ))}
-        {state.orderHint && <Notice message={text.editor.mainFirstHelp} />}
       </ScrollView>
       <View style={[styles.bottom, { paddingBottom: bottomInset + space.s10 }]}>
         <Button variant="primary" size="xl" label={text.editor.save} onPress={actions.save} />

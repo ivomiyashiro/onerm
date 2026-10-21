@@ -148,15 +148,6 @@ describe('RoutineEditorScreen', () => {
     expect(await screen.findByText(text.editor.workoutInProgress)).toBeOnTheScreen();
   });
 
-  it('RF-RUT-05.AC4: moving the accessory first shows the order help', async () => {
-    await renderScreen();
-    await screen.findByDisplayValue('Mi rutina de pierna');
-
-    await act(() => rowAction('Curl de bíceps', 'moveUp'));
-
-    expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
-  });
-
   it('RF-RUT-05.AC2: «Subir» glides the rows to their new places', async () => {
     const configureNext = jest.spyOn(LayoutAnimation, 'configureNext').mockClear();
     await renderScreen();
@@ -177,7 +168,11 @@ describe('RoutineEditorScreen', () => {
     await act(() => rowAction('Curl de bíceps', 'moveUp'));
 
     expect(configureNext).not.toHaveBeenCalled();
-    expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
+    // Moved first: it can no longer go up.
+    expect(screen.getByRole('button', { name: 'Curl de bíceps' })).not.toHaveProp(
+      'accessibilityActions',
+      expect.arrayContaining([expect.objectContaining({ name: 'moveUp' })]),
+    );
   });
 
   it('RF-RUT-03.AC3, AC7: the prescription sheet shows the range error and the RIR 0 warning', async () => {
@@ -300,29 +295,6 @@ describe('RoutineEditorScreen', () => {
     await user.press(screen.getByRole('button', { name: dialogs.D19.remove }));
 
     expect(screen.queryByRole('checkbox', { name: 'Día A' })).not.toBeOnTheScreen();
-  });
-
-  it('RF-RUT-05.AC2: «Subir» glides the rows to their new places', async () => {
-    const configureNext = jest.spyOn(LayoutAnimation, 'configureNext').mockClear();
-    await renderScreen();
-    await screen.findByDisplayValue('Mi rutina de pierna');
-
-    await act(() => rowAction('Curl de bíceps', 'moveUp'));
-
-    expect(configureNext).toHaveBeenCalledTimes(1);
-  });
-
-  it('RF-RUT-05.AC2: with «Reducir movimiento» the order changes at once', async () => {
-    jest.spyOn(AccessibilityInfo, 'isReduceMotionEnabled').mockResolvedValue(true);
-    const configureNext = jest.spyOn(LayoutAnimation, 'configureNext').mockClear();
-    await renderScreen();
-    await screen.findByDisplayValue('Mi rutina de pierna');
-    await act(async () => {});
-
-    await act(() => rowAction('Curl de bíceps', 'moveUp'));
-
-    expect(configureNext).not.toHaveBeenCalled();
-    expect(screen.getByText(text.editor.mainFirstHelp)).toBeOnTheScreen();
   });
 
   it('RF-RUT-03.AC3, AC7: the prescription sheet shows the range error and the RIR 0 warning', async () => {

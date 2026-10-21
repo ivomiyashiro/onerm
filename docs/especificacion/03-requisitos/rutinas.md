@@ -212,15 +212,9 @@ Escenario: AC3 — Reordenar días
   Dado que edito mi rutina
   Cuando cambio el orden de los días
   Entonces la rotación sigue el nuevo orden desde el último día hecho (RN-RUT-01)
-
-Escenario: AC4 — Aviso de orden (informativo)
-  Dado que muevo un ejercicio accesorio antes que uno principal
-  Cuando guardo
-  Entonces se permite, sin bloquear
-  Y se muestra una ayuda: "Los ejercicios principales suelen ir primero para rendir más en fuerza"
 ```
 
-**Notas:** el AC4 aplica P-08: el orden afecta a la fuerza pero no a la hipertrofia, así que se informa y no se impone.
+**Notas:** P-08: el orden afecta a la fuerza pero no a la hipertrofia, así que no se impone. Hasta #261 un AC4 mostraba un aviso al poner un accesorio antes que un principal ("Los ejercicios principales suelen ir primero para rendir más en fuerza"); se quitó a pedido del usuario.
 
 ---
 

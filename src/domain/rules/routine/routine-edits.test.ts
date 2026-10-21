@@ -2,7 +2,6 @@ import type { RotationDay, Routine } from '@/domain/models/routine';
 import { nextDay } from '@/domain/rules/routine/next-day';
 import {
   addExercise,
-  hasAccessoryBeforeMain,
   moveDay,
   moveExercise,
   moveExerciseTo,
@@ -20,8 +19,8 @@ import {
   aWorkout,
 } from '@/domain/testing/builders';
 
-const exercise = (id: string, role: 'main' | 'accessory' = 'main') =>
-  aRoutineExercise({ id, routineDayId: 'day-1', prescription: aPrescription({ role }) });
+const exercise = (id: string) =>
+  aRoutineExercise({ id, routineDayId: 'day-1', prescription: aPrescription() });
 
 const oneDay = aRoutine({
   days: [aRoutineDay({ exercises: [exercise('a'), exercise('b'), exercise('c')] })],
@@ -102,14 +101,6 @@ describe('routine edits', () => {
   it('names a new day with the first free letter', () => {
     expect(nextDayName(fourDays)).toBe('Día E');
     expect(nextDayName(removeDay(fourDays, 'B'))).toBe('Día B');
-  });
-
-  it('RF-RUT-05.AC4: warns when an accessory goes before a main exercise', () => {
-    expect(hasAccessoryBeforeMain(oneDay)).toBe(false);
-    const accessoryFirst = aRoutine({
-      days: [aRoutineDay({ exercises: [exercise('a', 'accessory'), exercise('b')] })],
-    });
-    expect(hasAccessoryBeforeMain(accessoryFirst)).toBe(true);
   });
 });
 

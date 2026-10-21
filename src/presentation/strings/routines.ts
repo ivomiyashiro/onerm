@@ -174,7 +174,6 @@ export const routines = {
     },
     reserve: (n: number) => `reserva ${n}`,
     reserveHelp: (n: number) => `${n} = terminás cada serie sintiendo que podías hacer ${n} más.`,
-    mainFirstHelp: 'Los ejercicios principales suelen ir primero para rendir más en fuerza.',
     fields: {
       sets: 'Series',
       repMin: 'Reps mín.',
