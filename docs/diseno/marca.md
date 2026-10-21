@@ -302,7 +302,8 @@ Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251
 - **S09:** solo «Eliminar»; tocar la serie la edita (RF-ENT-04).
 - **S13:** sin «⋯»: tocar la tarjeta abre el editor; deslizar ofrece «Activar» (si no es la activa) y «Eliminar».
 - **En reposo no se ve nada** de las acciones: aparecen con el movimiento de la fila (opacidad según lo que se corrió), para que no queden en el margen de la lista mientras el resorte se asienta.
-- **Entran con la tarjeta** desde el borde derecho, al mismo ritmo que el dedo.
+- **Crecen en el lugar que deja la tarjeta** (#268, como en iOS): nacen chicas junto al borde de la lista y, al mismo ritmo que el dedo, crecen hasta su tamaño repartidas en el espacio descubierto, sin quedar nunca debajo de la tarjeta ni fuera de la lista. Con «Reducir movimiento» no crecen ni se corren: solo aparecen con el fundido.
+- **La fila deslizada se tiñe** (#268) con `bg/swiped` (blanco al 7 %, con el radio de la fila) mientras se desliza y mientras está abierta, para que se vea a cuál pertenecen las acciones; el tinte sigue el mismo fundido. Pendiente: llevar `bg/swiped` a la colección «Color» de Figma.
 - **S15:** la fila del editor no es una tarjeta, se corre dentro del grupo del día, que la recorta.
 - **Se cierra al perder el foco** (#257): las pestañas quedan montadas detrás de la activa (#250), así que una fila abierta seguía abierta al volver. Al cambiar de pestaña, o al abrirse otra pantalla encima, la fila se cierra sin animación (`useIsFocused`) y no deja acciones visibles.
 - Se mantiene lo de #198: el umbral, el gesto rápido, las mismas acciones para lectores de pantalla y el deslizamiento a la derecha libre en S09.
