@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 
+import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, radius, size, space } from '@/presentation/theme';
 
@@ -53,30 +54,51 @@ const FLICK = 500;
  *
  * #257: the tabs stay mounted behind the active one, so a row left open would still be open on
  * coming back: it closes, without animation, when its screen loses focus.
+ *
+ * The actions grow in, with the finger, filling the space the row uncovers, like iOS; with «reduce
+ * motion» they stay in place and only fade. While it is
+ * swiped or open the row is tinted, so it's clear which one the actions belong to.
  */
 export function SwipeRow({
   actions,
   testID,
+  radius: rowRadius = radius.lg,
   children,
 }: {
   actions: SwipeAction[];
   /** The gesture is `swipe {testID}` in tests. */
   testID: string;
+  /** The row's corner radius, for the tint to follow its shape. */
+  radius?: number;
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
   const width = actions.length * (ACTION_GAP + ACTION_SIZE) + ACTION_GAP;
+  const reduce = useReduceMotion();
   const [x] = useState(() => new Animated.Value(0));
   const [open, setOpen] = useState(false);
   // Drawn from the first move, so the swipe uncovers them; gone again once it closed.
   const [shown, setShown] = useState(false);
-  // The actions travel with the row from just past its right edge (x + width).
-  const [shift] = useState(() =>
-    x.interpolate({ inputRange: [-width, 0], outputRange: [0, width], extrapolate: 'clamp' }),
-  );
-  // At rest they sit just past the row's edge, inside the list's margin: invisible until it moves,
-  // so they don't linger there while the spring settles (#254).
+  // At rest they sit under the row: invisible until it moves, so they don't show at its rounded
+  // corners while the spring settles (#254). The same curve tints the row.
   const [fade] = useState(() =>
     x.interpolate({ inputRange: [-ACTION_SIZE, 0], outputRange: [1, 0], extrapolate: 'clamp' }),
+  );
+  // How much of the actions' space the row uncovered, from 0 to 1.
+  const [progress] = useState(() =>
+    x.interpolate({ inputRange: [-width, 0], outputRange: [1, 0], extrapolate: 'clamp' }),
+  );
+  // The actions shrink towards the list's edge by that much: each one moves towards it as far as it
+  // scales, so together they always fill the uncovered space, never under the row or past the edge.
+  const [grow] = useState(() =>
+    actions.map((_, index) => {
+      const fromRight = actions.length - 1 - index;
+      const center = fromRight * (ACTION_GAP + ACTION_SIZE) + ACTION_GAP + ACTION_SIZE / 2;
+      return x.interpolate({
+        inputRange: [-width, 0],
+        outputRange: [0, center],
+        extrapolate: 'clamp',
+      });
+    }),
   );
 
   const snap = (opened: boolean) => {
@@ -139,36 +161,55 @@ export function SwipeRow({
   return (
     <View onStartShouldSetResponderCapture={touchStarts} onMoveShouldSetResponderCapture={isSwipe}>
       {shown && (
-        // Only reachable once open: until then they are half uncovered. They move with the row, from
-        // just past its right edge, so they are inside the row (and touchable on Android) once open.
+        // Only reachable once open: until then they are half uncovered. They sit inside the row's
+        // bounds, under it, so they are touchable on Android once it moved out of the way.
         <Animated.View
           testID={`actions ${testID}`}
-          style={[styles.actions, { width, opacity: fade, transform: [{ translateX: shift }] }]}
+          style={[styles.actions, { width, opacity: fade }]}
           accessibilityElementsHidden={!open}
           importantForAccessibility={open ? 'auto' : 'no-hide-descendants'}
         >
-          {actions.map((action) => (
-            <Pressable
+          {actions.map((action, index) => (
+            <Animated.View
               key={action.key}
-              accessibilityRole="button"
-              accessibilityLabel={action.label}
-              onPress={() => {
-                snap(false);
-                action.onPress();
+              style={{
+                transform: reduce ? [] : [{ translateX: grow[index] }, { scale: progress }],
               }}
-              style={[styles.action, action.destructive && styles.destructive]}
             >
-              <Icon
-                name={action.icon}
-                size={20}
-                color={action.destructive ? colors.textErr : colors.textPrimary}
-              />
-            </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                accessibilityLabel={action.label}
+                onPress={() => {
+                  snap(false);
+                  action.onPress();
+                }}
+                style={[styles.action, action.destructive && styles.destructive]}
+              >
+                <Icon
+                  name={action.icon}
+                  size={20}
+                  color={action.destructive ? colors.textErr : colors.textPrimary}
+                />
+              </Pressable>
+            </Animated.View>
           ))}
         </Animated.View>
       )}
       <GestureDetector gesture={swipe}>
-        <Animated.View style={{ transform: [{ translateX: x }] }}>{children(a11y)}</Animated.View>
+        <Animated.View style={{ transform: [{ translateX: x }] }}>
+          {children(a11y)}
+          {shown && (
+            <Animated.View
+              testID={`tint ${testID}`}
+              pointerEvents="none"
+              style={[
+                StyleSheet.absoluteFill,
+                styles.tint,
+                { borderRadius: rowRadius, opacity: fade },
+              ]}
+            />
+          )}
+        </Animated.View>
       </GestureDetector>
     </View>
   );
@@ -194,4 +235,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bgRaised,
   },
   destructive: { backgroundColor: colors.bgErrSoftStrong },
+  tint: { backgroundColor: colors.bgSwiped },
 });

@@ -19,7 +19,7 @@ import {
 } from '@/presentation/features/routines/use-routines-view-model';
 import { common } from '@/presentation/strings/common';
 import { routines as text } from '@/presentation/strings/routines';
-import { colors, size, space, typography } from '@/presentation/theme';
+import { colors, radius, size, space, typography } from '@/presentation/theme';
 
 type Section = 'mine' | 'templates';
 
@@ -158,7 +158,12 @@ function MyRoutines({
   ];
 
   return overview.routines.map((routine) => (
-    <SwipeRow key={routine.id} testID={routine.name} actions={swipeActions(routine)}>
+    <SwipeRow
+      key={routine.id}
+      testID={routine.name}
+      actions={swipeActions(routine)}
+      radius={radius.xl}
+    >
       {(a11y) => (
         <RoutineCard
           name={routine.name}

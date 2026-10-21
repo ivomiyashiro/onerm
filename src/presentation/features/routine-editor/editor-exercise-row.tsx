@@ -168,7 +168,7 @@ export function EditorExerciseRow({
           pointerEvents="none"
           style={[StyleSheet.absoluteFill, styles.lifted, { opacity: lift }]}
         />
-        <SwipeRow testID={name} actions={swipeActions}>
+        <SwipeRow testID={name} actions={swipeActions} radius={14}>
           {(a11y) => (
             <View style={styles.content}>
               {/* Dragging is for touch; screen readers use «Subir» and «Bajar» (RF-RUT-05.AC2). */}
