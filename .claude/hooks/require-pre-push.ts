@@ -1,6 +1,6 @@
 // Claude Code PreToolUse hook: blocks every `git push` that Claude runs when the HEAD of the
-// directory it pushes from (the cwd, moved by `cd` and `git -C`) didn't pass the /pre-push skill. The skill writes the approved SHA to
-// <git-dir>/claude-pre-push-approved. Pushes made by hand in a terminal aren't affected.
+// directory it pushes from (the cwd, moved by `cd` and `git -C`) didn't pass the /pre-push
+// skill. The skill writes the approved SHA to <git-dir>/claude-pre-push-approved. Pushes made by hand in a terminal aren't affected.
 // It guards against mistakes, not evasion: Claude could still write the marker itself.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
@@ -16,8 +16,8 @@ const GIT_PUSH =
 const SHELL_PAYLOAD = /\b(?:bash|sh|zsh)\s+-\w*c\s+(?:'([^']*)'|"((?:\\.|[^"\\])*)")/g;
 // A `cd`, with its directory when it is a plain word (not quoted, not a variable).
 const CD = /(?:^|[\s;&|(])cd\b(?:[ \t]+([^\s;&|()$]+)(?=[\s;&|)]|$))?/g;
-// The `-C dir` options among git's global options.
-const DASH_C = /\s-C\s+(\S+)/g;
+// Other ways to move the repository a push runs in. The hook doesn't follow them: it blocks.
+const OTHER_DIR = /(?:^|[\s;&|(])(?:pushd|popd|GIT_DIR=|GIT_WORK_TREE=)|--git-dir|--work-tree/;
 // Shell redirections (`2>&1`, `> out.log`), which aren't push arguments.
 const REDIRECTION = /\d*[<>]+&?\s*\S*/g;
 // Options that push more than the current branch.
@@ -78,8 +78,11 @@ interface Push {
   args: string;
 }
 
-function resolveDir(base: string, dir: string): string {
-  return dir.startsWith('~') ? path.join(homedir(), dir.slice(1)) : path.resolve(base, dir);
+/** `dir` from `base`, or null for a path the hook can't resolve (`~user`, a quoted one). */
+function resolveDir(base: string | null, dir: string | undefined): string | null {
+  if (base === null || !dir || dir.startsWith('-')) return null;
+  if (dir === '~' || dir.startsWith('~/')) return path.join(homedir(), dir.slice(1));
+  return dir.startsWith('~') ? null : path.resolve(base, dir);
 }
 
 /**
@@ -95,13 +98,17 @@ function pushesIn(command: string, cwd: string): Push[] {
     let explicit = false;
     for (const cd of cds) {
       if (cd.index >= push.index) break;
-      dir = dir !== null && cd[1] ? resolveDir(dir, cd[1]) : null;
+      dir = resolveDir(dir, cd[1]);
       explicit = true;
     }
-    for (const option of push[1].matchAll(DASH_C)) {
-      dir = dir !== null ? resolveDir(dir, option[1]) : null;
+    // A quoted `-C` path is stripped as a literal, leaving `-C` with nothing (or `-c`) after it.
+    const options = push[1].trim().split(/\s+/);
+    options.forEach((option, i) => {
+      if (option !== '-C') return;
+      dir = resolveDir(dir, options[i + 1]);
       explicit = true;
-    }
+    });
+    if (OTHER_DIR.test(text.slice(0, push.index) + push[1])) dir = null;
     return { dir, explicit, args: push[2].trim() };
   });
 }

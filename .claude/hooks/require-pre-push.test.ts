@@ -129,13 +129,19 @@ describe('require-pre-push hook', () => {
       expect(decision(`cd ${worktree} && git ${PUSH}`, repo)).toBe('deny');
     });
 
-    it.each([`cd "$WT" && git ${PUSH}`, `cd && git ${PUSH}`])(
-      'blocks when it cannot tell the directory: %j',
-      (command) => {
-        approve();
-        expect(decision(command, repo)).toBe('deny');
-      },
-    );
+    it.each([
+      `cd "$WT" && git ${PUSH}`,
+      `cd && git ${PUSH}`,
+      `cd ~someone && git ${PUSH}`,
+      `git -C "$WT" ${PUSH}`,
+      `git -C "$WT" -c a=b ${PUSH}`,
+      `git --git-dir=x ${PUSH}`,
+      `GIT_DIR=x git ${PUSH}`,
+      `pushd x && git ${PUSH}`,
+    ])('blocks when it cannot tell the directory: %j', (command) => {
+      approve();
+      expect(decision(command, repo)).toBe('deny');
+    });
   });
 
   it('blocks when the input is not valid JSON', () => {
