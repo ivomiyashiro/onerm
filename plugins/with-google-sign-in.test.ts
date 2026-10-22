@@ -8,14 +8,23 @@ describe('googleSignInPlugin (#273, ADR-0012)', () => {
     ]);
   });
 
-  it('without an iOS client ID, adds the plugin as before: iOS offers no Google', () => {
-    expect(googleSignInPlugin(undefined)).toBe('@react-native-google-signin/google-signin');
-    expect(googleSignInPlugin('')).toBe('@react-native-google-signin/google-signin');
+  it('ignores the spaces around the value, as a line of .env.local may have', () => {
+    expect(googleSignInPlugin(' 190800915067-abc123.apps.googleusercontent.com\n')).toEqual([
+      '@react-native-google-signin/google-signin',
+      { iosUrlScheme: 'com.googleusercontent.apps.190800915067-abc123' },
+    ]);
   });
 
-  it('refuses a value that is not a Google client ID, instead of building an app that crashes', () => {
-    expect(() => googleSignInPlugin('com.googleusercontent.apps.190800915067-abc123')).toThrow(
-      'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID',
-    );
+  it('without an iOS client ID, adds the plugin as before: iOS offers no Google', () => {
+    expect(googleSignInPlugin(undefined)).toBe('@react-native-google-signin/google-signin');
+    expect(googleSignInPlugin(' ')).toBe('@react-native-google-signin/google-signin');
+  });
+
+  it.each([
+    'com.googleusercontent.apps.190800915067-abc123',
+    '190800915067/abc.apps.googleusercontent.com',
+  ])('refuses %s, which is not a Google client ID, without printing it', (value) => {
+    expect(() => googleSignInPlugin(value)).toThrow('EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID');
+    expect(() => googleSignInPlugin(value)).not.toThrow(value);
   });
 });

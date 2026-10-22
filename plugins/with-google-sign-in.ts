@@ -5,16 +5,18 @@ import { type ConfigPlugin, withPlugins } from 'expo/config-plugins';
 // The client ID is public like the web one (ADR-0012). Without it, iOS offers no Google (#49).
 
 const PLUGIN = '@react-native-google-signin/google-signin';
-const CLIENT_ID = /^(.+)\.apps\.googleusercontent\.com$/;
+const CLIENT_ID = /^([0-9A-Za-z-]+)\.apps\.googleusercontent\.com$/;
 
 export function googleSignInPlugin(
   iosClientId: string | undefined,
 ): typeof PLUGIN | [typeof PLUGIN, { iosUrlScheme: string }] {
-  if (!iosClientId) return PLUGIN;
-  const id = CLIENT_ID.exec(iosClientId)?.[1];
+  const value = iosClientId?.trim();
+  if (!value) return PLUGIN;
+  const id = CLIENT_ID.exec(value)?.[1];
+  // The value isn't printed: whatever was pasted by mistake stays out of the build logs.
   if (id === undefined) {
     throw new Error(
-      `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID must be a Google client ID (…apps.googleusercontent.com), got «${iosClientId}».`,
+      'EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID must be a Google client ID (<id>.apps.googleusercontent.com).',
     );
   }
   return [PLUGIN, { iosUrlScheme: `com.googleusercontent.apps.${id}` }];
