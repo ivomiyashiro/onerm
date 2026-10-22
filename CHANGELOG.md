@@ -66,6 +66,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- In the background the app no longer wakes the main thread on every frame: the animation library asked for a new frame all the time, even with nothing animating (patched in `react-native-worklets`); background CPU went from ~8 % to ~0.5 % in the emulator (#182).
 - After finishing an exercise with «Hecho», the workout goes on with the next one ahead even if you only looked at it on the way; the ones left behind are still not asked for again.
 - On iPhone, coming back to a tab from Perfil no longer leaves it black.
 - A swiped row closes by itself when you leave its screen: change tabs and come back, and it is closed.

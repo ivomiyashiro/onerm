@@ -1,0 +1,111 @@
+diff --git a/lib/module/runLoop/uiRuntime/requestAnimationFrame.js b/lib/module/runLoop/uiRuntime/requestAnimationFrame.js
+index d6e922bb81b7f3e97bc23e895301dc74e5dfb9a4..601b1b5fde789c33aa88454eea164df49c481864 100644
+--- a/lib/module/runLoop/uiRuntime/requestAnimationFrame.js
++++ b/lib/module/runLoop/uiRuntime/requestAnimationFrame.js
+@@ -31,6 +31,7 @@ export function setupRequestAnimationFrame() {
+   function requestAnimationFrame(callback) {
+     const handle = queuedCallbacksEnd++;
+     queuedCallbacks.push(callback);
++    requestNativeFrame();
+     return handle;
+   }
+   function cancelAnimationFrame(handle) {
+@@ -43,26 +44,35 @@ export function setupRequestAnimationFrame() {
+       queuedCallbacks[handle - queuedCallbacksBegin] = () => {};
+     }
+   }
++  // The native frame is requested only while something waits for it, so an idle
++  // UI runtime doesn't wake the main thread on every frame (RNF-22, onerm#182).
++  let nativeFrameRequested = false;
++  function requestNativeFrame() {
++    if (nativeFrameRequested) {
++      return;
++    }
++    nativeFrameRequested = true;
++    globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
++  }
+   function nativeFlushQueue(timestamp) {
++    nativeFrameRequested = false;
+     flushQueue(timestamp);
+-
+-    /* Schedule next frame */
+-    globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
+   }
+   function flushQueue(timestamp) {
+     globalThis.__frameTimestamp = timestamp;
+     executeQueue(timestamp);
+     globalThis.__frameTimestamp = undefined;
++    if (queuedCallbacks.length > 0 || queuedFinalizers.length > 0) {
++      requestNativeFrame();
++    }
+   }
+   globalThis.requestAnimationFrame = requestAnimationFrame;
+   globalThis.cancelAnimationFrame = cancelAnimationFrame;
+   globalThis.requestAnimationFrameFinalizer = callback => {
+     queuedFinalizers.push(callback);
++    requestNativeFrame();
+   };
+ 
+-  /* Start the loop */
+-  globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
+-
+   // TODO: Remove it after support for Reanimated 4.3 is dropped.
+   globalThis.__flushAnimationFrame = eventTimestamp => {
+     flushQueue(eventTimestamp);
+diff --git a/src/runLoop/uiRuntime/requestAnimationFrame.ts b/src/runLoop/uiRuntime/requestAnimationFrame.ts
+index ff59b36a97ff2082989e4ffb0a075ddebcf86f3a..dee8eac57c7be6f3b78db25130fa86a35dc94691 100644
+--- a/src/runLoop/uiRuntime/requestAnimationFrame.ts
++++ b/src/runLoop/uiRuntime/requestAnimationFrame.ts
+@@ -42,6 +42,7 @@ export function setupRequestAnimationFrame() {
+   ): number {
+     const handle = queuedCallbacksEnd++;
+     queuedCallbacks.push(callback);
++    requestNativeFrame();
+     return handle;
+   }
+ 
+@@ -57,17 +58,27 @@ export function setupRequestAnimationFrame() {
+     }
+   }
+ 
++  // The native frame is requested only while something waits for it, so an idle
++  // UI runtime doesn't wake the main thread on every frame (RNF-22, onerm#182).
++  let nativeFrameRequested = false;
++  function requestNativeFrame() {
++    if (nativeFrameRequested) {
++      return;
++    }
++    nativeFrameRequested = true;
++    globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
++  }
+   function nativeFlushQueue(timestamp: number) {
++    nativeFrameRequested = false;
+     flushQueue(timestamp);
+-
+-    /* Schedule next frame */
+-    globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
+   }
+-
+   function flushQueue(timestamp: number) {
+     globalThis.__frameTimestamp = timestamp;
+     executeQueue(timestamp);
+     globalThis.__frameTimestamp = undefined;
++    if (queuedCallbacks.length > 0 || queuedFinalizers.length > 0) {
++      requestNativeFrame();
++    }
+   }
+ 
+   globalThis.requestAnimationFrame = requestAnimationFrame;
+@@ -75,11 +86,9 @@ export function setupRequestAnimationFrame() {
+     cancelAnimationFrame as typeof globalThis.cancelAnimationFrame;
+   globalThis.requestAnimationFrameFinalizer = (callback: () => void) => {
+     queuedFinalizers.push(callback);
++    requestNativeFrame();
+   };
+ 
+-  /* Start the loop */
+-  globalThis.__nativeRequestAnimationFrame(nativeFlushQueue);
+-
+   // TODO: Remove it after support for Reanimated 4.3 is dropped.
+   globalThis.__flushAnimationFrame = (eventTimestamp: number) => {
+     flushQueue(eventTimestamp);

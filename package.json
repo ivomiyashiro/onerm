@@ -80,5 +80,8 @@
   "private": true,
   "engines": {
     "node": ">=22"
+  },
+  "patchedDependencies": {
+    "react-native-worklets@0.10.1": "patches/react-native-worklets@0.10.1.patch"
   }
 }
