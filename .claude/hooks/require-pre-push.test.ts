@@ -135,6 +135,7 @@ describe('require-pre-push hook', () => {
       `cd ~someone && git ${PUSH}`,
       `git -C "$WT" ${PUSH}`,
       `git -C "$WT" -c a=b ${PUSH}`,
+      `git -C../x ${PUSH}`,
       `git --git-dir=x ${PUSH}`,
       `GIT_DIR=x git ${PUSH}`,
       `pushd x && git ${PUSH}`,

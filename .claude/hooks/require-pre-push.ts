@@ -11,7 +11,7 @@ const MARKER = 'claude-pre-push-approved';
 // `git`, its global options (`-C dir`, `-c k=v`, `--no-pager`) and `push`, with what follows
 // up to the end of that command. Also matches `rtk git push` and `cd x && git push`.
 const GIT_PUSH =
-  /(?:^|[\s;&|(])git((?:\s+-[Cc]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*)\s+push\b([^;&|\n]*)/g;
+  /(?:^|[\s;&|(])git((?:\s+-[Cc]\s+\S+|\s+-C\S+|\s+--?[\w-]+(?:=\S+)?)*)\s+push\b([^;&|\n]*)/g;
 // The payload of `bash -c '…'`, which would otherwise be stripped as a literal.
 const SHELL_PAYLOAD = /\b(?:bash|sh|zsh)\s+-\w*c\s+(?:'([^']*)'|"((?:\\.|[^"\\])*)")/g;
 // A `cd`, with its directory when it is a plain word (not quoted, not a variable).
@@ -104,8 +104,9 @@ function pushesIn(command: string, cwd: string): Push[] {
     // A quoted `-C` path is stripped as a literal, leaving `-C` with nothing (or `-c`) after it.
     const options = push[1].trim().split(/\s+/);
     options.forEach((option, i) => {
-      if (option !== '-C') return;
-      dir = resolveDir(dir, options[i + 1]);
+      if (!option.startsWith('-C')) return;
+      // `-C../x`, without the space, isn't followed: it blocks.
+      dir = option === '-C' ? resolveDir(dir, options[i + 1]) : null;
       explicit = true;
     });
     if (OTHER_DIR.test(text.slice(0, push.index) + push[1])) dir = null;
