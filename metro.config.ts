@@ -11,6 +11,9 @@ export default {
   transformer: {
     ...transformer,
     // SVG files exported from Figma are imported as components (react-native-svg-transformer).
+    // Its config is .svgrrc.json: the Figma icons are drawn in text/primary, and turning it into
+    // currentColor lets the Icon component pick the color. Not .svgrrc.ts: cosmiconfig compiles it
+    // to a temporary .mjs that one Metro worker deletes while another imports it (#278).
     babelTransformerPath: require.resolve('react-native-svg-transformer/expo'),
   },
   resolver: {
