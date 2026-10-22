@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- «Continuar con Google» on iPhone, when the build has an iOS client of Google (#273).
 - Swiped rows (S09, S13, S15): the actions grow in with the finger, like iOS, filling the space the row uncovers, and the swiped row is tinted so it's clear which one they belong to (#268).
 - Training (S09): swiping between exercises now follows the finger like turning a page, with an elastic stop at the first and last exercise and a short fade with «reduce motion» (#258).
 - MVP specification, design and the Stage 1 deliverable.

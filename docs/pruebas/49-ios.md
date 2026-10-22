@@ -31,7 +31,7 @@ No hay código exclusivo de Android en el flujo: el módulo `exact-alarm` tiene 
 
 ## Limitaciones conocidas en iOS
 
-- **«Continuar con Google» no funciona en iOS** hasta crear un cliente OAuth de iOS en Google Cloud (con su URL scheme, ADR-0012) y ponerlo en `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID`. Hoy el botón termina en el error genérico. Email y contraseña funcionan.
+- **«Continuar con Google» en iOS** necesita un cliente OAuth de iOS en Google Cloud, cargado en `EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID` y aceptado en Supabase (ADR-0012). Sin él, iOS no muestra el botón; con él, el build registra el URL scheme solo (#273). Email y contraseña funcionan siempre.
 - **Opciones de esfuerzo con VoiceOver:** React Native no tiene un rasgo «radio» en iOS. Las opciones se leen por su nombre, pero no como «botón de opción».
 - **Sin Sign in with Apple:** no aplica porque la app no se publica (ADR-0012).
 - **iPhone físico (#181):** en un iPhone 18 Pro con iOS 27.0.1 y un build Release, la app se cerraba al abrir: iOS 27 exige el ciclo de vida basado en escenas (UIScene) y el template de Expo 57 no lo trae. El config plugin `plugins/with-scene-lifecycle.ts` lo conecta en el prebuild y la app abre. El simulador (iOS 26.5) no lo exigía. No se probó con el modo de bajo consumo.
