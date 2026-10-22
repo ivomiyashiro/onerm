@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { iconNames } from '../../src/presentation/components/icons/icon';
 
-// The color prop only works because .svgrrc.ts turns #F4F4EF into currentColor: an icon exported
+// The color prop only works because .svgrrc.json turns #F4F4EF into currentColor: an icon exported
 // with any other color would ignore it, and the render tests above would not notice.
 describe('icon SVG files', () => {
   const dir = join(__dirname, '../../src/presentation/components/icons/svg');
