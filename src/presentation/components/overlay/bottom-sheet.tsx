@@ -1,5 +1,13 @@
 import { useEffect, useState, type ReactNode } from 'react';
-import { Animated, Keyboard, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
+import {
+  Animated,
+  Keyboard,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  useWindowDimensions,
+  View,
+} from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Icon, type IconName } from '@/presentation/components/icons/icon';
@@ -42,12 +50,14 @@ export function SheetOverlay({
   const translateY = progress.interpolate({ inputRange: [0, 1], outputRange: [height, 0] });
   // Floating: a gap above the system bar, or above the keyboard while it is open.
   const bottom = (keyboardHeight > 0 ? keyboardHeight : insets.bottom) + FLOAT_GAP;
+  // Tall content scrolls instead of growing past the top of the screen; header and footer stay put.
+  const maxHeight = height - insets.top - bottom - space.s16;
   return (
     <>
       <Scrim onPress={onClose} testID={testID && `${testID}-scrim`} />
       <Animated.View
         testID={testID}
-        style={[styles.sheet, { bottom, transform: [{ translateY }] }]}
+        style={[styles.sheet, { bottom, maxHeight, transform: [{ translateY }] }]}
         accessibilityViewIsModal
       >
         <View style={styles.handleArea}>
@@ -76,7 +86,13 @@ export function SheetOverlay({
             </View>
           </Pressable>
         </View>
-        {children}
+        <ScrollView
+          testID={testID && `${testID}-body`}
+          style={styles.body}
+          showsVerticalScrollIndicator={false}
+        >
+          {children}
+        </ScrollView>
         {footer && <View style={styles.footer}>{footer}</View>}
       </Animated.View>
     </>
@@ -174,6 +190,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     backgroundColor: colors.bgSheetItem,
   },
+  body: { flexShrink: 1 },
   footer: { paddingTop: 12 },
   item: {
     flexDirection: 'row',
