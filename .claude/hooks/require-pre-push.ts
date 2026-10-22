@@ -1,9 +1,10 @@
-// Claude Code PreToolUse hook: blocks every `git push` that Claude runs when the current
-// commit (HEAD) didn't pass the /pre-push skill. The skill writes the approved SHA to
+// Claude Code PreToolUse hook: blocks every `git push` that Claude runs when the HEAD of the
+// directory it pushes from (the cwd, moved by `cd` and `git -C`) didn't pass the /pre-push skill. The skill writes the approved SHA to
 // <git-dir>/claude-pre-push-approved. Pushes made by hand in a terminal aren't affected.
 // It guards against mistakes, not evasion: Claude could still write the marker itself.
 import { execFileSync } from 'node:child_process';
 import { readFileSync } from 'node:fs';
+import { homedir } from 'node:os';
 import path from 'node:path';
 
 const MARKER = 'claude-pre-push-approved';
@@ -13,6 +14,10 @@ const GIT_PUSH =
   /(?:^|[\s;&|(])git((?:\s+-[Cc]\s+\S+|\s+--?[\w-]+(?:=\S+)?)*)\s+push\b([^;&|\n]*)/g;
 // The payload of `bash -c '…'`, which would otherwise be stripped as a literal.
 const SHELL_PAYLOAD = /\b(?:bash|sh|zsh)\s+-\w*c\s+(?:'([^']*)'|"((?:\\.|[^"\\])*)")/g;
+// A `cd`, with its directory when it is a plain word (not quoted, not a variable).
+const CD = /(?:^|[\s;&|(])cd\b(?:[ \t]+([^\s;&|()$]+)(?=[\s;&|)]|$))?/g;
+// The `-C dir` options among git's global options.
+const DASH_C = /\s-C\s+(\S+)/g;
 // Shell redirections (`2>&1`, `> out.log`), which aren't push arguments.
 const REDIRECTION = /\d*[<>]+&?\s*\S*/g;
 // Options that push more than the current branch.
@@ -64,9 +69,41 @@ function withoutLiterals(command: string): string {
   return [stripped, ...payloads].join('\n');
 }
 
-/** The arguments of each push in the command (`origin feature` for `git push origin feature`). */
-function pushArguments(command: string): string[] {
-  return [...withoutLiterals(command).matchAll(GIT_PUSH)].map((m) => m[2].trim());
+interface Push {
+  /** The directory the push runs in, or null when the command doesn't say it plainly. */
+  dir: string | null;
+  /** Whether the directory comes from a `cd` or `-C` rather than the hook's cwd. */
+  explicit: boolean;
+  /** The arguments after `push` (`origin feature` for `git push origin feature`). */
+  args: string;
+}
+
+function resolveDir(base: string, dir: string): string {
+  return dir.startsWith('~') ? path.join(homedir(), dir.slice(1)) : path.resolve(base, dir);
+}
+
+/**
+ * Each push in the command, with the directory it runs in: the cwd moved by the `cd`s before
+ * it and by its own `git -C`. A worktree push (`cd ../onerm-12 && git push`) checks that
+ * worktree's HEAD, not the session's.
+ */
+function pushesIn(command: string, cwd: string): Push[] {
+  const text = withoutLiterals(command);
+  const cds = [...text.matchAll(CD)];
+  return [...text.matchAll(GIT_PUSH)].map((push) => {
+    let dir: string | null = cwd;
+    let explicit = false;
+    for (const cd of cds) {
+      if (cd.index >= push.index) break;
+      dir = dir !== null && cd[1] ? resolveDir(dir, cd[1]) : null;
+      explicit = true;
+    }
+    for (const option of push[1].matchAll(DASH_C)) {
+      dir = dir !== null ? resolveDir(dir, option[1]) : null;
+      explicit = true;
+    }
+    return { dir, explicit, args: push[2].trim() };
+  });
 }
 
 /**
@@ -93,50 +130,58 @@ const { ok, input } = readStdin();
 if (!ok) deny('Push check failed: the hook got no valid input.');
 
 const command = input.tool_input?.command ?? '';
-const pushes = pushArguments(command);
+const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+const pushes = pushesIn(command, cwd);
 if (pushes.length === 0) process.exit(0);
 
-const cwd = input.cwd || process.env.CLAUDE_PROJECT_DIR || process.cwd();
+/** Why this push is blocked, or null when its directory's HEAD was reviewed. */
+function check({ dir, explicit, args }: Push): string | null {
+  if (dir === null) {
+    return 'Push blocked: the hook could not tell which directory the push runs in. Use a plain path (`cd ../onerm-12 && git push`).';
+  }
+  try {
+    git(['rev-parse', '--is-inside-work-tree'], dir);
+  } catch {
+    // Outside a git repository: nothing to check, unless the command chose that directory.
+    return explicit ? `Push check failed: ${dir} is not a git repository.` : null;
+  }
 
-let inRepository = true;
-try {
-  git(['rev-parse', '--is-inside-work-tree'], cwd);
-} catch {
-  inRepository = false;
+  let head: string;
+  let gitDir: string;
+  let branch: string;
+  try {
+    head = git(['rev-parse', 'HEAD'], dir);
+    gitDir = path.resolve(dir, git(['rev-parse', '--git-dir'], dir));
+    branch = git(['branch', '--show-current'], dir);
+  } catch {
+    return 'Push check failed: git could not read HEAD.';
+  }
+
+  let approved = '';
+  try {
+    approved = readFileSync(path.join(gitDir, MARKER), 'utf8').trim();
+  } catch {
+    // No marker: /pre-push never ran.
+  }
+
+  if (approved !== head) {
+    return (
+      `Push blocked: commit ${head.slice(0, 7)} didn't pass the pre-push review. ` +
+      'Run the /pre-push skill (checks + code and security reviewers) first.'
+    );
+  }
+  if (!pushesOnlyHead(args, branch)) {
+    return (
+      'Push blocked: the review approved HEAD only. Push the current branch ' +
+      '(`git push` or `git push -u origin <branch>`), not other refs, tags or deletions.'
+    );
+  }
+  return null;
 }
-// Outside a git repository: nothing to check.
-if (!inRepository) process.exit(0);
 
-let head: string;
-let gitDir: string;
-let branch: string;
-try {
-  head = git(['rev-parse', 'HEAD'], cwd);
-  gitDir = path.resolve(cwd, git(['rev-parse', '--git-dir'], cwd));
-  branch = git(['branch', '--show-current'], cwd);
-} catch {
-  deny('Push check failed: git could not read HEAD.');
-}
-
-let approved = '';
-try {
-  approved = readFileSync(path.join(gitDir, MARKER), 'utf8').trim();
-} catch {
-  // No marker: /pre-push never ran.
-}
-
-if (approved !== head) {
-  deny(
-    `Push blocked: commit ${head.slice(0, 7)} didn't pass the pre-push review. ` +
-      'Run the /pre-push skill (checks + code and security reviewers) first.',
-  );
-}
-
-if (!pushes.every((args) => pushesOnlyHead(args, branch))) {
-  deny(
-    'Push blocked: the review approved HEAD only. Push the current branch ' +
-      '(`git push` or `git push -u origin <branch>`), not other refs, tags or deletions.',
-  );
+for (const push of pushes) {
+  const reason = check(push);
+  if (reason) deny(reason);
 }
 
 process.exit(0);

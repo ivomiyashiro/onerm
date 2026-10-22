@@ -97,6 +97,47 @@ describe('require-pre-push hook', () => {
     expect(decision(`git ${PUSH}`, repo)).toBe('deny');
   });
 
+  describe('in another worktree (cd or -C)', () => {
+    let worktree: string;
+
+    beforeEach(() => {
+      worktree = `${repo}-wt`;
+      git(['worktree', 'add', '-q', '-b', 'fix/2-y', worktree], repo);
+    });
+
+    afterEach(() => rmSync(worktree, { recursive: true, force: true }));
+
+    function approveWorktree(): void {
+      const gitDir = path.resolve(worktree, git(['rev-parse', '--git-dir'], worktree));
+      writeFileSync(
+        path.join(gitDir, 'claude-pre-push-approved'),
+        git(['rev-parse', 'HEAD'], worktree),
+      );
+    }
+
+    it.each([
+      () => `cd ${worktree} && git ${PUSH} -u origin fix/2-y`,
+      () => `cd ${path.dirname(worktree)} && cd ${path.basename(worktree)} && git ${PUSH}`,
+      () => `git -C ${worktree} ${PUSH}`,
+    ])('checks the HEAD of the directory the push runs in: %s', (command) => {
+      approveWorktree();
+      expect(decision(command(), repo)).toBe('allow');
+    });
+
+    it('blocks a push from a worktree whose HEAD was not reviewed, even with cwd reviewed', () => {
+      approve();
+      expect(decision(`cd ${worktree} && git ${PUSH}`, repo)).toBe('deny');
+    });
+
+    it.each([`cd "$WT" && git ${PUSH}`, `cd && git ${PUSH}`])(
+      'blocks when it cannot tell the directory: %j',
+      (command) => {
+        approve();
+        expect(decision(command, repo)).toBe('deny');
+      },
+    );
+  });
+
   it('blocks when the input is not valid JSON', () => {
     const out = execFileSync('bun', [HOOK], { input: 'not json', encoding: 'utf8' });
     expect(out).toContain('"deny"');
