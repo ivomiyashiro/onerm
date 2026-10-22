@@ -27,6 +27,11 @@ interface SheetContentProps {
   onClose: () => void;
   children: ReactNode;
   footer?: ReactNode;
+  /**
+   * Wraps the children in a scroll so tall content doesn't push the sheet past the screen. Off by
+   * default: sheets that bring their own list or scroll (substitute, prescription) keep it.
+   */
+  scrollContent?: boolean;
 }
 
 /**
@@ -40,6 +45,7 @@ export function SheetOverlay({
   onClose,
   children,
   footer,
+  scrollContent = false,
   testID,
   keyboardHeight = 0,
 }: SheetContentProps & { testID?: string; keyboardHeight?: number }) {
@@ -86,13 +92,18 @@ export function SheetOverlay({
             </View>
           </Pressable>
         </View>
-        <ScrollView
-          testID={testID && `${testID}-body`}
-          style={styles.body}
-          showsVerticalScrollIndicator={false}
-        >
-          {children}
-        </ScrollView>
+        {scrollContent ? (
+          <ScrollView
+            testID={testID && `${testID}-body`}
+            style={styles.body}
+            keyboardShouldPersistTaps="handled"
+            showsVerticalScrollIndicator={false}
+          >
+            {children}
+          </ScrollView>
+        ) : (
+          children
+        )}
         {footer && <View style={styles.footer}>{footer}</View>}
       </Animated.View>
     </>

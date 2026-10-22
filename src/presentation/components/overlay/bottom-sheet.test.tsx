@@ -69,6 +69,7 @@ describe('BottomSheet with tall content', () => {
         closeLabel="Cerrar"
         onClose={jest.fn()}
         testID="sheet"
+        scrollContent
         footer={<Text>Pie</Text>}
       >
         <Text>Contenido</Text>
@@ -76,7 +77,7 @@ describe('BottomSheet with tall content', () => {
       { wrapper },
     );
 
-    // The sheet can't reach past the top safe area.
+    // Below the top safe area (54) and above the system bar (34) plus its gaps (8 + 16).
     const { height } = Dimensions.get('window');
     expect(screen.getByTestId('sheet')).toHaveStyle({ maxHeight: height - 54 - 34 - 8 - 16 });
     const scroll = screen.getByTestId('sheet-body');
