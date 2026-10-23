@@ -60,6 +60,7 @@ case "${1:-}" in
       # A card opened outside the board: it joins the Project first.
       item=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" \
         --url "https://github.com/$OWNER/$REPO/issues/$issue" --format json | jq -r .id)
+      echo "#$issue added to the Project"
     fi
     gh project item-edit --id "$item" --project-id "$PROJECT_ID" \
       --field-id "$STATUS_FIELD" --single-select-option-id "$option" >/dev/null
