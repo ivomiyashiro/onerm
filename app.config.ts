@@ -59,6 +59,16 @@ const config: ExpoConfig = {
         dark: { backgroundColor: '#0E0E0D', image: './assets/images/splash-icon.png' },
       },
     ],
+    [
+      'expo-notifications',
+      {
+        // Android's small icon must be a white silhouette on transparent (the mark of
+        // android-icon-monochrome.png, cropped); the color is the marca `y` accent. iOS uses the
+        // app icon.
+        icon: './assets/images/notification-icon.png',
+        color: '#FFD400',
+      },
+    ],
     // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
     './plugins/with-scene-lifecycle',
     // Local notifications only: a personal Apple team can't sign the push entitlement (#217).
