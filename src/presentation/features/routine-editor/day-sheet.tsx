@@ -11,31 +11,18 @@ import { space } from '@/presentation/theme';
 interface DaySheetProps {
   visible: boolean;
   day: RoutineDay | undefined;
-  isFirst: boolean;
-  isLast: boolean;
   /** The only day can't be removed: a routine has at least one (RN-RUT-05). */
   canRemove: boolean;
   onRename: (name: string) => void;
-  onMove: (offset: -1 | 1) => void;
   onRemove: () => void;
   onClose: () => void;
 }
 
 /**
- * S15 · Opciones del día (Figma «SheetBody/Día», decided for #33): the day's name, its place in
- * the rotation (RF-RUT-05.AC3) and removing it (RF-RUT-04.AC1).
+ * S15 · Opciones del día (Figma «SheetBody/Día», decided for #33): the day's name and removing it
+ * (RF-RUT-04.AC1). Its place in the rotation (RF-RUT-05.AC3) is moved by dragging its chip (#271).
  */
-export function DaySheet({
-  visible,
-  day,
-  isFirst,
-  isLast,
-  canRemove,
-  onRename,
-  onMove,
-  onRemove,
-  onClose,
-}: DaySheetProps) {
+export function DaySheet({ visible, day, canRemove, onRename, onRemove, onClose }: DaySheetProps) {
   if (day === undefined) return null;
   return (
     <BottomSheet
@@ -66,12 +53,6 @@ export function DaySheet({
           )}
         />
         <View style={styles.actions}>
-          {!isFirst && (
-            <MenuItem icon="up" label={text.editor.day.moveBefore} onPress={() => onMove(-1)} />
-          )}
-          {!isLast && (
-            <MenuItem icon="down" label={text.editor.day.moveAfter} onPress={() => onMove(1)} />
-          )}
           {canRemove && (
             <MenuItem icon="trash" label={text.editor.day.remove} onPress={onRemove} destructive />
           )}

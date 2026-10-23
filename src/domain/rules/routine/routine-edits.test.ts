@@ -3,6 +3,7 @@ import { nextDay } from '@/domain/rules/routine/next-day';
 import {
   addExercise,
   moveDay,
+  moveDayTo,
   moveExercise,
   moveExerciseTo,
   nextDayName,
@@ -118,6 +119,12 @@ describe('withPositions', () => {
     expect(saved.days.map((d) => d.position)).toEqual([0, 2, 3]);
     const deleted = { id: 'B', routineId: 'routine-1', position: 1, isDeleted: true };
     expect(nextDay('routine-1', rotation(saved, [deleted]), workoutOn('B'))).toBe('C');
+  });
+
+  it('RF-RUT-05.AC1: dragging drops a day at the given index', () => {
+    expect(moveDayTo(fourDays, 'A', 2).days.map((d) => d.id)).toEqual(['B', 'C', 'A', 'D']);
+    expect(moveDayTo(fourDays, 'D', 0).days.map((d) => d.id)).toEqual(['D', 'A', 'B', 'C']);
+    expect(moveDayTo(fourDays, 'B', 1)).toBe(fourDays);
   });
 
   it('RF-RUT-05.AC3: reordering hands the live positions out in the new order', () => {

@@ -266,11 +266,22 @@ describe('useRoutineEditorViewModel', () => {
       expect(content(result.current).selectedDayId).toBe('new-1');
 
       await act(() => result.current.actions.renameDay('Pierna'));
-      await act(() => result.current.actions.moveDay(-1));
+      await act(() => result.current.actions.moveDay('new-1', -1));
       expect(content(result.current).routine.days.map((d) => d.name)).toEqual(['Pierna', 'Día A']);
 
       await act(() => result.current.actions.removeDay());
       expect(content(result.current).routine.days.map((d) => d.name)).toEqual(['Día A']);
+      expect(content(result.current).selectedDayId).toBe('day-1');
+    });
+
+    it('RF-RUT-05.AC1: dropping a day moves it and keeps the chosen one', async () => {
+      const { result } = await renderViewModel();
+      await act(() => result.current.actions.addDay());
+      await act(() => result.current.actions.selectDay('day-1'));
+
+      await act(() => result.current.actions.moveDayTo('new-1', 0));
+
+      expect(content(result.current).routine.days.map((d) => d.id)).toEqual(['new-1', 'day-1']);
       expect(content(result.current).selectedDayId).toBe('day-1');
     });
 

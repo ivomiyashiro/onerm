@@ -6,6 +6,7 @@ import type { ExerciseRole, Id } from '@/domain/models/vocabulary';
 import { validatePrescription } from '@/domain/rules/prescription-rules';
 import {
   moveDay,
+  moveDayTo,
   moveExercise,
   moveExerciseTo,
   removeDay,
@@ -86,7 +87,8 @@ export interface RoutineEditorViewModel {
     openDaySheet(): void;
     closeDaySheet(): void;
     renameDay(name: string): void;
-    moveDay(offset: -1 | 1): void;
+    moveDay(dayId: Id, offset: -1 | 1): void;
+    moveDayTo(dayId: Id, index: number): void;
     removeDay(): void;
     moveExercise(routineExerciseId: Id, offset: -1 | 1): void;
     moveExerciseTo(routineExerciseId: Id, index: number): void;
@@ -329,8 +331,8 @@ export function useRoutineEditorViewModel(
       closeDaySheet: () => setDaySheetOpen(false),
       renameDay: (name) =>
         editRoutine((routine, current) => renameDay(routine, current.selectedDayId, name)),
-      moveDay: (offset) =>
-        editRoutine((routine, current) => moveDay(routine, current.selectedDayId, offset)),
+      moveDay: (id, offset) => editRoutine((routine) => moveDay(routine, id, offset)),
+      moveDayTo: (id, index) => editRoutine((routine) => moveDayTo(routine, id, index)),
       removeDay: () => {
         setDaySheetOpen(false);
         // A day with exercises asks first (D19, #192); an empty one goes at once.
