@@ -149,7 +149,7 @@ EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID=…      # optional: Google sign-in on iOS (ADR
 
 These are read when the app is built. A build installed on a phone needs the cloud URL: `10.0.2.2` only exists inside the Android emulator, so the app would say it needs a connection.
 
-**Google on iOS:** create an OAuth client of type *iOS* with bundle ID `com.training.onerm` in Google Cloud, in the same project as the web client. Then add its ID to Supabase, in *Authentication → Providers → Google → Client IDs*, after the web one, separated by a comma. With the variable set, the build registers the reversed client ID as the URL scheme Google returns to (`plugins/with-google-sign-in.ts`). Without it, iOS doesn't offer Google.
+**Google on iOS:** create an OAuth client of type *iOS* with bundle ID `com.training.onerm` in Google Cloud, in the same project as the web client. Then add its ID to Supabase, in *Authentication → Providers → Google → Client IDs*, after the web one, separated by a comma with no spaces, and turn on *Skip nonce checks*. The iOS token is issued for the iOS client, and Google's iOS library adds a nonce the app can't pass on; without these two settings Supabase refuses the token and the app says «No pudimos completarlo». With the variable set, the build registers the reversed client ID as the URL scheme Google returns to (`plugins/with-google-sign-in.ts`). Without it, iOS doesn't offer Google.
 
 For a local backend: `bunx supabase start` (Docker; project `onerm-mvp`, ports 553xx) applies the migrations of `supabase/migrations`, and `bunx supabase status` prints the local URL and publishable key.
 
