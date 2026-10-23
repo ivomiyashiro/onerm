@@ -6,6 +6,7 @@ import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlit
 import type { TableChanges } from '@/data/db/table-changes';
 import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
+import { LiveActivityRestCountdown } from '@/data/device/live-activity-rest-countdown';
 import { NotificationRestCountdown } from '@/data/device/notification-rest-countdown';
 import NetInfo from '@react-native-community/netinfo';
 import Constants from 'expo-constants';
@@ -123,6 +124,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import { workout as workoutText } from '@/presentation/strings/workout';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
+import { createRestLiveActivity } from '@/presentation/widgets/rest-live-activity';
 
 export interface Dependencies {
   useCases: UseCases;
@@ -160,10 +162,18 @@ export function appDevice(): Device {
   silenceRestNoticeInForeground();
   return {
     notifier: new ExpoRestNotifier(workoutText.rest.title),
-    countdown: new NotificationRestCountdown(
-      workoutText.restCountdown.title,
-      workoutText.restCountdown.channel,
-    ),
+    // An ongoing notification on Android, a Live Activity on iOS.
+    countdown:
+      Platform.OS === 'ios'
+        ? new LiveActivityRestCountdown(
+            createRestLiveActivity(),
+            { title: workoutText.restCountdown.title, finished: workoutText.rest.finished },
+            () => new Date(),
+          )
+        : new NotificationRestCountdown(
+            workoutText.restCountdown.title,
+            workoutText.restCountdown.channel,
+          ),
     permissions: new ExpoDevicePermissions(),
   };
 }

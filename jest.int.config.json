@@ -6,7 +6,8 @@
   "moduleNameMapper": {
     "\\.svg$": "<rootDir>/tools/jest/svg-mock.ts",
     "^@/(.*)$": "<rootDir>/src/$1",
-    "^@react-native-google-signin/google-signin$": "<rootDir>/tools/jest/google-signin-mock.ts"
+    "^@react-native-google-signin/google-signin$": "<rootDir>/tools/jest/google-signin-mock.ts",
+    "^expo-widgets$": "<rootDir>/tools/jest/expo-widgets-mock.ts"
   },
   "testEnvironment": "node",
   "testMatch": ["**/*.int.test.{ts,tsx}"],
