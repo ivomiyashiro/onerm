@@ -148,7 +148,12 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
   it('AC2: both have data: D01 with the guest counts', async () => {
     const { result, union } = await renderViewModel(SOME, true);
 
-    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false, working: null });
+    expect(result.current.dialog).toEqual({
+      kind: 'ask',
+      summary: SOME,
+      offline: false,
+      working: null,
+    });
     expect(union.united).toEqual([]);
   });
 
@@ -157,7 +162,12 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
 
     await act(() => result.current.actions.merge());
 
-    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: true, working: null });
+    expect(result.current.dialog).toEqual({
+      kind: 'ask',
+      summary: SOME,
+      offline: true,
+      working: null,
+    });
     expect(store.getState().account).toEqual({ kind: 'guest' });
   });
 
@@ -184,7 +194,12 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
     expect(union.united).toEqual([]);
 
     await act(async () => result.current.actions.back());
-    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false, working: null });
+    expect(result.current.dialog).toEqual({
+      kind: 'ask',
+      summary: SOME,
+      offline: false,
+      working: null,
+    });
 
     await act(async () => result.current.actions.discard());
     await act(() => result.current.actions.confirmDiscard());
@@ -209,7 +224,12 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
 
     await act(async () => store.getState().requestUnion());
 
-    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false, working: null });
+    expect(result.current.dialog).toEqual({
+      kind: 'ask',
+      summary: SOME,
+      offline: false,
+      working: null,
+    });
   });
 
   it('D3: a sync that ends with no union waiting asks nothing again', async () => {
@@ -293,6 +313,11 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
     await act(async () => emit({ ...idle, running: true }));
     await act(async () => emit({ ...idle, running: false }));
 
-    expect(result.current.dialog).toEqual({ kind: 'ask', summary: SOME, offline: false, working: null });
+    expect(result.current.dialog).toEqual({
+      kind: 'ask',
+      summary: SOME,
+      offline: false,
+      working: null,
+    });
   });
 });
