@@ -40,6 +40,7 @@ export class LiveActivityRestCountdown implements RestCountdown {
       const props = {
         ...this.text,
         next,
+        // Only the end matters to a countdown; the range just needs to start before it.
         startsAt: this.now().getTime(),
         endsAt: endsAt.getTime(),
       };

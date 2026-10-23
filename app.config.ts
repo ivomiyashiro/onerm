@@ -28,6 +28,10 @@ const config: ExpoConfig = {
     predictiveBackGestureEnabled: false,
   },
   plugins: [
+    // Local notifications only: a personal Apple team can't sign the push entitlement (#217).
+    // First, because mods run from the last plugin to the first: this one has to see the
+    // entitlement that expo-notifications and expo-widgets add.
+    './plugins/with-local-notifications-only',
     'expo-router',
     // Native Google sign-in, with the iOS URL scheme when there is an iOS client (#273).
     './plugins/with-google-sign-in',
@@ -74,8 +78,6 @@ const config: ExpoConfig = {
     ['expo-widgets', { groupIdentifier: 'group.com.training.onerm' }],
     // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
     './plugins/with-scene-lifecycle',
-    // Local notifications only: a personal Apple team can't sign the push entitlement (#217).
-    './plugins/with-local-notifications-only',
   ],
   experiments: {
     typedRoutes: true,
