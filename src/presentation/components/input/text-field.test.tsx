@@ -81,4 +81,37 @@ describe('TextField', () => {
     expect(screen.getByLabelText('Correo electrónico')).toBeDisabled();
     expect(fieldStyle()).toMatchObject({ borderStyle: 'dashed' });
   });
+
+  it('has an action inside the box that is named, at least 44 dp and calls up', async () => {
+    const user = userEvent.setup();
+    const onPress = jest.fn();
+    await render(
+      <TextField
+        label="Contraseña"
+        value="secreto"
+        onChangeText={jest.fn()}
+        trailingAction={{ icon: 'eye', label: 'Mostrar contraseña', onPress }}
+      />,
+    );
+
+    const action = screen.getByRole('button', { name: 'Mostrar contraseña' });
+    await user.press(action);
+
+    expect(onPress).toHaveBeenCalledTimes(1);
+    expect(StyleSheet.flatten(action.props.style)).toMatchObject({ minWidth: 48, minHeight: 48 });
+  });
+
+  it('does not take the action while the field is disabled', async () => {
+    await render(
+      <TextField
+        label="Contraseña"
+        value=""
+        onChangeText={jest.fn()}
+        disabled
+        trailingAction={{ icon: 'eye', label: 'Mostrar contraseña', onPress: jest.fn() }}
+      />,
+    );
+
+    expect(screen.getByRole('button', { name: 'Mostrar contraseña' })).toBeDisabled();
+  });
 });

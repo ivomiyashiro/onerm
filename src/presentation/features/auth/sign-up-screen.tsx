@@ -56,14 +56,14 @@ export function SignUpScreen({ onBack, onDone, onSignIn }: SignUpScreenProps) {
           help={auth.form.passwordHelp}
           error={state.passwordError ?? undefined}
           secureTextEntry={!state.showPassword}
+          trailingAction={{
+            icon: state.showPassword ? 'eye-off' : 'eye',
+            label: state.showPassword ? auth.form.hidePassword : auth.form.showPassword,
+            onPress: actions.toggleShowPassword,
+          }}
           autoComplete="new-password"
           autoCapitalize="none"
           disabled={submitting}
-        />
-        <Button
-          variant="tertiary"
-          label={auth.form.showPassword}
-          onPress={actions.toggleShowPassword}
         />
         {state.message !== null && <Notice tone="warn" message={state.message} />}
         {state.emailTaken && (

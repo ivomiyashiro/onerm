@@ -74,14 +74,14 @@ export function NewPasswordScreen({
               onChangeText={actions.setPassword}
               error={state.passwordError ?? undefined}
               secureTextEntry={!state.showPassword}
+              trailingAction={{
+                icon: state.showPassword ? 'eye-off' : 'eye',
+                label: state.showPassword ? auth.form.hidePassword : auth.form.showPassword,
+                onPress: actions.toggleShowPassword,
+              }}
               autoComplete="new-password"
               autoCapitalize="none"
               disabled={saving}
-            />
-            <Button
-              variant="tertiary"
-              label={auth.form.showPassword}
-              onPress={actions.toggleShowPassword}
             />
             {state.message !== null && <Notice tone="warn" message={state.message} />}
             <Button

@@ -115,4 +115,20 @@ describe('SignUpScreen (S03)', () => {
 
     expect(onSignIn).toHaveBeenCalledWith();
   });
+
+  it('the eye inside the password field shows and hides it without losing what was typed', async () => {
+    await renderScreen();
+    const password = screen.getByLabelText(auth.form.passwordLabel);
+    await userEvent.type(password, 'secreto123');
+    expect(password).toHaveProp('secureTextEntry', true);
+
+    await userEvent.press(screen.getByRole('button', { name: auth.form.showPassword }));
+
+    expect(screen.getByLabelText(auth.form.passwordLabel)).toHaveProp('secureTextEntry', false);
+    expect(screen.getByLabelText(auth.form.passwordLabel)).toHaveDisplayValue('secreto123');
+
+    await userEvent.press(screen.getByRole('button', { name: auth.form.hidePassword }));
+
+    expect(screen.getByLabelText(auth.form.passwordLabel)).toHaveProp('secureTextEntry', true);
+  });
 });
