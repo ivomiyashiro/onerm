@@ -3,61 +3,67 @@ import type { RestCountdown } from '@/domain/repositories/rest-countdown';
 /** What the Live Activity shows (see `rest-live-activity.tsx`); dates as epoch ms. */
 interface RestActivityProps {
   title: string;
+  finished: string;
   next: string;
   startsAt: number;
   endsAt: number;
 }
 
-type Dismissal = 'immediate' | { after: Date };
-
 interface RestActivity {
-  end(dismissal: Dismissal): Promise<void>;
+  update(props: RestActivityProps, staleDate?: Date): Promise<void>;
+  end(dismissal: 'immediate'): Promise<void>;
 }
 
 /** The part of the `LiveActivityFactory` of expo-widgets this adapter uses. */
 export interface RestActivities {
-  start(props: RestActivityProps): RestActivity;
+  start(props: RestActivityProps, url?: string, staleDate?: Date): RestActivity;
   getInstances(): RestActivity[];
 }
 
 /**
- * The countdown on the iPhone lock screen as a Live Activity (#305). It is ended as soon as it
- * starts, with the system removing it at the end of the rest: that way it goes away even if the
- * app never runs again. An ended activity takes no updates, so moving the end replaces it. A
- * failure (Live Activities turned off) is swallowed: the countdown on screen doesn't depend on it.
+ * The countdown on the iPhone lock screen and in the Dynamic Island as a Live Activity (#305).
+ * It stays active, so the next rest updates it, and goes stale at the end of the rest: then it
+ * says the rest ended without the app running. A failure (Live Activities turned off) is
+ * swallowed: the countdown on screen doesn't depend on it.
  */
 export class LiveActivityRestCountdown implements RestCountdown {
+  private queue: Promise<void> = Promise.resolve();
+
   constructor(
     private readonly activities: RestActivities,
-    private readonly title: string,
+    private readonly text: { title: string; finished: string },
     private readonly now: () => Date,
   ) {}
 
-  async show(endsAt: Date, next: string): Promise<void> {
-    try {
-      await this.removeAll();
-      const startsAt = this.now().getTime();
-      const activity = this.activities.start({
-        title: this.title,
+  show(endsAt: Date, next: string): Promise<void> {
+    return this.inTurn(async () => {
+      const props = {
+        ...this.text,
         next,
-        startsAt,
+        startsAt: this.now().getTime(),
         endsAt: endsAt.getTime(),
-      });
-      await activity.end({ after: endsAt });
-    } catch {
-      // The countdown on screen still works.
-    }
+      };
+      // Also the one a previous run of the app left.
+      const [current] = this.activities.getInstances();
+      if (current) await current.update(props, endsAt);
+      else this.activities.start(props, undefined, endsAt);
+    });
   }
 
-  async hide(): Promise<void> {
-    try {
-      await this.removeAll();
-    } catch {
-      // Nothing to hide.
-    }
+  hide(): Promise<void> {
+    return this.inTurn(async () => {
+      await Promise.all(
+        this.activities.getInstances().map((activity) => activity.end('immediate')),
+      );
+    });
   }
 
-  private async removeAll(): Promise<void> {
-    await Promise.all(this.activities.getInstances().map((activity) => activity.end('immediate')));
+  /**
+   * One change at a time: the start of a rest and the text of its next set arrive together, and
+   * interleaved they would start two activities. A failure is swallowed.
+   */
+  private inTurn(change: () => Promise<void>): Promise<void> {
+    this.queue = this.queue.then(change).catch(() => {});
+    return this.queue;
   }
 }

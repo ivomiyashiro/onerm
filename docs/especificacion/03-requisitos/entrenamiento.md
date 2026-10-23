@@ -297,7 +297,8 @@ Escenario: AC11 — Contador con la pantalla bloqueada (#305)
   Entonces veo el descanso contando hacia atrás y la siguiente serie: una notificación en curso en Android, una Live Activity en iOS
   Y se actualiza al tocar "+15 s" o "Reiniciar", y "Saltear" lo quita
   Y aparece aunque no estén permitidas las alarmas exactas: la cuenta la lleva el sistema, y sin ellas solo falta el aviso de AC5
-  Y desaparece cuando el descanso termina, sin sonido ni vibración propios: el aviso de AC5 es el que suena
+  Y cuando el descanso termina no suena ni vibra: el aviso de AC5 es el que suena
+  Y en Android desaparece; en iOS dice "¡Descanso terminado!" con la siguiente serie, también en la Dynamic Island, hasta el próximo descanso o hasta terminar o descartar el entrenamiento
 ```
 
 ---

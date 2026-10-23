@@ -167,7 +167,7 @@ export function appDevice(): Device {
       Platform.OS === 'ios'
         ? new LiveActivityRestCountdown(
             createRestLiveActivity(),
-            workoutText.restCountdown.title,
+            { title: workoutText.restCountdown.title, finished: workoutText.rest.finished },
             () => new Date(),
           )
         : new NotificationRestCountdown(

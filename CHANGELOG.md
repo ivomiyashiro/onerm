@@ -9,6 +9,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 ### Added
 
 - The rest counts down on the lock screen in an ongoing notification on Android, with the next set; «+15 s» and «Reiniciar» move it, «Saltear» removes it, and it goes away when the rest ends (#305).
+- The rest counts down on the iPhone lock screen and in the Dynamic Island in a Live Activity, which says «¡Descanso terminado!» when it ends (#305).
 - Routine editor (S15): reorder the days by holding one and dragging it sideways, with the same movement as the exercises; «Mover antes» and «Mover después» leave the day's menu and stay as actions for screen readers (#271).
 - Entering an account on a phone with guest data: «Revisando tu cuenta…» shows while the account is checked, and «Sumar a mi cuenta» / «Descartar» show that they are working, instead of a frozen screen (#285).
 - Sign in, sign up and new password (S02, S03, S24): show or hide the password with an eye inside the field instead of a separate button (#274).
