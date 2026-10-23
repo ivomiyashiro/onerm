@@ -291,6 +291,15 @@ Escenario: AC10 — Alarmas exactas no permitidas
   Entonces no se programa el aviso con la pantalla bloqueada (RN-ENT-07)
   Y si el descanso termina con la app en primer plano, el teléfono vibra y la pantalla lo indica
   Y en la pantalla de entrenamiento veo un aviso discreto: "Permití las alarmas para que te avisemos a tiempo con la pantalla bloqueada", con la acción "Permitir"
+
+Escenario: AC11 — Contador con la pantalla bloqueada (#305)
+  Dado que el temporizador está corriendo y el sistema permite mostrarlo (las notificaciones en Android, las actividades en vivo en iOS)
+  Cuando bloqueo la pantalla
+  Entonces veo el descanso contando hacia atrás y la siguiente serie: una notificación en curso en Android, una Live Activity en iOS
+  Y se actualiza al tocar "+15 s" o "Reiniciar", y "Saltear" lo quita
+  Y aparece aunque no estén permitidas las alarmas exactas: la cuenta la lleva el sistema, y sin ellas solo falta el aviso de AC5
+  Y cuando el descanso termina no suena ni vibra: el aviso de AC5 es el que suena
+  Y en Android desaparece; en iOS dice "¡Descanso terminado!" con la siguiente serie, también en la Dynamic Island, hasta el próximo descanso o hasta terminar o descartar el entrenamiento
 ```
 
 ---

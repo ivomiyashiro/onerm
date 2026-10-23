@@ -1,6 +1,7 @@
 import type { RestMessage, RestTimer } from '@/domain/models/rest-timer';
 import type { DevicePermissions } from '@/domain/repositories/device-permissions';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { RestCountdown } from '@/domain/repositories/rest-countdown';
 import type { RestNotifier } from '@/domain/repositories/rest-notifier';
 import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';
 
@@ -10,12 +11,14 @@ export const REST_EXTRA_SECONDS = 15;
 /**
  * Shared by the actions that move the end of the rest: they save the absolute end and schedule
  * the notice for it (RN-ENT-07). Without notifications or exact alarms nothing is scheduled: a
- * late notice is worse than none (spike #14).
+ * late notice is worse than none (spike #14). The countdown on the lock screen (#305) needs no
+ * exact alarm, so it is shown either way.
  */
 abstract class RestScheduling {
   constructor(
     protected readonly timers: RestTimerRepository,
     private readonly notifier: RestNotifier,
+    private readonly countdown: RestCountdown,
     private readonly permissions: DevicePermissions,
     protected readonly now: () => Date,
   ) {}
@@ -26,6 +29,7 @@ abstract class RestScheduling {
   }
 
   protected async schedule(endsAt: Date, message: RestMessage): Promise<void> {
+    await this.countdown.show(endsAt, message.body);
     const allowed =
       (await this.permissions.notifications()) === 'granted' &&
       (await this.permissions.canScheduleExactAlarms());
@@ -59,16 +63,17 @@ export class RescheduleRest extends RestScheduling {
   }
 }
 
-/** RF-ENT-06.AC4: «Saltear» stops the rest and cancels its notice. */
+/** RF-ENT-06.AC4: «Saltear» stops the rest, cancels its notice and hides its countdown. */
 export class SkipRest {
   constructor(
     private readonly timers: RestTimerRepository,
     private readonly notifier: RestNotifier,
+    private readonly countdown: RestCountdown,
   ) {}
 
   async execute(): Promise<void> {
     await this.timers.saveEndsAt(null);
-    await this.notifier.cancel();
+    await Promise.all([this.notifier.cancel(), this.countdown.hide()]);
   }
 }
 

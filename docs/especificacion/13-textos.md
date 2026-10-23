@@ -210,6 +210,7 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 | Validación de serie | La carga tiene que estar entre 0 y {máximo} {unidad}. ({máximo} es el tope de RN-ENT-02, 1000 kg, en la unidad del perfil: «1000 kg», «2204,6 lb»; decidido al cerrar #34, 2026-10-13) · Las repeticiones tienen que estar entre 0 y 100. |
 | Validación de rutina | El nombre no puede estar vacío. · El mínimo no puede ser mayor que el máximo. · Agregá al menos un ejercicio a {día}. |
 | Notificación de fin de descanso | Título: "¡Descanso terminado!" · Cuerpo: "Siguiente: {ejercicio} · {carga} × {reps}" |
+| Contador del descanso en la pantalla bloqueada (RF-ENT-06 AC11, #305) | Título: "Descanso" · el tiempo restante (lo dibuja el sistema) · Cuerpo: el mismo de la notificación de fin de descanso · Al terminar (solo iOS): "¡Descanso terminado!" · Canal de Android: "Descanso en curso" |
 | Inicio: continuar | Continuar entrenamiento |
 | Inicio: cambiar día | Cambiar día |
 | Selector de día | Hecho hace {n} días · Nunca hecho · Te toca hoy |

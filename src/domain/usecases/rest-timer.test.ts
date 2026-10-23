@@ -1,5 +1,6 @@
 import {
   FakeDevicePermissions,
+  FakeRestCountdown,
   FakeRestNotifier,
   InMemoryRestTimerRepository,
 } from '@/domain/testing/in-memory-repositories';
@@ -19,14 +20,16 @@ const MESSAGE = { title: '¡Descanso terminado!', body: 'Siguiente: Sentadilla �
 function setup(permissions = new FakeDevicePermissions()) {
   const timers = new InMemoryRestTimerRepository();
   const notifier = new FakeRestNotifier();
-  const deps = [timers, notifier, permissions, () => NOW] as const;
+  const countdown = new FakeRestCountdown();
+  const deps = [timers, notifier, countdown, permissions, () => NOW] as const;
   return {
     timers,
     notifier,
+    countdown,
     permissions,
     start: new StartRest(...deps),
     add: new AddRestTime(...deps),
-    skip: new SkipRest(timers, notifier),
+    skip: new SkipRest(timers, notifier, countdown),
     reschedule: new RescheduleRest(...deps),
   };
 }
@@ -116,6 +119,56 @@ describe('rest timer (RN-ENT-07)', () => {
     await reschedule.execute(MESSAGE);
 
     expect(notifier.scheduled).toBeNull();
+  });
+});
+
+describe('rest countdown on the lock screen (#305, RF-ENT-06.AC11)', () => {
+  it('shows the rest from its absolute end, with the set that follows', async () => {
+    const { start, countdown } = setup();
+
+    await start.execute(120, MESSAGE);
+
+    expect(countdown.shown).toEqual({ endsAt: at(120), next: MESSAGE.body });
+  });
+
+  it('shows it without exact alarms too: the system counts it down, only the notice needs one', async () => {
+    const { start, countdown } = setup(new FakeDevicePermissions('granted', false));
+
+    await start.execute(120, MESSAGE);
+
+    expect(countdown.shown?.endsAt).toEqual(at(120));
+  });
+
+  it('moves with «+15 s» and «Reiniciar»', async () => {
+    const { start, add, countdown } = setup();
+    await start.execute(120, MESSAGE);
+
+    await add.execute(MESSAGE);
+    expect(countdown.shown?.endsAt).toEqual(at(135));
+
+    await start.execute(120, MESSAGE);
+    expect(countdown.shown?.endsAt).toEqual(at(120));
+  });
+
+  it('«Saltear» hides it', async () => {
+    const { start, skip, countdown } = setup();
+    await start.execute(120, MESSAGE);
+
+    await skip.execute();
+
+    expect(countdown.shown).toBeNull();
+  });
+
+  it('a permission given during the rest shows it again: the system dropped it without one', async () => {
+    const permissions = new FakeDevicePermissions('denied');
+    const { start, reschedule, countdown } = setup(permissions);
+    await start.execute(120, MESSAGE);
+    await countdown.hide(); // The system dropped it: no permission yet.
+
+    permissions.notificationState = 'granted';
+    await reschedule.execute(MESSAGE);
+
+    expect(countdown.shown?.endsAt).toEqual(at(120));
   });
 });
 

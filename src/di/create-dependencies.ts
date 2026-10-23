@@ -6,6 +6,8 @@ import { SqliteLocalDatabase, type PreparedLocalDatabase } from '@/data/db/sqlit
 import type { TableChanges } from '@/data/db/table-changes';
 import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
+import { LiveActivityRestCountdown } from '@/data/device/live-activity-rest-countdown';
+import { NotificationRestCountdown } from '@/data/device/notification-rest-countdown';
 import NetInfo from '@react-native-community/netinfo';
 import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
@@ -35,6 +37,7 @@ import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { AuthGateway } from '@/domain/repositories/auth-gateway';
 import type { DevicePermissions } from '@/domain/repositories/device-permissions';
+import type { RestCountdown } from '@/domain/repositories/rest-countdown';
 import type { RestNotifier } from '@/domain/repositories/rest-notifier';
 import type { SyncEngine } from '@/domain/repositories/sync-engine';
 import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
@@ -121,6 +124,7 @@ import { UpdateProfile } from '@/domain/usecases/update-profile';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import { workout as workoutText } from '@/presentation/strings/workout';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
+import { createRestLiveActivity } from '@/presentation/widgets/rest-live-activity';
 
 export interface Dependencies {
   useCases: UseCases;
@@ -143,17 +147,33 @@ export function appStorage(): Storage {
   };
 }
 
-/** What the rest notice runs on: the phone, or fakes in a test. */
+/** What the rest notice and countdown run on: the phone, or fakes in a test. */
 export interface Device {
   notifier: RestNotifier;
+  countdown: RestCountdown;
   permissions: DevicePermissions;
 }
 
-/** The phone: expo-notifications and the exact alarm module (RN-ENT-07, spike #14). */
+/**
+ * The phone: expo-notifications and the exact alarm module (RN-ENT-07, spike #14), and the
+ * countdown on the lock screen (#305).
+ */
 export function appDevice(): Device {
   silenceRestNoticeInForeground();
   return {
     notifier: new ExpoRestNotifier(workoutText.rest.title),
+    // An ongoing notification on Android, a Live Activity on iOS.
+    countdown:
+      Platform.OS === 'ios'
+        ? new LiveActivityRestCountdown(
+            createRestLiveActivity(),
+            { title: workoutText.restCountdown.title, finished: workoutText.rest.finished },
+            () => new Date(),
+          )
+        : new NotificationRestCountdown(
+            workoutText.restCountdown.title,
+            workoutText.restCountdown.channel,
+          ),
     permissions: new ExpoDevicePermissions(),
   };
 }
@@ -274,7 +294,7 @@ export function createDependencies(
   { localDatabase, changes }: Storage = appStorage(),
   // Client-side UUIDs, so records are created offline (RN-SYNC-02).
   newId: () => Id = randomUUID,
-  { notifier, permissions }: Device = appDevice(),
+  { notifier, countdown, permissions }: Device = appDevice(),
   auth: AuthGateway = appAuth(),
   backup: Backup = appBackup({ localDatabase, changes }),
 ): Dependencies {
@@ -288,8 +308,8 @@ export function createDependencies(
   const onboardingRepository = new SqliteOnboardingRepository(db, changes);
   const accountRepository = new SqliteAccountRepository(db);
   const restTimerRepository = new SqliteRestTimerRepository(db, changes);
-  const rest = [restTimerRepository, notifier, permissions, now] as const;
-  const stopRest = new SkipRest(restTimerRepository, notifier);
+  const rest = [restTimerRepository, notifier, countdown, permissions, now] as const;
+  const stopRest = new SkipRest(restTimerRepository, notifier, countdown);
   const syncState = new SqliteSyncStateRepository(db, changes);
   const syncScheduler = new SyncScheduler(backup.engine, () => backup.countUploadable());
 

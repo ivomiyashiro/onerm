@@ -26,6 +26,7 @@ import type {
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
+import type { RestCountdown } from '@/domain/repositories/rest-countdown';
 import type { RestNotifier } from '@/domain/repositories/rest-notifier';
 import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -130,6 +131,19 @@ export class FakeRestNotifier implements RestNotifier {
 
   async cancel(): Promise<void> {
     this.scheduled = null;
+  }
+}
+
+/** Keeps the one countdown the lock screen would show. */
+export class FakeRestCountdown implements RestCountdown {
+  shown: { endsAt: Date; next: string } | null = null;
+
+  async show(endsAt: Date, next: string): Promise<void> {
+    this.shown = { endsAt, next };
+  }
+
+  async hide(): Promise<void> {
+    this.shown = null;
   }
 }
 
