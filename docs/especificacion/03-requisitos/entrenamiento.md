@@ -125,6 +125,7 @@ Escenario: AC4 — Informar el esfuerzo
   Cuando aparecen las opciones de esfuerzo según mi modo (RN-ENT-03)
   Entonces puedo elegir una con un toque
   Y las opciones siguen visibles en la fila de esa serie hasta que elijo una o confirmo la serie siguiente
+  Y si ya lo elegí al anotar la serie, no se vuelve a preguntar, ni en la fila ni en el descanso; el descanso solo lo pide en la calibración
   Y si no elijo ninguna, la serie queda guardada sin esfuerzo y puedo informarlo después tocando la serie
   Pero no se me bloquea el avance a la siguiente serie (salvo en la calibración, RF-SUG-02 AC4)
 

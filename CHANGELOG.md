@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Changed
+
+- Training (S09): the rest no longer asks «¿Cuántas más podías hacer?» again for a set; the row of the set asks it once, and the rest only asks it during calibration (#292).
+
 ### Added
 
 - The rest counts down on the lock screen in an ongoing notification on Android, with the next set; «+15 s» and «Reiniciar» move it, «Saltear» removes it, and it goes away when the rest ends (#305).
