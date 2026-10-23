@@ -36,6 +36,9 @@ export const dialogs = {
     merge: 'Sumar a mi cuenta',
     discard: 'Descartar',
     cancel: 'Cancelar',
+    /** Before D01, while the account is checked (#285). */
+    checking: 'Revisando tu cuenta…',
+    merging: 'Sumando…',
   },
   D01b: {
     title: '¿Descartar tus datos?',
@@ -45,6 +48,7 @@ export const dialogs = {
       }. No se puede deshacer.`,
     cancel: 'Cancelar',
     discardDestructive: 'Descartar',
+    discarding: 'Descartando…',
   },
   D02: {
     title: 'Tenés un entrenamiento sin terminar',

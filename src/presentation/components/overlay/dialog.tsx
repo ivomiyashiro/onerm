@@ -19,11 +19,21 @@ const VARIANT: Record<DialogActionKind, ButtonVariant> = {
   destructive: 'danger',
 };
 
+export interface DialogAction {
+  label: string;
+  kind: DialogActionKind;
+  onPress: () => void;
+  disabled?: boolean;
+  loading?: boolean;
+  /** Shown next to the spinner while loading (for example "Sumando…"). */
+  loadingLabel?: string;
+}
+
 interface DialogProps {
   visible: boolean;
   title: string;
   body?: string;
-  actions: { label: string; kind: DialogActionKind; onPress: () => void }[];
+  actions: DialogAction[];
   /** Back button. Tapping outside does nothing: the dialog asks for a decision. */
   onDismiss: () => void;
   testID?: string;
@@ -65,6 +75,9 @@ function DialogCard({ title, body, actions, testID }: Omit<DialogProps, 'visible
                 variant={VARIANT[action.kind]}
                 label={action.label}
                 onPress={action.onPress}
+                disabled={action.disabled}
+                loading={action.loading}
+                loadingLabel={action.loadingLabel}
                 block
               />
             ))}
