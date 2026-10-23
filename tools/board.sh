@@ -6,6 +6,7 @@
 set -euo pipefail
 
 OWNER=ivomiyashiro
+REPO=onerm
 PROJECT_NUMBER=2
 PROJECT_ID=PVT_kwHOBRjyY84Blg3R
 STATUS_FIELD=PVTSSF_lAHOBRjyY84Blg3RzhkNeFk
@@ -19,15 +20,48 @@ option_id() {
   esac
 }
 
+# The Project's cards as {items: [{id, status, labels, content: {number, title}}]}, in issue
+# order. Read from the issues' side: the Project's own item list (`gh project item-list`, and
+# ProjectV2.items in GraphQL) stopped at 101 items and left the newer cards out (#285).
 items() {
-  gh project item-list "$PROJECT_NUMBER" --owner "$OWNER" --limit 200 --format json
+  gh api graphql --paginate -F owner="$OWNER" -F repo="$REPO" -f query='
+    query($owner: String!, $repo: String!, $endCursor: String) {
+      repository(owner: $owner, name: $repo) {
+        issues(first: 100, after: $endCursor, orderBy: {field: CREATED_AT, direction: ASC}) {
+          pageInfo { hasNextPage endCursor }
+          nodes {
+            number
+            title
+            labels(first: 20) { nodes { name } }
+            projectItems(first: 10) {
+              nodes {
+                id
+                project { number }
+                fieldValueByName(name: "Status") {
+                  ... on ProjectV2ItemFieldSingleSelectValue { name }
+                }
+              }
+            }
+          }
+        }
+      }
+    }' | jq -s --argjson p "$PROJECT_NUMBER" '{items: [.[].data.repository.issues.nodes[]
+      | . as $issue
+      | .projectItems.nodes[] | select(.project.number == $p)
+      | {id, status: .fieldValueByName.name, labels: [$issue.labels.nodes[].name],
+         content: {number: $issue.number, title: $issue.title}}]}'
 }
 
 case "${1:-}" in
   move)
     issue="$2"; option=$(option_id "${3:-}")
     item=$(items | jq -r --argjson n "$issue" '.items[] | select(.content.number == $n) | .id')
-    [[ -n "$item" ]] || { echo "Card #$issue is not in the Project" >&2; exit 1; }
+    if [[ -z "$item" ]]; then
+      # A card opened outside the board: it joins the Project first.
+      item=$(gh project item-add "$PROJECT_NUMBER" --owner "$OWNER" \
+        --url "https://github.com/$OWNER/$REPO/issues/$issue" --format json | jq -r .id)
+      echo "#$issue added to the Project"
+    fi
     gh project item-edit --id "$item" --project-id "$PROJECT_ID" \
       --field-id "$STATUS_FIELD" --single-select-option-id "$option" >/dev/null
     echo "#$issue → $3"
