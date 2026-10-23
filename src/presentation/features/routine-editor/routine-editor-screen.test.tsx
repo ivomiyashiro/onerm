@@ -216,7 +216,9 @@ describe('RoutineEditorScreen', () => {
   it('#270: «Siguiente» on the keyboard moves from the sets to the minimum and to the maximum', async () => {
     const focused: string[] = [];
     // Which field each focus() lands on: the Jest TextInput has no real focus.
-    jest.spyOn(TextInput.prototype, 'focus').mockImplementation(function (this: TextInput) {
+    const focus = jest.spyOn(TextInput.prototype, 'focus').mockImplementation(function (
+      this: TextInput,
+    ) {
       focused.push(this.props.accessibilityLabel ?? '');
     });
     const { user } = await renderScreen();
@@ -226,6 +228,7 @@ describe('RoutineEditorScreen', () => {
     await fireEvent(screen.getByLabelText(text.editor.fields.repMin), 'submitEditing');
 
     expect(focused).toEqual([text.editor.fields.repMin, text.editor.fields.repMax]);
+    focus.mockRestore();
   });
 
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
