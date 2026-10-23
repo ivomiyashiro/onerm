@@ -495,6 +495,16 @@ describe('WorkoutScreen (S09)', () => {
       expect(screen.getByRole('button', { name: /^\d\d:\d\d/ })).toBeOnTheScreen();
     });
 
+    it('#292: the rest does not ask the effort again, the row of the set already does', async () => {
+      const { user } = await renderRest();
+
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      await act(() => jest.advanceTimersByTime(300));
+
+      expect(screen.getByRole('header', { name: text.rest.title })).toBeOnTheScreen();
+      expect(screen.getAllByText(text.effort.simpleQuestion)).toHaveLength(1);
+    });
+
     it('#196: pulling the rest down minimizes it; a short pull leaves it open', async () => {
       const { user } = await renderRest();
       await user.press(screen.getByRole('button', { name: text.primaryAction.done }));

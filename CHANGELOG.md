@@ -6,6 +6,10 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ## [Unreleased]
 
+### Changed
+
+- Training (S09): the rest no longer asks «¿Cuántas más podías hacer?» again for a set; the row of the set asks it once, and the rest only asks it during calibration (#292).
+
 ### Added
 
 - Routine editor (S15): reorder the days by holding one and dragging it sideways, with the same movement as the exercises; «Mover antes» and «Mover después» leave the day's menu and stay as actions for screen readers (#271).
