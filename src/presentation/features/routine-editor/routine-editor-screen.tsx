@@ -43,6 +43,7 @@ import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
+import { LinearGradient } from 'expo-linear-gradient';
 import { colors, radius, space, typography } from '@/presentation/theme';
 import { layoutSpring, reorderSpring } from '@/presentation/theme/motion';
 
@@ -157,33 +158,41 @@ function Editor({
           error={errors.name ? text.editor.validation.emptyName : undefined}
         />
         <View style={styles.dayBar}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={styles.days}
-          >
-            {routine.days.map((d) => (
-              <Chip
-                key={d.id}
-                label={d.name}
-                selected={d.id === selectedDayId}
-                // Tapping the chosen day opens its options (rename, move, remove).
-                onPress={() =>
-                  d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
-                }
-              />
-            ))}
-            {routine.days.length < ROUTINE_LIMITS.days.max && (
-              <Chip label={text.editor.addDay} onPress={actions.addDay} />
-            )}
-          </ScrollView>
+          <View style={styles.dayChips}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.days}
+            >
+              {routine.days.map((d) => (
+                <Chip
+                  key={d.id}
+                  label={d.name}
+                  selected={d.id === selectedDayId}
+                  // Tapping the chosen day opens its options (rename, move, remove).
+                  onPress={() =>
+                    d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
+                  }
+                />
+              ))}
+              {routine.days.length < ROUTINE_LIMITS.days.max && (
+                <Chip label={text.editor.addDay} onPress={actions.addDay} />
+              )}
+            </ScrollView>
+            <LinearGradient
+              pointerEvents="none"
+              colors={[colors.bgBaseClear, colors.bgBase]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.dayFade}
+            />
+          </View>
           {/* «S15 · Opciones del día» in sight: rename, move or remove the chosen day (#192). */}
           {day && (
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={text.editor.day.options(day.name)}
               onPress={actions.openDaySheet}
-              hitSlop={4}
               style={styles.dayOptions}
             >
               <Icon name="dots" color={colors.textPrimary} />
@@ -428,9 +437,6 @@ function dialogProps(dialog: EditorDialog, actions: RoutineEditorViewModel['acti
   }
 }
 
-/** Round «⋯» button over the day pills; `hitSlop` brings the touch target to 48. */
-const DAY_OPTIONS_SIZE = 40;
-
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   content: {
@@ -440,21 +446,12 @@ const styles = StyleSheet.create({
     paddingBottom: space.s24,
   },
   message: { padding: space.s16 },
-  dayBar: { justifyContent: 'center' },
-  // The pills scroll under the round button; the padding lets the last one end clear of it.
-  days: { gap: space.s8, paddingRight: DAY_OPTIONS_SIZE + space.s8 },
-  dayOptions: {
-    position: 'absolute',
-    right: 0,
-    width: DAY_OPTIONS_SIZE,
-    height: DAY_OPTIONS_SIZE,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: radius.full,
-    borderWidth: 1,
-    borderColor: colors.borderHair,
-    backgroundColor: colors.bgField,
-  },
+  dayBar: { flexDirection: 'row', alignItems: 'center', gap: space.s4 },
+  dayChips: { flex: 1 },
+  days: { gap: space.s8, paddingRight: space.s24 },
+  // Fades the pills out at the right edge instead of cutting them next to the button.
+  dayFade: { position: 'absolute', top: 0, right: 0, bottom: 0, width: space.s24 },
+  dayOptions: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   rows: {
     overflow: 'hidden',
     borderRadius: radius.xl,

@@ -33,6 +33,7 @@ export const palette = {
   whiteA14: 'rgba(255, 255, 255, 0.14)',
   blackA30: 'rgba(0, 0, 0, 0.3)',
   blackA74: 'rgba(0, 0, 0, 0.74)',
+  neutral950A0: 'rgba(14, 14, 13, 0)',
   neutral950A90: 'rgba(14, 14, 13, 0.9)',
   limeA12: 'rgba(197, 240, 74, 0.12)',
   limeA55: 'rgba(197, 240, 74, 0.55)',
@@ -46,6 +47,7 @@ export const palette = {
 /** Semantic tokens, from the Figma collection «Color» (only the dark mode exists, marca §7). */
 export const colors = {
   bgBase: palette.neutral950,
+  bgBaseClear: palette.neutral950A0,
   bgCard: palette.neutral900,
   bgField: palette.neutral800,
   bgRaised: palette.neutral700,
