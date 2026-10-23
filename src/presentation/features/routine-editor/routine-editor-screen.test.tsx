@@ -1,4 +1,4 @@
-import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
 import { AccessibilityInfo, LayoutAnimation } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
@@ -200,6 +200,17 @@ describe('RoutineEditorScreen', () => {
 
     // Folded again for the next exercise.
     expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
+  });
+
+  it('#270: the prescription sheet keeps its button out of the scroll, so the keyboard never hides it', async () => {
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: 'Prensa de piernas' }));
+
+    const sheet = within(screen.getByTestId('prescription-sheet'));
+    const body = within(screen.getByTestId('prescription-sheet-body'));
+    expect(body.getByLabelText(text.editor.fields.sets)).toBeOnTheScreen();
+    expect(body.queryByRole('button', { name: text.editor.save })).not.toBeOnTheScreen();
+    expect(sheet.getByRole('button', { name: text.editor.save })).toBeOnTheScreen();
   });
 
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
