@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, useWindowDimensions, View } from 'react-native';
+import { useRef, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
 import { Button } from '@/presentation/components/button/button';
@@ -22,8 +22,6 @@ import { colors, space, typography } from '@/presentation/theme';
  * RN-RUT-04; a saved value off the list gets its own chip.
  */
 const REST_OPTIONS = [60, 90, 120, 150, 180, 240, 300];
-/** The share of the screen the sheet's content takes before it scrolls. */
-const MAX_HEIGHT_RATIO = 0.72;
 const NOTES_MAX = ROUTINE_LIMITS.notesLength.max;
 const RIR_OPTIONS = [0, 1, 2, 3, 4, 5].map((n) => ({ value: n, label: String(n) }));
 const ROLE_OPTIONS = (['main', 'accessory'] as const).map((role) => ({
@@ -58,8 +56,9 @@ export function PrescriptionSheet({
   onRemove,
   onClose,
 }: PrescriptionSheetProps) {
-  const { height } = useWindowDimensions();
   const form = sheet?.form;
+  const repMinRef = useRef<TextInput>(null);
+  const repMaxRef = useRef<TextInput>(null);
   const restOptions =
     form === undefined || REST_OPTIONS.includes(form.restSeconds)
       ? REST_OPTIONS
@@ -72,15 +71,21 @@ export function PrescriptionSheet({
       subtitle={sheet ? text.editor.sheetSubtitle(sheet.form.role, sheet.dayName) : undefined}
       closeLabel={common.close}
       onClose={onClose}
+      testID="prescription-sheet"
+      // The content scrolls above the keyboard (#33, #280); the button stays in sight below it (#270).
+      scrollContent
+      footer={
+        sheet && (
+          <Button
+            variant="primary"
+            label={sheet.mode === 'add' ? common.ready : text.editor.save}
+            onPress={onSave}
+          />
+        )
+      }
     >
       {sheet && form && (
-        // The sheet scrolls when it doesn't fit (decided for #33), without a scroll bar (#224).
-        <ScrollView
-          style={{ maxHeight: height * MAX_HEIGHT_RATIO }}
-          showsVerticalScrollIndicator={false}
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
-        >
+        <View style={styles.content}>
           <View style={styles.numbers}>
             <View style={styles.number}>
               <TextField
@@ -88,22 +93,32 @@ export function PrescriptionSheet({
                 value={form.sets}
                 onChangeText={(sets) => onChange({ sets })}
                 keyboardType="number-pad"
+                // «Siguiente» goes on to the next number with the keyboard still open (#270).
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => repMinRef.current?.focus()}
               />
             </View>
             <View style={styles.number}>
               <TextField
+                ref={repMinRef}
                 label={text.editor.fields.repMin}
                 value={form.repMin}
                 onChangeText={(repMin) => onChange({ repMin })}
                 keyboardType="number-pad"
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => repMaxRef.current?.focus()}
               />
             </View>
             <View style={styles.number}>
               <TextField
+                ref={repMaxRef}
                 label={text.editor.fields.repMax}
                 value={form.repMax}
                 onChangeText={(repMax) => onChange({ repMax })}
                 keyboardType="number-pad"
+                returnKeyType="done"
               />
             </View>
           </View>
@@ -173,12 +188,7 @@ export function PrescriptionSheet({
               <MenuItem icon="trash" label={text.editor.remove} onPress={onRemove} destructive />
             </View>
           </MoreOptions>
-          <Button
-            variant="primary"
-            label={sheet.mode === 'add' ? common.ready : text.editor.save}
-            onPress={onSave}
-          />
-        </ScrollView>
+        </View>
       )}
     </BottomSheet>
   );

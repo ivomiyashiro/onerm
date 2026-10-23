@@ -29,7 +29,7 @@ interface SheetContentProps {
   footer?: ReactNode;
   /**
    * Wraps the children in a scroll so tall content doesn't push the sheet past the screen. Off by
-   * default: sheets that bring their own list or scroll (substitute, prescription) keep it.
+   * default: sheets that bring their own list (substitute) keep it.
    */
   scrollContent?: boolean;
 }

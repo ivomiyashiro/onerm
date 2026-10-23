@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, type Ref } from 'react';
 import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
 import { Icon } from '@/presentation/components/icons/icon';
@@ -7,8 +7,17 @@ import { Text } from '@/presentation/components/text';
 
 interface TextFieldProps extends Pick<
   TextInputProps,
-  'placeholder' | 'keyboardType' | 'autoComplete' | 'autoCapitalize' | 'secureTextEntry'
+  | 'placeholder'
+  | 'keyboardType'
+  | 'autoComplete'
+  | 'autoCapitalize'
+  | 'secureTextEntry'
+  | 'returnKeyType'
+  | 'onSubmitEditing'
+  | 'submitBehavior'
 > {
+  /** To move the focus here from the previous field's «Siguiente» (#270). */
+  ref?: Ref<TextInput>;
   label: string;
   value: string;
   onChangeText: (text: string) => void;
@@ -26,6 +35,7 @@ export function TextField({
   help,
   error,
   disabled = false,
+  ref,
   ...inputProps
 }: TextFieldProps) {
   const [focused, setFocused] = useState(false);
@@ -44,6 +54,7 @@ export function TextField({
       >
         <TextInput
           {...inputProps}
+          ref={ref}
           accessibilityLabel={label}
           // The help or the error is read whenever the field gets focus, not only when it appears.
           accessibilityHint={error ?? help}

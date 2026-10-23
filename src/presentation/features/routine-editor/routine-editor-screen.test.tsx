@@ -1,5 +1,5 @@
-import { act, fireEvent, render, screen, userEvent } from '@testing-library/react-native';
-import { AccessibilityInfo, LayoutAnimation } from 'react-native';
+import { act, fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
+import { AccessibilityInfo, LayoutAnimation, TextInput } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -202,126 +202,33 @@ describe('RoutineEditorScreen', () => {
     expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
   });
 
-  it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
-    const { user, onClose } = await renderScreen();
-    await screen.findByDisplayValue('Mi rutina de pierna');
-    await act(() => rowAction('Prensa de piernas', 'moveDown'));
-
-    await user.press(screen.getByRole('button', { name: common.back }));
-    expect(screen.getByText(dialogs.D08.title)).toBeOnTheScreen();
-
-    await user.press(screen.getByRole('button', { name: dialogs.D08.leave }));
-    expect(onClose).toHaveBeenCalled();
-  });
-
-  it('RF-RUT-03: a new routine shows «Crear rutina» and the empty day; saving it empty says which day', async () => {
-    const { user } = await renderScreen({ routineId: null, routines: [] });
-
-    expect(await screen.findByRole('header', { name: text.editor.createTitle })).toBeOnTheScreen();
-    expect(screen.getByText(text.editor.emptyDay.title)).toBeOnTheScreen();
-
-    await user.type(screen.getByLabelText(text.editor.name), 'Pierna');
-    await user.press(screen.getByRole('button', { name: text.editor.save }));
-
-    expect(screen.getByText(text.editor.dayWithoutExercises.title('Día A'))).toBeOnTheScreen();
-  });
-
-  it('RF-RUT-03.AC1: adds an exercise from the catalog, saves and offers D15', async () => {
-    const { user } = await renderScreen({ routineId: null, routines: [] });
-    await user.type(await screen.findByLabelText(text.editor.name), 'Pierna');
-
-    await user.press(screen.getByRole('button', { name: text.editor.addExercise }));
-    expect(screen.getByRole('header', { name: catalog.search.addTo('Día A') })).toBeOnTheScreen();
-    await user.press(await screen.findByRole('button', { name: 'Curl de bíceps' }));
-    // #197: step 2 shows its defaults; «Listo» keeps them.
-    expect(screen.getByLabelText(text.editor.fields.sets)).toHaveDisplayValue('2');
-    await user.press(screen.getByRole('button', { name: common.ready }));
-    await user.press(screen.getByRole('button', { name: text.editor.save }));
-
-    expect(screen.getByText(dialogs.D15.title('Pierna'))).toBeOnTheScreen();
-  });
-
-  it('#256: the list header counts the exercises and offers «Agregar ejercicio» at the top', async () => {
-    await renderScreen();
-    expect(screen.getByText(text.editor.exerciseCount(2))).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
-  });
-
-  it('#256: an empty day also shows the header with «Agregar ejercicio»', async () => {
-    await renderScreen({ routineId: null, routines: [] });
-    expect(screen.getByText(text.editor.exerciseCount(0))).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeEnabled();
-  });
-
-  it('#256: at the limit of exercises in a day «Agregar ejercicio» is disabled', async () => {
-    const exercises = Array.from({ length: 20 }, (_, i) =>
-      aRoutineExercise({ id: `re-${i}`, exerciseId: 'curl' }),
-    );
-    const full = aRoutine({ days: [aRoutineDay({ exercises })] });
-    await renderScreen({ routines: [full] });
-    expect(screen.getByText(text.editor.exerciseCount(20))).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: text.editor.addExercise })).toBeDisabled();
-  });
-
-  it('the day sheet: tapping the chosen day, or its options button, opens its options', async () => {
-    const { user } = await renderScreen();
-    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
-
-    expect(screen.getByLabelText(text.editor.day.name)).toBeOnTheScreen();
-    // The only day: nothing to move or remove.
-    expect(screen.queryByRole('button', { name: text.editor.day.remove })).not.toBeOnTheScreen();
-  });
-
-  it('RN-RUT-05 (#225): a day name keeps 20 characters at most, with its count', async () => {
-    const { user } = await renderScreen();
-    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
-    const field = screen.getByLabelText(text.editor.day.name);
-
-    await user.clear(field);
-    await user.type(field, 'Pecho, hombros y tríceps');
-
-    expect(field).toHaveDisplayValue('Pecho, hombros y trí');
-    expect(screen.getByText(text.editor.notesCount(20, 20))).toBeOnTheScreen();
-  });
-
-  it('#192: removing a day with exercises asks with D19 first', async () => {
-    const { user } = await renderScreen();
-    await user.press(await screen.findByRole('button', { name: text.editor.addDay }));
-    await user.press(screen.getByRole('checkbox', { name: 'Día A' }));
-    await user.press(screen.getByRole('button', { name: text.editor.day.options('Día A') }));
-
-    await user.press(screen.getByRole('button', { name: text.editor.day.remove }));
-    expect(screen.getByText(dialogs.D19.title('Día A'))).toBeOnTheScreen();
-    await user.press(screen.getByRole('button', { name: dialogs.D19.remove }));
-
-    expect(screen.queryByRole('checkbox', { name: 'Día A' })).not.toBeOnTheScreen();
-  });
-
-  it('RF-RUT-03.AC3, AC7: the prescription sheet shows the range error and the RIR 0 warning', async () => {
+  it('#270: the prescription sheet keeps its button out of the scroll, so the keyboard never hides it', async () => {
     const { user } = await renderScreen();
     await user.press(await screen.findByRole('button', { name: 'Prensa de piernas' }));
 
-    await user.clear(screen.getByLabelText(text.editor.fields.repMin));
-    await user.type(screen.getByLabelText(text.editor.fields.repMin), '15');
-    await user.press(screen.getByRole('radio', { name: '0' }));
-
-    expect(screen.getByText(text.editor.validation.minOverMax)).toBeOnTheScreen();
-    expect(screen.getByText(text.editor.rirZeroWarning)).toBeOnTheScreen();
+    const sheet = within(screen.getByTestId('prescription-sheet'));
+    const body = within(screen.getByTestId('prescription-sheet-body'));
+    expect(body.getByLabelText(text.editor.fields.sets)).toBeOnTheScreen();
+    expect(body.queryByRole('button', { name: text.editor.save })).not.toBeOnTheScreen();
+    expect(sheet.getByRole('button', { name: text.editor.save })).toBeOnTheScreen();
   });
 
-  it('#197: role, notes, replace and remove fold under «Más opciones»', async () => {
+  it('#270: «Siguiente» on the keyboard moves from the sets to the minimum and to the maximum', async () => {
+    const focused: string[] = [];
+    // Which field each focus() lands on: the Jest TextInput has no real focus.
+    const focus = jest.spyOn(TextInput.prototype, 'focus').mockImplementation(function (
+      this: TextInput,
+    ) {
+      focused.push(this.props.accessibilityLabel ?? '');
+    });
     const { user } = await renderScreen();
     await user.press(await screen.findByRole('button', { name: 'Prensa de piernas' }));
-    expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
 
-    await user.press(screen.getByRole('button', { name: text.editor.moreOptions }));
-    expect(screen.getByLabelText(text.editor.notes)).toBeOnTheScreen();
-    expect(screen.getByRole('button', { name: text.editor.remove })).toBeOnTheScreen();
-    await user.press(screen.getByRole('button', { name: common.close }));
-    await user.press(screen.getByRole('button', { name: 'Curl de bíceps' }));
+    await fireEvent(screen.getByLabelText(text.editor.fields.sets), 'submitEditing');
+    await fireEvent(screen.getByLabelText(text.editor.fields.repMin), 'submitEditing');
 
-    // Folded again for the next exercise.
-    expect(screen.queryByLabelText(text.editor.notes)).not.toBeOnTheScreen();
+    expect(focused).toEqual([text.editor.fields.repMin, text.editor.fields.repMax]);
+    focus.mockRestore();
   });
 
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {
