@@ -34,6 +34,7 @@ export function ChooseDaySheet({ onClose, onStarted }: ChooseDaySheetProps) {
       subtitle={home.chooseDay.subtitle(state.routineName, state.days.length)}
       closeLabel={common.close}
       onClose={onClose}
+      scrollContent
       footer={
         selected && (
           <Button
