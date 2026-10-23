@@ -6,6 +6,7 @@ import {
   aWorkoutExercise,
 } from '@/domain/testing/builders';
 import {
+  FakeRestCountdown,
   FakeRestNotifier,
   InMemoryRestTimerRepository,
   InMemoryWorkoutRepository,
@@ -59,7 +60,7 @@ function setUp(exercises = [PRESS, ROW, CURL]) {
   });
   const notifier = new FakeRestNotifier();
   notifier.scheduled = { at: timers.timer.endsAt!, message: { title: 't', body: 'b' } };
-  const stopRest = new SkipRest(timers, notifier);
+  const stopRest = new SkipRest(timers, notifier, new FakeRestCountdown());
   return {
     workouts,
     timers,

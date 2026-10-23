@@ -88,6 +88,7 @@ import type { WorkoutRepository } from '@/domain/repositories/workout-repository
 import {
   FakeAuthGateway,
   FakeDevicePermissions,
+  FakeRestCountdown,
   FakeRestNotifier,
   FixedSyncStateRepository,
   InMemoryAccountRepository,
@@ -408,11 +409,13 @@ function lifecycle(
 export function restUseCasesOver({
   timers = new InMemoryRestTimerRepository(),
   notifier = new FakeRestNotifier(),
+  countdown = new FakeRestCountdown(),
   permissions = new FakeDevicePermissions(),
   now = epoch,
 }: {
   timers?: InMemoryRestTimerRepository;
   notifier?: FakeRestNotifier;
+  countdown?: FakeRestCountdown;
   permissions?: FakeDevicePermissions;
   now?: () => Date;
 } = {}): Partial<UseCases> &
@@ -426,13 +429,13 @@ export function restUseCasesOver({
     | 'askRestPermission'
     | 'readRestPermissions'
   > {
-  const rest = [timers, notifier, permissions, now] as const;
+  const rest = [timers, notifier, countdown, permissions, now] as const;
   return {
     observeRestTimer: new ObserveRestTimer(timers),
     startRest: new StartRest(...rest),
     addRestTime: new AddRestTime(...rest),
     rescheduleRest: new RescheduleRest(...rest),
-    skipRest: new SkipRest(timers, notifier),
+    skipRest: new SkipRest(timers, notifier, countdown),
     askRestPermission: new AskRestPermission(timers, permissions),
     readRestPermissions: new ReadRestPermissions(timers, permissions),
   };
