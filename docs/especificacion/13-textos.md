@@ -152,8 +152,8 @@ Hay una **línea breve** debajo de la sugerencia, en dos versiones (novato y ava
 
 | ID | Título | Cuerpo | Botones (el destacado va primero) |
 |---|---|---|---|
-| D01 Unir datos del invitado | ¿Sumamos tus datos a la cuenta? | En este teléfono tenés {n_ent} entrenamientos y {n_rut} rutinas. Podés sumarlos a tu cuenta o descartarlos. | **Sumar a mi cuenta** · Descartar · Cancelar |
-| D01b Confirmar descarte | ¿Descartar tus datos? | Se van a borrar de este teléfono {n_ent} entrenamientos y {n_rut} rutinas{, y el entrenamiento en curso}. No se puede deshacer. | **Cancelar** · Descartar (destructivo) |
+| D01 Unir datos del invitado | ¿Sumamos tus datos a la cuenta? | En este teléfono tenés {n_ent} entrenamientos y {n_rut} rutinas. Podés sumarlos a tu cuenta o descartarlos. | **Sumar a mi cuenta** · Descartar · Cancelar · Antes del diálogo, mientras se revisa la cuenta (velo con spinner): «Revisando tu cuenta…» · Mientras suma: «Sumando…» (#285, 2026-10-22) |
+| D01b Confirmar descarte | ¿Descartar tus datos? | Se van a borrar de este teléfono {n_ent} entrenamientos y {n_rut} rutinas{, y el entrenamiento en curso}. No se puede deshacer. | **Cancelar** · Descartar (destructivo) · Mientras descarta: «Descartando…» (#285) |
 | D02 Entrenamiento abandonado | Tenés un entrenamiento sin terminar | Lo empezaste el {fecha} y registraste {n} series. | **Finalizarlo** · Continuar · Descartar |
 | D03 Cerrar sesión con pendientes | Tenés {n} cambios sin respaldar | Si cerrás sesión ahora, se pierden. Conectate para respaldarlos antes. | **Cancelar** · Cerrar sesión igual (destructivo) |
 | D14 Terminá tu entrenamiento primero | Terminá tu entrenamiento primero | Tenés un entrenamiento en curso. Finalizalo o descartalo para {acción: cerrar sesión / cambiar de rutina / eliminar esta rutina}. | **Ir al entrenamiento** · Cancelar |

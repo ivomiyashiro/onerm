@@ -92,11 +92,13 @@ flowchart TD
     S02 -- ok --> GD{¿El invitado tiene datos?}
     GD -- no --> AD{¿La cuenta tiene datos?}
     GD -- sí --> ADG{¿La cuenta tiene datos?}
-    ADG -- no --> MIGRATE[["Migrar todo a la cuenta"]] --> S23
+    ADG -- no --> MIGRATE[["Migrar todo a la cuenta"]] --> RESTO
     ADG -- sí --> D01{{"D01 ¿Sumamos tus datos?"}}
-    D01 -- Sumar --> MERGE[["Unir (07 §4.3)"]] --> S23
+    D01 -- Sumar --> MERGE[["Unir (07 §4.3)"]] --> RESTO
     D01 -- Descartar --> D01b{{D01b Confirmar}}
-    D01b -- confirmar --> S23
+    D01b -- confirmar --> RESTO
+    RESTO{"¿Hay perfil? (07 §4.2)"} -- sí --> S07R["S07 · «Faltan datos por restaurar»"]
+    RESTO -- no --> S23
     D01b -- cancelar --> D01
     D01 -- Cancelar --> CANCEL["Se cierra la sesión de autenticación · sigue como invitado"] --> S01I[Pantalla anterior]
     AD -- sí --> S23[S23 Restaurando] --> S07
