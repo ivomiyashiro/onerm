@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import type { Id } from '@/domain/models/vocabulary';
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
@@ -157,27 +158,35 @@ function Editor({
           error={errors.name ? text.editor.validation.emptyName : undefined}
         />
         <View style={styles.dayBar}>
-          <ScrollView
-            horizontal
-            showsHorizontalScrollIndicator={false}
-            style={styles.dayChips}
-            contentContainerStyle={styles.days}
-          >
-            {routine.days.map((d) => (
-              <Chip
-                key={d.id}
-                label={d.name}
-                selected={d.id === selectedDayId}
-                // Tapping the chosen day opens its options (rename, move, remove).
-                onPress={() =>
-                  d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
-                }
-              />
-            ))}
-            {routine.days.length < ROUTINE_LIMITS.days.max && (
-              <Chip label={text.editor.addDay} onPress={actions.addDay} />
-            )}
-          </ScrollView>
+          <View style={styles.dayChips}>
+            <ScrollView
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              contentContainerStyle={styles.days}
+            >
+              {routine.days.map((d) => (
+                <Chip
+                  key={d.id}
+                  label={d.name}
+                  selected={d.id === selectedDayId}
+                  // Tapping the chosen day opens its options (rename, move, remove).
+                  onPress={() =>
+                    d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
+                  }
+                />
+              ))}
+              {routine.days.length < ROUTINE_LIMITS.days.max && (
+                <Chip label={text.editor.addDay} onPress={actions.addDay} />
+              )}
+            </ScrollView>
+            <LinearGradient
+              pointerEvents="none"
+              colors={[colors.bgBaseClear, colors.bgBase]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.dayFade}
+            />
+          </View>
           {/* «S15 · Opciones del día» in sight: rename, move or remove the chosen day (#192). */}
           {day && (
             <Pressable
@@ -439,7 +448,9 @@ const styles = StyleSheet.create({
   message: { padding: space.s16 },
   dayBar: { flexDirection: 'row', alignItems: 'center', gap: space.s4 },
   dayChips: { flex: 1 },
-  days: { gap: space.s8, paddingRight: space.s8 },
+  days: { gap: space.s8, paddingRight: space.s24 },
+  // Fades the pills out at the right edge instead of cutting them next to the button.
+  dayFade: { position: 'absolute', top: 0, right: 0, bottom: 0, width: space.s24 },
   dayOptions: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   rows: {
     overflow: 'hidden',
