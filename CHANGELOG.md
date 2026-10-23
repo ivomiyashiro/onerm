@@ -69,6 +69,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Routine editor: with many days, the pills scroll under a round «⋯» button instead of being cut off next to it (#272).
 - Routine editor (S15): with the keyboard open, an exercise's sheet shows the field being filled and the «Listo»/«Guardar» button, now fixed at the bottom of the sheet; on Android, «Siguiente» on the keyboard goes from the sets to the minimum and maximum reps (#270).
 - The drawers no longer take over the whole screen when their content is tall (for example «Elegir día» with many exercises): they stop below the top of the screen and the content scrolls, with the title and the button fixed (#280).
 - In the background the app no longer wakes the main thread on every frame: the animation library asked for a new frame all the time, even with nothing animating (patched in `react-native-worklets`); background CPU went from ~8 % to ~0.5 % in the emulator (#182).
