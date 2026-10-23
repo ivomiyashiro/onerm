@@ -70,6 +70,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- The rest-end notification shows the OneRM plate in the Android status bar, tinted with the yellow accent, instead of a generic square (#293).
 - Routine editor: with many days, the pills fade out before the «⋯» button instead of being cut off next to it (#272).
 - Routine editor (S15): with the keyboard open, an exercise's sheet shows the field being filled and the «Listo»/«Guardar» button, now fixed at the bottom of the sheet; on Android, «Siguiente» on the keyboard goes from the sets to the minimum and maximum reps (#270).
 - The drawers no longer take over the whole screen when their content is tall (for example «Elegir día» with many exercises): they stop below the top of the screen and the content scrolls, with the title and the button fixed (#280).
