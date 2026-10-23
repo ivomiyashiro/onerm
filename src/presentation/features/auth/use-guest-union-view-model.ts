@@ -5,14 +5,23 @@ import type { PendingUnion } from '@/domain/usecases/guest-union';
 import { useAppStore } from '@/presentation/state/app-store-context';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
-/** D01 or D01b, with what the guest has on the phone; `offline` once a choice found no connection. */
+/** What the person chose in D01 or D01b, while it runs. */
+export type GuestUnionChoice = 'merge' | 'discard' | 'cancel';
+
+/**
+ * D01 or D01b, with what the guest has on the phone; `offline` once a choice found no connection,
+ * and `working` while a choice runs (#285).
+ */
 export interface GuestUnionDialog {
   kind: 'ask' | 'confirmDiscard';
   summary: GuestSummary;
   offline: boolean;
+  working: GuestUnionChoice | null;
 }
 
 export interface GuestUnionViewModel {
+  /** The account is being checked before D01, or before uniting without asking (#285). */
+  checking: boolean;
   dialog: GuestUnionDialog | null;
   actions: {
     /** D01 «Sumar a mi cuenta» (AC3). */
@@ -45,6 +54,7 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
   } = useUseCases();
   const unionRequests = useAppStore((s) => s.unionRequests);
   const setAccount = useAppStore((s) => s.setAccount);
+  const [checking, setChecking] = useState(false);
   const [dialog, setDialog] = useState<GuestUnionDialog | null>(null);
   const pending = useRef<PendingUnion | null>(null);
   // A ref, not state: two taps in the same frame must act only once.
@@ -69,16 +79,22 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
       const waiting = await readPendingUnion.execute();
       if (!active || waiting === null) return;
       pending.current = waiting;
-      const start = await startGuestUnion.execute(waiting);
-      if (!active) return;
-      waitingConnection.current = start.kind === 'offline';
-      if (start.kind === 'united') united(waiting);
-      else if (start.kind === 'ask') {
-        setDialog({ kind: 'ask', summary: start.summary, offline: false });
+      setChecking(true);
+      try {
+        const start = await startGuestUnion.execute(waiting);
+        if (!active) return;
+        waitingConnection.current = start.kind === 'offline';
+        if (start.kind === 'united') united(waiting);
+        else if (start.kind === 'ask') {
+          setDialog({ kind: 'ask', summary: start.summary, offline: false, working: null });
+        }
+      } finally {
+        if (active) setChecking(false);
       }
     })().catch(() => undefined);
     return () => {
       active = false;
+      setChecking(false);
     };
   }, [unionRequests, retries, readPendingUnion, startGuestUnion, united]);
 
@@ -93,37 +109,46 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
     });
   }, [observeSyncActivity]);
 
-  async function act(work: (waiting: PendingUnion) => Promise<void>) {
+  async function act(choice: GuestUnionChoice, work: (waiting: PendingUnion) => Promise<void>) {
     const waiting = pending.current;
     if (waiting === null || busy.current) return;
     busy.current = true;
+    setDialog((d) => d && { ...d, working: choice });
     try {
       await work(waiting);
     } catch {
       // A failed local write leaves the guest's data as it was; the dialog stays to try again.
     } finally {
       busy.current = false;
+      setDialog((d) => d && { ...d, working: null });
     }
   }
 
   async function finish(choice: 'merge' | 'discard') {
-    await act(async (waiting) => {
+    await act(choice, async (waiting) => {
       const result = await finishGuestUnion.execute({ ...waiting, choice });
       if (result === 'done') united(waiting);
       // The choice stays to retry; D01 says it needs the connection (13 §9).
-      else setDialog((d) => d && { kind: 'ask', summary: d.summary, offline: true });
+      else setDialog((d) => d && { ...d, kind: 'ask', offline: true });
     });
   }
 
+  // While a choice runs, D01 and D01b stay as they are.
+  function moveTo(kind: GuestUnionDialog['kind']) {
+    if (busy.current) return;
+    setDialog((d) => d && { ...d, kind, offline: false });
+  }
+
   return {
+    checking,
     dialog,
     actions: {
       merge: () => finish('merge'),
-      discard: () => setDialog((d) => d && { ...d, kind: 'confirmDiscard', offline: false }),
+      discard: () => moveTo('confirmDiscard'),
       confirmDiscard: () => finish('discard'),
-      back: () => setDialog((d) => d && { ...d, kind: 'ask', offline: false }),
+      back: () => moveTo('ask'),
       cancel: () =>
-        act(async () => {
+        act('cancel', async () => {
           await cancelGuestUnion.execute();
           pending.current = null;
           setDialog(null);
