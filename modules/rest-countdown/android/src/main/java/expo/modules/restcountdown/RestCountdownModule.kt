@@ -55,11 +55,13 @@ class RestCountdownModule : Module() {
     }
   }
 
-  // Low importance: it shows on the lock screen without sound or vibration; the notice at the end
-  // has its own channel for that.
+  // Default importance, but without sound or vibration: the lock screen hides silent (low
+  // importance) notifications by default. The notice at the end has its own channel to sound.
   private fun ensureChannel(name: String) {
     if (Build.VERSION.SDK_INT < Build.VERSION_CODES.O) return
-    val channel = NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_LOW)
+    val channel = NotificationChannel(CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT)
+    channel.setSound(null, null)
+    channel.enableVibration(false)
     channel.setShowBadge(false)
     manager.createNotificationChannel(channel)
   }
@@ -81,7 +83,7 @@ class RestCountdownModule : Module() {
   }
 
   private companion object {
-    const val CHANNEL_ID = "rest-countdown"
+    const val CHANNEL_ID = "rest-running"
     const val TAG = "rest-countdown"
     const val ID = 1
   }
