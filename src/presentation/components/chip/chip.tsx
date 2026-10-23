@@ -1,4 +1,9 @@
-import { Pressable, StyleSheet } from 'react-native';
+import {
+  Pressable,
+  StyleSheet,
+  type AccessibilityActionEvent,
+  type AccessibilityActionInfo,
+} from 'react-native';
 
 import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
@@ -9,16 +14,27 @@ interface ChipProps {
   /** A filter chip has a state; without it the chip is an action ("Más filtros"). */
   selected?: boolean;
   onPress: () => void;
+  /** Alternatives to a gesture for screen readers. */
+  accessibilityActions?: AccessibilityActionInfo[];
+  onAccessibilityAction?: (event: AccessibilityActionEvent) => void;
 }
 
 /** Figma «Chip»: 48 dp filter or multiple choice. Selected: soft lime with a check, not solid. */
-export function Chip({ label, selected, onPress }: ChipProps) {
+export function Chip({
+  label,
+  selected,
+  onPress,
+  accessibilityActions,
+  onAccessibilityAction,
+}: ChipProps) {
   const isToggle = selected !== undefined;
   return (
     <Pressable
       accessibilityRole={isToggle ? 'checkbox' : 'button'}
       accessibilityLabel={label}
       accessibilityState={isToggle ? { checked: selected } : undefined}
+      accessibilityActions={accessibilityActions}
+      onAccessibilityAction={onAccessibilityAction}
       onPress={onPress}
       style={[styles.chip, selected && styles.selected]}
     >

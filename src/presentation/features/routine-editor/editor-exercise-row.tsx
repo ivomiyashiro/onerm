@@ -1,13 +1,12 @@
-import { useEffect, useLayoutEffect, useState } from 'react';
 import { Animated, Pressable, StyleSheet, View, type LayoutRectangle } from 'react-native';
-import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { GestureDetector } from 'react-native-gesture-handler';
 
 import { Icon } from '@/presentation/components/icons/icon';
 import { SwipeRow, type SwipeAction } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
 import { routines as text } from '@/presentation/strings/routines';
+import { useDraggableItem } from '@/presentation/features/routine-editor/use-draggable-item';
 import { colors, elevation, size, typography } from '@/presentation/theme';
-import { motion, reorderSpring } from '@/presentation/theme/motion';
 
 /** The row's corners, shared by its raised background and the swipe's tint. */
 const ROW_RADIUS = 14;
@@ -88,76 +87,17 @@ export function EditorExerciseRow({
           },
         ]),
   ];
-  const [dragging, setDragging] = useState(false);
-  // How raised the row looks (Figma «Dragging»): it fades in and out instead of switching.
-  const [lift] = useState(() => new Animated.Value(0));
-  const [offset] = useState(() => new Animated.Value(-base));
-  useEffect(() => {
-    onOffset(offset);
-    return () => onOffset(null);
-  }, [offset, onOffset]);
-
-  const rest = -base;
-  // Springs back to its place, raised until it is there. With «reduce motion» it lands at once.
-  const settle = () => {
-    if (!animate) {
-      offset.setValue(rest);
-      lift.setValue(0);
-      setDragging(false);
-      return;
-    }
-    Animated.timing(lift, { toValue: 0, duration: motion.state, useNativeDriver: true }).start();
-    Animated.spring(offset, { toValue: rest, ...reorderSpring, useNativeDriver: true }).start(() =>
-      setDragging(false),
-    );
-  };
-  // A new place in the list: the dropped row comes from where the finger left it.
-  useLayoutEffect(() => {
-    if (!animate) {
-      offset.setValue(-base);
-      return;
-    }
-    Animated.spring(offset, { toValue: -base, ...reorderSpring, useNativeDriver: true }).start(() =>
-      setDragging(false),
-    );
-  }, [base, animate, offset]);
-
-  // On the JS thread: the drop needs the layouts and the ViewModel, and a row is light to move.
-  const pan = Gesture.Pan()
-    .runOnJS(true)
-    .withTestId(`drag ${name}`)
-    .onStart(() => {
-      setDragging(true);
-      if (animate) {
-        Animated.timing(lift, {
-          toValue: 1,
-          duration: motion.press,
-          useNativeDriver: true,
-        }).start();
-      } else {
-        lift.setValue(1);
-      }
-      onDragStart();
-    })
-    .onUpdate((event) => {
-      offset.setValue(rest + event.translationY);
-      onDragMove(event.translationY);
-    })
-    .onEnd((event) => {
-      // When the order changed, the new `base` springs it to its place.
-      if (!onDrop(event.translationY)) return settle();
-      Animated.timing(lift, {
-        toValue: 0,
-        duration: animate ? motion.state : 0,
-        useNativeDriver: true,
-      }).start();
-      if (!animate) setDragging(false);
-    })
-    .onFinalize((_, success) => {
-      if (success) return;
-      onDragCancel();
-      settle();
-    });
+  const { dragging, lift, offset, pan } = useDraggableItem({
+    base,
+    animate,
+    onOffset,
+    onDragStart,
+    onDragMove,
+    onDrop,
+    onDragCancel,
+    axis: 'y',
+    testId: `drag ${name}`,
+  });
 
   return (
     // A plain view for `base`, so it changes with the layout in the same commit.

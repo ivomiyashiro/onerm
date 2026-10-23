@@ -1,7 +1,5 @@
 import { act, fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
 import { AccessibilityInfo, LayoutAnimation, TextInput } from 'react-native';
-import { State } from 'react-native-gesture-handler';
-import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Routine } from '@/domain/models/routine';
@@ -55,6 +53,23 @@ const MINE = aRoutine({
           prescription: aPrescription({ role: 'accessory', restSeconds: 90 }),
         }),
       ],
+    }),
+  ],
+});
+
+const TWO_DAYS = aRoutine({
+  name: 'Dos días',
+  days: [
+    aRoutineDay({
+      id: 'day-1',
+      name: 'Día A',
+      exercises: [aRoutineExercise({ id: 're-1', exerciseId: 'leg-press' })],
+    }),
+    aRoutineDay({
+      id: 'day-2',
+      name: 'Día B',
+      position: 1,
+      exercises: [aRoutineExercise({ id: 're-3', exerciseId: 'curl' })],
     }),
   ],
 });
@@ -333,23 +348,26 @@ describe('RoutineEditorScreen', () => {
     expect(screen.queryByText(/Arrastrá desde el asa/)).not.toBeOnTheScreen();
   });
 
-  it('RF-RUT-05.AC1: dragging an exercise by its handle drops it in another position', async () => {
-    const { user, routines } = await renderScreen();
-    await screen.findByDisplayValue('Mi rutina de pierna');
-    ['Prensa de piernas', 'Curl de bíceps'].forEach((name, index) =>
-      fireEvent(screen.getByTestId(`row ${name}`), 'layout', {
-        nativeEvent: { layout: { x: 0, y: index * 72, width: 358, height: 72 } },
-      }),
-    );
-
-    fireGestureHandler(getByGestureTestId('drag Prensa de piernas'), [
-      { state: State.BEGAN, translationY: 0 },
-      { state: State.ACTIVE, translationY: 40 },
-      { state: State.ACTIVE, translationY: 80 },
-      { state: State.END, translationY: 80 },
+  it('RF-RUT-05.AC3: screen readers move a day with «Mover antes» and «Mover después»', async () => {
+    await renderScreen({ routines: [TWO_DAYS] });
+    const chip = await screen.findByRole('checkbox', { name: 'Día A' });
+    expect(chip.props.accessibilityActions.map((a: { label: string }) => a.label)).toEqual([
+      text.editor.day.moveAfter,
     ]);
-    await user.press(screen.getByRole('button', { name: text.editor.save }));
 
-    expect(routines.routines[0].days[0].exercises.map((e) => e.id)).toEqual(['re-2', 're-1']);
+    await act(() => chip.props.onAccessibilityAction({ nativeEvent: { actionName: 'moveAfter' } }));
+
+    expect(screen.getAllByRole('checkbox').map((c) => c.props.accessibilityLabel)).toEqual([
+      'Día B',
+      'Día A',
+    ]);
+  });
+
+  it("the day sheet no longer moves the day: that is the chip's drag", async () => {
+    const { user } = await renderScreen({ routines: [TWO_DAYS] });
+    await user.press(await screen.findByRole('button', { name: text.editor.day.options('Día A') }));
+
+    expect(screen.queryByText(text.editor.day.moveBefore)).not.toBeOnTheScreen();
+    expect(screen.queryByText(text.editor.day.moveAfter)).not.toBeOnTheScreen();
   });
 });

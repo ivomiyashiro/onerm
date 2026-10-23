@@ -1,6 +1,5 @@
-import { useEffect, useEffectEvent, useRef, useState } from 'react';
+import { useEffect, useEffectEvent } from 'react';
 import {
-  Animated,
   BackHandler,
   LayoutAnimation,
   Modal,
@@ -25,14 +24,10 @@ import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
-import {
-  dropDistance,
-  dropIndex,
-  rowShift,
-  type RowLayout,
-} from '@/presentation/features/routine-editor/drop-index';
 import { DaySheet } from '@/presentation/features/routine-editor/day-sheet';
+import { EditorDayChip } from '@/presentation/features/routine-editor/editor-day-chip';
 import { EditorExerciseRow } from '@/presentation/features/routine-editor/editor-exercise-row';
+import { useReorderList } from '@/presentation/features/routine-editor/use-reorder-list';
 import { PrescriptionSheet } from '@/presentation/features/routine-editor/prescription-sheet';
 import {
   useRoutineEditorViewModel,
@@ -45,7 +40,7 @@ import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
 import { colors, radius, space, typography } from '@/presentation/theme';
-import { layoutSpring, reorderSpring } from '@/presentation/theme/motion';
+import { layoutSpring } from '@/presentation/theme/motion';
 
 interface RoutineEditorScreenProps {
   /** Null creates a routine (RF-RUT-03). */
@@ -118,31 +113,17 @@ function Editor({
   const exercises = day?.exercises ?? [];
   const addDisabled = exercises.length >= ROUTINE_LIMITS.exercisesPerDay.max;
   const addColor = addDisabled ? colors.textTertiary : colors.textAccent;
-  // Measured by each row, read only when one is dropped.
-  const rowLayouts = useRef<RowLayout[]>([]);
-  const landing = (from: number, translationY: number) =>
-    dropIndex(rowLayouts.current.slice(0, exercises.length), from, translationY);
   const animate = !useReduceMotion();
-  // Each row's animated offset, and how far it is drawn from its place (see the row's `base`).
-  const offsets = useRef(new Map<Id, Animated.Value>());
-  const [bases, setBases] = useState<Readonly<Record<Id, number>>>({});
-  const baseOf = (id: Id) => bases[id] ?? 0;
-  // The dragged row (-1: none), its height and where it would land.
-  const drag = useRef({ from: -1, height: 0, to: -1 });
-  // The rows the dragged one passes make room for it; the others go back to their places.
-  const shiftOthers = (to: number) => {
-    const { from, height } = drag.current;
-    if (from < 0) return;
-    exercises.forEach((exercise, index) => {
-      const offset = offsets.current.get(exercise.id);
-      if (index === from || !offset) return;
-      Animated.spring(offset, {
-        toValue: -baseOf(exercise.id) + rowShift(index, from, to, height),
-        ...reorderSpring,
-        useNativeDriver: true,
-      }).start();
-    });
-  };
+  const dayReorder = useReorderList(
+    routine.days.map((d) => d.id),
+    animate,
+    actions.moveDayTo,
+  );
+  const reorder = useReorderList(
+    exercises.map((exercise) => exercise.id),
+    animate,
+    actions.moveExerciseTo,
+  );
   const nameOf = (exerciseId: Id) => state.nameOf(exerciseId) ?? catalog.detail.unavailable;
 
   return (
@@ -164,15 +145,22 @@ function Editor({
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={styles.days}
             >
-              {routine.days.map((d) => (
-                <Chip
+              {routine.days.map((d, index) => (
+                <EditorDayChip
                   key={d.id}
-                  label={d.name}
+                  name={d.name}
                   selected={d.id === selectedDayId}
-                  // Tapping the chosen day opens its options (rename, move, remove).
+                  isFirst={index === 0}
+                  isLast={index === routine.days.length - 1}
+                  // Tapping the chosen day opens its options (rename, remove).
                   onPress={() =>
                     d.id === selectedDayId ? actions.openDaySheet() : actions.selectDay(d.id)
                   }
+                  onMove={(offset) => {
+                    if (animate) LayoutAnimation.configureNext(layoutSpring);
+                    actions.moveDay(d.id, offset);
+                  }}
+                  {...dayReorder(d.id, index)}
                 />
               ))}
               {routine.days.length < ROUTINE_LIMITS.days.max && (
@@ -187,7 +175,7 @@ function Editor({
               style={styles.dayFade}
             />
           </View>
-          {/* «S15 · Opciones del día» in sight: rename, move or remove the chosen day (#192). */}
+          {/* «S15 · Opciones del día» in sight: rename or remove the chosen day (#192). */}
           {day && (
             <Pressable
               accessibilityRole="button"
@@ -227,13 +215,7 @@ function Editor({
                 <EditorExerciseRow
                   key={exercise.id}
                   name={nameOf(exercise.exerciseId)}
-                  base={baseOf(exercise.id)}
-                  animate={animate}
-                  onOffset={(offset) =>
-                    offset
-                      ? offsets.current.set(exercise.id, offset)
-                      : offsets.current.delete(exercise.id)
-                  }
+                  {...reorder(exercise.id, index)}
                   line={text.editor.exerciseLine(
                     exercise.prescription.sets,
                     text.repRange(exercise.prescription.repRange),
@@ -263,51 +245,6 @@ function Editor({
                       onPress: () => actions.removeExercise(exercise.id),
                     },
                   ]}
-                  onLayout={(layout) => {
-                    rowLayouts.current[index] = layout;
-                  }}
-                  onDragStart={() => {
-                    const height = rowLayouts.current[index]?.height ?? 0;
-                    drag.current = { from: index, height, to: index };
-                  }}
-                  onDragMove={(translationY) => {
-                    const to = landing(index, translationY);
-                    if (!animate || to === drag.current.to) return;
-                    drag.current.to = to;
-                    shiftOthers(to);
-                  }}
-                  onDrop={(translationY) => {
-                    const to = landing(index, translationY);
-                    if (to === index) {
-                      if (animate) shiftOthers(index);
-                      drag.current.from = -1;
-                      return false;
-                    }
-                    // Each row keeps where it is drawn: the new order and the bases commit together.
-                    const changes: Record<Id, number> = {
-                      [exercise.id]:
-                        baseOf(exercise.id) - dropDistance(rowLayouts.current, index, to),
-                    };
-                    if (animate) {
-                      exercises.forEach((other, at) => {
-                        const shift = rowShift(at, index, to, drag.current.height);
-                        const offset = offsets.current.get(other.id);
-                        if (shift === 0 || !offset) return;
-                        offset.stopAnimation();
-                        offset.setValue(-baseOf(other.id) + shift);
-                        changes[other.id] = baseOf(other.id) - shift;
-                      });
-                    }
-                    drag.current.from = -1;
-                    setBases((current) => ({ ...current, ...changes }));
-                    actions.moveExerciseTo(exercise.id, to);
-                    return true;
-                  }}
-                  onDragCancel={() => {
-                    // Also called for a touch on the handle that never became a drag.
-                    if (animate) shiftOthers(index);
-                    drag.current.from = -1;
-                  }}
                 />
               ))}
             </View>
@@ -329,11 +266,8 @@ function Editor({
       <DaySheet
         visible={daySheetOpen}
         day={day}
-        isFirst={dayIndex === 0}
-        isLast={dayIndex === routine.days.length - 1}
         canRemove={routine.days.length > 1}
         onRename={actions.renameDay}
-        onMove={actions.moveDay}
         onRemove={actions.removeDay}
         onClose={actions.closeDaySheet}
       />

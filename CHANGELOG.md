@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- Routine editor (S15): reorder the days by holding one and dragging it sideways, with the same movement as the exercises; «Mover antes» and «Mover después» leave the day's menu and stay as actions for screen readers (#271).
 - Entering an account on a phone with guest data: «Revisando tu cuenta…» shows while the account is checked, and «Sumar a mi cuenta» / «Descartar» show that they are working, instead of a frozen screen (#285).
 - Sign in, sign up and new password (S02, S03, S24): show or hide the password with an eye inside the field instead of a separate button (#274).
 - «Continuar con Google» on iPhone, when the build has an iOS client of Google (#273).
