@@ -3,7 +3,11 @@ import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { openTestLocalDatabase } from '@/data/db/open-test-database';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import { createDependencies } from '@/di/create-dependencies';
-import { FakeDevicePermissions, FakeRestNotifier } from '@/domain/testing/in-memory-repositories';
+import {
+  FakeDevicePermissions,
+  FakeRestCountdown,
+  FakeRestNotifier,
+} from '@/domain/testing/in-memory-repositories';
 import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
 import type { RoutinesOverview } from '@/domain/usecases/observe-routines';
 import { firstValue } from '@/domain/usecases/observe-together';
@@ -15,7 +19,11 @@ async function dependencies() {
   return createDependencies(
     { localDatabase, changes: new ManualTableChanges() },
     () => `id-${++n}`,
-    { notifier: new FakeRestNotifier(), permissions: new FakeDevicePermissions() },
+    {
+      notifier: new FakeRestNotifier(),
+      countdown: new FakeRestCountdown(),
+      permissions: new FakeDevicePermissions(),
+    },
   );
 }
 
