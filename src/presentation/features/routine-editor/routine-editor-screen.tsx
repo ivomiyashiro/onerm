@@ -10,6 +10,7 @@ import {
   View,
 } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
+import { LinearGradient } from 'expo-linear-gradient';
 
 import type { Id } from '@/domain/models/vocabulary';
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
@@ -43,7 +44,6 @@ import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { routines as text } from '@/presentation/strings/routines';
-import { LinearGradient } from 'expo-linear-gradient';
 import { colors, radius, space, typography } from '@/presentation/theme';
 import { layoutSpring, reorderSpring } from '@/presentation/theme/motion';
 
