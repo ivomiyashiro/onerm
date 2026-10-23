@@ -58,6 +58,13 @@ export function moveDay(routine: Routine, dayId: Id, offset: Offset): Routine {
   return { ...routine, days: moved(routine.days, from, from + offset) };
 }
 
+/** RF-RUT-05.AC1: dropping a dragged day at `index`. */
+export function moveDayTo(routine: Routine, dayId: Id, index: number): Routine {
+  const from = routine.days.findIndex((day) => day.id === dayId);
+  const days = moved(routine.days, from, index);
+  return days === routine.days ? routine : { ...routine, days };
+}
+
 /** RF-RUT-03.AC2 (RN-PERF-03): role and sets from the mechanic, prescription from the goal. */
 export function addExercise(
   routine: Routine,
