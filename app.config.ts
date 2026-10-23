@@ -69,6 +69,9 @@ const config: ExpoConfig = {
         color: '#FFD400',
       },
     ],
+    // The rest on the iOS lock screen (#305): a widget extension with the Live Activity, updated
+    // from the app only (no push). The App Group is the plugin's own requirement.
+    ['expo-widgets', { groupIdentifier: 'group.com.training.onerm' }],
     // iOS 27 requires the scene-based life cycle; without it the app closes at launch (#181).
     './plugins/with-scene-lifecycle',
     // Local notifications only: a personal Apple team can't sign the push entitlement (#217).
