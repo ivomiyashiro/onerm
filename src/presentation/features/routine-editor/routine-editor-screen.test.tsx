@@ -1,5 +1,5 @@
 import { act, fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
-import { AccessibilityInfo, LayoutAnimation } from 'react-native';
+import { AccessibilityInfo, LayoutAnimation, TextInput } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
@@ -211,6 +211,21 @@ describe('RoutineEditorScreen', () => {
     expect(body.getByLabelText(text.editor.fields.sets)).toBeOnTheScreen();
     expect(body.queryByRole('button', { name: text.editor.save })).not.toBeOnTheScreen();
     expect(sheet.getByRole('button', { name: text.editor.save })).toBeOnTheScreen();
+  });
+
+  it('#270: «Siguiente» on the keyboard moves from the sets to the minimum and to the maximum', async () => {
+    const focused: string[] = [];
+    // Which field each focus() lands on: the Jest TextInput has no real focus.
+    jest.spyOn(TextInput.prototype, 'focus').mockImplementation(function (this: TextInput) {
+      focused.push(this.props.accessibilityLabel ?? '');
+    });
+    const { user } = await renderScreen();
+    await user.press(await screen.findByRole('button', { name: 'Prensa de piernas' }));
+
+    await fireEvent(screen.getByLabelText(text.editor.fields.sets), 'submitEditing');
+    await fireEvent(screen.getByLabelText(text.editor.fields.repMin), 'submitEditing');
+
+    expect(focused).toEqual([text.editor.fields.repMin, text.editor.fields.repMax]);
   });
 
   it('RF-RUT-03.AC5: leaving with changes shows D08', async () => {

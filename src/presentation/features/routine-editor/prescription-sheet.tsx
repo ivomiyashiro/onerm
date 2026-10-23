@@ -1,5 +1,5 @@
-import { useState, type ReactNode } from 'react';
-import { ScrollView, StyleSheet, View } from 'react-native';
+import { useRef, useState, type ReactNode } from 'react';
+import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
 import { Button } from '@/presentation/components/button/button';
@@ -57,6 +57,8 @@ export function PrescriptionSheet({
   onClose,
 }: PrescriptionSheetProps) {
   const form = sheet?.form;
+  const repMinRef = useRef<TextInput>(null);
+  const repMaxRef = useRef<TextInput>(null);
   const restOptions =
     form === undefined || REST_OPTIONS.includes(form.restSeconds)
       ? REST_OPTIONS
@@ -91,22 +93,32 @@ export function PrescriptionSheet({
                 value={form.sets}
                 onChangeText={(sets) => onChange({ sets })}
                 keyboardType="number-pad"
+                // «Siguiente» goes on to the next number with the keyboard still open (#270).
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => repMinRef.current?.focus()}
               />
             </View>
             <View style={styles.number}>
               <TextField
+                ref={repMinRef}
                 label={text.editor.fields.repMin}
                 value={form.repMin}
                 onChangeText={(repMin) => onChange({ repMin })}
                 keyboardType="number-pad"
+                returnKeyType="next"
+                submitBehavior="submit"
+                onSubmitEditing={() => repMaxRef.current?.focus()}
               />
             </View>
             <View style={styles.number}>
               <TextField
+                ref={repMaxRef}
                 label={text.editor.fields.repMax}
                 value={form.repMax}
                 onChangeText={(repMax) => onChange({ repMax })}
                 keyboardType="number-pad"
+                returnKeyType="done"
               />
             </View>
           </View>
