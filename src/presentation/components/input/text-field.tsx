@@ -1,9 +1,16 @@
 import { useState, type Ref } from 'react';
-import { StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View, type TextInputProps } from 'react-native';
 
-import { Icon } from '@/presentation/components/icons/icon';
+import { Icon, type IconName } from '@/presentation/components/icons/icon';
 import { colors, elevation, radius, size, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';
+
+interface TrailingAction {
+  icon: IconName;
+  /** The accessible name; it changes with the state (RNF-18). */
+  label: string;
+  onPress: () => void;
+}
 
 interface TextFieldProps extends Pick<
   TextInputProps,
@@ -25,6 +32,8 @@ interface TextFieldProps extends Pick<
   /** Replaces the help text while there is an error. */
   error?: string;
   disabled?: boolean;
+  /** An icon button inside the box, at the end (the eye of a password field). */
+  trailingAction?: TrailingAction;
 }
 
 /** Figma «Input»: 52 dp field, lime border and ring on focus, red border and message on error. */
@@ -35,6 +44,7 @@ export function TextField({
   help,
   error,
   disabled = false,
+  trailingAction,
   ref,
   ...inputProps
 }: TextFieldProps) {
@@ -72,6 +82,18 @@ export function TextField({
             { color: disabled ? colors.textSecondary : colors.textPrimary },
           ]}
         />
+        {trailingAction !== undefined && (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={trailingAction.label}
+            onPress={trailingAction.onPress}
+            disabled={disabled}
+            hitSlop={{ right: 16 }}
+            style={styles.action}
+          >
+            <Icon name={trailingAction.icon} size={24} color={colors.textSecondary} />
+          </Pressable>
+        )}
       </View>
       {error !== undefined ? (
         <View style={styles.message}>
@@ -94,8 +116,10 @@ const styles = StyleSheet.create({
   container: { alignSelf: 'stretch', gap: 8 },
   box: {
     minHeight: 52,
-    justifyContent: 'center',
-    paddingHorizontal: 16,
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingLeft: 16,
+    paddingRight: 4,
     borderRadius: radius.md,
     borderWidth: 1,
     borderColor: colors.borderControl,
@@ -107,10 +131,17 @@ const styles = StyleSheet.create({
   // The whole box is tappable, not only the line of text (RNF-16).
   // #194: without the type's line height, which on iOS pushed the line down; centered.
   input: {
+    flex: 1,
     padding: 0,
     minHeight: size.targetMin,
     lineHeight: undefined,
     textAlignVertical: 'center',
+  },
+  action: {
+    minWidth: size.targetMin,
+    minHeight: size.targetMin,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   message: { flexDirection: 'row', alignItems: 'center', gap: 6 },
 });

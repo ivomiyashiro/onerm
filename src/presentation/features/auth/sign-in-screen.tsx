@@ -60,14 +60,14 @@ export function SignInScreen({
           value={state.password}
           onChangeText={actions.setPassword}
           secureTextEntry={!state.showPassword}
+          trailingAction={{
+            icon: state.showPassword ? 'eye-off' : 'eye',
+            label: state.showPassword ? auth.form.hidePassword : auth.form.showPassword,
+            onPress: actions.toggleShowPassword,
+          }}
           autoComplete="current-password"
           autoCapitalize="none"
           disabled={submitting}
-        />
-        <Button
-          variant="tertiary"
-          label={auth.form.showPassword}
-          onPress={actions.toggleShowPassword}
         />
         {state.message !== null && <Notice tone="warn" message={state.message} />}
         <Button

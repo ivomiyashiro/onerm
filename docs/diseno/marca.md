@@ -311,3 +311,15 @@ Validado en Figma, página «02 Componentes», sección «Filas deslizadas (#251
 ## 21. «Agregar ejercicio» en el encabezado de la lista de S15 (2026-10-20, #256)
 
 Con un día de muchos ejercicios, el botón al final de la lista quedaba fuera de la pantalla. Pasa a un **encabezado de la lista**, sobre las filas del día: a la izquierda «Ejercicios · N» (`titleM`, `text/primary`) y a la derecha «+ Agregar» (icono `plus` de 18 y `bodyMBold` en `text/accent`, de 48 de alto como zona de toque). Se ve al abrir el día, también si está vacío. Con el máximo de ejercicios del día queda deshabilitado (`text/tertiary`, 50 % de opacidad). El nombre accesible sigue siendo «Agregar ejercicio»; la barra inferior vuelve a tener solo «Guardar». Pendiente: llevarlo al frame de S15 en Figma.
+
+## 22. Ojo para mostrar la contraseña (2026-10-22, #274)
+
+Mostrar u ocultar la contraseña es un ícono dentro del campo, a la derecha, en S02, S03 y S24; ya no hay un botón aparte debajo.
+
+| Elemento | Decisión |
+|---|---|
+| Íconos | `Icon/eye` (contraseña oculta, toca para mostrar) y `Icon/eye-off` (contraseña visible, toca para ocultar): trazo de 2, 24 px, en `text/secondary`. Se agregaron al set `Icon` (sin dependencias nuevas) |
+| Área táctil | 48 × 48 dentro del recuadro de 52, más 16 de margen táctil hacia el borde (RNF-18) |
+| Nombre accesible | «Mostrar contraseña» / «Ocultar contraseña», según el estado |
+
+Pendiente: dibujar `Icon/eye` e `Icon/eye-off` en la sección «Íconos» de Figma y actualizar los marcos de S02, S03 y S24 (la implementación sigue las medidas de arriba).

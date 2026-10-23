@@ -15,6 +15,7 @@ export const auth = {
     signIn: 'Iniciar sesión',
     forgotPassword: 'Olvidé mi contraseña',
     showPassword: 'Mostrar contraseña',
+    hidePassword: 'Ocultar contraseña',
     signingIn: 'Ingresando…',
     noAccount: 'No tengo cuenta',
     signUp: 'Crear cuenta',
