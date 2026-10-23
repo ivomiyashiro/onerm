@@ -133,14 +133,20 @@ export function useGuestUnionViewModel(): GuestUnionViewModel {
     });
   }
 
+  // While a choice runs, D01 and D01b stay as they are.
+  function moveTo(kind: GuestUnionDialog['kind']) {
+    if (busy.current) return;
+    setDialog((d) => d && { ...d, kind, offline: false });
+  }
+
   return {
     checking,
     dialog,
     actions: {
       merge: () => finish('merge'),
-      discard: () => setDialog((d) => d && { ...d, kind: 'confirmDiscard', offline: false }),
+      discard: () => moveTo('confirmDiscard'),
       confirmDiscard: () => finish('discard'),
-      back: () => setDialog((d) => d && { ...d, kind: 'ask', offline: false }),
+      back: () => moveTo('ask'),
       cancel: () =>
         act('cancel', async () => {
           await cancelGuestUnion.execute();

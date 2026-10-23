@@ -129,7 +129,9 @@ describe('useGuestUnionViewModel (RF-AUTH-05)', () => {
     });
     expect(result.current.dialog?.working).toBe('merge');
     await act(() => result.current.actions.merge());
+    await act(async () => result.current.actions.discard());
     expect(calls).toBe(1);
+    expect(result.current.dialog?.kind).toBe('ask');
 
     await act(async () => {
       unite.resolve('offline');
