@@ -160,7 +160,6 @@ function Editor({
           <ScrollView
             horizontal
             showsHorizontalScrollIndicator={false}
-            style={styles.dayChips}
             contentContainerStyle={styles.days}
           >
             {routine.days.map((d) => (
@@ -437,10 +436,21 @@ const styles = StyleSheet.create({
     paddingBottom: space.s24,
   },
   message: { padding: space.s16 },
-  dayBar: { flexDirection: 'row', alignItems: 'center', gap: space.s4 },
-  dayChips: { flex: 1 },
-  days: { gap: space.s8, paddingRight: space.s8 },
-  dayOptions: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
+  dayBar: { justifyContent: 'center' },
+  // The pills scroll under the round button; the padding lets the last one end clear of it.
+  days: { gap: space.s8, paddingRight: 48 + space.s8 },
+  dayOptions: {
+    position: 'absolute',
+    right: 0,
+    width: 40,
+    height: 40,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: radius.full,
+    borderWidth: 1,
+    borderColor: colors.borderHair,
+    backgroundColor: colors.bgField,
+  },
   rows: {
     overflow: 'hidden',
     borderRadius: radius.xl,
