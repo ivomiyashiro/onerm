@@ -1,7 +1,7 @@
 import type { ReactNode } from 'react';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import { render, screen, userEvent } from '@testing-library/react-native';
-import { Text } from 'react-native';
+import { render, screen, userEvent, within } from '@testing-library/react-native';
+import { Dimensions, Text } from 'react-native';
 
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 
@@ -57,6 +57,32 @@ describe('BottomSheet', () => {
     await close();
 
     expect(onClose).toHaveBeenCalledTimes(1);
+  });
+});
+
+describe('BottomSheet with tall content', () => {
+  it('caps its height to the screen and scrolls the content, keeping the footer outside', async () => {
+    await render(
+      <BottomSheet
+        visible
+        title="Elegir día"
+        closeLabel="Cerrar"
+        onClose={jest.fn()}
+        testID="sheet"
+        scrollContent
+        footer={<Text>Pie</Text>}
+      >
+        <Text>Contenido</Text>
+      </BottomSheet>,
+      { wrapper },
+    );
+
+    // Below the top safe area (54) and above the system bar (34) plus its gaps (8 + 16).
+    const { height } = Dimensions.get('window');
+    expect(screen.getByTestId('sheet')).toHaveStyle({ maxHeight: height - 54 - 34 - 8 - 16 });
+    const scroll = screen.getByTestId('sheet-body');
+    expect(within(scroll).getByText('Contenido')).toBeOnTheScreen();
+    expect(within(scroll).queryByText('Pie')).not.toBeOnTheScreen();
   });
 });
 
