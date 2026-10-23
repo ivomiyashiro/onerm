@@ -171,6 +171,12 @@ export const workout = {
   restNotification: {
     title: '¡Descanso terminado!',
   },
+  /** The rest counting down with the screen locked (#305); the body is `rest.next`. */
+  restCountdown: {
+    title: 'Descanso',
+    /** The Android channel, as the notification settings show it. */
+    channel: 'Descanso en curso',
+  },
   /** Discreet notices of S09 (never network errors, UX-04). */
   notices: {
     notificationsDenied:

@@ -15,7 +15,11 @@ import { ManualTableChanges } from '@/data/db/table-changes';
 import { AppProviders } from '@/di/app-providers';
 import { createDependencies } from '@/di/create-dependencies';
 import { aBilateralSet, aWorkout, aWorkoutExercise } from '@/domain/testing/builders';
-import { FakeDevicePermissions, FakeRestNotifier } from '@/domain/testing/in-memory-repositories';
+import {
+  FakeDevicePermissions,
+  FakeRestCountdown,
+  FakeRestNotifier,
+} from '@/domain/testing/in-memory-repositories';
 import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
 import type { WorkoutOverview } from '@/domain/usecases/observe-workout';
 import { firstValue } from '@/domain/usecases/observe-together';
@@ -76,7 +80,11 @@ async function seed({ history, inProgress }: { history: number; inProgress: bool
   await measured.storage.localDatabase.prepare();
   let n = 0;
   const newId = () => `00000000-0000-4000-8000-${String(++n).padStart(12, '0')}`;
-  const device = { notifier: new FakeRestNotifier(), permissions: new FakeDevicePermissions() };
+  const device = {
+    notifier: new FakeRestNotifier(),
+    countdown: new FakeRestCountdown(),
+    permissions: new FakeDevicePermissions(),
+  };
   const { useCases } = createDependencies(measured.storage, newId, device);
   await useCases.adoptTemplate.execute('PLT-FB3');
   const next = await firstValue<NextDayOverview>((o) => useCases.observeNextDay.execute(o));
