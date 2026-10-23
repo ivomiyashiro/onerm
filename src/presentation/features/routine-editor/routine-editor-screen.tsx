@@ -183,6 +183,7 @@ function Editor({
               accessibilityRole="button"
               accessibilityLabel={text.editor.day.options(day.name)}
               onPress={actions.openDaySheet}
+              hitSlop={4}
               style={styles.dayOptions}
             >
               <Icon name="dots" color={colors.textPrimary} />
@@ -427,6 +428,9 @@ function dialogProps(dialog: EditorDialog, actions: RoutineEditorViewModel['acti
   }
 }
 
+/** Round «⋯» button over the day pills; `hitSlop` brings the touch target to 48. */
+const DAY_OPTIONS_SIZE = 40;
+
 const styles = StyleSheet.create({
   screen: { flex: 1, backgroundColor: colors.bgBase },
   content: {
@@ -438,12 +442,12 @@ const styles = StyleSheet.create({
   message: { padding: space.s16 },
   dayBar: { justifyContent: 'center' },
   // The pills scroll under the round button; the padding lets the last one end clear of it.
-  days: { gap: space.s8, paddingRight: 48 + space.s8 },
+  days: { gap: space.s8, paddingRight: DAY_OPTIONS_SIZE + space.s8 },
   dayOptions: {
     position: 'absolute',
     right: 0,
-    width: 40,
-    height: 40,
+    width: DAY_OPTIONS_SIZE,
+    height: DAY_OPTIONS_SIZE,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: radius.full,
