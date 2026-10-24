@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The logo plate rounds its two uncut corners like the primary button, in the app, the app icon, the splash and the notification icon.
 - Training (S09): the rest no longer asks «¿Cuántas más podías hacer?» again for a set; the row of the set asks it once, and the rest only asks it during calibration (#292).
 
 ### Added
