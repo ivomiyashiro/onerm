@@ -74,22 +74,52 @@ Escenario: AC6 — Sin conexión
 
 **Historia:** Como novato, quiero ver qué músculos trabaja un ejercicio y cómo se hace, para saber si lo estoy haciendo bien.
 
+La ayuda para entender un ejercicio se decidió en #306 (2026-10-23): pasos en texto para todos los ejercicios, una imagen de la máquina para los que se hacen en una (para saber cuál buscar) y un enlace a un video. El texto y las imágenes vienen incluidos en la app; el video necesita conexión. La `description` de wger se reemplazó por la técnica.
+
 ```gherkin
 Escenario: AC1 — Contenido
   Dado que abro un ejercicio
   Entonces veo el nombre, los músculos principales y secundarios, el equipamiento
-  Y si es unilateral, y la descripción cuando la fuente la provee
+  Y si es unilateral, y «Cómo se hace» cuando el equipo lo escribió
   Y la atribución de la fuente
+  # «Cómo se hace»: pasos numerados y, si los hay, «Errores comunes». Los escribe el equipo
+  # una vez por movimiento y los comparten sus variantes de equipamiento (ADR-0004).
 
 Escenario: AC2 — Mi historial del ejercicio
   Dado que ya registré series de este ejercicio
   Cuando abro su detalle
   Entonces veo un acceso a mi progreso en ese ejercicio (RF-PROG)
 
-Escenario: AC3 — Sin descripción
-  Dado que la fuente no provee una descripción
+Escenario: AC3 — Sin técnica
+  Dado que el equipo todavía no escribió cómo se hace el ejercicio
   Cuando abro el detalle
-  Entonces la sección de descripción no se muestra, en lugar de mostrarse vacía
+  Entonces la sección «Cómo se hace» no se muestra, en lugar de mostrarse vacía
+
+Escenario: AC4 — Imagen de la máquina
+  Dado que el ejercicio se hace en una máquina
+  Cuando abro el detalle
+  Entonces veo arriba una imagen de esa máquina y una línea que dice cómo reconocerla
+  # Una imagen por máquina (vocabulario `MACHINES`), no por ejercicio: la máquina Smith sirve
+  # para todos sus ejercicios. Las imágenes son ilustraciones generadas con IA y revisadas
+  # una por una; se atribuyen en «Créditos» (RF-CAT-05).
+
+Escenario: AC5 — Video
+  Dado que abro un ejercicio
+  Cuando toco «Ver un video»
+  Entonces se abre el video elegido por el equipo
+  Y si no hay uno, se abre la búsqueda de YouTube «{nombre} técnica»
+
+Escenario: AC6 — Sin conexión
+  Dado que no tengo conexión
+  Cuando abro el detalle
+  Entonces veo el nombre, la técnica y la imagen igual que con conexión
+  Y «Ver un video» está deshabilitado, con «Sin conexión. El video se abre en YouTube cuando tengas señal.»
+
+Escenario: AC7 — Desde el entrenamiento
+  Dado que estoy en un entrenamiento (S09)
+  Cuando toco el nombre del ejercicio
+  Entonces se abre la hoja «Cómo se hace» (S26), con la imagen de la máquina, los pasos, los errores y el video
+  # Sin los músculos ni el progreso: en el gimnasio solo hace falta saber cómo se hace.
 ```
 
 ---

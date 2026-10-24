@@ -77,7 +77,7 @@ Entre agregados las referencias son **solo por ID**. Por ejemplo, un `WorkoutExe
 
 ### Exercise (catálogo)
 
-El modelo canónico de ADR-0004: `slug`, `name`, `aliases`, `loadType`, `primaryMuscles`, `secondaryMuscles`, `primaryEquipment` (para el incremento), `equipment` (lista, para los filtros), `mechanic`, `isUnilateral`, `description?`, `attributions[]`, `deprecatedAt?`.
+El modelo canónico de ADR-0004: `slug`, `name`, `aliases`, `loadType`, `primaryMuscles`, `secondaryMuscles`, `primaryEquipment` (para el incremento), `equipment` (lista, para los filtros), `mechanic`, `isUnilateral`, `technique?` (`steps[]` y `mistakes[]`, RF-CAT-02), `machine?` (vocabulario `MACHINES`, solo si `primaryEquipment` es máquina), `videoUrl?`, `attributions[]`, `deprecatedAt?`. La `description` de la fuente se reemplazó por `technique` (#306); su columna queda en la base porque las migraciones son aditivas (07 §6).
 
 ### RoutineTemplate · TemplateDay · TemplateExercise (catálogo)
 

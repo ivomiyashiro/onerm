@@ -11,6 +11,8 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **Equipamiento** | Vocabulario controlado de RN-CAT-03: barra, mancuerna, máquina, polea, peso corporal, kettlebell. | `Equipment` (`barbell`, `dumbbell`, `machine`, `cable`, `bodyweight`, `kettlebell`) |
 | **Músculo** | Vocabulario controlado de RN-CAT-03 (pecho, espalda, hombros…). | `Muscle` |
 | **Mecánica** | Si un ejercicio es multiarticular o de aislamiento. Define el rol al agregarlo a una rutina (RN-PERF-03). | `Mechanic` (`compound`, `isolation`) |
+| **Técnica** | Cómo se hace un ejercicio: pasos numerados y errores comunes, escritos por el equipo una vez por movimiento (RF-CAT-02, #306). | `ExerciseTechnique` |
+| **Máquina** | La máquina del gimnasio en la que se hace un ejercicio, de un vocabulario controlado; la app muestra su imagen para reconocerla (RF-CAT-02 AC4). | `Machine` |
 | **Atribución** | Fuente y licencia de un ejercicio del catálogo, que se muestran en su detalle (RF-CAT-02). | `ExerciseAttribution` |
 | **Catálogo** | Conjunto de ejercicios disponibles. Lo mantiene el equipo y es de solo lectura para el usuario. | `ExerciseCatalog` |
 | **Tipo de carga** | Cómo se mide la dificultad de un ejercicio. En el MVP: `externa` (barra, mancuerna, máquina) o `peso corporal`. Ver ADR-0005. | `LoadType` (`external`, `bodyweight`) |

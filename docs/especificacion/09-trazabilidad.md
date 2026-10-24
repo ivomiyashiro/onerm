@@ -75,7 +75,7 @@ Verificación: **U** = test unitario (dominio) · **I** = test de integración (
 | RF-PERF-05 | Must | 01 | RN-PERF-04, RN-ENT-03 | S21 | U | RF01 |
 | RF-PERF-06 | Should | 01 | RN-PERF-06 | S21 | U | RF01 |
 | RF-CAT-01 | Must | 01 | RN-CAT-02, 03 | S16 | U, M | RF01 |
-| RF-CAT-02 | Must | 01 | RN-CAT-03 | S17 | M | RF01 |
+| RF-CAT-02 | Must | 01 | RN-CAT-03 | S17, S26 | M | RF01 |
 | RF-CAT-03 | Must | 01 | RN-CAT-04, ADR-0004 | S16 | M | RF01 |
 | RF-CAT-04 | Should | 01 | RN-CAT-01, 04 | — | I | Soporte |
 | RF-CAT-05 | Must | — | ADR-0004 | S22 | M | Soporte |
