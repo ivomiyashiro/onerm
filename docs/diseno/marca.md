@@ -105,7 +105,7 @@ Tokens agregados: `line #74746C`, `ph #8C8C85`, `ycur #1B1A10`, `s4 #1D1D1B` (ho
 - **Cinta de peligro solo como marca** (logo y franjas del botón). El fin del descanso invierte la tarjeta (fondo claro) y el récord usa el trofeo con brillo de una pasada: la cinta en un aviso se leía como advertencia.
 - **S09:** encabezado sin flechas (título de hasta 2 líneas + menú, "Ver todos" abre la lista); editar una serie abre una hoja; borrar muestra "Serie eliminada · Deshacer" sobre el bloque inferior.
 - **Inicio rediseñado:** menos texto. Tarjeta "Hoy toca" con el mapa de músculos del día como imagen, números clave, semana en curso y una lista compacta (peso sugerido + ícono de qué cambia; el motivo vive en S09 y S10).
-- **Logo:** tres propuestas (placa cortada, barra, cinta). La app usa por ahora la placa cortada.
+- **Logo:** tres propuestas (placa cortada, barra, cinta). La app usa por ahora la placa cortada. Como el botón primario (#194), conserva sus dos esquinas cortadas y redondea las otras dos con radio 12 (el mismo del corte, sobre el marco de 64), 2026-10-23. Vale para `Logo/Marca` en Figma, los SVG de la app y los PNG del ícono, el splash y la notificación (§16): la página de exportación ya no está en el archivo, así que esos PNG se redondearon sobre los existentes.
 
 **Pendiente de especificar:** la franja "Esta semana" de Inicio muestra los entrenamientos de la semana contra los días de la rutina. Es nueva: requiere un AC en RF-ENT-01 o RF-PROG si se confirma.
 
