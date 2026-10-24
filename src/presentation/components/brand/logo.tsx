@@ -11,7 +11,8 @@ const BASE = 64;
 
 /**
  * Figma «Logo/Marca» (64 × 64): the cut plate with the folded corner and «1RM», scaled in
- * proportion (36 in the top bar of Inicio). Decorative: the screen title next to it says what
+ * proportion (36 in the top bar of Inicio). Like the primary button, the two uncut corners round
+ * with the same 12 as the cut. Decorative: the screen title next to it says what
  * matters, so it is hidden from screen readers.
  */
 export function Logo({ size = BASE }: { size?: number }) {
