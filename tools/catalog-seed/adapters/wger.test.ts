@@ -12,8 +12,8 @@ function exercise(overrides: Record<string, unknown> = {}) {
     muscles_secondary: [{ id: 8, name: 'Gluteus maximus' }],
     equipment: [],
     translations: [
-      { language: 2, name: 'Leg Press', description: '<p>Push.</p>' },
-      { language: 4, name: 'Prensa de piernas', description: '<p>Empujá <b>fuerte</b>.</p>' },
+      { language: 2, name: 'Leg Press' },
+      { language: 4, name: 'Prensa de piernas' },
     ],
     license,
     license_author: 'someone',
@@ -33,7 +33,6 @@ describe('wger adapter: map (ADR-0004 §3)', () => {
         aliases: ['Leg Press'],
         primaryMuscles: ['quads'],
         secondaryMuscles: ['glutes'],
-        description: 'Empujá fuerte .',
       },
     });
   });
@@ -98,19 +97,6 @@ describe('wger adapter: map (ADR-0004 §3)', () => {
     });
     const emailed = mapWgerExercise(exercise({ license_author: 'a@b.com' }));
     expect(JSON.stringify(emailed)).not.toContain('a@b.com');
-  });
-});
-
-describe('wger adapter: descriptions', () => {
-  it('decodes the HTML entities of the description', () => {
-    const result = mapWgerExercise(
-      exercise({
-        translations: [
-          { language: 4, name: 'X', description: '<p>Pecho &amp; hombros&nbsp;hoy</p>' },
-        ],
-      }),
-    );
-    expect(result).toMatchObject({ candidate: { description: 'Pecho & hombros hoy' } });
   });
 });
 

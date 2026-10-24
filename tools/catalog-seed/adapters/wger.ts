@@ -42,7 +42,6 @@ const SUPPORT_EQUIPMENT = new Set(['bench', 'incline bench', 'gym mat']);
 interface WgerTranslation {
   readonly language: number;
   readonly name: string;
-  readonly description?: string;
   readonly aliases?: readonly { readonly alias: string }[];
 }
 
@@ -115,7 +114,6 @@ export function mapWgerExercise(input: unknown): MapResult {
 
   const spanish = raw.translations.find((t) => t.language === SPANISH);
   const english = raw.translations.find((t) => t.language === ENGLISH);
-  const description = spanish?.description ? stripHtml(spanish.description) : null;
   // The attribution never carries an email: wger fills some author fields with one.
   const author =
     raw.license_author && !raw.license_author.includes('@') ? raw.license_author : null;
@@ -137,7 +135,6 @@ export function mapWgerExercise(input: unknown): MapResult {
       equipment,
       mechanic: null,
       isUnilateral: null,
-      description,
       attribution: {
         source: 'wger',
         license: raw.license.short_name,
@@ -145,17 +142,4 @@ export function mapWgerExercise(input: unknown): MapResult {
       },
     },
   };
-}
-
-function stripHtml(html: string): string {
-  return html
-    .replace(/<[^>]*>/g, ' ')
-    .replace(/&nbsp;/g, ' ')
-    .replace(/&lt;/g, '<')
-    .replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"')
-    .replace(/&#39;/g, "'")
-    .replace(/&amp;/g, '&')
-    .replace(/\s+/g, ' ')
-    .trim();
 }

@@ -12,7 +12,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "compound",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "leg-press"
   },
   {
     "id": "d37937e1-b735-449b-ac07-30b8ffbaeb28",
@@ -27,7 +28,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "compound",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "chest-press"
   },
   {
     "id": "a102c39e-65e9-4e61-80b7-f6a55fa59009",
@@ -147,7 +149,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "isolation",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "leg-curl-seated"
   },
   {
     "id": "b2b06c34-437a-47cd-9739-7b061360c6eb",
@@ -222,7 +225,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "isolation",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "calf-raise-standing"
   },
   {
     "id": "6f81df97-cd11-4565-b6f4-b44f22230a43",
@@ -297,7 +301,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "isolation",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "leg-extension"
   },
   {
     "id": "6dbfd91d-0262-4f6b-8c50-100d4e7b4c1e",
@@ -312,7 +317,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "isolation",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "leg-curl-lying"
   },
   {
     "id": "8a994f04-acd2-4e85-bce9-067efaeded8f",
@@ -327,7 +333,8 @@
     "primaryEquipment": "machine",
     "equipment": ["machine"],
     "mechanic": "isolation",
-    "isUnilateral": false
+    "isUnilateral": false,
+    "machine": "calf-raise-seated"
   },
   {
     "id": "d7ef046c-e739-490b-b1e3-d1ae42d3c4af",
@@ -337,7 +344,8 @@
   {
     "id": "eac33cf1-28be-426b-915e-247748825bc3",
     "source": "onerm-v1",
-    "externalId": "smith-machine-bench-press"
+    "externalId": "smith-machine-bench-press",
+    "machine": "smith"
   },
   {
     "id": "c5f177d8-9a56-4be3-b221-01f4b4d72489",
@@ -347,7 +355,8 @@
   {
     "id": "309da41b-d4bb-4906-be1e-6f5f602a718c",
     "source": "onerm-v1",
-    "externalId": "smith-machine-incline-bench-press"
+    "externalId": "smith-machine-incline-bench-press",
+    "machine": "smith"
   },
   {
     "id": "6da2d2c3-3014-4a12-9f9d-5bec92305bc9",
@@ -362,12 +371,14 @@
   {
     "id": "eac09014-9d75-4f4f-9fe9-d56ba65dac97",
     "source": "onerm-v1",
-    "externalId": "smith-machine-decline-bench-press"
+    "externalId": "smith-machine-decline-bench-press",
+    "machine": "smith"
   },
   {
     "id": "24d8175d-e2af-4c8a-8fa2-8a87f8aa003d",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-chest-press"
+    "externalId": "plate-loaded-machine-chest-press",
+    "machine": "chest-press"
   },
   {
     "id": "0972f748-cc00-47ef-a435-e9e9412b47e4",
@@ -412,7 +423,8 @@
   {
     "id": "b2d2a5d4-2de9-4633-a479-a9dad3a43dc8",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-chest-fly"
+    "externalId": "selectorized-machine-chest-fly",
+    "machine": "pec-deck"
   },
   {
     "id": "4af832be-9d85-4928-9e60-d21ebefab809",
@@ -427,7 +439,8 @@
   {
     "id": "2746be35-b306-4c2d-82c9-2573ae151a99",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-incline-chest-fly"
+    "externalId": "selectorized-machine-incline-chest-fly",
+    "machine": "pec-deck"
   },
   {
     "id": "b17704ca-5ea1-4bb2-981a-39a06c228c15",
@@ -437,7 +450,8 @@
   {
     "id": "15d98f36-427f-4f97-a5ee-899046c0dc2d",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-crossover"
+    "externalId": "selectorized-machine-crossover",
+    "machine": "pec-deck"
   },
   {
     "id": "bea0c74e-3684-4285-a1cb-4caece03fe01",
@@ -472,12 +486,14 @@
   {
     "id": "d5e5ce62-f9e5-4911-95fa-bbf6924d5636",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-pullover"
+    "externalId": "plate-loaded-machine-pullover",
+    "machine": "pullover"
   },
   {
     "id": "f3052cd5-e078-4ffb-b4d9-78bf3837e5f2",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-shoulder-press"
+    "externalId": "selectorized-machine-shoulder-press",
+    "machine": "shoulder-press"
   },
   {
     "id": "e89de5b0-d680-485a-ab2b-6fcc6a09bf81",
@@ -487,7 +503,8 @@
   {
     "id": "f4edf7ba-e4a2-4f9c-9668-b941cc00af39",
     "source": "onerm-v1",
-    "externalId": "smith-machine-overhead-press"
+    "externalId": "smith-machine-overhead-press",
+    "machine": "smith"
   },
   {
     "id": "92dd32ec-bc69-46cd-895b-fd8667882617",
@@ -507,7 +524,8 @@
   {
     "id": "4a096e52-90bb-48a3-b9c7-b4cc105925cd",
     "source": "onerm-v1",
-    "externalId": "smith-machine-bent-over-row"
+    "externalId": "smith-machine-bent-over-row",
+    "machine": "smith"
   },
   {
     "id": "806206b9-b09f-49a2-a3f0-ad4ae24d7438",
@@ -542,17 +560,20 @@
   {
     "id": "13793689-d81d-49fc-9d36-e26605245a28",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-chest-supported-row"
+    "externalId": "plate-loaded-machine-chest-supported-row",
+    "machine": "chest-supported-row"
   },
   {
     "id": "cde19d38-8241-4ab5-b63b-fe471d2c9228",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-chest-supported-row"
+    "externalId": "selectorized-machine-chest-supported-row",
+    "machine": "chest-supported-row"
   },
   {
     "id": "36d35236-de65-4887-af2e-c9d948c03d4c",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-seated-row"
+    "externalId": "selectorized-machine-seated-row",
+    "machine": "seated-row"
   },
   {
     "id": "f33ab8e0-2b1b-46de-ad44-70e83e2e6e41",
@@ -562,7 +583,8 @@
   {
     "id": "54e47f4d-41c2-4b2c-a68c-1acd8a829a39",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-close-grip-row"
+    "externalId": "plate-loaded-machine-close-grip-row",
+    "machine": "seated-row"
   },
   {
     "id": "4624b39d-fdc4-4158-81bc-9ff4b7c3d64f",
@@ -607,7 +629,8 @@
   {
     "id": "09a15bf3-a141-4d2c-9f81-a1db6fc27650",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-rear-delt-row"
+    "externalId": "selectorized-machine-rear-delt-row",
+    "machine": "pec-deck"
   },
   {
     "id": "aed583bb-4516-4978-a9ee-43a599de7186",
@@ -642,7 +665,8 @@
   {
     "id": "d4668381-2e75-4e25-a467-908476224a03",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-neutral-grip-pulldown"
+    "externalId": "selectorized-machine-neutral-grip-pulldown",
+    "machine": "lat-pulldown"
   },
   {
     "id": "6148a016-2839-48c1-966b-3e043988e169",
@@ -652,7 +676,8 @@
   {
     "id": "e76b14e7-b0f0-42d5-81bc-89cd95ca775b",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-straight-arm-pulldown"
+    "externalId": "selectorized-machine-straight-arm-pulldown",
+    "machine": "lat-pulldown"
   },
   {
     "id": "07a80971-58a1-4ed4-aa2e-d0091f150fb3",
@@ -667,12 +692,14 @@
   {
     "id": "c4e91131-0ddb-458d-9c28-43ed646594d2",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-seated-pullover"
+    "externalId": "plate-loaded-machine-seated-pullover",
+    "machine": "pullover"
   },
   {
     "id": "7d1d8a23-2345-401e-846e-df265c896192",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-seated-pullover"
+    "externalId": "selectorized-machine-seated-pullover",
+    "machine": "pullover"
   },
   {
     "id": "5eccbee2-2eb3-4e9d-86bc-59de4d6b6106",
@@ -727,7 +754,8 @@
   {
     "id": "6a2341e2-96fc-449e-bdb6-610313caa00b",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-preacher-curl"
+    "externalId": "selectorized-machine-preacher-curl",
+    "machine": "preacher-curl"
   },
   {
     "id": "f32190e2-d255-4d72-8166-573c37f13db1",
@@ -817,7 +845,8 @@
   {
     "id": "b155bf38-38fc-4d7d-8596-b397471f7a09",
     "source": "onerm-v1",
-    "externalId": "smith-machine-close-grip-press"
+    "externalId": "smith-machine-close-grip-press",
+    "machine": "smith"
   },
   {
     "id": "7ba4b832-b5b1-4366-875a-c8e17cc7fc15",
@@ -867,7 +896,8 @@
   {
     "id": "039c0072-407a-49b6-ab47-1d1bdf80dfc7",
     "source": "onerm-v1",
-    "externalId": "smith-machine-back-squat"
+    "externalId": "smith-machine-back-squat",
+    "machine": "smith"
   },
   {
     "id": "7637e98b-6219-4d77-8bca-604bc397ab0b",
@@ -877,7 +907,8 @@
   {
     "id": "e67df4d3-9e88-4729-8289-fc52c1b8235b",
     "source": "onerm-v1",
-    "externalId": "smith-machine-front-squat"
+    "externalId": "smith-machine-front-squat",
+    "machine": "smith"
   },
   {
     "id": "e67ebe1a-b66c-43c8-96d1-00f39b9faf87",
@@ -907,12 +938,14 @@
   {
     "id": "957e295d-f4ac-485d-a35b-7d9a76b78ca4",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-hack-squat"
+    "externalId": "plate-loaded-machine-hack-squat",
+    "machine": "hack-squat"
   },
   {
     "id": "cd9ba214-04e3-4c2f-b7c1-153a68d112dc",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-hack-squat"
+    "externalId": "selectorized-machine-hack-squat",
+    "machine": "hack-squat"
   },
   {
     "id": "0312bf1a-94b8-4318-ba92-43e717ce8517",
@@ -1002,7 +1035,8 @@
   {
     "id": "8228caa7-af8d-45ac-a5c1-e5174319313f",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-hip-thrust"
+    "externalId": "plate-loaded-machine-hip-thrust",
+    "machine": "hip-thrust"
   },
   {
     "id": "b3098bfa-8d2c-4cc4-ad85-6699c576ea46",
@@ -1107,12 +1141,14 @@
   {
     "id": "b6d1eaa7-57ce-45f6-ba16-d695a7d03a06",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-single-leg-press"
+    "externalId": "selectorized-machine-single-leg-press",
+    "machine": "leg-press"
   },
   {
     "id": "3e238cf2-539b-4cc0-834b-9762a39614ca",
     "source": "onerm-v1",
-    "externalId": "plate-loaded-machine-single-leg-press"
+    "externalId": "plate-loaded-machine-single-leg-press",
+    "machine": "leg-press"
   },
   {
     "id": "63adf115-c235-496b-b45a-5f17cad88812",
@@ -1142,12 +1178,14 @@
   {
     "id": "438b8d1e-5824-4bab-8ed7-b9adb248bb31",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-hip-abduction"
+    "externalId": "selectorized-machine-hip-abduction",
+    "machine": "hip-abduction"
   },
   {
     "id": "0f66680a-c1bb-43f0-bbc8-93a6dccb303c",
     "source": "onerm-v1",
-    "externalId": "selectorized-machine-hip-adduction"
+    "externalId": "selectorized-machine-hip-adduction",
+    "machine": "hip-adduction"
   },
   {
     "id": "5a2c95a0-e615-4906-be0e-849482870daf",

@@ -486,6 +486,9 @@ describe('catalog tables (07 §2.3)', () => {
     mechanic: 'compound' as const,
     isUnilateral: false,
     description: null,
+    technique: { steps: ['Bajá.', 'Subí.'], mistakes: [] },
+    machine: null,
+    videoUrl: null,
     attributions: [{ source: 'wger', license: 'CC-BY-SA 4.0', attribution: 'wger.de' }],
     deprecatedAt: null,
   };

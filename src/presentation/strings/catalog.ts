@@ -54,6 +54,8 @@ export const catalog = {
     title: 'Ejercicio',
     unilateral: 'Unilateral',
     howTo: 'Cómo se hace',
+    mistakes: 'Errores comunes',
+    mistake: (text: string) => `• ${text}`,
     primary: 'Principales',
     secondary: 'Secundarios',
     seeProgress: 'Ver mi progreso',

@@ -1,4 +1,12 @@
-import { runPipeline, slugify, validateExercise, type CurationEntry } from './pipeline';
+import { anExercise } from '@/domain/testing/builders';
+
+import {
+  runPipeline,
+  slugify,
+  validateExercise,
+  type CurationEntry,
+  type TechniqueEntry,
+} from './pipeline';
 import type { ExerciseCandidate, ExerciseSourceAdapter } from './types';
 
 const ID_A = '69aee190-c7d4-4241-a7c3-171912305d67';
@@ -17,7 +25,6 @@ function candidate(overrides: Partial<ExerciseCandidate> = {}): ExerciseCandidat
     equipment: [],
     mechanic: null,
     isUnilateral: null,
-    description: null,
     attribution: { source: 'fake', license: 'CC0', attribution: 'someone' },
     ...overrides,
   };
@@ -72,7 +79,9 @@ describe('catalog seed pipeline (ADR-0004 §3)', () => {
           equipment: ['machine'],
           mechanic: 'compound',
           isUnilateral: false,
-          description: null,
+          technique: null,
+          machine: null,
+          videoUrl: null,
           attributions: [{ source: 'fake', license: 'CC0', attribution: 'someone' }],
           deprecatedAt: null,
         },
@@ -166,23 +175,96 @@ describe('slugify and validateExercise', () => {
     expect(slugify('Extensión de tríceps — polea')).toBe('extension-de-triceps-polea');
   });
 
-  it('flags a muscle outside the vocabulary', () => {
-    const problems = validateExercise({
+  const valid = (overrides: Parameters<typeof anExercise>[0]) =>
+    anExercise({
       id: ID_A,
       slug: 'x',
-      name: 'X',
-      aliases: [],
-      loadType: 'external',
-      primaryMuscles: ['wings' as never],
-      secondaryMuscles: [],
       primaryEquipment: 'machine',
       equipment: ['machine'],
-      mechanic: 'compound',
-      isUnilateral: false,
-      description: null,
-      attributions: [],
-      deprecatedAt: null,
+      ...overrides,
     });
-    expect(problems).toEqual(['muscle "wings"']);
+
+  it('flags a muscle outside the vocabulary', () => {
+    expect(validateExercise(valid({ primaryMuscles: ['wings' as never] }))).toEqual([
+      'muscle "wings"',
+    ]);
+  });
+
+  it('flags a machine outside the vocabulary, or on an exercise that is not done on a machine', () => {
+    expect(validateExercise(valid({ machine: 'rowing-boat' as never }))).toEqual([
+      'machine "rowing-boat"',
+    ]);
+    expect(
+      validateExercise(
+        valid({ primaryEquipment: 'dumbbell', equipment: ['dumbbell'], machine: 'leg-press' }),
+      ),
+    ).toEqual(['machine "leg-press" on an exercise whose primaryEquipment is not machine']);
+  });
+
+  it('flags a technique without steps and a video that is not https', () => {
+    expect(
+      validateExercise(
+        valid({ technique: { steps: [], mistakes: [] }, videoUrl: 'http://example.com/v' }),
+      ),
+    ).toEqual(['technique without steps', 'videoUrl "http://example.com/v" is not https']);
+  });
+});
+
+describe('technique (#306, RF-CAT-02)', () => {
+  const technique = (overrides: Partial<TechniqueEntry> = {}): TechniqueEntry => ({
+    exercises: ['prensa', 'prensa-discos'],
+    steps: ['Sentate.', 'Empujá.'],
+    mistakes: ['Trabar las rodillas.'],
+    ...overrides,
+  });
+  const twoPresses = () =>
+    runPipeline.bind(
+      null,
+      [fakeSource([candidate(), candidate({ externalId: '2' })])],
+      [
+        entry({ slug: 'prensa', machine: 'leg-press' }),
+        entry({ externalId: '2', id: ID_B, slug: 'prensa-discos', name: 'Prensa de discos' }),
+      ],
+    );
+
+  it('gives every exercise it lists the same steps, mistakes and video', async () => {
+    const report = await twoPresses()([technique({ videoUrl: 'https://youtu.be/abc' })]);
+
+    expect(report.errors).toEqual([]);
+    expect(report.exercises.map(({ exercise }) => exercise)).toEqual([
+      expect.objectContaining({
+        slug: 'prensa',
+        machine: 'leg-press',
+        technique: { steps: ['Sentate.', 'Empujá.'], mistakes: ['Trabar las rodillas.'] },
+        videoUrl: 'https://youtu.be/abc',
+      }),
+      expect.objectContaining({
+        slug: 'prensa-discos',
+        machine: null,
+        technique: { steps: ['Sentate.', 'Empujá.'], mistakes: ['Trabar las rodillas.'] },
+        videoUrl: 'https://youtu.be/abc',
+      }),
+    ]);
+  });
+
+  it('fails a technique that names an exercise the catalog does not have', async () => {
+    const report = await twoPresses()([technique({ exercises: ['prensa', 'sentadilla'] })]);
+    expect(report.errors).toEqual([expect.stringContaining('"sentadilla" is not in the catalog')]);
+  });
+
+  it('fails an exercise listed in two techniques', async () => {
+    const report = await twoPresses()([
+      technique({ exercises: ['prensa'] }),
+      technique({ exercises: ['prensa'] }),
+    ]);
+    expect(report.errors).toEqual([expect.stringContaining('"prensa" has two techniques')]);
+  });
+
+  it('fails a technique that would make an exercise invalid', async () => {
+    const report = await twoPresses()([technique({ steps: [] })]);
+    expect(report.errors).toEqual([
+      expect.stringContaining('technique without steps'),
+      expect.stringContaining('technique without steps'),
+    ]);
   });
 });

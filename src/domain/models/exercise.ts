@@ -1,4 +1,11 @@
-import type { Equipment, Id, LoadType, Mechanic, Muscle } from '@/domain/models/vocabulary';
+import type {
+  Equipment,
+  Id,
+  LoadType,
+  Machine,
+  Mechanic,
+  Muscle,
+} from '@/domain/models/vocabulary';
 
 /** Where a catalog entry comes from, shown as «Fuente: {fuente} · {licencia}» (RF-CAT-02 AC1). */
 export interface ExerciseAttribution {
@@ -6,6 +13,12 @@ export interface ExerciseAttribution {
   readonly license: string;
   /** The attribution text the license asks for (authors, link). */
   readonly attribution: string;
+}
+
+/** How an exercise is done (RF-CAT-02, #306): numbered steps and the usual mistakes. */
+export interface ExerciseTechnique {
+  readonly steps: readonly string[];
+  readonly mistakes: readonly string[];
 }
 
 /**
@@ -26,7 +39,12 @@ export interface Exercise {
   readonly equipment: readonly Equipment[];
   readonly mechanic: Mechanic;
   readonly isUnilateral: boolean;
-  readonly description: string | null;
+  /** Null while the team hasn't written it: the section is hidden (RF-CAT-02 AC3). */
+  readonly technique: ExerciseTechnique | null;
+  /** Which machine to look for, shown as a picture; null when it isn't a machine. */
+  readonly machine: Machine | null;
+  /** A curated video; without one the app searches YouTube (RF-CAT-02 AC5). */
+  readonly videoUrl: string | null;
   readonly attributions: readonly ExerciseAttribution[];
   /** Deprecated exercises are never deleted (RN-CAT-01): they leave the search only. */
   readonly deprecatedAt: Date | null;

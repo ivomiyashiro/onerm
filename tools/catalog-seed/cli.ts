@@ -15,7 +15,7 @@ import { onermV1Adapter } from './adapters/onerm-v1';
 import { wgerAdapter } from './adapters/wger';
 import { buildExercisesFile, type ExercisesFile } from './export';
 import { loadCatalog } from './load';
-import { runPipeline, type CurationEntry } from './pipeline';
+import { runPipeline, type CurationEntry, type TechniqueEntry } from './pipeline';
 import type { ExerciseCandidate } from './types';
 
 const here = __dirname;
@@ -25,11 +25,13 @@ const readJson = <T>(path: string): T => JSON.parse(readFileSync(path, 'utf8')) 
 async function main(): Promise<void> {
   const curation = readJson<CurationEntry[]>(join(here, 'curation.json'));
   const manual = readJson<ExerciseCandidate[]>(join(here, 'manual.json'));
+  const techniques = readJson<TechniqueEntry[]>(join(here, 'technique.json'));
 
   console.log('Extracting from wger…');
   const report = await runPipeline(
     [wgerAdapter(), manualAdapter(manual), onermV1Adapter()],
     curation,
+    techniques,
   );
 
   console.log(

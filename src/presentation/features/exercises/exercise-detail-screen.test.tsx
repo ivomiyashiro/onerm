@@ -22,7 +22,10 @@ const ROW = anExercise({
   primaryEquipment: 'dumbbell',
   equipment: ['dumbbell'],
   isUnilateral: true,
-  description: 'Apoyá una rodilla y una mano en el banco, con la espalda recta.',
+  technique: {
+    steps: ['Apoyá una rodilla en el banco.', 'Llevá la mancuerna hacia la cadera.'],
+    mistakes: ['Girar el torso.'],
+  },
   attributions: [{ source: 'wger', license: 'CC BY-SA 4.0', attribution: 'wger.de' }],
 });
 
@@ -79,7 +82,7 @@ async function renderScreen() {
 }
 
 describe('ExerciseDetailScreen (S17)', () => {
-  it('RF-CAT-02.AC1: shows name, equipment, unilateral, muscles, description and source', async () => {
+  it('RF-CAT-02.AC1: shows name, equipment, unilateral, muscles, technique and source', async () => {
     const { emit } = await renderScreen();
 
     await emit(ROW);
@@ -94,7 +97,10 @@ describe('ExerciseDetailScreen (S17)', () => {
     expect(screen.getByText(catalog.muscles.biceps)).toBeOnTheScreen();
     expect(screen.getByText(catalog.muscles.shoulders)).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: catalog.detail.howTo })).toBeOnTheScreen();
-    expect(screen.getByText(ROW.description!)).toBeOnTheScreen();
+    expect(screen.getByText('Apoyá una rodilla en el banco.')).toBeOnTheScreen();
+    expect(screen.getByText('Llevá la mancuerna hacia la cadera.')).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: catalog.detail.mistakes })).toBeOnTheScreen();
+    expect(screen.getByText(/Girar el torso\./)).toBeOnTheScreen();
     expect(screen.getByText(catalog.detail.source('wger', 'CC BY-SA 4.0'))).toBeOnTheScreen();
   });
 
@@ -118,12 +124,13 @@ describe('ExerciseDetailScreen (S17)', () => {
     ).not.toBeOnTheScreen();
   });
 
-  it('RF-CAT-02.AC3: without a description the section is hidden', async () => {
+  it('RF-CAT-02.AC3: without a technique the section is hidden', async () => {
     const { emit } = await renderScreen();
 
-    await emit({ ...ROW, description: null });
+    await emit({ ...ROW, technique: null });
 
     expect(screen.queryByText(catalog.detail.howTo)).not.toBeOnTheScreen();
+    expect(screen.queryByText(catalog.detail.mistakes)).not.toBeOnTheScreen();
   });
 
   it('a bilateral exercise without secondary muscles shows neither', async () => {

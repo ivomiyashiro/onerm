@@ -10,7 +10,7 @@ import {
   type AnySQLiteColumn,
 } from 'drizzle-orm/sqlite-core';
 
-import type { ExerciseAttribution } from '@/domain/models/exercise';
+import type { ExerciseAttribution, ExerciseTechnique } from '@/domain/models/exercise';
 import type { LoadIncrements } from '@/domain/models/profile';
 import {
   EFFORT_MODES,
@@ -19,6 +19,7 @@ import {
   EXPERIENCE_LEVELS,
   LOAD_TYPES,
   LOAD_UNITS,
+  MACHINES,
   MECHANICS,
   TRAINING_GOALS,
   type Equipment,
@@ -304,7 +305,12 @@ export const exercises = sqliteTable(
     equipment: text('equipment', { mode: 'json' }).$type<Equipment[]>().notNull(),
     mechanic: text('mechanic', { enum: MECHANICS }).notNull(),
     isUnilateral: integer('is_unilateral', { mode: 'boolean' }).notNull(),
+    /** Not read since #306 (replaced by `technique`); kept because migrations are additive (07 §6). */
     description: text('description'),
+    technique: text('technique', { mode: 'json' }).$type<ExerciseTechnique>(),
+    /** No CHECK: adding one to an existing SQLite table rebuilds it (07 §6); the seed validates it. */
+    machine: text('machine', { enum: MACHINES }),
+    videoUrl: text('video_url'),
     attributions: text('attributions', { mode: 'json' }).$type<ExerciseAttribution[]>().notNull(),
     /** Never deleted, only deprecated (RN-CAT-01). */
     deprecatedAt: integer('deprecated_at'),

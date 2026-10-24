@@ -56,7 +56,12 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
     loadCatalogSnapshot(t.db, CATALOG_SNAPSHOT);
 
     const [first] = CATALOG_SNAPSHOT.exercises;
-    expect(t.db.select().from(exercises).all()).toContainEqual({ ...first, deprecatedAt: null });
+    // `description` stays in the table, unused since #306 (07 §6).
+    expect(t.db.select().from(exercises).all()).toContainEqual({
+      ...first,
+      description: null,
+      deprecatedAt: null,
+    });
   });
 
   it('keeps the template structure: days and exercises with their order, role and sets', () => {

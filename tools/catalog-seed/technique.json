@@ -1,0 +1,22 @@
+[
+  {
+    "exercises": ["prensa-piernas"],
+    "steps": [
+      "Sentate con la espalda y la cadera bien apoyadas en el respaldo.",
+      "Poné los pies en el medio de la plataforma, al ancho de los hombros.",
+      "Soltá los seguros y bajá doblando las rodillas hasta unos 90°.",
+      "Empujá con todo el pie hasta casi estirar las piernas, sin trabar las rodillas."
+    ],
+    "mistakes": ["Despegar la cadera del asiento al bajar.", "Trabar las rodillas arriba."]
+  },
+  {
+    "exercises": ["press-pecho-maquina", "press-de-pecho-en-maquina-de-discos"],
+    "steps": [
+      "Ajustá el asiento para que las manijas queden a la altura del pecho.",
+      "Apoyá la espalda en el respaldo y agarrá las manijas.",
+      "Empujá hasta estirar los brazos, sin trabar los codos.",
+      "Volvé despacio hasta sentir el estiramiento en el pecho."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Subir los hombros al empujar."]
+  }
+]

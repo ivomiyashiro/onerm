@@ -9,6 +9,7 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Text } from '@/presentation/components/text';
+import { ExerciseTechnique } from '@/presentation/features/exercises/exercise-technique';
 import { useExerciseDetailViewModel } from '@/presentation/features/exercises/use-exercise-detail-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
@@ -85,20 +86,8 @@ function ExerciseDetail({
         <MuscleGroup label={catalog.detail.primary} muscles={exercise.primaryMuscles} primary />
         <MuscleGroup label={catalog.detail.secondary} muscles={exercise.secondaryMuscles} />
       </View>
-      {/* RF-CAT-02 AC3: without a description the section is hidden, never empty. */}
-      {exercise.description !== null && (
-        <View style={styles.description}>
-          <Text
-            style={[typography.titleM, { color: colors.textPrimary }]}
-            accessibilityRole="header"
-          >
-            {catalog.detail.howTo}
-          </Text>
-          <Text style={[typography.bodyL, { color: colors.textSecondary }]}>
-            {exercise.description}
-          </Text>
-        </View>
-      )}
+      {/* RF-CAT-02 AC3: without a technique the section is hidden, never empty. */}
+      {exercise.technique !== null && <ExerciseTechnique technique={exercise.technique} />}
       {hasProgress && (
         <Button
           variant="secondary"
@@ -148,5 +137,4 @@ const styles = StyleSheet.create({
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   muscles: { gap: 10 },
   group: { gap: 6 },
-  description: { gap: 8 },
 });
