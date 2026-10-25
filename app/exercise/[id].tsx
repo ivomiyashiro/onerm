@@ -1,4 +1,5 @@
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { Linking } from 'react-native';
 
 import { ExerciseDetailScreen } from '@/presentation/features/exercises/exercise-detail-screen';
 
@@ -12,6 +13,8 @@ export default function S17Route() {
       onOpenProgress={(exerciseId) =>
         router.push({ pathname: '/exercise-progress/[id]', params: { id: exerciseId } })
       }
+      // No app or browser to open it: nothing to do, the technique is still on screen.
+      onOpenVideo={(url) => Linking.openURL(url).catch(() => {})}
     />
   );
 }
