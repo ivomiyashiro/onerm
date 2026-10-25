@@ -110,10 +110,12 @@ export const profile = {
     exerciseCatalog: 'Catálogo de ejercicios',
     photos: 'Fotos',
     fonts: 'Tipografías',
+    machines: 'Imágenes de las máquinas',
     /** The brand name, split to color «RM» like the logo (Figma S22). */
     appName: { one: 'One', rm: 'RM' },
     fontsCredit: 'Geist, Archivo y JetBrains Mono · SIL Open Font License',
     photosCredit: 'Eduardo Cano Photo Co., Alora Griffiths y Victor Freitas · Licencia de Unsplash',
+    machinesCredit: 'Ilustraciones generadas con IA para OneRM',
     basedOn: 'En qué nos basamos',
     principlesCount: (n: number) => count(n, 'principio', 'principios'),
     principlesHelp: 'Los principios detrás de las sugerencias y sus fuentes científicas.',
