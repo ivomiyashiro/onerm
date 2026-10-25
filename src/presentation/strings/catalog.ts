@@ -137,6 +137,8 @@ export const catalog = {
     title: 'Ejercicio',
     unilateral: 'Unilateral',
     howTo: 'Cómo se hace',
+    /** The accessible name of the exercise name in S09, which opens S26 (RF-CAT-02 AC7). */
+    howToOf: (exercise: string) => `Cómo se hace ${exercise}`,
     mistakes: 'Errores comunes',
     mistake: (text: string) => `• ${text}`,
     video: 'Ver un video',
