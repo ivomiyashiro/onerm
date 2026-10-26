@@ -78,6 +78,10 @@ const machines: Record<Machine, { picture: string; hint: string }> = {
     'Press de pecho',
     'Asiento con respaldo vertical y dos manijas a la altura del pecho.',
   ),
+  'incline-chest-press': machine(
+    'Press inclinado',
+    'Asiento vertical y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Se carga con discos.',
+  ),
   'pec-deck': machine(
     'Aperturas (pec deck)',
     'Asiento con respaldo vertical y dos brazos que se abren y se juntan delante del pecho.',
@@ -96,7 +100,7 @@ const machines: Record<Machine, { picture: string; hint: string }> = {
   ),
   'seated-row': machine(
     'Remo sentado',
-    'Asiento vertical con un apoyo para el pecho y manijas delante que se tiran hacia el cuerpo.',
+    'Asiento bajo con apoyo para los pies y un cable que sale de abajo, al frente, con una manija que se tira hacia el cuerpo.',
   ),
   'chest-supported-row': machine(
     'Remo con apoyo de pecho',

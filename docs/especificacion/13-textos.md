@@ -305,10 +305,11 @@ El nombre de cada máquina (para el nombre accesible de su imagen) y la línea q
 | `hip-abduction` | Abductora | Asiento con dos almohadillas que van por fuera de las rodillas. |
 | `hip-adduction` | Aductora | Asiento con dos almohadillas que van por dentro de las rodillas. |
 | `chest-press` | Press de pecho | Asiento con respaldo vertical y dos manijas a la altura del pecho. |
+| `incline-chest-press` | Press inclinado | Asiento vertical y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Se carga con discos. |
 | `pec-deck` | Aperturas (pec deck) | Asiento con respaldo vertical y dos brazos que se abren y se juntan delante del pecho. |
 | `shoulder-press` | Press de hombros | Asiento con respaldo vertical y dos manijas a la altura de los hombros que se empujan hacia arriba. |
 | `pullover` | Pullover | Asiento con un brazo que pasa por encima de la cabeza y almohadillas para los codos. |
 | `lat-pulldown` | Jalón | Asiento con almohadillas sobre los muslos y manijas arriba que se tiran hacia abajo. |
-| `seated-row` | Remo sentado | Asiento vertical con un apoyo para el pecho y manijas delante que se tiran hacia el cuerpo. |
+| `seated-row` | Remo sentado | Asiento bajo con apoyo para los pies y un cable que sale de abajo, al frente, con una manija que se tira hacia el cuerpo. |
 | `chest-supported-row` | Remo con apoyo de pecho | Almohadilla inclinada donde apoyás el pecho y manijas abajo que se tiran hacia arriba. |
 | `preacher-curl` | Curl predicador | Asiento con un atril inclinado donde apoyás la parte de atrás de los brazos. |

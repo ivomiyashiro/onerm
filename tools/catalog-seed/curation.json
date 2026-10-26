@@ -1272,5 +1272,12 @@
     "id": "d9aea94a-727b-4013-8910-716f7a627a89",
     "source": "onerm-v1",
     "externalId": "cable-external-rotation"
+  },
+  {
+    "id": "5547ad38-add9-4074-8464-755483893fd1",
+    "source": "manual",
+    "externalId": "plate-loaded-incline-chest-press",
+    "slug": "press-inclinado-en-maquina-de-discos",
+    "machine": "incline-chest-press"
   }
 ]

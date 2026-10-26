@@ -49,6 +49,7 @@ export const MACHINES = [
   'hip-abduction',
   'hip-adduction',
   'chest-press',
+  'incline-chest-press',
   'pec-deck',
   'shoulder-press',
   'pullover',

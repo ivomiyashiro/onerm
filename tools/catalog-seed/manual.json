@@ -1,1 +1,20 @@
-[]
+[
+  {
+    "source": "manual",
+    "externalId": "plate-loaded-incline-chest-press",
+    "name": "Press inclinado en máquina de discos",
+    "aliases": ["Plate-loaded incline chest press", "Press inclinado articulado"],
+    "loadType": "external",
+    "primaryMuscles": ["chest"],
+    "secondaryMuscles": ["triceps", "shoulders"],
+    "primaryEquipment": "machine",
+    "equipment": ["machine"],
+    "mechanic": "compound",
+    "isUnilateral": false,
+    "attribution": {
+      "source": "OneRM",
+      "license": "Catálogo propio",
+      "attribution": "Catálogo de ejercicios de OneRM"
+    }
+  }
+]
