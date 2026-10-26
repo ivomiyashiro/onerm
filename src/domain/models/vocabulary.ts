@@ -34,7 +34,8 @@ export type Equipment = (typeof EQUIPMENT)[number];
 
 /**
  * The gym machines an exercise can need (#306): each has a picture so a novice can tell which one
- * to look for (RF-CAT-02). Only exercises whose `primaryEquipment` is a machine have one.
+ * to look for (RF-CAT-02). Only exercises whose `primaryEquipment` is a machine have one. The
+ * server's CHECK on `exercises.machine` repeats this list: a new machine needs a migration too.
  */
 export const MACHINES = [
   'leg-press',
