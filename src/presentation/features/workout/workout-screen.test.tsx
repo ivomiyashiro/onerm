@@ -417,7 +417,7 @@ describe('WorkoutScreen (S09)', () => {
     expect(screen.queryByText(suggestions.why.calibrationTitle)).not.toBeOnTheScreen();
   });
 
-  it('RF-CAT-02.AC7: tapping the exercise name opens «Cómo se hace» (S26) until it is closed', async () => {
+  it('RF-CAT-02.AC7: tapping ⓘ next to the exercise name opens «Cómo se hace» (S26) until it is closed', async () => {
     const { user } = await renderScreen();
 
     await user.press(screen.getByRole('button', { name: catalog.detail.howToOf(ROW.name) }));

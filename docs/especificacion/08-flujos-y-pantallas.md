@@ -33,7 +33,7 @@ Responde a los §4.8 (UI/UX/CX) y §4.9 (flujo de pantallas) del TPO. Es la **gu
 | S09 | **Entrenamiento en curso** | Pantalla completa | RF-ENT-02..16, RF-SUG-02 |
 | S10 | ¿Por qué esta sugerencia? | Hoja modal | RF-SUG-07 |
 | S11 | Sustituir ejercicio | Hoja modal (buscador) | RF-ENT-09 |
-| S26 | Cómo se hace (desde el nombre del ejercicio en S09) | Hoja modal | RF-CAT-02 AC7 |
+| S26 | Cómo se hace (desde ⓘ, al lado de cambiar el ejercicio en S09) | Hoja modal | RF-CAT-02 AC7 |
 | S12 | Resumen del entrenamiento | Pantalla | RF-ENT-11, RF-PROG-05 |
 | S13 | Rutinas (Mis rutinas / Plantillas) | Pestaña Rutinas | RF-RUT-01, 07, 08 |
 | S14 | Detalle de plantilla + "¿Por qué esta rutina?" | Pila | RF-RUT-01, 02 |

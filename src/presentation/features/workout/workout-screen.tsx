@@ -215,28 +215,22 @@ function Workout({
         <Animated.View style={[styles.flex, swipe.style]}>
           <ScrollView contentContainerStyle={styles.content}>
             <View style={styles.title}>
-              {exercise.catalog === null ? (
-                <Text
-                  style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
-                  accessibilityRole="header"
-                >
-                  {name}
-                </Text>
-              ) : (
-                // RF-CAT-02 AC7: the name opens S26 «Cómo se hace».
+              <Text
+                style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
+                accessibilityRole="header"
+              >
+                {name}
+              </Text>
+              {/* RF-CAT-02 AC7: ⓘ opens S26 «Cómo se hace». Next to the swap, so it stays put
+                  whatever the length of the name. */}
+              {exercise.catalog !== null && (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityLabel={catalog.detail.howToOf(name)}
                   onPress={actions.openHowTo}
-                  style={[styles.flex, styles.name]}
+                  style={styles.iconButton}
                 >
-                  <Text
-                    style={[typography.titleL, styles.nameText, { color: colors.textPrimary }]}
-                    accessibilityRole="header"
-                  >
-                    {name}
-                  </Text>
-                  <Icon name="info" size={20} color={colors.textTertiary} />
+                  <Icon name="info" color={colors.textPrimary} />
                 </Pressable>
               )}
               {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
@@ -625,8 +619,6 @@ const styles = StyleSheet.create({
   },
   title: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: space.s4 },
   flex: { flex: 1 },
-  name: { flexDirection: 'row', alignItems: 'center', gap: space.s8, minHeight: 48 },
-  nameText: { flexShrink: 1 },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   facts: {
     flexDirection: 'row',
