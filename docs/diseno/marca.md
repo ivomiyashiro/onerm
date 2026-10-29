@@ -89,7 +89,7 @@ Las direcciones de la §5 (A, B y C "tranquilas") se descartaron: se buscó un *
 Dos jueces ciegos revisaron accesibilidad, usabilidad, cobertura de la especificación y consistencia. Decisiones del equipo:
 
 1. **Amarillo disciplinado:** un solo bloque amarillo sólido por pantalla (la acción principal). La serie actual y la opción elegida usan amarillo de estado; progreso, temporizador, enlaces y pestaña activa son grises.
-2. **Cinta de peligro con significado:** solo en "¡Descanso terminado!" y "Nuevo récord".
+2. **Cinta de peligro con significado:** solo en "Nuevo récord" (también estaba en "¡Descanso terminado!", que desde #314 no se muestra en la app).
 3. **Título del ejercicio** en estilo "título" (20 px, 2 líneas como máximo); el display ancho en mayúsculas queda para la marca ("HOY TOCA"). El número de carga es el protagonista (56 px).
 4. **Solo modo oscuro en el MVP** (00 §6).
 
@@ -189,7 +189,7 @@ Los pasos de carga y repeticiones ocupaban unos 357 px fijos abajo (más del 40 
 Después de registrar una serie, lo que más le importa al usuario es cuánto descanso le queda. Por eso:
 - **Hecho abre el descanso a pantalla completa:** cuenta regresiva grande (estilo `Mono/Hero`, 60 px) dentro de un anillo lima, +15 s y Reiniciar, la serie recién hecha con la pregunta de esfuerzo, la serie siguiente y "Saltear descanso".
 - **Minimizar** vuelve a S09 con una **barra mínima** sobre Hecho (variante `RestTimer` State=Mini, 64 px): anillo, tiempo, siguiente serie, +15 s y un chevron. Tocarla reabre la pantalla completa.
-- **Al terminar:** el anillo pasa a turquesa, "¡Descanso terminado!" y el botón principal "Ir a la serie 2".
+- **Al terminar:** vibra y el descanso se cierra solo, para cargar la serie siguiente sin tocar nada (#314). Ya no hay pantalla de "¡Descanso terminado!" ni botón "Ir a la serie 2"; el aviso con la pantalla bloqueada (la notificación y, en iOS, la Live Activity) sigue diciéndolo.
 - **Esfuerzo:** la pantalla completa es el lugar natural para responderlo, porque el usuario la está mirando durante el descanso.
 - **Calibración a pantalla completa:** después de Hecho en la primera serie de calibración, el descanso muestra la tarjeta de la serie resaltada en lima y "Respondé para seguir: con esto calculamos tu peso para la serie 2.". Al responder, la nota pasa a explicar el nuevo peso ("Era mucho peso: en la serie 2 probá con 16 kg.") y "Siguiente" muestra la carga calculada. Si se minimiza sin responder, la pregunta queda fija encima de Hecho, como antes.
 - **Menú del entrenamiento** (el "•••" del encabezado): hoja con "Finalizar entrenamiento" y "Descartar entrenamiento" (en rojo), que llevan a D10 o D09.
@@ -274,7 +274,7 @@ Validado en Figma, página «11 Animaciones (propuesta)» (M1–M7, cada frame c
 |---|---|---|
 | M1 | S09 · registrar serie | El botón principal se hunde a 0,96 y vuelve con resorte; la serie recién registrada entra con un fundido y la siguiente se enciende como actual con otro; el descanso minimizado sube sobre «Hecho» |
 | M2 | ± de carga y repeticiones | Los ± se hunden a 0,92; el valor rueda en la dirección del cambio (sube con +, baja con −); la carga de la hoja, que es un campo, entra solo con un fundido. No rueda al escribirlo ni en un límite |
-| M3 | Descanso terminado | El anillo pulsa una vez (1 → 1,05 → 1) y su halo se expande y se apaga; «¡Descanso terminado!» y el botón entran. Solo si terminó en pantalla |
+| M3 | Descanso terminado | Retirada en #314: al terminar, el descanso se cierra solo |
 | M4 | Barra de pestañas | Una sola píldora que se desliza hasta la pestaña nueva, estirándose un poco en el camino |
 | M5 | S20 · gráfico | La línea se dibuja de izquierda a derecha, cada punto aparece cuando llega la línea y el récord hace pop. Al abrir y al cambiar de período |
 | M6 | S18 · volumen | Las barras crecen desde la izquierda, 60 ms una después de la otra. Al mostrarse la semana |

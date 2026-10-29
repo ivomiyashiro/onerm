@@ -263,7 +263,9 @@ Escenario: AC5 — Aviso con la pantalla bloqueada
 Escenario: AC6 — Aviso con la app abierta
   Dado que la app está en primer plano
   Cuando el descanso termina
-  Entonces el teléfono vibra y la pantalla lo indica
+  Entonces el teléfono vibra
+  Y el temporizador se cierra solo, a pantalla completa o minimizado, y queda lista la carga de la serie siguiente (#314)
+  Y si terminó con la app en segundo plano, al volver ya está cerrado y no vibra
 
 Escenario: AC7 — Permiso de notificaciones rechazado
   Dado que rechacé el permiso de notificaciones
