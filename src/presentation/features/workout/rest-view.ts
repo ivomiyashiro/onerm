@@ -13,7 +13,7 @@ import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 
 /** What comes after the rest (08 §5 «Siguiente: …»). */
-export type RestNext =
+type RestNext =
   | { kind: 'set'; number: number; total: number; values: string }
   | { kind: 'exercise'; name: string; values: string }
   /** RF-SUG-02.AC4: the next load depends on the effort still to answer. */
@@ -35,7 +35,6 @@ export interface RestView {
   awaitingEffort: boolean;
   /** After answering a calibration set: the reason of the new load (13 §4). */
   calibrationNote: string | null;
-  next: RestNext;
   /** «Siguiente: …» of the full screen and the finished card. */
   nextText: string;
   /** «Siguiente: 62,5 kg × 8» of the minimized bar. */
@@ -154,7 +153,6 @@ export function restViewOf(endsAt: Date | null, inputs: RestInputs): RestView | 
             basisName: view.basisName,
           })
         : null,
-    next,
     nextText,
     nextShort:
       next.kind === 'set' || next.kind === 'exercise' ? text.rest.nextShort(next.values) : nextText,

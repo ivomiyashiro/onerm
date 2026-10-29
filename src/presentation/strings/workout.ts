@@ -162,9 +162,6 @@ export const workout = {
     firstTime: 'primera vez',
     /** The card of the set just done (Figma «Serie hecha»). */
     doneSet: (n: number, values: string) => `Serie ${n} · ${values}`,
-    finished: '¡Descanso terminado!',
-    readyForSet: (n: number) => `Listo para la serie ${n}`,
-    goToSet: (n: number) => `Ir a la serie ${n}`,
     lastExerciseDone: 'Último ejercicio terminado',
   },
   /** Local notification at the end of the rest (RN-ENT-07). */
@@ -174,6 +171,8 @@ export const workout = {
   /** The rest counting down with the screen locked (#305); the body is `rest.next`. */
   restCountdown: {
     title: 'Descanso',
+    /** iOS only: the Live Activity once it ended, until the next rest. */
+    finished: '¡Descanso terminado!',
     /** The Android channel, as the notification settings show it. */
     channel: 'Descanso en curso',
   },
