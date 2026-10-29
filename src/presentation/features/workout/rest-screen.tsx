@@ -10,12 +10,10 @@ import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Overlay, useOverlayProgress } from '@/presentation/components/overlay/overlay-host';
 import { Text } from '@/presentation/components/text';
-import { Reveal } from '@/presentation/components/motion/reveal';
 import { RestRing } from '@/presentation/features/workout/rest-ring';
 import type { RestView } from '@/presentation/features/workout/rest-view';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
 import type { RirField } from '@/presentation/features/workout/set-form';
-import { common } from '@/presentation/strings/common';
 import { countdown, elapsed } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
@@ -32,16 +30,17 @@ interface RestScreenProps {
   effortMode: EffortMode;
   onAdd: () => void;
   onRestart: () => void;
-  /** «Saltear descanso», or «Ir a la serie n» once it ended. */
+  /** «Saltear descanso». */
   onSkip: () => void;
   onMinimize: () => void;
   onEffort: (set: WorkoutSet, field: RirField, rir: number) => void;
 }
 
 /**
- * S09 descanso a pantalla completa (08 §5, marca §13; Figma «Descanso (pantalla completa)» and
- * «Descanso terminado»): the countdown with its ring, +15 s and Reiniciar, the set just done (with its
- * effort only while a calibration set waits for it), what comes next and «Saltear descanso». The «X», Back and pulling it down minimize it.
+ * S09 descanso a pantalla completa (08 §5, marca §13; Figma «Descanso (pantalla completa)»): the
+ * countdown with its ring, +15 s and Reiniciar, the set just done (with its effort only while a
+ * calibration set waits for it), what comes next and «Saltear descanso». The «X», Back and pulling
+ * it down minimize it.
  */
 export function RestScreen({ visible, ...props }: RestScreenProps) {
   return (
@@ -80,15 +79,6 @@ function RestPanel({
       if (translationY > PULL_DISTANCE || velocityY > PULL_VELOCITY) onMinimize();
       else Animated.spring(pulled, { toValue: 0, useNativeDriver: true }).start();
     });
-  const finished = remainingMs <= 0;
-  const { next } = rest;
-  const nextSet = next.kind === 'set' || next.kind === 'calibrating' ? next.number : null;
-  const goLabel =
-    nextSet !== null
-      ? text.rest.goToSet(nextSet)
-      : next.kind === 'exercise'
-        ? text.primaryAction.nextExercise
-        : common.close;
 
   return (
     <GestureDetector gesture={pullDown}>
@@ -100,15 +90,12 @@ function RestPanel({
       >
         <View style={styles.header}>
           <View style={styles.flex}>
-            {/* #248 M3: «¡Descanso terminado!» comes in when the rest ends. */}
-            <Reveal key={finished ? 'finished' : 'running'} rise={10}>
-              <Text
-                style={[typography.titleL, { color: colors.textPrimary }]}
-                accessibilityRole="header"
-              >
-                {finished ? text.rest.finished : text.rest.title}
-              </Text>
-            </Reveal>
+            <Text
+              style={[typography.titleL, { color: colors.textPrimary }]}
+              accessibilityRole="header"
+            >
+              {text.rest.title}
+            </Text>
             <Text style={[typography.bodyS, { color: colors.textSecondary }]} numberOfLines={1}>
               {rest.exerciseName}
             </Text>
@@ -123,27 +110,18 @@ function RestPanel({
           </Pressable>
         </View>
         <View style={styles.center}>
-          <RestRing
-            size={264}
-            strokeWidth={10}
-            progress={remainingMs / (rest.totalSeconds * 1000)}
-            finished={finished}
-          >
+          <RestRing size={264} strokeWidth={10} progress={remainingMs / (rest.totalSeconds * 1000)}>
             <Text style={[typography.monoHero, { color: colors.textPrimary }]}>
               {countdown(remainingMs)}
             </Text>
             <Text style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {finished && nextSet !== null
-                ? text.rest.readyForSet(nextSet)
-                : text.rest.ofTotal(elapsed(rest.totalSeconds * 1000))}
+              {text.rest.ofTotal(elapsed(rest.totalSeconds * 1000))}
             </Text>
           </RestRing>
-          {!finished && (
-            <View style={styles.chips}>
-              <Chip label={text.rest.plus15} onPress={onAdd} />
-              <Chip label={text.rest.restart} onPress={onRestart} />
-            </View>
-          )}
+          <View style={styles.chips}>
+            <Chip label={text.rest.plus15} onPress={onAdd} />
+            <Chip label={text.rest.restart} onPress={onRestart} />
+          </View>
           <View style={[styles.card, rest.awaitingEffort && styles.cardAsking]}>
             <View style={styles.summary}>
               <Icon name="check" size={20} color={colors.textOk} />
@@ -168,13 +146,7 @@ function RestPanel({
           <Text style={[typography.bodyM, styles.next]}>{rest.nextText}</Text>
         </View>
         <View style={styles.bottom}>
-          {finished ? (
-            <Reveal key="finished" rise={24}>
-              <Button variant="primary" size="xl" label={goLabel} onPress={onSkip} />
-            </Reveal>
-          ) : (
-            <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
-          )}
+          <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
         </View>
       </Animated.View>
     </GestureDetector>

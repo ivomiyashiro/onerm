@@ -25,6 +25,8 @@ export interface Rest {
     addRest(): Promise<void>;
     restartRest(): Promise<void>;
     skipRest(): Promise<void>;
+    /** RF-ENT-06.AC6: it reached zero, so it closes on its own. Its notice and countdown stay. */
+    endRest(endsAt: Date): void;
     minimizeRest(): void;
     expandRest(): void;
     allowNotifications(): Promise<void>;
@@ -56,6 +58,8 @@ export function useRest(
   } = useUseCases();
   const [timer, setTimer] = useState<RestTimer | null>(null);
   const [restMinimized, setRestMinimized] = useState(false);
+  // The end of the rest that already closed: the timer stays in the database for the lock screen.
+  const [endedAt, setEndedAt] = useState<number | null>(null);
   const [dialog, setDialog] = useState<RestDialog | null>(null);
   const [notice, setNotice] = useState<RestNotice | null>(null);
 
@@ -64,10 +68,11 @@ export function useRest(
     [observeRestTimer],
   );
 
+  const endsAt = timer?.endsAt ?? null;
   const rest =
     overview === null
       ? null
-      : restViewOf(timer?.endsAt ?? null, {
+      : restViewOf(endsAt !== null && endsAt.getTime() !== endedAt ? endsAt : null, {
           exercises: overview.exercises,
           level: overview.level,
           effortMode: overview.effortMode,
@@ -116,6 +121,7 @@ export function useRest(
     async onLogged({ isWarmup, restSeconds }) {
       if (isWarmup) return;
       setRestMinimized(false);
+      setEndedAt(null);
       await startRest.execute(restSeconds, message ?? PROVISIONAL);
       const ask = await askRestPermission.firstAsk();
       if (ask === 'explain') setDialog('notifications');
@@ -125,6 +131,7 @@ export function useRest(
       addRest: () => addRestTime.execute(message ?? PROVISIONAL),
       restartRest: () => startRest.execute(seconds(), message ?? PROVISIONAL),
       skipRest: () => skipRest.execute(),
+      endRest: (end) => setEndedAt(end.getTime()),
       minimizeRest: () => setRestMinimized(true),
       expandRest: () => setRestMinimized(false),
       allowNotifications,

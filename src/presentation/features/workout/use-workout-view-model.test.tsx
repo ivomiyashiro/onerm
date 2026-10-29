@@ -548,6 +548,19 @@ describe('useWorkoutViewModel', () => {
       expect(result.current.rest).toBeNull();
     });
 
+    it('AC6: an ended rest closes, without stopping its notice; the next one shows again', async () => {
+      const { result, timers, notifier } = await renderViewModel();
+      await act(() => result.current.actions.done());
+
+      await act(() => result.current.actions.endRest(result.current.rest!.endsAt));
+      expect(result.current.rest).toBeNull();
+      expect(timers.timer.endsAt).toEqual(after(120));
+      expect(notifier.scheduled).not.toBeNull();
+      await act(() => result.current.actions.done());
+
+      expect(result.current.rest).not.toBeNull();
+    });
+
     it('#188: the sheet closes before the full rest opens, never both at once', async () => {
       const renders: WorkoutViewModel[] = [];
       // The permission check runs once the rest started: holding it shows the state in between.

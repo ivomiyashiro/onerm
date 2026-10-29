@@ -19,29 +19,10 @@ interface RestBarProps {
 
 /**
  * The minimized rest over «Hecho» (Figma «RestTimer»): the ring, the time, what comes next and
- * +15 s. Once it ended, the light card «¡Descanso terminado!» (Figma «S09 · Descanso terminado»).
- * It runs its own countdown, once per second (#229).
+ * +15 s. It runs its own countdown, once per second (#229).
  */
 export function RestBar({ rest, onAdd, onExpand }: RestBarProps) {
   const remainingMs = useCountdown(rest.endsAt) ?? 0;
-  if (remainingMs <= 0) {
-    return (
-      <Pressable accessibilityRole="button" onPress={onExpand} style={styles.finished}>
-        <View style={styles.check}>
-          <Icon name="check" size={22} color={colors.bgAccent} />
-        </View>
-        <View style={styles.flex}>
-          <Text style={[typography.titleM, { color: colors.textOnInverse }]}>
-            {text.rest.finished}
-          </Text>
-          <Text style={[typography.bodyS, { color: colors.textOnInverse }]} numberOfLines={1}>
-            {rest.nextText}
-          </Text>
-        </View>
-      </Pressable>
-    );
-  }
-
   return (
     <View style={styles.bar}>
       <RestRing size={40} strokeWidth={4} progress={remainingMs / (rest.totalSeconds * 1000)} />
@@ -86,21 +67,4 @@ const styles = StyleSheet.create({
   },
   flex: { flex: 1 },
   open: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
-  finished: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: space.s12,
-    paddingVertical: space.s12,
-    paddingHorizontal: space.s14,
-    borderRadius: 18,
-    backgroundColor: colors.bgInverse,
-  },
-  check: {
-    width: 44,
-    height: 44,
-    borderRadius: 22,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: colors.textOnInverse,
-  },
 });
