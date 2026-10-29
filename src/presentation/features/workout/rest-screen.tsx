@@ -37,8 +37,10 @@ interface RestScreenProps {
 }
 
 /**
- * S09 descanso a pantalla completa (08 §5, marca §13; Figma «Descanso (pantalla completa)»): the countdown with its ring, +15 s and Reiniciar, the set just done (with its
- * effort only while a calibration set waits for it), what comes next and «Saltear descanso». The «X», Back and pulling it down minimize it.
+ * S09 descanso a pantalla completa (08 §5, marca §13; Figma «Descanso (pantalla completa)»): the
+ * countdown with its ring, +15 s and Reiniciar, the set just done (with its effort only while a
+ * calibration set waits for it), what comes next and «Saltear descanso». The «X», Back and pulling
+ * it down minimize it.
  */
 export function RestScreen({ visible, ...props }: RestScreenProps) {
   return (
