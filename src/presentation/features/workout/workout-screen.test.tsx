@@ -119,6 +119,9 @@ async function renderScreen({
 }
 
 describe('WorkoutScreen (S09)', () => {
+  // The use cases start the rest at NOW: the clock is there too, or every rest has already ended.
+  beforeEach(() => jest.setSystemTime(NOW));
+
   it('loading: nothing yet', async () => {
     await renderScreen({ useCases: someUseCases() });
 
@@ -489,8 +492,6 @@ describe('WorkoutScreen (S09)', () => {
     const renderRest = (options: Parameters<typeof renderScreen>[0] = {}) =>
       renderScreen({ inProgress: WITH_HISTORY, finished: [LAST_TIME], ...options });
 
-    beforeEach(() => jest.setSystemTime(NOW));
-
     it('after «Hecho» the rest opens full screen; minimized it stays over «Hecho»', async () => {
       const { user } = await renderRest();
 
@@ -547,7 +548,7 @@ describe('WorkoutScreen (S09)', () => {
       expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
     });
 
-    it('AC6: at the end it vibrates and says «¡Descanso terminado!» with the next set', async () => {
+    it('AC6: at the end it vibrates and closes, leaving «Hecho» for the next set', async () => {
       const vibrate = jest.spyOn(Vibration, 'vibrate').mockImplementation(() => {});
       const { user } = await renderRest();
       await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
@@ -555,12 +556,12 @@ describe('WorkoutScreen (S09)', () => {
 
       await act(() => jest.advanceTimersByTime(121_000));
 
-      expect(screen.getByRole('header', { name: text.rest.finished })).toBeOnTheScreen();
-      expect(screen.getByRole('button', { name: text.rest.goToSet(2) })).toBeOnTheScreen();
+      expect(screen.queryByRole('button', { name: text.rest.minimize })).not.toBeOnTheScreen();
+      expect(screen.getByRole('button', { name: text.primaryAction.done })).toBeEnabled();
       expect(vibrate).toHaveBeenCalledTimes(1);
     });
 
-    it('AC6: a rest that ended in the background does not vibrate when the app comes back', async () => {
+    it('AC6: a rest that ended in the background is closed, without a vibration, back in the app', async () => {
       const listeners: ((status: AppStateStatus) => void)[] = [];
       jest.spyOn(AppState, 'addEventListener').mockImplementation((_type, listener) => {
         listeners.push(listener);
@@ -578,7 +579,7 @@ describe('WorkoutScreen (S09)', () => {
       await goTo('active');
       await act(() => jest.advanceTimersByTime(1_000));
 
-      expect(screen.getByRole('header', { name: text.rest.finished })).toBeOnTheScreen();
+      expect(screen.queryByRole('button', { name: text.rest.minimize })).not.toBeOnTheScreen();
       expect(vibrate).not.toHaveBeenCalled();
     });
 

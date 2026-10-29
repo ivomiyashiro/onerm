@@ -120,7 +120,7 @@ function Workout({
   finish: (run: () => Promise<Id | null>) => Promise<void>;
 }) {
   const { sheet, deleted, actions, rest, restMinimized, dialog, notice, confirm } = viewModel;
-  // #229: the clocks live in leaf components (the time, the rest, its vibration, the menu), so
+  // #229: the clocks live in leaf components (the time, the rest, its end, the menu), so
   // their ticks don't render the whole screen.
   const { exercise, exercises, exerciseIndex, rows, effortMode } = content;
   const unit = exercise.grid?.unit ?? null;
@@ -404,7 +404,7 @@ function Workout({
         onOpenVideo={onOpenVideo}
         onClose={actions.closeSheet}
       />
-      <RestEndVibration endsAt={rest?.endsAt ?? null} />
+      <RestEnd endsAt={rest?.endsAt ?? null} onEnd={actions.endRest} />
       {rest && (
         <RestScreen
           rest={rest}
@@ -516,26 +516,29 @@ function Workout({
 }
 
 /**
- * RF-ENT-06.AC6: a vibration once, when the rest ends with the app open (not when opening an old
- * one, nor when coming back to one that ended in the background: the notification already said
- * so). A leaf with its own countdown, so its ticks render nothing else (#229).
+ * RF-ENT-06.AC6: at zero the rest closes on its own, with a vibration once if it ended with the app
+ * open (not when opening an old one, nor when coming back to one that ended in the background: the
+ * notification already said so). A leaf with its own countdown, so its ticks render nothing else
+ * (#229).
  */
-function RestEndVibration({ endsAt }: { endsAt: Date | null }) {
+function RestEnd({ endsAt, onEnd }: { endsAt: Date | null; onEnd: (endsAt: Date) => void }) {
   const remaining = useCountdown(endsAt);
   const restEnded = remaining !== null && remaining <= 0;
   const onScreen = useOnScreenSince() !== null;
   const wasRunning = useRef(false);
   useEffect(() => {
-    if (remaining === null || !onScreen) {
+    if (endsAt === null || remaining === null || !onScreen) {
       wasRunning.current = false;
       return;
     }
-    if (!restEnded) wasRunning.current = true;
-    else if (wasRunning.current) {
-      wasRunning.current = false;
-      Vibration.vibrate(REST_END_VIBRATION);
+    if (!restEnded) {
+      wasRunning.current = true;
+      return;
     }
-  }, [remaining, restEnded, onScreen]);
+    if (wasRunning.current) Vibration.vibrate(REST_END_VIBRATION);
+    wasRunning.current = false;
+    onEnd(endsAt);
+  }, [endsAt, remaining, restEnded, onScreen, onEnd]);
   return null;
 }
 
