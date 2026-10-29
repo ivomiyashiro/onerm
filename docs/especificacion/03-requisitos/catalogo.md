@@ -117,7 +117,7 @@ Escenario: AC6 — Sin conexión
 
 Escenario: AC7 — Desde el entrenamiento
   Dado que estoy en un entrenamiento (S09)
-  Cuando toco el nombre del ejercicio
+  Cuando toco ⓘ, al lado del botón de cambiar el ejercicio
   Entonces se abre la hoja «Cómo se hace» (S26), con la imagen de la máquina, los pasos, los errores y el video
   # Sin los músculos ni el progreso: en el gimnasio solo hace falta saber cómo se hace.
 ```
