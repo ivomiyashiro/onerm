@@ -223,7 +223,7 @@ describe('#221 performance', () => {
   it('S09 · Entrenamiento: mount, «Hecho», the rest, a catalog row rewritten by a sync', async () => {
     const seeded = await seed({ history: HISTORY, inProgress: true });
     await measure('S09 mount', seeded, async () => {
-      await mount(seeded, <WorkoutScreen onClose={noop} onFinished={noop} />);
+      await mount(seeded, <WorkoutScreen onClose={noop} onFinished={noop} onOpenVideo={noop} />);
       await settle();
     });
     await measure('S09 3 s on screen (clock)', seeded, () => settle(3000));
@@ -291,7 +291,7 @@ describe('#221 performance', () => {
         seeded,
         <>
           <HistoryScreen onOpenWorkout={noop} onStartNext={noop} />
-          <WorkoutScreen onClose={noop} onFinished={noop} />
+          <WorkoutScreen onClose={noop} onFinished={noop} onOpenVideo={noop} />
         </>,
       );
       await settle();

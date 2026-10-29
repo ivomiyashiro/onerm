@@ -6,6 +6,8 @@ import type { Workout } from '@/domain/models/workout';
 import type { Observer } from '@/domain/repositories/observer';
 import { aBilateralSet, aWorkout, aWorkoutExercise, anExercise } from '@/domain/testing/builders';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
+import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
+import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
 import { ExerciseDetailScreen } from '@/presentation/features/exercises/exercise-detail-screen';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
@@ -22,8 +24,19 @@ const ROW = anExercise({
   primaryEquipment: 'dumbbell',
   equipment: ['dumbbell'],
   isUnilateral: true,
-  description: 'Apoyá una rodilla y una mano en el banco, con la espalda recta.',
+  technique: {
+    steps: ['Apoyá una rodilla en el banco.', 'Llevá la mancuerna hacia la cadera.'],
+    mistakes: ['Girar el torso.'],
+  },
   attributions: [{ source: 'wger', license: 'CC BY-SA 4.0', attribution: 'wger.de' }],
+});
+
+const LEG_PRESS = anExercise({
+  id: 'row',
+  name: 'Prensa de piernas',
+  primaryEquipment: 'machine',
+  equipment: ['machine'],
+  machine: 'leg-press',
 });
 
 const METRICS = {
@@ -54,18 +67,39 @@ async function renderScreen() {
       },
     },
   );
+  const activityListeners = new Set<(activity: SyncActivity) => void>();
+  const observeSyncActivity = new ObserveSyncActivity({
+    observeActivity(listener) {
+      activityListeners.add(listener);
+      listener({ running: false, lastResult: null, online: null, restoring: null });
+      return () => activityListeners.delete(listener);
+    },
+  });
   const onBack = jest.fn();
   const onOpenProgress = jest.fn();
+  const onOpenVideo = jest.fn();
   await render(
     <SafeAreaProvider initialMetrics={METRICS}>
-      <UseCasesProvider useCases={someUseCases({ observeExerciseDetail })}>
-        <ExerciseDetailScreen exerciseId="row" onBack={onBack} onOpenProgress={onOpenProgress} />
+      <UseCasesProvider useCases={someUseCases({ observeExerciseDetail, observeSyncActivity })}>
+        <ExerciseDetailScreen
+          exerciseId="row"
+          onBack={onBack}
+          onOpenProgress={onOpenProgress}
+          onOpenVideo={onOpenVideo}
+        />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
   return {
     onBack,
     onOpenProgress,
+    onOpenVideo,
+    setOnline: (online: boolean) =>
+      act(() => {
+        activityListeners.forEach((l) =>
+          l({ running: false, lastResult: null, online, restoring: null }),
+        );
+      }),
     emit: (exercise: Exercise | null, workouts: Workout[] = []) =>
       act(() => {
         exerciseObservers.forEach((o) => o.next(exercise));
@@ -79,7 +113,7 @@ async function renderScreen() {
 }
 
 describe('ExerciseDetailScreen (S17)', () => {
-  it('RF-CAT-02.AC1: shows name, equipment, unilateral, muscles, description and source', async () => {
+  it('RF-CAT-02.AC1: shows name, equipment, unilateral, muscles, technique and source', async () => {
     const { emit } = await renderScreen();
 
     await emit(ROW);
@@ -94,7 +128,10 @@ describe('ExerciseDetailScreen (S17)', () => {
     expect(screen.getByText(catalog.muscles.biceps)).toBeOnTheScreen();
     expect(screen.getByText(catalog.muscles.shoulders)).toBeOnTheScreen();
     expect(screen.getByRole('header', { name: catalog.detail.howTo })).toBeOnTheScreen();
-    expect(screen.getByText(ROW.description!)).toBeOnTheScreen();
+    expect(screen.getByText('Apoyá una rodilla en el banco.')).toBeOnTheScreen();
+    expect(screen.getByText('Llevá la mancuerna hacia la cadera.')).toBeOnTheScreen();
+    expect(screen.getByRole('header', { name: catalog.detail.mistakes })).toBeOnTheScreen();
+    expect(screen.getByText(/Girar el torso\./)).toBeOnTheScreen();
     expect(screen.getByText(catalog.detail.source('wger', 'CC BY-SA 4.0'))).toBeOnTheScreen();
   });
 
@@ -118,12 +155,63 @@ describe('ExerciseDetailScreen (S17)', () => {
     ).not.toBeOnTheScreen();
   });
 
-  it('RF-CAT-02.AC3: without a description the section is hidden', async () => {
+  it('RF-CAT-02.AC3: without a technique the section is hidden', async () => {
     const { emit } = await renderScreen();
 
-    await emit({ ...ROW, description: null });
+    await emit({ ...ROW, technique: null });
 
     expect(screen.queryByText(catalog.detail.howTo)).not.toBeOnTheScreen();
+    expect(screen.queryByText(catalog.detail.mistakes)).not.toBeOnTheScreen();
+  });
+
+  it('RF-CAT-02.AC4: a machine exercise shows the picture of its machine and how to recognize it', async () => {
+    const { emit } = await renderScreen();
+
+    await emit(LEG_PRESS);
+
+    expect(
+      screen.getByRole('image', { name: catalog.machines['leg-press'].picture }),
+    ).toBeOnTheScreen();
+    expect(screen.getByText(catalog.machines['leg-press'].hint)).toBeOnTheScreen();
+  });
+
+  it('RF-CAT-02.AC4: an exercise that is not done on a machine has no picture', async () => {
+    const { emit } = await renderScreen();
+
+    await emit(ROW);
+
+    expect(screen.queryByRole('image')).not.toBeOnTheScreen();
+  });
+
+  it('RF-CAT-02.AC5: «Ver un video» opens the curated video, or a YouTube search', async () => {
+    const user = userEvent.setup();
+    const { emit, onOpenVideo } = await renderScreen();
+    await emit({ ...ROW, videoUrl: 'https://youtu.be/abc' });
+
+    await user.press(screen.getByRole('button', { name: catalog.detail.video }));
+    await emit(ROW);
+    await user.press(screen.getByRole('button', { name: catalog.detail.video }));
+
+    expect(onOpenVideo.mock.calls).toEqual([
+      ['https://youtu.be/abc'],
+      [
+        'https://www.youtube.com/results?search_query=Remo%20con%20mancuerna%20a%20una%20mano%20t%C3%A9cnica',
+      ],
+    ]);
+    expect(screen.getByText(catalog.detail.videoOnline)).toBeOnTheScreen();
+  });
+
+  it('RF-CAT-02.AC6: offline, «Ver un video» is disabled and says why', async () => {
+    const user = userEvent.setup();
+    const { emit, setOnline, onOpenVideo } = await renderScreen();
+    await emit(ROW);
+
+    await setOnline(false);
+    await user.press(screen.getByRole('button', { name: catalog.detail.video }));
+
+    expect(screen.getByRole('button', { name: catalog.detail.video })).toBeDisabled();
+    expect(screen.getByText(catalog.detail.videoOffline)).toBeOnTheScreen();
+    expect(onOpenVideo).not.toHaveBeenCalled();
   });
 
   it('a bilateral exercise without secondary muscles shows neither', async () => {

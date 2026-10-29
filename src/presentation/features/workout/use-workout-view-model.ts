@@ -84,6 +84,8 @@ export type WorkoutSheet =
   | { kind: 'exercises' }
   /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
   | { kind: 'why'; detail: WhyDetail }
+  /** S26 «Cómo se hace» of the current exercise (RF-CAT-02 AC7). */
+  | { kind: 'howTo' }
   | { kind: 'workoutMenu' }
   /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
   | { kind: 'substitute'; query: string; options: SubstituteOptions };
@@ -109,6 +111,7 @@ export interface WorkoutViewModel extends Pick<
     done(): Promise<'logged' | 'adjust' | 'none'>;
     openAdjust(): void;
     openWhy(): void;
+    openHowTo(): void;
     editForm(change: (form: SetForm) => SetForm): void;
     /** «Hecho» in the sheet. */
     confirmAdjust(): Promise<'logged' | 'invalid'>;
@@ -390,6 +393,7 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setExtras((all) => ({ ...all, [id]: (all[id] ?? 0) + 1 }));
       },
       closeSheet: () => setSheet(null),
+      openHowTo: () => setSheet({ kind: 'howTo' }),
       openWorkoutMenu: () => setSheet({ kind: 'workoutMenu' }),
       openSubstitute: () =>
         setSheet({ kind: 'substitute', query: '', options: { sameMuscle: [], others: [] } }),

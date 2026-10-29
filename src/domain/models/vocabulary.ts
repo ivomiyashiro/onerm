@@ -32,6 +32,35 @@ export const EQUIPMENT = [
 ] as const;
 export type Equipment = (typeof EQUIPMENT)[number];
 
+/**
+ * The gym machines an exercise can need (#306): each has a picture so a novice can tell which one
+ * to look for (RF-CAT-02). Only exercises whose `primaryEquipment` is a machine have one. The
+ * server's CHECK on `exercises.machine` repeats this list: a new machine needs a migration too.
+ */
+export const MACHINES = [
+  'leg-press',
+  'hack-squat',
+  'smith',
+  'leg-extension',
+  'leg-curl-seated',
+  'leg-curl-lying',
+  'calf-raise-standing',
+  'calf-raise-seated',
+  'hip-thrust',
+  'hip-abduction',
+  'hip-adduction',
+  'chest-press',
+  'incline-chest-press',
+  'pec-deck',
+  'shoulder-press',
+  'pullover',
+  'lat-pulldown',
+  'seated-row',
+  'chest-supported-row',
+  'preacher-curl',
+] as const;
+export type Machine = (typeof MACHINES)[number];
+
 /** ADR-0005: the MVP only supports external load and bodyweight. */
 export const LOAD_TYPES = ['external', 'bodyweight'] as const;
 export type LoadType = (typeof LOAD_TYPES)[number];

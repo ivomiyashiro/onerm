@@ -9,6 +9,9 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Text } from '@/presentation/components/text';
+import { ExerciseTechnique } from '@/presentation/features/exercises/exercise-technique';
+import { MachinePicture } from '@/presentation/features/exercises/machine-picture';
+import { VideoLink } from '@/presentation/features/exercises/video-link';
 import { useExerciseDetailViewModel } from '@/presentation/features/exercises/use-exercise-detail-view-model';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
@@ -18,6 +21,7 @@ interface ExerciseDetailScreenProps {
   exerciseId: Id;
   onBack: () => void;
   onOpenProgress: (exerciseId: Id) => void;
+  onOpenVideo: (url: string) => void;
 }
 
 /** S17 · Detalle de ejercicio (RF-CAT-02), read from the local catalog. */
@@ -25,6 +29,7 @@ export function ExerciseDetailScreen({
   exerciseId,
   onBack,
   onOpenProgress,
+  onOpenVideo,
 }: ExerciseDetailScreenProps) {
   const { state, actions } = useExerciseDetailViewModel(exerciseId);
   const insets = useSafeAreaInsets();
@@ -38,6 +43,7 @@ export function ExerciseDetailScreen({
             exercise={state.exercise}
             hasProgress={state.hasProgress}
             onOpenProgress={() => onOpenProgress(state.exercise.id)}
+            onOpenVideo={onOpenVideo}
           />
         </ScrollView>
       )}
@@ -64,13 +70,16 @@ function ExerciseDetail({
   exercise,
   hasProgress,
   onOpenProgress,
+  onOpenVideo,
 }: {
   exercise: Exercise;
   hasProgress: boolean;
   onOpenProgress: () => void;
+  onOpenVideo: (url: string) => void;
 }) {
   return (
     <>
+      {exercise.machine !== null && <MachinePicture machine={exercise.machine} height={210} />}
       <Text style={[typography.titleXl, { color: colors.textPrimary }]} accessibilityRole="header">
         {exercise.name}
       </Text>
@@ -85,20 +94,9 @@ function ExerciseDetail({
         <MuscleGroup label={catalog.detail.primary} muscles={exercise.primaryMuscles} primary />
         <MuscleGroup label={catalog.detail.secondary} muscles={exercise.secondaryMuscles} />
       </View>
-      {/* RF-CAT-02 AC3: without a description the section is hidden, never empty. */}
-      {exercise.description !== null && (
-        <View style={styles.description}>
-          <Text
-            style={[typography.titleM, { color: colors.textPrimary }]}
-            accessibilityRole="header"
-          >
-            {catalog.detail.howTo}
-          </Text>
-          <Text style={[typography.bodyL, { color: colors.textSecondary }]}>
-            {exercise.description}
-          </Text>
-        </View>
-      )}
+      {/* RF-CAT-02 AC3: without a technique the section is hidden, never empty. */}
+      {exercise.technique !== null && <ExerciseTechnique technique={exercise.technique} />}
+      <VideoLink exerciseName={exercise.name} curatedUrl={exercise.videoUrl} onOpen={onOpenVideo} />
       {hasProgress && (
         <Button
           variant="secondary"
@@ -148,5 +146,4 @@ const styles = StyleSheet.create({
   badges: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   muscles: { gap: 10 },
   group: { gap: 6 },
-  description: { gap: 8 },
 });

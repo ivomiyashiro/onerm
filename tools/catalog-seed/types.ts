@@ -19,7 +19,6 @@ export interface ExerciseCandidate {
   readonly equipment: readonly Equipment[];
   readonly mechanic: Mechanic | null;
   readonly isUnilateral: boolean | null;
-  readonly description: string | null;
   readonly attribution: ExerciseAttribution;
 }
 

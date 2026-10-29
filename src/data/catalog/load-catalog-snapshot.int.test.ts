@@ -1,4 +1,4 @@
-import { count } from 'drizzle-orm';
+import { count, eq } from 'drizzle-orm';
 
 import { CATALOG_SNAPSHOT, type CatalogSnapshot } from '@/data/catalog/catalog-snapshot';
 import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
@@ -56,7 +56,12 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
     loadCatalogSnapshot(t.db, CATALOG_SNAPSHOT);
 
     const [first] = CATALOG_SNAPSHOT.exercises;
-    expect(t.db.select().from(exercises).all()).toContainEqual({ ...first, deprecatedAt: null });
+    // `description` stays in the table, unused since #306 (07 §6).
+    expect(t.db.select().from(exercises).all()).toContainEqual({
+      ...first,
+      description: null,
+      deprecatedAt: null,
+    });
   });
 
   it('keeps the template structure: days and exercises with their order, role and sets', () => {
@@ -152,6 +157,42 @@ describe('loadCatalogSnapshot (RF-CAT-03, RN-CAT-04)', () => {
       expect(names).toContain(first.name);
       expect(names).not.toContain('Prensa renombrada');
       expect(t.db.select().from(appState).get()?.catalogVersion).toBe(newer.version);
+    });
+
+    it('#306: fills the help an existing exercise lacks, without overwriting what it has', () => {
+      const [, second] = CATALOG_SNAPSHOT.exercises;
+      const help = {
+        technique: { steps: ['Del paquete.'], mistakes: [] },
+        machine: 'leg-press' as const,
+        videoUrl: 'https://youtu.be/bundle',
+      };
+      const fromServer = { steps: ['Del servidor.'], mistakes: [] };
+      // An install from before #306: the rows have no help yet; the server already sent one.
+      loadCatalogSnapshot(t.db, {
+        ...CATALOG_SNAPSHOT,
+        exercises: CATALOG_SNAPSHOT.exercises.map((e) => ({
+          ...e,
+          technique: null,
+          machine: null,
+          videoUrl: null,
+        })),
+      });
+      t.db
+        .update(exercises)
+        .set({ technique: fromServer })
+        .where(eq(exercises.id, second.id))
+        .run();
+
+      loadCatalogSnapshot(t.db, {
+        ...newer,
+        exercises: newer.exercises.map((e) =>
+          e.id === first.id || e.id === second.id ? { ...e, ...help } : e,
+        ),
+      });
+
+      const row = (id: string) => t.db.select().from(exercises).where(eq(exercises.id, id)).get();
+      expect(row(first.id)).toMatchObject({ ...help, name: first.name });
+      expect(row(second.id)).toMatchObject({ ...help, technique: fromServer });
     });
 
     it('an older or equal bundled snapshot does nothing', () => {

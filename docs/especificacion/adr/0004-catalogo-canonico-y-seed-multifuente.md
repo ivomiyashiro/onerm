@@ -30,6 +30,9 @@ Un `CanonicalExercise` definido por nosotros. Los campos exactos se fijan en `06
 | `equipment` | enum[] | Vocabulario controlado propio, para los filtros (barra, mancuerna, máquina, polea, peso corporal, kettlebell) |
 | `mechanic` | enum | `compound` o `isolation` (útil para los incrementos y el motor) |
 | `isUnilateral` | bool | |
+| `technique` | `{ steps[], mistakes[] }?` | Cómo se hace (#306). Lo escribe el equipo en `technique.json`, una vez por movimiento, y lo comparten las variantes que lista |
+| `machine` | enum? | Vocabulario `MACHINES` (#306): la máquina que hay que buscar, con su imagen en la app. Solo si `primaryEquipment` es máquina |
+| `videoUrl` | string? | Video elegido por el equipo (https); sin él, la app busca en YouTube |
 | `sources` | `{ source, externalId, license, attribution }[]` | Procedencia y atribución |
 | `deprecatedAt` | timestamp? | Nunca se elimina (ver 5) |
 
@@ -83,12 +86,22 @@ extract → map → normalize → validate → curate → dedupe → load → ex
 - **El snapshot incluido conserva los obsoletos** (decidido el 2026-10-15). Un ejercicio que sale de la curaduría se arrastra desde el snapshot anterior con `deprecatedAt` (la fecha en que se retiró, que no cambia en las corridas siguientes). Así el servidor y el snapshot coinciden, y un historial que lo referencia se resuelve sin conexión (RN-CAT-01, RF-CAT-03 AC1). Para retirar un ejercicio se borra su entrada de `curation.json`; si la fuente lo perdió, el seed falla indicando el ejercicio y se hace lo mismo. Si un ejercicio retirado vuelve a la curaduría, vuelve a estar vigente (`deprecatedAt` nulo, también en el servidor).
 - **Lo que no cambia para un `id` publicado:** `loadType`, `isUnilateral` y `primaryEquipment` (RN-CAT-05). El seed falla si cambian; hace falta un ejercicio nuevo.
 
+### 6. Ayuda para saber cómo se hace un ejercicio (#306, 2026-10-23)
+
+- **Texto propio** («Cómo se hace» y «Errores comunes») para todos los ejercicios, incluido en el snapshot: funciona sin conexión. Reemplaza la `description` de wger, que solo tenían 22 ejercicios y era pobre.
+- **Una imagen por máquina** (unas 20), incluida en la app. Con el texto solo, un novato no sabe cuál es «la máquina de curl femoral». Las mancuernas, la barra, la kettlebell y el peso corporal se reconocen solos y no llevan imagen.
+- Las imágenes son **ilustraciones generadas con IA** en un único estilo (render de la máquina sola, fondo oscuro, acentos lima) y **revisadas una por una**: la primera versión del press de pecho salió como una máquina de hombros. Se atribuyen en «Créditos».
+- **No** se generan imágenes de la técnica: una postura mal generada enseña a hacer mal el ejercicio.
+- **Video:** un enlace, no un archivo. Abre el video elegido o la búsqueda de YouTube; necesita conexión.
+
 ## Alternativas consideradas
 
 | Alternativa | A favor | En contra |
 |---|---|---|
 | **Modelo canónico + adaptadores + seed** (elegida) | Independiente de la fuente, offline, curado y explicable | Hay que construir el pipeline |
 | Consumir wger desde la app | Sin seed | Dependencia en tiempo de ejecución, no funciona sin conexión en el primer uso, modelo ajeno filtrado al dominio, ruido |
+| Fotos con licencia abierta para las máquinas (wger, Wikimedia) | Fotos reales | Cubren pocas de nuestras máquinas, estilos mezclados y licencia por imagen (#306) |
+| Videos o GIF incluidos en la app | Muestran el movimiento sin conexión | Peso de la app y licencias (#306) |
 | Catálogo 100 % manual | Control total | No escala; se pierde el trabajo de wger (queda disponible igual como fuente `manual`) |
 
 ## Consecuencias

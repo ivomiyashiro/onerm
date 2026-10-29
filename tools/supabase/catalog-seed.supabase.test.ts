@@ -45,7 +45,9 @@ function seeded(id: string, name: string): SeededExercise {
     equipment: ['machine'],
     mechanic: 'compound',
     isUnilateral: false,
-    description: null,
+    technique: { steps: ['Empujá.'], mistakes: [] },
+    machine: 'leg-press',
+    videoUrl: null,
     attributions: [{ source: 'fake', license: 'CC0', attribution: 'someone' }],
     deprecatedAt: null,
   };

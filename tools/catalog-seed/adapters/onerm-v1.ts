@@ -146,7 +146,6 @@ export function mapOnermV1Variant(variant: SourceVariant): MapResult {
       equipment: [mapping.equipment],
       mechanic: base.mechanic,
       isUnilateral: laterality !== 'bilateral',
-      description: null,
       attribution: ATTRIBUTION,
     },
   };

@@ -27,6 +27,10 @@ Pipeline: `extract → map → normalize → validate → curate → dedupe → 
   ours and never changes (RN-CAT-01). To add an exercise, add an entry (find the wger id in
   `https://wger.de/api/v2/exerciseinfo/?language=4`), run the seed and commit the new snapshot.
 - `manual.json` holds our own exercises (source `manual`), with no API.
+- `technique.json` is how each movement is done (#306): steps, common mistakes and, optionally, a
+  curated `videoUrl`. Each entry lists the slugs of the exercises it applies to, so the variants of a
+  movement share one text. A curation entry done on a machine names it in `machine` (the vocabulary
+  `MACHINES`), and the app shows its picture.
 - `onerm-v1/catalog.ts` is the catalog of OneRM v1 (the Flutter version), copied into the repo (source
   `onerm-v1`, #244): bases × equipment, with its own taxonomy that `adapters/onerm-v1.ts` maps to ours.
   The adapter rejects the band variants (no load the engine can progress, ADR-0005) and those without a

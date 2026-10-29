@@ -32,6 +32,7 @@ import { useOnScreenSince } from '@/presentation/components/clock/use-on-screen-
 import { useCountdown } from '@/presentation/components/clock/use-countdown';
 import { useElapsed } from '@/presentation/components/clock/use-elapsed';
 import { WhySheet } from '@/presentation/features/workout/why-sheet';
+import { HowToSheet } from '@/presentation/features/exercises/how-to-sheet';
 import {
   useWorkoutViewModel,
   type WorkoutContent,
@@ -55,10 +56,12 @@ interface WorkoutScreenProps {
   onClose: () => void;
   /** RF-ENT-11: finished, to its summary (S12). */
   onFinished: (workoutId: Id) => void;
+  /** RF-CAT-02 AC5: the video of S26, in YouTube or the browser. */
+  onOpenVideo: (url: string) => void;
 }
 
 /** S09 · Entrenamiento en curso (08 §5): the current exercise, its sets and «Hecho». */
-export function WorkoutScreen({ onClose, onFinished }: WorkoutScreenProps) {
+export function WorkoutScreen({ onClose, onFinished, onOpenVideo }: WorkoutScreenProps) {
   // RF-ENT-07: the screen stays on only here; leaving S09 lets it turn off again.
   useKeepAwake();
   const viewModel = useWorkoutViewModel();
@@ -81,6 +84,7 @@ export function WorkoutScreen({ onClose, onFinished }: WorkoutScreenProps) {
           viewModel={viewModel}
           content={state}
           bottomInset={insets.bottom}
+          onOpenVideo={onOpenVideo}
           finish={async (run) => {
             // #241: the dialog stays open while it finishes; a second tap finishes nothing.
             if (closed.current) return;
@@ -105,11 +109,13 @@ function Workout({
   viewModel,
   content,
   bottomInset,
+  onOpenVideo,
   finish,
 }: {
   viewModel: WorkoutViewModel;
   content: WorkoutContent;
   bottomInset: number;
+  onOpenVideo: (url: string) => void;
   /** Runs a finish action; once finished, to S12. */
   finish: (run: () => Promise<Id | null>) => Promise<void>;
 }) {
@@ -209,12 +215,30 @@ function Workout({
         <Animated.View style={[styles.flex, swipe.style]}>
           <ScrollView contentContainerStyle={styles.content}>
             <View style={styles.title}>
-              <Text
-                style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
-                accessibilityRole="header"
-              >
-                {name}
-              </Text>
+              {exercise.catalog === null ? (
+                <Text
+                  style={[typography.titleL, styles.flex, { color: colors.textPrimary }]}
+                  accessibilityRole="header"
+                >
+                  {name}
+                </Text>
+              ) : (
+                // RF-CAT-02 AC7: the name opens S26 «Cómo se hace».
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityLabel={catalog.detail.howToOf(name)}
+                  onPress={actions.openHowTo}
+                  style={[styles.flex, styles.name]}
+                >
+                  <Text
+                    style={[typography.titleL, styles.nameText, { color: colors.textPrimary }]}
+                    accessibilityRole="header"
+                  >
+                    {name}
+                  </Text>
+                  <Icon name="info" size={20} color={colors.textTertiary} />
+                </Pressable>
+              )}
               {/* #222: no exercise menu. Skipping is moving on; adding a set is under the list. */}
               <Pressable
                 accessibilityRole="button"
@@ -381,6 +405,11 @@ function Workout({
         onClose={actions.closeSheet}
       />
       <WhySheet detail={sheet?.kind === 'why' ? sheet.detail : null} onClose={actions.closeSheet} />
+      <HowToSheet
+        exercise={sheet?.kind === 'howTo' ? exercise.catalog : null}
+        onOpenVideo={onOpenVideo}
+        onClose={actions.closeSheet}
+      />
       <RestEndVibration endsAt={rest?.endsAt ?? null} />
       {rest && (
         <RestScreen
@@ -596,6 +625,8 @@ const styles = StyleSheet.create({
   },
   title: { flexDirection: 'row', alignItems: 'center', gap: 4, paddingLeft: space.s4 },
   flex: { flex: 1 },
+  name: { flexDirection: 'row', alignItems: 'center', gap: space.s8, minHeight: 48 },
+  nameText: { flexShrink: 1 },
   iconButton: { width: 48, height: 48, alignItems: 'center', justifyContent: 'center' },
   facts: {
     flexDirection: 'row',

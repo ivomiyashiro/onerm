@@ -13,7 +13,9 @@ const exercise: Exercise = {
   equipment: ['machine'],
   mechanic: 'compound',
   isUnilateral: false,
-  description: null,
+  technique: null,
+  machine: null,
+  videoUrl: null,
   attributions: [],
   deprecatedAt: null,
 };

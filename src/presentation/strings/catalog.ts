@@ -1,4 +1,4 @@
-import type { Equipment, Muscle } from '@/domain/models/vocabulary';
+import type { Equipment, Machine, Muscle } from '@/domain/models/vocabulary';
 import { count } from '@/presentation/strings/plural';
 
 /** RN-CAT-03, the controlled vocabularies. */
@@ -26,10 +26,97 @@ const equipment: Record<Equipment, string> = {
   kettlebell: 'Kettlebell',
 };
 
+/** #306, 13 «Máquinas»: the picture's accessible name and how to recognize the machine. */
+const machine = (name: string, hint: string) => ({ picture: `Imagen de ${name}`, hint });
+
+const machines: Record<Machine, { picture: string; hint: string }> = {
+  'leg-press': machine(
+    'Prensa de piernas',
+    'Asiento reclinado frente a una plataforma grande para los pies. Se carga con discos a los costados.',
+  ),
+  'hack-squat': machine(
+    'Sentadilla hack',
+    'Plataforma inclinada para los pies y un respaldo con almohadillas que apoyan en los hombros.',
+  ),
+  smith: machine(
+    'Máquina Smith',
+    'Una barra que sube y baja guiada por dos rieles, con ganchos para trabarla a distintas alturas.',
+  ),
+  'leg-extension': machine(
+    'Extensión de cuádriceps',
+    'Asiento con un rodillo que va delante de los tobillos.',
+  ),
+  'leg-curl-seated': machine(
+    'Curl femoral sentado',
+    'Asiento con un rodillo debajo de los tobillos y otro que sujeta los muslos desde arriba.',
+  ),
+  'leg-curl-lying': machine(
+    'Curl femoral tumbado',
+    'Banco donde te acostás boca abajo, con un rodillo detrás de los tobillos.',
+  ),
+  'calf-raise-standing': machine(
+    'Gemelos de pie',
+    'Almohadillas que apoyan en los hombros y un escalón para la punta de los pies.',
+  ),
+  'calf-raise-seated': machine(
+    'Gemelos sentado',
+    'Asiento con una almohadilla sobre las rodillas y un escalón para la punta de los pies.',
+  ),
+  'hip-thrust': machine(
+    'Hip thrust',
+    'Respaldo bajo para la espalda alta y una almohadilla que va sobre la cadera.',
+  ),
+  'hip-abduction': machine(
+    'Abductora',
+    'Asiento con dos almohadillas que van por fuera de las rodillas.',
+  ),
+  'hip-adduction': machine(
+    'Aductora',
+    'Asiento con dos almohadillas que van por dentro de las rodillas.',
+  ),
+  'chest-press': machine(
+    'Press de pecho',
+    'Asiento con respaldo vertical y dos manijas a la altura del pecho.',
+  ),
+  'incline-chest-press': machine(
+    'Press inclinado',
+    'Asiento vertical y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Se carga con discos.',
+  ),
+  'pec-deck': machine(
+    'Aperturas (pec deck)',
+    'Asiento con respaldo vertical y dos brazos que se abren y se juntan delante del pecho.',
+  ),
+  'shoulder-press': machine(
+    'Press de hombros',
+    'Asiento con respaldo vertical y dos manijas a la altura de los hombros que se empujan hacia arriba.',
+  ),
+  pullover: machine(
+    'Pullover',
+    'Asiento con un brazo que pasa por encima de la cabeza y almohadillas para los codos.',
+  ),
+  'lat-pulldown': machine(
+    'Jalón',
+    'Asiento con almohadillas sobre los muslos y manijas arriba que se tiran hacia abajo.',
+  ),
+  'seated-row': machine(
+    'Remo sentado',
+    'Asiento bajo con apoyo para los pies y un cable que sale de abajo, al frente, con una manija que se tira hacia el cuerpo.',
+  ),
+  'chest-supported-row': machine(
+    'Remo con apoyo de pecho',
+    'Almohadilla inclinada donde apoyás el pecho y manijas abajo que se tiran hacia arriba.',
+  ),
+  'preacher-curl': machine(
+    'Curl predicador',
+    'Asiento con un atril inclinado donde apoyás la parte de atrás de los brazos.',
+  ),
+};
+
 /** S16 Buscador and S17 Detalle de ejercicio (13 §7, §9, §10). */
 export const catalog = {
   muscles,
   equipment,
+  machines,
   search: {
     title: 'Ejercicios',
     placeholder: 'Buscar ejercicio',
@@ -54,6 +141,15 @@ export const catalog = {
     title: 'Ejercicio',
     unilateral: 'Unilateral',
     howTo: 'Cómo se hace',
+    /** The accessible name of the exercise name in S09, which opens S26 (RF-CAT-02 AC7). */
+    howToOf: (exercise: string) => `Cómo se hace ${exercise}`,
+    mistakes: 'Errores comunes',
+    mistake: (text: string) => `• ${text}`,
+    video: 'Ver un video',
+    videoOnline: 'Se abre en YouTube.',
+    videoOffline: 'Sin conexión. El video se abre en YouTube cuando tengas señal.',
+    /** What YouTube is searched for when the team chose no video (RF-CAT-02 AC5). */
+    videoSearch: (exercise: string) => `${exercise} técnica`,
     primary: 'Principales',
     secondary: 'Secundarios',
     seeProgress: 'Ver mi progreso',

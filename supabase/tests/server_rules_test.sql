@@ -3,7 +3,7 @@
 -- (RN-AUTH-03), and the data checks of 07 §2.2.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(17);
+select plan(19);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'a@test.local');
@@ -18,6 +18,14 @@ insert into public.exercises (id, slug, name, load_type, primary_muscles, primar
 values ('30000000-0000-0000-0000-000000000001', 'leg-press', 'Leg press', 'external', '["quads"]', 'machine', '["machine"]', 'compound', false);
 insert into public.routine_templates (id, name, level, days_per_week, estimated_minutes, rationale)
 values ('PLT-1', 'Full body', 'novice', 3, 60, 'x');
+
+-- #306: the machine comes from the vocabulary and the video is https, also for the seed
+select throws_ok(
+  $$update public.exercises set machine = 'rowing-boat' where id = '30000000-0000-0000-0000-000000000001'$$,
+  '23514', null, 'a machine outside the vocabulary is rejected (#306)');
+select throws_ok(
+  $$update public.exercises set video_url = 'http://example.com/v' where id = '30000000-0000-0000-0000-000000000001'$$,
+  '23514', null, 'a video that is not https is rejected (#306)');
 
 -- Anonymous: reads the catalog and app_config, writes nothing, sees no user data
 set local role anon;

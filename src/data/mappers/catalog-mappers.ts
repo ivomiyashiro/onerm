@@ -13,8 +13,11 @@ type TemplateRow = typeof routineTemplates.$inferSelect;
 type TemplateDayRow = typeof templateDays.$inferSelect;
 type TemplateExerciseRow = typeof templateExercises.$inferSelect;
 
-/** Row → catalog exercise (ADR-0004). Times are ms in the database and `Date` in the domain. */
-export function toExercise({ deprecatedAt, ...row }: ExerciseRow): Exercise {
+/**
+ * Row → catalog exercise (ADR-0004). Times are ms in the database and `Date` in the domain. The old
+ * `description` stays in the table but not in the model: `technique` replaced it (#306).
+ */
+export function toExercise({ deprecatedAt, description: _, ...row }: ExerciseRow): Exercise {
   return { ...row, deprecatedAt: deprecatedAt === null ? null : new Date(deprecatedAt) };
 }
 

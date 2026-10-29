@@ -10,12 +10,18 @@ export interface Credit {
 /**
  * Only what the app ships today (decided 2026-10-12, #31): the catalog is curated by the team, so
  * the wger row arrives with its seed (F6, ADR-0004 R1). The photos are the ones of Inicio (#32).
+ * The machine pictures were generated with Figma's AI and reviewed one by one (#306, ADR-0004 §6).
  */
 export const CREDITS: readonly Credit[] = [
   {
     title: profile.about.photos,
     detail: profile.about.photosCredit,
     url: 'https://unsplash.com/license',
+  },
+  {
+    title: profile.about.machines,
+    detail: profile.about.machinesCredit,
+    url: 'https://www.figma.com/ai/',
   },
   {
     title: profile.about.fonts,

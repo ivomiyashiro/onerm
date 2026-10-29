@@ -57,6 +57,23 @@ describe('SqliteExerciseRepository', () => {
     expect(values).toHaveLength(1);
   });
 
+  it('reads the technique, the machine and the video of an exercise (#306)', async () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+    const { last } = lastValue<Exercise[]>((o) => repository.observeAll(o));
+    const [first] = CATALOG_SNAPSHOT.exercises;
+    const help = {
+      technique: { steps: ['Sentate.', 'Empujá.'], mistakes: ['Trabar las rodillas.'] },
+      machine: 'leg-press' as const,
+      videoUrl: 'https://youtu.be/abc',
+    };
+
+    t.db.update(exercises).set(help).where(eq(exercises.id, first.id)).run();
+    changes.emit('exercises');
+    await flush();
+
+    expect(last().find((exercise) => exercise.id === first.id)).toEqual({ ...first, ...help });
+  });
+
   it('includes deprecated exercises, with deprecatedAt as a Date (RN-CAT-01)', async () => {
     const repository = new SqliteExerciseRepository(() => t.db, changes);
     const { last } = lastValue<Exercise[]>((o) => repository.observeAll(o));

@@ -1,0 +1,1151 @@
+[
+  {
+    "exercises": ["prensa-piernas"],
+    "steps": [
+      "Sentate con la espalda y la cadera bien apoyadas en el respaldo.",
+      "Poné los pies en el medio de la plataforma, al ancho de los hombros.",
+      "Soltá los seguros y bajá doblando las rodillas hasta unos 90°.",
+      "Empujá con todo el pie hasta casi estirar las piernas, sin trabar las rodillas."
+    ],
+    "mistakes": ["Despegar la cadera del asiento al bajar.", "Trabar las rodillas arriba."]
+  },
+  {
+    "exercises": ["prensa-a-una-pierna-en-maquina", "prensa-a-una-pierna-en-maquina-de-discos"],
+    "steps": [
+      "Sentate con la espalda y la cadera apoyadas en el respaldo.",
+      "Poné un pie en el centro de la plataforma y dejá el otro apoyado afuera.",
+      "Bajá doblando la rodilla hasta unos 90°, con la rodilla en línea con el pie.",
+      "Empujá con todo el pie sin trabar la rodilla. Hacé todas las repeticiones y cambiá de pierna."
+    ],
+    "mistakes": ["Dejar que la rodilla se vaya hacia adentro.", "Despegar la cadera del asiento."]
+  },
+  {
+    "exercises": ["sentadilla-trasera-con-barra", "sentadilla-trasera-en-maquina-smith"],
+    "steps": [
+      "Apoyá la barra sobre la parte alta de la espalda, no sobre el cuello, y pará los pies al ancho de los hombros.",
+      "Tomá aire, apretá el abdomen y bajá llevando la cadera atrás y abajo.",
+      "Bajá hasta que los muslos queden al menos paralelos al piso, con las rodillas en línea con los pies.",
+      "Subí empujando el piso con todo el pie, con el pecho alto."
+    ],
+    "mistakes": [
+      "Levantar los talones o dejar que las rodillas se vayan hacia adentro.",
+      "Redondear la espalda abajo."
+    ]
+  },
+  {
+    "exercises": [
+      "sentadilla-frontal-con-barra",
+      "sentadilla-frontal-con-mancuernas",
+      "sentadilla-frontal-en-maquina-smith"
+    ],
+    "steps": [
+      "Apoyá el peso delante de los hombros, con los codos altos.",
+      "Pará los pies al ancho de los hombros y apretá el abdomen.",
+      "Bajá con el torso lo más vertical posible hasta que los muslos queden paralelos al piso.",
+      "Subí empujando con todo el pie, sin dejar caer los codos."
+    ],
+    "mistakes": [
+      "Bajar los codos y dejar que el peso se vaya hacia adelante.",
+      "Inclinar mucho el torso."
+    ]
+  },
+  {
+    "exercises": ["sentadilla-goblet-mancuerna", "sentadilla-goblet-con-disco"],
+    "steps": [
+      "Sostené el peso con las dos manos pegado al pecho.",
+      "Pará los pies un poco más abiertos que los hombros, con las puntas apenas hacia afuera.",
+      "Bajá entre las piernas con el pecho alto hasta que los codos rocen las rodillas.",
+      "Subí empujando con todo el pie."
+    ],
+    "mistakes": ["Alejar el peso del pecho.", "Levantar los talones."]
+  },
+  {
+    "exercises": [
+      "sentadilla-al-cajon-con-barra",
+      "sentadilla-al-cajon-con-kettlebell",
+      "sentadilla-al-cajon-con-mancuernas"
+    ],
+    "steps": [
+      "Poné un cajón o banco detrás tuyo, a una altura que deje los muslos paralelos al piso.",
+      "Bajá llevando la cadera atrás hasta sentarte apenas, sin aflojarte.",
+      "Mantené el abdomen firme y la espalda recta sobre el cajón.",
+      "Subí empujando con todo el pie."
+    ],
+    "mistakes": ["Dejarse caer sobre el cajón.", "Balancearse hacia atrás para subir."]
+  },
+  {
+    "exercises": ["sentadilla-hack-en-maquina", "sentadilla-hack-en-maquina-de-discos"],
+    "steps": [
+      "Apoyá la espalda en el respaldo y los hombros debajo de las almohadillas.",
+      "Poné los pies en el medio de la plataforma, al ancho de los hombros.",
+      "Soltá los seguros y bajá hasta que los muslos queden paralelos a la plataforma.",
+      "Empujá con todo el pie hasta casi estirar las piernas."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Trabar las rodillas arriba."]
+  },
+  {
+    "exercises": ["extension-cuadriceps"],
+    "steps": [
+      "Ajustá el respaldo para que las rodillas queden en el borde del asiento, alineadas con el eje de la máquina.",
+      "Poné el rodillo delante de los tobillos y agarrate de las manijas.",
+      "Estirá las piernas hasta arriba y apretá el cuádriceps un segundo.",
+      "Bajá despacio, sin dejar que las placas choquen."
+    ],
+    "mistakes": ["Levantar la cadera del asiento.", "Bajar de golpe."]
+  },
+  {
+    "exercises": ["curl-femoral-sentado"],
+    "steps": [
+      "Ajustá el respaldo para que las rodillas queden alineadas con el eje de la máquina.",
+      "Poné el rodillo debajo de los tobillos y bajá la almohadilla sobre los muslos.",
+      "Llevá los talones hacia abajo y atrás todo lo que puedas.",
+      "Volvé despacio hasta casi estirar las piernas."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Volver de golpe."]
+  },
+  {
+    "exercises": ["curl-femoral-tumbado"],
+    "steps": [
+      "Acostate boca abajo con las rodillas justo fuera del banco.",
+      "Poné el rodillo detrás de los tobillos y agarrate de las manijas.",
+      "Llevá los talones hacia la cola sin levantar la cadera.",
+      "Bajá despacio hasta casi estirar las piernas."
+    ],
+    "mistakes": ["Levantar la cadera del banco.", "Bajar de golpe."]
+  },
+  {
+    "exercises": ["curl-femoral-con-pelota-de-estabilidad"],
+    "steps": [
+      "Acostate boca arriba con los talones sobre la pelota y los brazos al costado.",
+      "Levantá la cadera hasta que el cuerpo quede en línea recta.",
+      "Traé la pelota hacia la cola doblando las rodillas, sin bajar la cadera.",
+      "Estirá las piernas despacio y repetí."
+    ],
+    "mistakes": ["Bajar la cadera durante el movimiento.", "Hacerlo rápido y sin control."]
+  },
+  {
+    "exercises": ["sentadilla-bulgara", "sentadilla-bulgara-mancuernas"],
+    "steps": [
+      "Parate delante de un banco y apoyá el empeine del pie de atrás sobre él.",
+      "Dejá el pie de adelante lo bastante lejos para que la rodilla no pase mucho la punta.",
+      "Bajá en línea recta hasta que la rodilla de atrás casi toque el piso.",
+      "Subí empujando con el pie de adelante. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": [
+      "Dejar que la rodilla de adelante se vaya hacia adentro.",
+      "Empujar con la pierna de atrás."
+    ]
+  },
+  {
+    "exercises": ["sentadilla-dividida", "sentadilla-dividida-con-mancuerna"],
+    "steps": [
+      "Pará un pie adelante y el otro atrás, con el talón de atrás levantado.",
+      "Bajá en línea recta hasta que la rodilla de atrás casi toque el piso.",
+      "Mantené el torso derecho y el peso en el pie de adelante.",
+      "Subí empujando con el pie de adelante. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": [
+      "Poner los pies en una misma línea, como sobre una cuerda.",
+      "Inclinar el torso hacia adelante."
+    ]
+  },
+  {
+    "exercises": ["zancada-hacia-adelante", "zancada-hacia-adelante-con-mancuerna"],
+    "steps": [
+      "Parate con los pies al ancho de la cadera.",
+      "Da un paso largo hacia adelante y bajá hasta que las dos rodillas queden en 90°.",
+      "Mantené el torso derecho y la rodilla de adelante en línea con el pie.",
+      "Empujá con el pie de adelante para volver al inicio."
+    ],
+    "mistakes": [
+      "Dar un paso demasiado corto.",
+      "Dejar que la rodilla de adelante se vaya hacia adentro."
+    ]
+  },
+  {
+    "exercises": ["zancada-hacia-atras", "zancada-hacia-atras-con-mancuerna"],
+    "steps": [
+      "Parate con los pies al ancho de la cadera.",
+      "Da un paso largo hacia atrás y bajá hasta que la rodilla de atrás casi toque el piso.",
+      "Mantené el peso en el pie de adelante y el torso derecho.",
+      "Empujá con el pie de adelante para volver al inicio."
+    ],
+    "mistakes": [
+      "Apoyar el peso en la pierna de atrás.",
+      "Perder el equilibrio por pisar en línea."
+    ]
+  },
+  {
+    "exercises": ["zancada-caminando", "zancada-caminando-con-mancuernas"],
+    "steps": [
+      "Da un paso largo hacia adelante y bajá hasta que las dos rodillas queden en 90°.",
+      "Empujá con el pie de adelante y traé el de atrás hacia el siguiente paso.",
+      "Seguí avanzando alternando las piernas.",
+      "Mantené el torso derecho todo el recorrido."
+    ],
+    "mistakes": ["Dar pasos cortos y apurados.", "Dejar caer la rodilla de atrás contra el piso."]
+  },
+  {
+    "exercises": ["zancada-lateral", "zancada-lateral-con-mancuerna"],
+    "steps": [
+      "Parate con los pies juntos.",
+      "Da un paso amplio al costado y bajá llevando la cadera atrás, con esa rodilla doblada.",
+      "Dejá la otra pierna estirada y los dos pies apuntando adelante.",
+      "Empujá con el pie que se movió para volver al inicio."
+    ],
+    "mistakes": [
+      "Dejar que la rodilla doblada se vaya hacia adentro.",
+      "Levantar el talón del pie que se mueve."
+    ]
+  },
+  {
+    "exercises": ["zancada-cruzada", "zancada-cruzada-con-mancuerna"],
+    "steps": [
+      "Parate con los pies al ancho de la cadera.",
+      "Llevá un pie atrás y en diagonal, cruzándolo detrás del otro.",
+      "Bajá hasta que la rodilla de atrás casi toque el piso, con la cadera de frente.",
+      "Empujá con el pie de adelante para volver al inicio."
+    ],
+    "mistakes": [
+      "Girar la cadera hacia el costado.",
+      "Dejar que la rodilla de adelante se vaya hacia adentro."
+    ]
+  },
+  {
+    "exercises": ["sentadilla-cosaca", "sentadilla-cosaca-con-kettlebell"],
+    "steps": [
+      "Pará los pies bien abiertos, con las puntas apenas hacia afuera.",
+      "Bajá hacia un costado doblando esa rodilla, con la otra pierna estirada y la punta hacia arriba.",
+      "Mantené el talón de la pierna doblada en el piso y el pecho alto.",
+      "Subí empujando con ese pie y pasá al otro lado."
+    ],
+    "mistakes": ["Levantar el talón de la pierna doblada.", "Redondear la espalda."]
+  },
+  {
+    "exercises": ["subida-al-banco", "subida-al-banco-con-mancuerna"],
+    "steps": [
+      "Poné un pie entero sobre un banco firme.",
+      "Subí empujando con ese pie hasta quedar parado arriba.",
+      "Bajá despacio con la otra pierna, controlando.",
+      "Hacé todas las repeticiones con la misma pierna y cambiá."
+    ],
+    "mistakes": [
+      "Impulsarse con el pie de abajo.",
+      "Usar un banco tan alto que la cadera quede por debajo de la rodilla."
+    ]
+  },
+  {
+    "exercises": ["sentadilla-sissy", "sentadilla-sissy-con-disco"],
+    "steps": [
+      "Agarrate de algo firme con una mano y pará los pies juntos.",
+      "Levantá los talones y llevá las rodillas hacia adelante mientras inclinás el cuerpo atrás.",
+      "Mantené el cuerpo en línea recta de las rodillas a los hombros.",
+      "Volvé empujando con los cuádriceps."
+    ],
+    "mistakes": [
+      "Doblar la cadera en lugar de mantenerla estirada.",
+      "Bajar más de lo que podés controlar."
+    ]
+  },
+  {
+    "exercises": [
+      "peso-muerto-con-barra",
+      "peso-muerto-con-barra-hexagonal",
+      "peso-muerto-con-mancuernas"
+    ],
+    "steps": [
+      "Pará los pies al ancho de la cadera, con el peso cerca de las piernas.",
+      "Agarrá el peso con la espalda recta, la cadera atrás y el pecho alto.",
+      "Subí empujando el piso con las piernas y llevando la cadera adelante, con el peso pegado al cuerpo.",
+      "Bajá controlando, primero la cadera atrás y después las rodillas."
+    ],
+    "mistakes": ["Redondear la espalda.", "Alejar el peso de las piernas."]
+  },
+  {
+    "exercises": [
+      "peso-muerto-rumano-con-barra",
+      "peso-muerto-rumano-con-kettlebell",
+      "peso-muerto-rumano-mancuernas"
+    ],
+    "steps": [
+      "Parate con el peso delante de los muslos y las rodillas apenas dobladas.",
+      "Llevá la cadera atrás bajando el peso pegado a las piernas, con la espalda recta.",
+      "Bajá hasta sentir el estiramiento detrás de los muslos, más o menos a media canilla.",
+      "Volvé llevando la cadera adelante y apretando los glúteos."
+    ],
+    "mistakes": [
+      "Redondear la espalda para bajar más.",
+      "Doblar mucho las rodillas, como en una sentadilla."
+    ]
+  },
+  {
+    "exercises": [
+      "peso-muerto-con-piernas-rigidas-con-barra",
+      "peso-muerto-con-piernas-rigidas-con-mancuernas"
+    ],
+    "steps": [
+      "Parate con el peso delante de los muslos y las piernas casi estiradas.",
+      "Bajá el peso llevando la cadera atrás, con la espalda recta.",
+      "Bajá hasta donde llegues sin redondear la espalda.",
+      "Volvé llevando la cadera adelante."
+    ],
+    "mistakes": ["Redondear la espalda.", "Trabar las rodillas por completo."]
+  },
+  {
+    "exercises": [
+      "peso-muerto-a-una-pierna-con-kettlebell",
+      "peso-muerto-a-una-pierna-con-mancuerna"
+    ],
+    "steps": [
+      "Parate sobre una pierna con la rodilla apenas doblada y el peso en la mano contraria.",
+      "Inclinate llevando la cadera atrás mientras la otra pierna sube estirada.",
+      "Bajá hasta que el torso quede casi paralelo al piso, con la cadera de frente.",
+      "Volvé apretando el glúteo de la pierna de apoyo. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Abrir la cadera hacia el costado.", "Redondear la espalda."]
+  },
+  {
+    "exercises": ["buenos-dias-con-barra"],
+    "steps": [
+      "Apoyá la barra sobre la parte alta de la espalda, con las rodillas apenas dobladas.",
+      "Inclinate llevando la cadera atrás, con la espalda recta.",
+      "Bajá hasta que el torso quede casi paralelo al piso o hasta donde llegues sin redondear.",
+      "Volvé llevando la cadera adelante."
+    ],
+    "mistakes": ["Redondear la espalda.", "Usar demasiado peso: es un ejercicio de control."]
+  },
+  {
+    "exercises": ["pull-through-en-polea"],
+    "steps": [
+      "Parate de espaldas a la polea baja, con la cuerda entre las piernas.",
+      "Da dos pasos adelante y llevá la cadera atrás, con la espalda recta.",
+      "Volvé llevando la cadera adelante y apretando los glúteos.",
+      "Los brazos solo sostienen la cuerda: no tiran."
+    ],
+    "mistakes": [
+      "Tirar con los brazos.",
+      "Hacer una sentadilla en lugar de llevar la cadera atrás."
+    ]
+  },
+  {
+    "exercises": ["swing-con-kettlebell", "swing-con-mancuernas"],
+    "steps": [
+      "Pará los pies algo más abiertos que la cadera, con el peso delante.",
+      "Llevá el peso entre las piernas llevando la cadera atrás, con la espalda recta.",
+      "Empujá la cadera adelante de golpe para que el peso suba hasta la altura del pecho.",
+      "Dejalo bajar y encadená la siguiente repetición."
+    ],
+    "mistakes": [
+      "Levantar el peso con los brazos.",
+      "Hacer una sentadilla en lugar de un movimiento de cadera."
+    ]
+  },
+  {
+    "exercises": ["extension-lumbar", "extension-lumbar-con-disco"],
+    "steps": [
+      "Apoyá la cadera en la almohadilla y los tobillos debajo de los rodillos.",
+      "Cruzá los brazos en el pecho o sostené el disco.",
+      "Bajá el torso doblando la cadera, con la espalda recta.",
+      "Subí hasta que el cuerpo quede en línea, sin pasarte hacia atrás."
+    ],
+    "mistakes": ["Arquear la espalda de más arriba.", "Hacerlo con impulso."]
+  },
+  {
+    "exercises": ["curl-nordico-inverso", "curl-nordico-inverso-con-disco"],
+    "steps": [
+      "Arrodillate con los pies apoyados atrás y el cuerpo en línea de las rodillas a la cabeza.",
+      "Inclinate hacia atrás despacio sin doblar la cadera.",
+      "Bajá hasta donde puedas controlar.",
+      "Volvé usando los cuádriceps."
+    ],
+    "mistakes": ["Doblar la cadera.", "Bajar más de lo que podés controlar."]
+  },
+  {
+    "exercises": ["hip-thrust-barra", "hip-thrust-con-mancuernas"],
+    "steps": [
+      "Apoyá la parte alta de la espalda en un banco y el peso sobre la cadera.",
+      "Poné los pies apoyados al ancho de la cadera, con las rodillas en 90° arriba.",
+      "Subí la cadera apretando los glúteos hasta que el torso quede paralelo al piso.",
+      "Bajá despacio sin apoyar del todo."
+    ],
+    "mistakes": [
+      "Arquear la zona lumbar en lugar de apretar los glúteos.",
+      "Poner los pies muy lejos o muy cerca."
+    ]
+  },
+  {
+    "exercises": ["hip-thrust-en-maquina-de-discos"],
+    "steps": [
+      "Sentate con la parte alta de la espalda en el respaldo y el rodillo sobre la cadera.",
+      "Poné los pies en la plataforma, al ancho de la cadera.",
+      "Subí la cadera apretando los glúteos hasta que el torso quede paralelo al piso.",
+      "Bajá despacio sin apoyar del todo."
+    ],
+    "mistakes": ["Arquear la zona lumbar.", "Empujar con la punta de los pies."]
+  },
+  {
+    "exercises": ["hip-thrust-a-una-pierna", "hip-thrust-a-una-pierna-con-mancuerna"],
+    "steps": [
+      "Apoyá la parte alta de la espalda en un banco y un pie en el piso.",
+      "Levantá la otra pierna doblada.",
+      "Subí la cadera con la pierna de apoyo hasta que quede en línea con el torso.",
+      "Bajá despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Dejar caer la cadera hacia un costado.", "Arquear la zona lumbar."]
+  },
+  {
+    "exercises": ["puente-de-gluteos", "puente-de-gluteos-con-barra"],
+    "steps": [
+      "Acostate boca arriba con las rodillas dobladas y los pies apoyados.",
+      "Si usás peso, apoyalo sobre la cadera.",
+      "Subí la cadera apretando los glúteos hasta que el cuerpo quede en línea.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Arquear la zona lumbar arriba.", "Empujar con la punta de los pies."]
+  },
+  {
+    "exercises": ["abduccion-de-cadera-en-maquina"],
+    "steps": [
+      "Sentate con la espalda apoyada y las almohadillas por fuera de las rodillas.",
+      "Abrí las piernas todo lo que puedas.",
+      "Sostené un segundo afuera.",
+      "Cerrá despacio, sin dejar que las placas choquen."
+    ],
+    "mistakes": ["Inclinarse hacia adelante para ayudarse.", "Cerrar de golpe."]
+  },
+  {
+    "exercises": ["aduccion-de-cadera-en-maquina"],
+    "steps": [
+      "Sentate con la espalda apoyada y las almohadillas por dentro de las rodillas.",
+      "Ajustá la apertura inicial a una que te resulte cómoda.",
+      "Cerrá las piernas apretando por dentro de los muslos.",
+      "Abrí despacio hasta la posición inicial."
+    ],
+    "mistakes": ["Abrir más de lo que tolerás.", "Abrir de golpe."]
+  },
+  {
+    "exercises": ["aduccion-de-cadera-en-polea"],
+    "steps": [
+      "Poné la tobillera en la polea baja y parate de costado, con esa pierna del lado de la polea.",
+      "Agarrate de la máquina y dejá la pierna un poco abierta.",
+      "Llevá la pierna hacia adentro, cruzándola delante de la otra.",
+      "Volvé despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Inclinar el torso para mover la pierna.", "Volver de golpe."]
+  },
+  {
+    "exercises": [
+      "elevacion-talones-pie",
+      "elevacion-de-talones-de-pie-con-mancuernas",
+      "elevacion-de-talones-de-pie-con-peso-corporal"
+    ],
+    "steps": [
+      "Parate con la punta de los pies en un escalón y los talones afuera.",
+      "Bajá los talones todo lo que puedas para estirar.",
+      "Subí en puntas de pie lo más alto posible.",
+      "Sostené un segundo arriba y bajá despacio."
+    ],
+    "mistakes": ["Rebotar abajo.", "Hacer un recorrido corto."]
+  },
+  {
+    "exercises": [
+      "elevacion-de-talon-a-una-pierna",
+      "elevacion-de-talon-a-una-pierna-con-mancuerna"
+    ],
+    "steps": [
+      "Parate sobre la punta de un pie en un escalón y agarrate de algo.",
+      "Bajá el talón todo lo que puedas.",
+      "Subí en punta de pie lo más alto posible.",
+      "Hacé todas las repeticiones y cambiá de pierna."
+    ],
+    "mistakes": ["Rebotar abajo.", "Doblar la rodilla para ayudarte."]
+  },
+  {
+    "exercises": ["elevacion-talones-sentado", "elevacion-de-talones-sentado-con-mancuernas"],
+    "steps": [
+      "Sentate con la punta de los pies en el escalón y el peso sobre las rodillas.",
+      "Bajá los talones todo lo que puedas.",
+      "Subí los talones lo más alto posible.",
+      "Sostené un segundo arriba y bajá despacio."
+    ],
+    "mistakes": ["Rebotar abajo.", "Hacer un recorrido corto."]
+  },
+  {
+    "exercises": [
+      "press-de-banca-con-barra",
+      "press-banca-mancuernas",
+      "press-de-banca-en-maquina-smith"
+    ],
+    "steps": [
+      "Acostate en el banco con los ojos debajo de la barra y los pies firmes en el piso.",
+      "Juntá los omóplatos y agarrá el peso un poco más abierto que los hombros.",
+      "Bajá controlando hasta tocar la parte baja del pecho, con los codos a unos 45° del cuerpo.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Abrir los codos a 90°.", "Despegar la cola del banco o rebotar en el pecho."]
+  },
+  {
+    "exercises": [
+      "press-inclinado-con-barra",
+      "press-inclinado-mancuernas",
+      "press-inclinado-en-maquina-smith"
+    ],
+    "steps": [
+      "Poné el banco a unos 30° y acostate con los pies firmes en el piso.",
+      "Juntá los omóplatos y agarrá el peso un poco más abierto que los hombros.",
+      "Bajá hasta la parte alta del pecho, con los codos a unos 45°.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Poner el banco muy vertical: pasa a ser de hombros.", "Rebotar en el pecho."]
+  },
+  {
+    "exercises": [
+      "press-declinado-con-barra",
+      "press-declinado-con-mancuernas",
+      "press-declinado-en-maquina-smith"
+    ],
+    "steps": [
+      "Acostate en el banco declinado con las piernas trabadas en los rodillos.",
+      "Juntá los omóplatos y agarrá el peso un poco más abierto que los hombros.",
+      "Bajá hasta la parte baja del pecho.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Rebotar en el pecho.", "Abrir los codos a 90°."]
+  },
+  {
+    "exercises": [
+      "press-con-agarre-cerrado-con-barra",
+      "press-con-agarre-cerrado-con-mancuernas",
+      "press-con-agarre-cerrado-en-maquina-smith"
+    ],
+    "steps": [
+      "Acostate en el banco con los pies firmes en el piso.",
+      "Agarrá el peso con las manos al ancho de los hombros.",
+      "Bajá hasta la parte baja del pecho con los codos pegados al cuerpo.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Juntar demasiado las manos y forzar las muñecas.", "Abrir los codos."]
+  },
+  {
+    "exercises": [
+      "press-en-el-suelo-con-barra",
+      "press-en-el-suelo-con-kettlebell",
+      "press-en-el-suelo-con-mancuernas"
+    ],
+    "steps": [
+      "Acostate en el piso con las rodillas dobladas y el peso sobre el pecho.",
+      "Bajá hasta que la parte de atrás de los brazos toque el piso.",
+      "Pausá un instante sin relajarte.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Golpear los codos contra el piso.", "Abrir los codos a 90°."]
+  },
+  {
+    "exercises": ["press-pecho-maquina", "press-de-pecho-en-maquina-de-discos"],
+    "steps": [
+      "Ajustá el asiento para que las manijas queden a la altura del pecho.",
+      "Apoyá la espalda en el respaldo y agarrá las manijas.",
+      "Empujá hasta estirar los brazos, sin trabar los codos.",
+      "Volvé despacio hasta sentir el estiramiento en el pecho."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Subir los hombros al empujar."]
+  },
+  {
+    "exercises": ["press-inclinado-en-maquina-de-discos"],
+    "steps": [
+      "Ajustá el asiento para que las manijas queden a la altura de la parte alta del pecho.",
+      "Apoyá bien la espalda y juntá los omóplatos.",
+      "Empujá en diagonal, hacia adelante y arriba, hasta casi estirar los brazos.",
+      "Volvé despacio hasta sentir el estiramiento en el pecho."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Subir los hombros al empujar."]
+  },
+  {
+    "exercises": ["press-de-pecho-en-polea"],
+    "steps": [
+      "Parate en el medio de las poleas, con un pie adelante y las manijas a la altura del pecho.",
+      "Inclinate apenas hacia adelante con el abdomen firme.",
+      "Empujá las manijas hacia adelante hasta casi juntarlas.",
+      "Volvé despacio hasta la altura del pecho."
+    ],
+    "mistakes": ["Arquear la espalda.", "Dejar que los cables te lleven hacia atrás."]
+  },
+  {
+    "exercises": ["press-en-angulo-con-barra", "press-en-angulo-en-landmine"],
+    "steps": [
+      "Apoyá un extremo de la barra en el piso o en el landmine y agarrá el otro a la altura del hombro.",
+      "Parate con los pies firmes y el abdomen apretado.",
+      "Empujá la barra hacia arriba y adelante hasta estirar el brazo.",
+      "Bajá despacio hasta el hombro."
+    ],
+    "mistakes": ["Arquear la espalda para empujar.", "Bajar de golpe."]
+  },
+  {
+    "exercises": ["flexion-de-brazos", "flexion-de-brazos-con-disco"],
+    "steps": [
+      "Apoyá las manos un poco más abiertas que los hombros y el cuerpo en línea recta.",
+      "Apretá el abdomen y los glúteos.",
+      "Bajá el pecho casi hasta el piso con los codos a unos 45°.",
+      "Empujá hasta estirar los brazos."
+    ],
+    "mistakes": ["Dejar caer la cadera.", "Hacer medio recorrido."]
+  },
+  {
+    "exercises": ["fondos", "fondos-con-disco"],
+    "steps": [
+      "Sostenete en las barras con los brazos estirados.",
+      "Inclinate apenas hacia adelante.",
+      "Bajá doblando los codos hasta que los hombros queden a la altura de los codos.",
+      "Subí empujando hasta estirar los brazos."
+    ],
+    "mistakes": ["Bajar más de lo que tolera el hombro.", "Balancear las piernas."]
+  },
+  {
+    "exercises": ["fondos-en-banco", "fondos-en-banco-con-disco"],
+    "steps": [
+      "Apoyá las manos en el borde de un banco detrás tuyo, con las piernas estiradas adelante.",
+      "Bajá doblando los codos hacia atrás, con la espalda cerca del banco.",
+      "Bajá hasta que los brazos queden en 90°.",
+      "Subí empujando hasta estirar los brazos."
+    ],
+    "mistakes": ["Abrir los codos hacia los costados.", "Alejar la espalda del banco."]
+  },
+  {
+    "exercises": ["apertura-de-pecho-con-mancuernas", "apertura-inclinada-con-mancuernas"],
+    "steps": [
+      "Acostate en el banco con una mancuerna en cada mano sobre el pecho, palmas enfrentadas.",
+      "Doblá apenas los codos y mantenelos así.",
+      "Abrí los brazos en arco hasta sentir el estiramiento en el pecho.",
+      "Cerrá en el mismo arco hasta juntar las mancuernas arriba."
+    ],
+    "mistakes": [
+      "Doblar y estirar los codos: se vuelve un press.",
+      "Bajar demasiado y forzar el hombro."
+    ]
+  },
+  {
+    "exercises": [
+      "apertura-de-pecho-en-maquina",
+      "apertura-inclinada-en-maquina",
+      "cruce-de-pecho-en-maquina"
+    ],
+    "steps": [
+      "Ajustá el asiento para que las manijas queden a la altura del pecho.",
+      "Apoyá la espalda y agarrá las manijas con los codos apenas doblados.",
+      "Juntá los brazos delante del pecho en un arco.",
+      "Abrí despacio hasta sentir el estiramiento."
+    ],
+    "mistakes": ["Despegar la espalda del respaldo.", "Abrir más de lo que tolera el hombro."]
+  },
+  {
+    "exercises": [
+      "apertura-de-pecho-en-polea",
+      "apertura-inclinada-en-polea",
+      "cruce-de-pecho-en-polea"
+    ],
+    "steps": [
+      "Parate en el medio de las poleas con un pie adelante y una manija en cada mano.",
+      "Doblá apenas los codos y mantenelos así.",
+      "Juntá las manos delante del pecho en un arco.",
+      "Abrí despacio hasta sentir el estiramiento."
+    ],
+    "mistakes": ["Doblar y estirar los codos.", "Dejar que los cables te lleven hacia atrás."]
+  },
+  {
+    "exercises": [
+      "apertura-de-abajo-hacia-arriba-con-mancuernas",
+      "apertura-de-abajo-hacia-arriba-en-polea"
+    ],
+    "steps": [
+      "Empezá con los brazos abajo, a los costados, y los codos apenas doblados.",
+      "Subí las manos en diagonal hasta juntarlas a la altura de los ojos.",
+      "Apretá la parte alta del pecho arriba.",
+      "Bajá despacio por el mismo camino."
+    ],
+    "mistakes": ["Subir los hombros.", "Usar impulso."]
+  },
+  {
+    "exercises": [
+      "apertura-de-arriba-hacia-abajo-con-mancuernas",
+      "apertura-de-arriba-hacia-abajo-en-polea"
+    ],
+    "steps": [
+      "Empezá con los brazos arriba, abiertos, y los codos apenas doblados.",
+      "Bajá las manos en diagonal hasta juntarlas a la altura de la cadera.",
+      "Apretá la parte baja del pecho abajo.",
+      "Volvé despacio por el mismo camino."
+    ],
+    "mistakes": ["Doblar y estirar los codos.", "Inclinar el torso para mover más peso."]
+  },
+  {
+    "exercises": [
+      "jalon-pecho",
+      "jalon-con-agarre-neutro-en-polea",
+      "jalon-con-agarre-neutro-en-maquina"
+    ],
+    "steps": [
+      "Sentate con los muslos bien trabados debajo de las almohadillas.",
+      "Agarrá la barra o las manijas con los brazos estirados.",
+      "Tirá llevando los codos hacia abajo y atrás hasta que las manos lleguen al pecho.",
+      "Subí despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Tirar la barra detrás de la nuca.", "Balancearse hacia atrás para bajar el peso."]
+  },
+  {
+    "exercises": ["jalon-con-brazos-rectos-en-polea", "jalon-con-brazos-rectos-en-maquina"],
+    "steps": [
+      "Parate frente a la polea alta y agarrá la barra o la cuerda con los brazos estirados.",
+      "Inclinate apenas hacia adelante con la espalda recta.",
+      "Llevá las manos hasta los muslos con los brazos casi estirados.",
+      "Volvé despacio hasta la altura de la cabeza."
+    ],
+    "mistakes": ["Doblar los codos: se vuelve un jalón.", "Mover el torso para ayudarte."]
+  },
+  {
+    "exercises": ["dominada", "dominada-supina"],
+    "steps": [
+      "Colgate de la barra con los brazos estirados: palmas hacia adelante, o hacia vos en la supina.",
+      "Apretá el abdomen y bajá los hombros.",
+      "Subí hasta que el mentón pase la barra.",
+      "Bajá despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Balancearse o patear para subir.", "Hacer medio recorrido."]
+  },
+  {
+    "exercises": [
+      "remo-sentado-polea",
+      "remo-sentado-en-maquina",
+      "remo-con-agarre-cerrado-en-maquina-de-discos"
+    ],
+    "steps": [
+      "Sentate con los pies apoyados, el pecho alto y los brazos estirados.",
+      "Tirá de las manijas llevando los codos hacia atrás, pegados al cuerpo.",
+      "Juntá los omóplatos al final.",
+      "Volvé despacio hasta estirar los brazos, sin redondear la espalda."
+    ],
+    "mistakes": [
+      "Balancear el torso hacia atrás para tirar.",
+      "Subir los hombros hacia las orejas."
+    ]
+  },
+  {
+    "exercises": [
+      "remo-con-apoyo-de-pecho-en-maquina",
+      "remo-con-apoyo-de-pecho-en-maquina-de-discos",
+      "remo-con-apoyo-de-pecho-con-mancuernas"
+    ],
+    "steps": [
+      "Apoyá el pecho en la almohadilla y agarrá las manijas o las mancuernas con los brazos estirados.",
+      "Tirá llevando los codos hacia atrás.",
+      "Juntá los omóplatos al final.",
+      "Bajá despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Despegar el pecho del apoyo.", "Subir los hombros hacia las orejas."]
+  },
+  {
+    "exercises": [
+      "remo-inclinado-con-barra",
+      "remo-inclinado-en-landmine",
+      "remo-inclinado-en-maquina-smith",
+      "remo-con-agarre-cerrado-con-barra",
+      "remo-con-agarre-cerrado-en-landmine"
+    ],
+    "steps": [
+      "Agarrá la barra y llevá la cadera atrás hasta que el torso quede inclinado, con la espalda recta.",
+      "Dejá los brazos colgando y las rodillas apenas dobladas.",
+      "Tirá la barra hacia la parte baja del pecho llevando los codos atrás.",
+      "Bajá despacio sin cambiar la inclinación."
+    ],
+    "mistakes": ["Redondear la espalda.", "Levantar el torso para tirar."]
+  },
+  {
+    "exercises": [
+      "remo-mancuerna-una-mano",
+      "remo-a-una-mano-con-kettlebell",
+      "remo-con-apoyo-con-kettlebell",
+      "remo-con-apoyo-con-mancuernas"
+    ],
+    "steps": [
+      "Apoyá una rodilla y la mano del mismo lado en el banco, con la espalda recta.",
+      "Agarrá el peso con la otra mano, con el brazo estirado.",
+      "Llevalo hacia la cadera tirando con el codo, cerca del cuerpo.",
+      "Bajalo controlando. Hacé todas las repeticiones de un lado y después cambiá."
+    ],
+    "mistakes": ["Girar el torso para subir el peso.", "Tirar con el bíceps en vez de con el codo."]
+  },
+  {
+    "exercises": ["remo-a-una-mano-en-polea"],
+    "steps": [
+      "Parate o sentate frente a la polea y agarrá la manija con un brazo estirado.",
+      "Tirá llevando el codo hacia atrás, cerca del cuerpo.",
+      "Juntá el omóplato al final.",
+      "Volvé despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Girar el torso para tirar.", "Subir el hombro."]
+  },
+  {
+    "exercises": ["remo-invertido", "remo-invertido-en-suspension"],
+    "steps": [
+      "Colgate de una barra baja o de las manijas con el cuerpo en línea y los talones apoyados.",
+      "Apretá el abdomen y los glúteos.",
+      "Tirá hasta que el pecho llegue a la barra o a las manos.",
+      "Bajá despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Dejar caer la cadera.", "Estirar el cuello hacia la barra."]
+  },
+  {
+    "exercises": ["jalon-a-la-cara-en-polea", "jalon-a-la-cara-en-suspension"],
+    "steps": [
+      "Agarrá la cuerda o las manijas a la altura de la cara, con los brazos estirados.",
+      "Tirá hacia la cara separando las manos.",
+      "Terminá con los codos altos y las manos al costado de las orejas.",
+      "Volvé despacio."
+    ],
+    "mistakes": ["Bajar los codos: se vuelve un remo.", "Tirar con el cuerpo hacia atrás."]
+  },
+  {
+    "exercises": [
+      "remo-para-deltoides-posterior-con-mancuernas",
+      "remo-para-deltoides-posterior-en-polea"
+    ],
+    "steps": [
+      "Inclinate con la espalda recta o apoyá el pecho en un banco inclinado.",
+      "Dejá los brazos colgando con los codos apenas doblados.",
+      "Abrí los brazos hacia los costados hasta la altura de los hombros.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Juntar los omóplatos en lugar de abrir los brazos.", "Usar impulso."]
+  },
+  {
+    "exercises": ["remo-para-deltoides-posterior-en-maquina"],
+    "steps": [
+      "Sentate mirando hacia el respaldo, con el pecho apoyado.",
+      "Agarrá las manijas con los brazos estirados a la altura de los hombros.",
+      "Abrí los brazos hacia atrás en un arco.",
+      "Volvé despacio."
+    ],
+    "mistakes": ["Despegar el pecho del respaldo.", "Doblar los codos para tirar."]
+  },
+  {
+    "exercises": ["pullover-con-mancuernas"],
+    "steps": [
+      "Acostate en el banco y sostené una mancuerna con las dos manos sobre el pecho.",
+      "Bajala por detrás de la cabeza con los codos apenas doblados.",
+      "Bajá hasta sentir el estiramiento en los dorsales.",
+      "Volvé por el mismo arco hasta arriba del pecho."
+    ],
+    "mistakes": ["Doblar mucho los codos.", "Arquear la espalda al bajar."]
+  },
+  {
+    "exercises": ["pullover-en-polea", "pullover-sentado-en-polea"],
+    "steps": [
+      "Agarrá la barra o la cuerda con los brazos estirados por encima de la cabeza.",
+      "Mantené los codos apenas doblados.",
+      "Bajá las manos en un arco hasta los muslos.",
+      "Volvé despacio por el mismo arco."
+    ],
+    "mistakes": ["Doblar los codos para tirar.", "Mover el torso para ayudarte."]
+  },
+  {
+    "exercises": [
+      "pullover-en-maquina-de-discos",
+      "pullover-sentado-en-maquina",
+      "pullover-sentado-en-maquina-de-discos"
+    ],
+    "steps": [
+      "Ajustá el asiento para que los hombros queden alineados con el eje de la máquina y abrochate el cinturón.",
+      "Apoyá los codos en las almohadillas con los brazos arriba.",
+      "Llevá los brazos hacia abajo en un arco hasta delante del cuerpo.",
+      "Volvé despacio hasta arriba."
+    ],
+    "mistakes": [
+      "Despegar la espalda del respaldo.",
+      "Tirar con las manos en lugar de con los codos."
+    ]
+  },
+  {
+    "exercises": [
+      "encogimiento-de-hombros-con-barra",
+      "encogimiento-de-hombros-con-barra-hexagonal",
+      "encogimiento-de-hombros-con-mancuernas"
+    ],
+    "steps": [
+      "Parate con el peso colgando y los brazos estirados.",
+      "Subí los hombros hacia las orejas.",
+      "Sostené un segundo arriba.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Girar los hombros en círculo.", "Doblar los codos."]
+  },
+  {
+    "exercises": ["press-hombros-mancuernas-sentado", "press-de-hombros-en-maquina"],
+    "steps": [
+      "Sentate con la espalda apoyada y el peso a la altura de los hombros.",
+      "Apretá el abdomen.",
+      "Empujá hacia arriba hasta casi estirar los brazos.",
+      "Bajá despacio hasta la altura de las orejas."
+    ],
+    "mistakes": ["Arquear la espalda para empujar.", "Bajar menos de la altura de las orejas."]
+  },
+  {
+    "exercises": ["press-militar-con-barra", "press-militar-en-maquina-smith"],
+    "steps": [
+      "Parate o sentate con la barra apoyada delante de los hombros.",
+      "Apretá el abdomen y los glúteos.",
+      "Empujá la barra hacia arriba, corriendo la cabeza para que pase.",
+      "Bajá despacio hasta delante de los hombros."
+    ],
+    "mistakes": ["Arquear la espalda.", "Empujar la barra lejos de la cara."]
+  },
+  {
+    "exercises": ["elevaciones-laterales-mancuernas"],
+    "steps": [
+      "Parate con una mancuerna en cada mano a los costados.",
+      "Doblá apenas los codos.",
+      "Subí los brazos hacia los costados hasta la altura de los hombros.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Usar impulso con el cuerpo.", "Subir los hombros hacia las orejas."]
+  },
+  {
+    "exercises": [
+      "remo-al-menton-con-barra",
+      "remo-al-menton-con-mancuernas",
+      "remo-al-menton-en-polea"
+    ],
+    "steps": [
+      "Parate con el peso delante de los muslos, agarre al ancho de los hombros.",
+      "Subí el peso pegado al cuerpo llevando los codos hacia arriba y afuera.",
+      "Subí hasta la altura del pecho, con los codos más altos que las manos.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Subir más allá del pecho y forzar el hombro.", "Agarrar demasiado cerrado."]
+  },
+  {
+    "exercises": ["rotacion-externa-en-polea"],
+    "steps": [
+      "Parate de costado a la polea, a la altura del codo, y agarrá la manija con la mano más lejana.",
+      "Pegá el codo al cuerpo doblado en 90°.",
+      "Girá el antebrazo hacia afuera sin despegar el codo.",
+      "Volvé despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Despegar el codo del cuerpo.", "Usar mucho peso: es un ejercicio liviano."]
+  },
+  {
+    "exercises": [
+      "curl-biceps-mancuernas",
+      "curl-de-pie-en-polea",
+      "curl-estricto-con-barra",
+      "curl-estricto-con-barra-ez",
+      "curl-estricto-en-polea",
+      "curl-supino-en-polea"
+    ],
+    "steps": [
+      "Parate con el peso a los costados o delante de los muslos, palmas hacia adelante.",
+      "Pegá los codos al cuerpo.",
+      "Subí el peso doblando los codos hasta la altura de los hombros.",
+      "Bajá despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Balancear el cuerpo.", "Adelantar los codos al subir."]
+  },
+  {
+    "exercises": ["curl-martillo-mancuernas", "curl-martillo-en-polea"],
+    "steps": [
+      "Parate con el peso a los costados, palmas enfrentadas.",
+      "Pegá los codos al cuerpo.",
+      "Subí doblando los codos sin girar las muñecas.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Balancear el cuerpo.", "Adelantar los codos."]
+  },
+  {
+    "exercises": ["curl-inclinado-con-mancuernas", "curl-inclinado-en-polea"],
+    "steps": [
+      "Acostate en un banco inclinado a unos 45° con los brazos colgando.",
+      "Dejá los codos apuntando al piso.",
+      "Subí el peso doblando los codos sin moverlos hacia adelante.",
+      "Bajá despacio hasta estirar los brazos."
+    ],
+    "mistakes": ["Adelantar los codos.", "Despegar la espalda del banco."]
+  },
+  {
+    "exercises": [
+      "curl-concentrado-con-kettlebell",
+      "curl-concentrado-con-mancuerna",
+      "curl-concentrado-en-polea"
+    ],
+    "steps": [
+      "Sentate y apoyá la parte de atrás del brazo contra el interior del muslo.",
+      "Dejá el brazo estirado con el peso abajo.",
+      "Subí el peso doblando el codo hacia el hombro.",
+      "Bajá despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Mover el hombro para ayudarte.", "Bajar de golpe."]
+  },
+  {
+    "exercises": [
+      "curl-predicador-con-barra-ez",
+      "curl-predicador-con-mancuerna",
+      "curl-predicador-en-maquina"
+    ],
+    "steps": [
+      "Sentate y apoyá la parte de atrás de los brazos en el atril.",
+      "Empezá con los brazos casi estirados.",
+      "Subí el peso doblando los codos.",
+      "Bajá despacio sin trabar los codos abajo."
+    ],
+    "mistakes": ["Despegar los brazos del atril.", "Dejar caer el peso abajo."]
+  },
+  {
+    "exercises": [
+      "curl-invertido-con-barra",
+      "curl-invertido-con-barra-ez",
+      "curl-invertido-en-polea"
+    ],
+    "steps": [
+      "Agarrá el peso con las palmas hacia abajo, al ancho de los hombros.",
+      "Pegá los codos al cuerpo.",
+      "Subí doblando los codos con las muñecas firmes.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Doblar las muñecas.", "Balancear el cuerpo."]
+  },
+  {
+    "exercises": [
+      "curl-de-muneca-con-barra",
+      "curl-de-muneca-con-mancuerna",
+      "curl-de-muneca-en-polea"
+    ],
+    "steps": [
+      "Apoyá los antebrazos en los muslos o en un banco, con las muñecas afuera.",
+      "Dejá caer el peso abriendo apenas los dedos.",
+      "Subí el peso doblando solo las muñecas.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Mover los antebrazos.", "Usar demasiado peso."]
+  },
+  {
+    "exercises": ["extension-triceps-polea"],
+    "steps": [
+      "Parate frente a la polea alta y agarrá la barra o la cuerda.",
+      "Pegá los codos al cuerpo.",
+      "Empujá hacia abajo hasta estirar los brazos.",
+      "Volvé despacio hasta que los antebrazos queden paralelos al piso."
+    ],
+    "mistakes": [
+      "Despegar los codos del cuerpo.",
+      "Inclinarse para empujar con el peso del cuerpo."
+    ]
+  },
+  {
+    "exercises": [
+      "extension-triceps-sobre-cabeza-polea",
+      "extension-de-triceps-sobre-la-cabeza-con-barra-ez",
+      "extension-de-triceps-sobre-la-cabeza-con-mancuernas"
+    ],
+    "steps": [
+      "Sostené el peso por encima de la cabeza con los brazos estirados.",
+      "Dejá los codos apuntando hacia adelante, cerca de la cabeza.",
+      "Bajá el peso detrás de la cabeza doblando solo los codos.",
+      "Estirá los brazos hasta arriba."
+    ],
+    "mistakes": ["Abrir los codos hacia los costados.", "Arquear la espalda."]
+  },
+  {
+    "exercises": [
+      "extension-de-triceps-acostado-con-barra",
+      "extension-de-triceps-acostado-con-barra-ez",
+      "extension-de-triceps-acostado-con-mancuernas"
+    ],
+    "steps": [
+      "Acostate en el banco con el peso arriba y los brazos estirados.",
+      "Llevá los brazos apenas hacia la cabeza.",
+      "Bajá el peso hacia la frente doblando solo los codos.",
+      "Estirá los brazos hasta arriba."
+    ],
+    "mistakes": ["Abrir los codos.", "Mover los hombros en lugar de los codos."]
+  },
+  {
+    "exercises": [
+      "extension-de-triceps-inclinado-con-mancuerna",
+      "extension-de-triceps-inclinado-en-polea"
+    ],
+    "steps": [
+      "Acostate en un banco inclinado con el peso en una mano y el brazo estirado.",
+      "Dejá el codo apuntando hacia arriba.",
+      "Bajá el peso detrás de la cabeza doblando solo el codo.",
+      "Estirá el brazo. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Mover el codo.", "Bajar de golpe."]
+  },
+  {
+    "exercises": ["patada-de-triceps-con-mancuerna", "patada-de-triceps-en-polea"],
+    "steps": [
+      "Inclinate con la espalda recta y apoyá la otra mano en un banco.",
+      "Pegá el codo al cuerpo con el brazo paralelo al piso.",
+      "Estirá el brazo hacia atrás.",
+      "Volvé despacio. Hacé todas las repeticiones y cambiá."
+    ],
+    "mistakes": ["Bajar el codo.", "Balancear el peso."]
+  },
+  {
+    "exercises": ["crunch", "crunch-con-disco", "crunch-con-pelota-de-estabilidad"],
+    "steps": [
+      "Acostate boca arriba con las rodillas dobladas y los pies apoyados.",
+      "Poné las manos al costado de la cabeza o el disco sobre el pecho.",
+      "Subí los hombros acercando las costillas a la cadera.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Tirar del cuello con las manos.", "Subir con impulso."]
+  },
+  {
+    "exercises": ["crunch-de-rodillas-en-polea"],
+    "steps": [
+      "Arrodillate frente a la polea alta y sostené la cuerda al costado de la cabeza.",
+      "Dejá la cadera quieta.",
+      "Bajá el torso enroscándolo hacia las rodillas.",
+      "Volvé despacio."
+    ],
+    "mistakes": ["Mover la cadera hacia atrás.", "Tirar con los brazos."]
+  },
+  {
+    "exercises": ["elevacion-de-piernas", "elevacion-de-piernas-en-suspension"],
+    "steps": [
+      "Acostate o colgate con las piernas estiradas.",
+      "Apretá el abdomen.",
+      "Subí las piernas hasta que la cadera se despegue un poco.",
+      "Bajá despacio sin apoyar del todo."
+    ],
+    "mistakes": ["Balancearse.", "Arquear la zona lumbar al bajar."]
+  },
+  {
+    "exercises": ["giro-ruso", "giro-ruso-con-disco"],
+    "steps": [
+      "Sentate con las rodillas dobladas y el torso inclinado hacia atrás, espalda recta.",
+      "Sostené las manos o el disco delante del pecho.",
+      "Girá el torso hacia un lado y después hacia el otro.",
+      "Mantené las piernas quietas."
+    ],
+    "mistakes": ["Redondear la espalda.", "Mover solo los brazos."]
+  },
+  {
+    "exercises": ["rollout-abdominal-con-rueda"],
+    "steps": [
+      "Arrodillate con la rueda delante y las manos en las manijas.",
+      "Apretá el abdomen y los glúteos.",
+      "Rodá hacia adelante hasta donde puedas sin arquear la espalda.",
+      "Volvé tirando con el abdomen."
+    ],
+    "mistakes": ["Arquear la zona lumbar.", "Ir más lejos de lo que podés controlar."]
+  },
+  {
+    "exercises": ["press-pallof-en-polea"],
+    "steps": [
+      "Parate de costado a la polea con la manija en las dos manos, delante del pecho.",
+      "Apretá el abdomen.",
+      "Estirá los brazos hacia adelante sin dejar que el cable te gire.",
+      "Volvé al pecho. Hacé todas las repeticiones y cambiá de lado."
+    ],
+    "mistakes": ["Dejar que el torso gire.", "Pararse muy cerca de la polea."]
+  }
+]

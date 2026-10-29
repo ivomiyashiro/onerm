@@ -55,6 +55,7 @@ const ROW = anExercise({
   name: 'Remo con mancuerna a una mano',
   primaryEquipment: 'dumbbell',
   isUnilateral: true,
+  technique: { steps: ['Apoyá una rodilla en el banco.'], mistakes: ['Girar el torso.'] },
 });
 const PRESS = anExercise({ id: 'press', name: 'Press de banca' });
 const CABLE_ROW = anExercise({ id: 'cable-row', name: 'Remo en polea', primaryMuscles: ['back'] });
@@ -110,7 +111,7 @@ async function renderScreen({
           })
         }
       >
-        <WorkoutScreen onClose={onClose} onFinished={onFinished} />
+        <WorkoutScreen onClose={onClose} onFinished={onFinished} onOpenVideo={jest.fn()} />
       </UseCasesProvider>
     </SafeAreaProvider>,
   );
@@ -414,6 +415,17 @@ describe('WorkoutScreen (S09)', () => {
     expect(screen.getByText(/podemos estimar tu máximo/)).toBeOnTheScreen();
     await user.press(screen.getByRole('button', { name: suggestions.why.understood }));
     expect(screen.queryByText(suggestions.why.calibrationTitle)).not.toBeOnTheScreen();
+  });
+
+  it('RF-CAT-02.AC7: tapping the exercise name opens «Cómo se hace» (S26) until it is closed', async () => {
+    const { user } = await renderScreen();
+
+    await user.press(screen.getByRole('button', { name: catalog.detail.howToOf(ROW.name) }));
+    expect(screen.getByText('Apoyá una rodilla en el banco.')).toBeOnTheScreen();
+    expect(screen.getByRole('button', { name: catalog.detail.video })).toBeOnTheScreen();
+
+    await user.press(screen.getByRole('button', { name: common.close }));
+    expect(screen.queryByText('Apoyá una rodilla en el banco.')).not.toBeOnTheScreen();
   });
 
   it('RF-SUG-02.AC4: a calibration set without effort blocks «Hecho» until it is chosen', async () => {

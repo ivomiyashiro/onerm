@@ -42,7 +42,6 @@ describe('onerm-v1 adapter: map (ADR-0004 §2)', () => {
         equipment: ['barbell'],
         mechanic: 'compound',
         isUnilateral: false,
-        description: null,
         attribution: {
           source: 'OneRM',
           license: 'Catálogo propio',

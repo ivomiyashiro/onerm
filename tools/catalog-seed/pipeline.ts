@@ -2,9 +2,11 @@ import type { Exercise } from '@/domain/models/exercise';
 import {
   EQUIPMENT,
   LOAD_TYPES,
+  MACHINES,
   MECHANICS,
   MUSCLES,
   type Equipment,
+  type Machine,
   type Muscle,
 } from '@/domain/models/vocabulary';
 
@@ -29,7 +31,21 @@ export interface CurationEntry {
   readonly equipment?: readonly Equipment[];
   readonly mechanic?: Exercise['mechanic'];
   readonly isUnilateral?: boolean;
-  readonly description?: string | null;
+  /** The machine to look for (#306): only for exercises done on one. */
+  readonly machine?: Machine;
+}
+
+/**
+ * How a movement is done (#306), written once by the team in `technique.json` and shared by every
+ * exercise it lists by slug: the bench press with a barbell or in the Smith machine is done the
+ * same way.
+ */
+export interface TechniqueEntry {
+  readonly exercises: readonly string[];
+  readonly steps: readonly string[];
+  readonly mistakes: readonly string[];
+  /** A curated video; without one the app searches YouTube. */
+  readonly videoUrl?: string;
 }
 
 /** An exercise as the pipeline outputs it, with the sources it came from (for the server). */
@@ -88,11 +104,27 @@ export function validateExercise(exercise: Exercise): string[] {
   if (!exercise.equipment.includes(exercise.primaryEquipment)) {
     problems.push('primaryEquipment is not in equipment');
   }
+  if (exercise.machine !== null) {
+    if (!oneOf(exercise.machine, MACHINES)) problems.push(`machine "${exercise.machine}"`);
+    else if (exercise.primaryEquipment !== 'machine') {
+      problems.push(
+        `machine "${exercise.machine}" on an exercise whose primaryEquipment is not machine`,
+      );
+    }
+  }
+  if (exercise.technique?.steps.length === 0) problems.push('technique without steps');
+  if (exercise.videoUrl !== null && !exercise.videoUrl.startsWith('https://')) {
+    problems.push(`videoUrl "${exercise.videoUrl}" is not https`);
+  }
   return problems;
 }
 
 /** Applies the curation over a candidate; null when it still lacks something the model needs. */
-function curate(entry: CurationEntry, candidate: ExerciseCandidate): Exercise | string {
+function curate(
+  entry: CurationEntry,
+  candidate: ExerciseCandidate,
+  techniques: ReadonlyMap<string, TechniqueEntry>,
+): Exercise | string {
   const name = (entry.name ?? candidate.name ?? '').trim().replace(/\s+/g, ' ');
   const primaryEquipment = entry.primaryEquipment ?? candidate.primaryEquipment;
   const mechanic = entry.mechanic ?? candidate.mechanic;
@@ -101,10 +133,12 @@ function curate(entry: CurationEntry, candidate: ExerciseCandidate): Exercise | 
   if (!primaryEquipment) return 'no primaryEquipment: add it to the curation';
   if (!mechanic) return 'no mechanic: add it to the curation';
   if (isUnilateral === null) return 'no isUnilateral: add it to the curation';
+  const slug = entry.slug ?? slugify(name);
+  const technique = techniques.get(slug);
 
   return {
     id: entry.id,
-    slug: entry.slug ?? slugify(name),
+    slug,
     name,
     aliases: [...(entry.aliases ?? candidate.aliases)],
     loadType: entry.loadType ?? candidate.loadType,
@@ -117,7 +151,11 @@ function curate(entry: CurationEntry, candidate: ExerciseCandidate): Exercise | 
     ],
     mechanic,
     isUnilateral,
-    description: entry.description !== undefined ? entry.description : candidate.description,
+    technique: technique
+      ? { steps: [...technique.steps], mistakes: [...technique.mistakes] }
+      : null,
+    machine: entry.machine ?? null,
+    videoUrl: technique?.videoUrl ?? null,
     attributions: [candidate.attribution],
     deprecatedAt: null,
   };
@@ -130,6 +168,7 @@ function curate(entry: CurationEntry, candidate: ExerciseCandidate): Exercise | 
 export async function runPipeline(
   adapters: readonly ExerciseSourceAdapter[],
   curation: readonly CurationEntry[],
+  techniques: readonly TechniqueEntry[] = [],
 ): Promise<PipelineReport> {
   const candidates = new Map<string, ExerciseCandidate>();
   const rejected: { source: string; externalId: string; reason: string }[] = [];
@@ -153,8 +192,17 @@ export async function runPipeline(
   }
 
   const errors: string[] = [];
+  const techniqueBySlug = new Map<string, TechniqueEntry>();
+  for (const technique of techniques) {
+    for (const slug of technique.exercises) {
+      if (techniqueBySlug.has(slug)) errors.push(`technique: "${slug}" has two techniques`);
+      techniqueBySlug.set(slug, technique);
+    }
+  }
+
   const exercises: SeededExercise[] = [];
   const seenEntries = new Set<string>();
+  const curatedSlugs = new Set<string>();
 
   for (const entry of curation) {
     const key = `${entry.source}:${entry.externalId}`;
@@ -173,11 +221,12 @@ export async function runPipeline(
       );
       continue;
     }
-    const curated = curate(entry, candidate);
+    const curated = curate(entry, candidate, techniqueBySlug);
     if (typeof curated === 'string') {
       errors.push(`${label}: ${curated}`);
       continue;
     }
+    curatedSlugs.add(curated.slug);
     const problems = validateExercise(curated);
     if (problems.length > 0) {
       errors.push(`${label}: invalid: ${problems.join('; ')}`);
@@ -209,6 +258,10 @@ export async function runPipeline(
     if (twin) possibleDuplicates.push(`"${name}" and "${twin}" have the same normalized name`);
     byName.set(normalized, name);
     unique.push(seeded);
+  }
+
+  for (const slug of techniqueBySlug.keys()) {
+    if (!curatedSlugs.has(slug)) errors.push(`technique: "${slug}" is not in the catalog`);
   }
 
   return { exercises: unique, rejected, errors, possibleDuplicates };
