@@ -102,6 +102,7 @@ Escenario: AC4b — Eliminar desde el historial
   Dado que veo un entrenamiento en el historial
   Cuando deslizo su fila, toco "Eliminar" y confirmo en D16
   Entonces desaparece del historial
+  Y mis sugerencias se recalculan como en AC5
 
 Escenario: AC5 — Todo se recalcula
   Dado que edité, agregué o eliminé datos de un entrenamiento pasado
