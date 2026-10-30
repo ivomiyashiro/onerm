@@ -259,6 +259,25 @@ describe('WorkoutScreen (S09)', () => {
     expect(sets()).toBe(before + 1);
   });
 
+  it('RF-ENT-05.AC2: swiping an added set removes it; a prescribed one has no swipe', async () => {
+    const { user } = await renderScreen();
+    const sets = () => screen.getAllByRole('button', { name: /^Serie \d/ }).length;
+    const before = sets();
+    expect(() => getByGestureTestId(`swipe set ${before}`)).toThrow();
+    await user.press(screen.getByRole('button', { name: text.exercise.addSet }));
+
+    await act(() =>
+      fireGestureHandler(getByGestureTestId(`swipe set ${before + 1}`), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -100 },
+        { state: State.END, translationX: -200 },
+      ]),
+    );
+    await user.press(screen.getByRole('button', { name: common.swipe.remove }));
+
+    expect(sets()).toBe(before);
+  });
+
   it('«Ver todos» goes to another exercise', async () => {
     const { user } = await renderScreen();
 
