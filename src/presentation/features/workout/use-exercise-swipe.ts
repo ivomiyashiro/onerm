@@ -1,5 +1,5 @@
-import { useEffect, useState } from 'react';
-import { Animated, Easing, useWindowDimensions } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, useWindowDimensions, type GestureResponderEvent } from 'react-native';
 import { Gesture } from 'react-native-gesture-handler';
 
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
@@ -20,6 +20,9 @@ const EDGE_RESISTANCE = 0.25;
  * opposite side; short of it, it springs back. With «reduce motion» nothing moves: the change is a
  * short fade. The gesture runs on the JS thread but only sets an `Animated.Value` (native driver):
  * no frame re-renders the screen.
+ *
+ * #317: like a swiped row (#254), once the touch is a swipe the screen takes it from what is under
+ * the finger, so lifting it never presses a set (React Native's press survives the move).
  */
 export function useExerciseSwipe({
   exerciseIndex,
@@ -95,9 +98,21 @@ export function useExerciseSwipe({
       });
     });
 
+  // Where the touch started, to tell a swipe from a press. Same offsets as the gesture.
+  const start = useRef({ x: 0, y: 0 });
+  const capture = {
+    onStartShouldSetResponderCapture: ({ nativeEvent }: GestureResponderEvent) => {
+      start.current = { x: nativeEvent.pageX, y: nativeEvent.pageY };
+      return false;
+    },
+    onMoveShouldSetResponderCapture: ({ nativeEvent }: GestureResponderEvent) =>
+      Math.abs(nativeEvent.pageY - start.current.y) < SCROLL_START &&
+      Math.abs(nativeEvent.pageX - start.current.x) >= SWIPE_START,
+  };
+
   const style = {
     opacity: fade,
     transform: [{ translateX: x }],
   };
-  return { gesture, style };
+  return { gesture, style, capture };
 }
