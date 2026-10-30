@@ -299,6 +299,26 @@ function Workout({
                     a11y={a11y}
                   />
                 );
+                // RF-ENT-05.AC2: a set added with «Agregar serie» is taken back swiping it, with
+                // nothing to confirm: it isn't logged. The prescribed ones stay (RF-ENT-05.AC1).
+                if (row.kind !== 'done' && row.extra)
+                  return (
+                    <SwipeRow
+                      key={`extra-${row.number}`}
+                      testID={`set ${row.number}`}
+                      actions={[
+                        {
+                          key: 'remove',
+                          label: common.swipe.remove,
+                          icon: 'trash',
+                          destructive: true,
+                          onPress: actions.removeSet,
+                        },
+                      ]}
+                    >
+                      {setRow}
+                    </SwipeRow>
+                  );
                 if (row.kind !== 'done')
                   return <View key={`pending-${row.number}`}>{setRow()}</View>;
                 // #198, #254: a done set is deleted (with «Deshacer») swiping it; tapping it edits it.

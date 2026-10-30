@@ -43,7 +43,13 @@ export type SetRowView =
       /** RF-SUG-02.AC4: a calibration set without its effort, asked below («Falta esfuerzo»). */
       missingEffort: boolean;
     }
-  | { kind: 'current' | 'pending'; number: number; values: PrefilledSet };
+  | {
+      kind: 'current' | 'pending';
+      number: number;
+      values: PrefilledSet;
+      /** RF-ENT-05.AC2: added with «Agregar serie», so it can be removed while not logged. */
+      extra: boolean;
+    };
 
 export interface WorkoutContent {
   status: 'content';
@@ -127,6 +133,8 @@ export interface WorkoutViewModel extends Pick<
     openExercises(): void;
     /** RF-ENT-05: one more set, preloaded with the values of the last one. */
     addSet(): void;
+    /** RF-ENT-05.AC2: takes back one set added to the current exercise and not logged. */
+    removeSet(): void;
     closeSheet(): void;
     openWorkoutMenu(): void;
     openSubstitute(): void;
@@ -163,6 +171,7 @@ function rowsOf(view: WorkoutExerciseView, extra: number, effortSetId: Id | null
         i >= prescribedLeft && sets.length > 0
           ? valuesOf(sets.at(-1)!)
           : prefill(view.suggestion, sets, view.recalculated),
+      extra: i >= prescribedLeft,
     });
   }
   return rows;
@@ -391,6 +400,12 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         if (!content) return;
         const id = content.exercise.exercise.id;
         setExtras((all) => ({ ...all, [id]: (all[id] ?? 0) + 1 }));
+      },
+      // The added sets are alike (all with the values of the last one): which one goes is the same.
+      removeSet() {
+        if (!content) return;
+        const id = content.exercise.exercise.id;
+        setExtras((all) => ({ ...all, [id]: Math.max(0, (all[id] ?? 0) - 1) }));
       },
       closeSheet: () => setSheet(null),
       openHowTo: () => setSheet({ kind: 'howTo' }),
