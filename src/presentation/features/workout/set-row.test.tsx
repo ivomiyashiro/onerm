@@ -34,7 +34,7 @@ describe('SetRow (RNF-18)', () => {
   });
 
   it('the current set reads its number and values, and how to adjust it', async () => {
-    await renderRow({ kind: 'current', number: 2, values: { loadKg: 5, reps: 8 } });
+    await renderRow({ kind: 'current', number: 2, values: { loadKg: 5, reps: 8 }, extra: false });
 
     expect(screen.getByRole('button', { name: 'Serie 2, 5 kg, × 8' })).toHaveProp(
       'accessibilityHint',

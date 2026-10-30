@@ -158,8 +158,8 @@ describe('useWorkoutViewModel', () => {
 
     expect(content().exerciseIndex).toBe(0);
     expect(content().rows).toEqual([
-      { kind: 'current', number: 1, values: { loadKg: 105, reps: 8 } },
-      { kind: 'pending', number: 2, values: { loadKg: 105, reps: 8 } },
+      { kind: 'current', number: 1, values: { loadKg: 105, reps: 8 }, extra: false },
+      { kind: 'pending', number: 2, values: { loadKg: 105, reps: 8 }, extra: false },
     ]);
     expect(content().primary).toBe('done');
   });
@@ -226,7 +226,7 @@ describe('useWorkoutViewModel', () => {
     expect(sets(workouts)).toMatchObject([{ reps: 9 }]);
   });
 
-  it('RF-ENT-05: «Agregar serie» adds a row with the values of the last set', async () => {
+  it('RF-ENT-05.AC1: «Agregar serie» adds a row with the values of the last set', async () => {
     const { result, content } = await renderViewModel();
     await act(() => result.current.actions.goTo(0));
     await act(() => result.current.actions.done());
@@ -240,7 +240,24 @@ describe('useWorkoutViewModel', () => {
       kind: 'current',
       number: 3,
       values: { loadKg: 105, reps: 8 },
+      extra: true,
     });
+  });
+
+  it('RF-ENT-05.AC2: an added set not logged yet can be removed; a prescribed one cannot', async () => {
+    const { result, content } = await renderViewModel();
+    await act(() => result.current.actions.addSet());
+    await act(() => result.current.actions.addSet());
+    expect(content().rows.map((r) => r.kind !== 'done' && r.extra)).toEqual([
+      false,
+      false,
+      true,
+      true,
+    ]);
+
+    await act(() => result.current.actions.removeSet());
+
+    expect(content().rows.map((r) => r.kind !== 'done' && r.extra)).toEqual([false, false, true]);
   });
 
   it('RF-ENT-14.AC1: a warm-up set is logged but is not a prescribed set: no move on', async () => {
