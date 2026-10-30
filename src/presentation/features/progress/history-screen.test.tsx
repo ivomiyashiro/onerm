@@ -1,4 +1,6 @@
-import { render, screen, userEvent } from '@testing-library/react-native';
+import { act, render, screen, userEvent } from '@testing-library/react-native';
+import { State } from 'react-native-gesture-handler';
+import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Workout } from '@/domain/models/workout';
@@ -13,12 +15,19 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import { ObserveHistory } from '@/domain/usecases/observe-history';
 import { HistoryScreen } from '@/presentation/features/progress/history-screen';
+import { common } from '@/presentation/strings/common';
+import { dialogs } from '@/presentation/strings/dialogs';
 import { principles } from '@/presentation/strings/principles';
 import { progress as text } from '@/presentation/strings/progress';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 
 jest.useFakeTimers();
+
+jest.mock('expo-router', () => ({
+  ...jest.requireActual('expo-router'),
+  useIsFocused: () => true,
+}));
 
 const METRICS = {
   frame: { x: 0, y: 0, width: 390, height: 844 },
@@ -120,5 +129,22 @@ describe('HistoryScreen (S18)', () => {
     await user.press(screen.getByRole('button', { name: text.overview.why10 }));
 
     expect(screen.getByText(principles['P-03'])).toBeOnTheScreen();
+  });
+
+  it('RF-PROG-03.AC4b: swiping a workout deletes it after D16', async () => {
+    const { user } = await renderScreen([on('w1', 28, 100), on('w2', 30, 105)]);
+
+    await act(() =>
+      fireGestureHandler(getByGestureTestId('swipe w2'), [
+        { state: State.BEGAN, translationX: 0 },
+        { state: State.ACTIVE, translationX: -100 },
+        { state: State.END, translationX: -300 },
+      ]),
+    );
+    await user.press(screen.getByRole('button', { name: common.swipe.delete }));
+    expect(screen.getByText(dialogs.D16.body('workout', 1))).toBeOnTheScreen();
+    await user.press(screen.getByRole('button', { name: dialogs.D16.deleteDestructive }));
+
+    expect(screen.getAllByRole('button', { name: 'Día A · Cuerpo completo' })).toHaveLength(1);
   });
 });

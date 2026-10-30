@@ -207,7 +207,7 @@ Leyenda: ✅ se diseña · — no aplica. **"Carga"** es breve en casi todas las
 | S15 Editor | — | ✅ | ✅ día sin ejercicios | ✅ validaciones (RN-RUT-04/05) | ✅ | — | Reordenando (arrastrar el asa; subir-bajar como acciones accesibles) · deslizar una fila: Editar / Quitar (#198) · advertencia de RIR 0 (en el campo) · D08 · D15 |
 | S16 Buscador | ✅ | ✅ | ✅ sin resultados | — | ✅ | — | Filtros activos |
 | S17 Ejercicio | — | ✅ | — | — | ✅ | — | Sin descripción (sección oculta) · obsoleto · "no disponible todavía" |
-| S18 Progreso | ✅ | ✅ historial · volumen semanal | ✅ sin entrenamientos | ✅ | ✅ | — | Ítem "pendiente de respaldo" |
+| S18 Progreso | ✅ | ✅ historial · volumen semanal | ✅ sin entrenamientos | ✅ | ✅ | — | Ítem "pendiente de respaldo" · tocar un entrenamiento abre S19 · deslizarlo: Eliminar, con D16 (#322) |
 | S19 Detalle editable | — | ✅ lectura · edición | — | ✅ validación | ✅ | — | Sustitutos y salteados marcados · D16 |
 | S20 Progreso de ejercicio | ✅ | ✅ línea (≥ 2 puntos) + récords | ✅ 1 punto | — | ✅ | — | Solo mejor serie (sin e1RM) · peso corporal |
 | S21 Perfil | — | ✅ sync: respaldado · sincronizando · pendiente (sin conexión) · pendiente (con conexión, por respaldar) · conflicto · error de red · **sesión vencida** · invitado · app vieja | — | ✅ | ✅ | ✅ estado del permiso de notificaciones y de alarmas exactas | D03, D06, D14, D17 |

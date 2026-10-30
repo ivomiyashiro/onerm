@@ -14,6 +14,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- History (S18): swiping a workout left offers «Eliminar»; after D16 it leaves the history and the suggestions are recalculated (#322).
 - How each exercise is done: «Cómo se hace» with numbered steps and «Errores comunes» for every exercise, a picture of the machine for the machine exercises, and «Ver un video», which opens YouTube (disabled offline). In the exercise detail (S17) and, in the workout, with ⓘ next to the swap button (S26). New exercise: «Press inclinado en máquina de discos» (#306).
 - The rest counts down on the lock screen in an ongoing notification on Android, with the next set; «+15 s» and «Reiniciar» move it, «Saltear» removes it, and it goes away when the rest ends (#305).
 - The rest counts down on the iPhone lock screen and in the Dynamic Island in a Live Activity, which says «¡Descanso terminado!» when it ends (#305).
