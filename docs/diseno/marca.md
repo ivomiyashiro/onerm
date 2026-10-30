@@ -323,3 +323,19 @@ Mostrar u ocultar la contraseña es un ícono dentro del campo, a la derecha, en
 | Nombre accesible | «Mostrar contraseña» / «Ocultar contraseña», según el estado |
 
 Pendiente: dibujar `Icon/eye` e `Icon/eye-off` en la sección «Íconos» de Figma y actualizar los marcos de S02, S03 y S24 (la implementación sigue las medidas de arriba).
+
+## 23. El descanso en la pantalla bloqueada del iPhone (2026-10-30, #323)
+
+La Live Activity era una fila de texto con el amarillo de antes del cambio a lima (§10). Se rehízo siguiendo lo que Apple dice de Liquid Glass (WWDC25, «Meet Liquid Glass»): el vidrio es la capa de controles y no se apila vidrio sobre vidrio. La Live Activity ya es un contenedor del sistema con su material, así que **no** lleva `glassEffect`: se tiñe con el fondo de la marca.
+
+| Parte | Decisión |
+|---|---|
+| Fondo (pantalla bloqueada) | `activityBackgroundTint` con `bg` `#0E0E0D` al 72 %: el sistema desenfoca el fondo de pantalla detrás. Oscuro también con la pantalla bloqueada en modo claro o con el vidrio transparente, porque el lima sobre el vidrio claro no se lee |
+| Textos | Colores fijos de la marca (`tx` `#F4F4EF`, `mu` `#A3A39B`), no los del sistema: el fondo es siempre oscuro |
+| Encabezado | Ícono `timer` en lima y «Descanso» en `subheadline` semibold. Debajo, «Siguiente: …» en gris, hasta dos líneas |
+| Tiempo | 44 pt bold, redondeado y con dígitos monoespaciados, en lima (`accent-text`), a la derecha |
+| Progreso | Barra lineal lima que se vacía sola durante el descanso (`ProgressView` con el rango de tiempo, sin updates de la app) |
+| Dynamic Island | Compacta: el ícono a la izquierda y el tiempo a la derecha. Mínima: el tiempo. Expandida: encabezado, tiempo de 28 pt, lo que sigue y la barra |
+| Terminado | «¡Descanso terminado!» con el check en turquesa (`ok`), el tiempo en gris y sin barra |
+
+Es una excepción a «el temporizador es gris» (§10), como el anillo lima del descanso a pantalla completa (§13): fuera de la app, el tiempo es lo único que importa.
