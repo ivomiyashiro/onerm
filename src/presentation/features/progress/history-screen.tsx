@@ -7,12 +7,15 @@ import type { HistoryItem } from '@/domain/usecases/observe-history';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Badge } from '@/presentation/components/badge/badge';
+import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Icon } from '@/presentation/components/icons/icon';
+import { SwipeRow } from '@/presentation/components/list/swipe-row';
 import { SectionTabs } from '@/presentation/components/navigation/section-tabs';
 import { Text } from '@/presentation/components/text';
 import { useHistoryViewModel } from '@/presentation/features/progress/use-history-view-model';
 import { WeeklyVolumeView } from '@/presentation/features/progress/weekly-volume-view';
 import { common } from '@/presentation/strings/common';
+import { dialogs } from '@/presentation/strings/dialogs';
 import { progress as text } from '@/presentation/strings/progress';
 import { colors, radius, space, typography } from '@/presentation/theme';
 
@@ -29,7 +32,7 @@ interface HistoryScreenProps {
  * in a virtualized list so a long history scrolls without stutter (AC4, RNF-14).
  */
 export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps) {
-  const { state, actions } = useHistoryViewModel();
+  const { state, confirm, actions } = useHistoryViewModel();
   const insets = useSafeAreaInsets();
   const [section, setSection] = useState<'history' | 'volume'>('history');
   // RNF-14: a new array on every render would re-render every visible row.
@@ -75,6 +78,7 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
               first={index === 0}
               last={index === section.data.length - 1}
               onOpen={onOpenWorkout}
+              onDelete={actions.askDelete}
             />
           )}
         />
@@ -102,67 +106,101 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
           )}
         </View>
       )}
+      <Dialog
+        visible={confirm !== null}
+        title={dialogs.D16.title('workout')}
+        body={dialogs.D16.body('workout', confirm?.sets)}
+        actions={[
+          { label: dialogs.D16.cancel, kind: 'safe', onPress: actions.closeConfirm },
+          {
+            label: dialogs.D16.deleteDestructive,
+            kind: 'destructive',
+            onPress: () => void actions.confirmDelete(),
+          },
+        ]}
+        onDismiss={actions.closeConfirm}
+      />
     </View>
   );
 }
 
 /**
  * A workout of the history: its date, day and routine, duration, sets and records, and «Pendiente»
- * while an account's workout is not backed up yet (RF-PROG-01.AC2).
+ * while an account's workout is not backed up yet (RF-PROG-01.AC2). Tapping it opens S19; swiping
+ * it offers «Eliminar» (#322, RF-PROG-03.AC4), also to screen readers.
  */
 const HistoryRow = memo(function HistoryRow({
   item,
   first,
   last,
   onOpen,
+  onDelete,
 }: {
   item: HistoryItem;
   first: boolean;
   last: boolean;
   onOpen: (workoutId: Id) => void;
+  onDelete: (item: HistoryItem) => void;
 }) {
   const title = text.overview.workoutTitle(item.dayName, item.routineName);
   const month = common.months[item.finishedAt.getMonth()];
   return (
-    <Pressable
-      accessibilityRole="button"
-      accessibilityLabel={item.pending ? `${title}, ${text.overview.pending}` : title}
-      onPress={() => onOpen(item.id)}
-      style={({ pressed }) => [
-        styles.row,
-        first && styles.rowFirst,
-        last && styles.rowLast,
-        !first && styles.rowDivider,
-        pressed && { backgroundColor: colors.bgRaised },
+    <SwipeRow
+      testID={item.id}
+      actions={[
+        {
+          key: 'delete',
+          label: common.swipe.delete,
+          icon: 'trash',
+          destructive: true,
+          onPress: () => onDelete(item),
+        },
       ]}
+      borderRadius={{ top: first ? radius.xl : 0, bottom: last ? radius.xl : 0 }}
     >
-      <View style={styles.date}>
-        <Text style={[typography.numberSm, { color: colors.textPrimary }]}>
-          {String(item.finishedAt.getDate())}
-        </Text>
-        <Text style={[typography.labelS, { color: colors.textSecondary }]}>
-          {month.slice(0, 3)}
-        </Text>
-      </View>
-      <View style={styles.texts}>
-        <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{title}</Text>
-        <View style={styles.meta}>
-          <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
-            {text.overview.workoutMeta(item.minutes, item.sets)}
-          </Text>
-          {item.records > 0 && (
-            <View style={styles.records}>
-              <Icon name="trophy" size={14} color={colors.textAccent} />
-              <Text style={[typography.bodyS, { color: colors.textAccent }]}>
-                {text.overview.records(item.records)}
+      {(a11y) => (
+        <Pressable
+          {...a11y}
+          accessibilityRole="button"
+          accessibilityLabel={item.pending ? `${title}, ${text.overview.pending}` : title}
+          onPress={() => onOpen(item.id)}
+          style={({ pressed }) => [
+            styles.row,
+            first && styles.rowFirst,
+            last && styles.rowLast,
+            !first && styles.rowDivider,
+            pressed && { backgroundColor: colors.bgRaised },
+          ]}
+        >
+          <View style={styles.date}>
+            <Text style={[typography.numberSm, { color: colors.textPrimary }]}>
+              {String(item.finishedAt.getDate())}
+            </Text>
+            <Text style={[typography.labelS, { color: colors.textSecondary }]}>
+              {month.slice(0, 3)}
+            </Text>
+          </View>
+          <View style={styles.texts}>
+            <Text style={[typography.bodyRow, { color: colors.textPrimary }]}>{title}</Text>
+            <View style={styles.meta}>
+              <Text style={[typography.bodyS, { color: colors.textSecondary }]}>
+                {text.overview.workoutMeta(item.minutes, item.sets)}
               </Text>
+              {item.records > 0 && (
+                <View style={styles.records}>
+                  <Icon name="trophy" size={14} color={colors.textAccent} />
+                  <Text style={[typography.bodyS, { color: colors.textAccent }]}>
+                    {text.overview.records(item.records)}
+                  </Text>
+                </View>
+              )}
+              {item.pending && <Badge label={text.overview.pending} />}
             </View>
-          )}
-          {item.pending && <Badge label={text.overview.pending} />}
-        </View>
-      </View>
-      <Icon name="chevron" size={20} color={colors.textPrimary} />
-    </Pressable>
+          </View>
+          <Icon name="chevron" size={20} color={colors.textPrimary} />
+        </Pressable>
+      )}
+    </SwipeRow>
   );
 });
 

@@ -68,11 +68,21 @@ export function SwipeRow({
   actions: SwipeAction[];
   /** The gesture is `swipe {testID}` in tests. */
   testID: string;
-  /** The row's corner radius, for the tint to follow its shape. */
-  borderRadius?: number;
+  /** The row's corner radius, for the tint to follow its shape: the same for the four corners, or
+   * one for the top and one for the bottom (#322: the rows of a month in S18 make one card). */
+  borderRadius?: number | { top: number; bottom: number };
   children: (a11y: SwipeA11y) => ReactNode;
 }) {
   const width = actions.length * (ACTION_GAP + ACTION_SIZE) + ACTION_GAP;
+  const corners =
+    typeof borderRadius === 'number'
+      ? { borderRadius }
+      : {
+          borderTopLeftRadius: borderRadius.top,
+          borderTopRightRadius: borderRadius.top,
+          borderBottomLeftRadius: borderRadius.bottom,
+          borderBottomRightRadius: borderRadius.bottom,
+        };
   const reduce = useReduceMotion();
   const [x] = useState(() => new Animated.Value(0));
   const [open, setOpen] = useState(false);
@@ -202,7 +212,7 @@ export function SwipeRow({
             <Animated.View
               testID={`tint ${testID}`}
               pointerEvents="none"
-              style={[StyleSheet.absoluteFill, styles.tint, { borderRadius, opacity: fade }]}
+              style={[StyleSheet.absoluteFill, styles.tint, corners, { opacity: fade }]}
             />
           )}
         </Animated.View>
