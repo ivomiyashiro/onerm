@@ -98,6 +98,11 @@ Escenario: AC4 — Eliminar el entrenamiento
   Cuando lo elimino y confirmo en D16
   Entonces desaparece del historial
 
+Escenario: AC4b — Eliminar desde el historial
+  Dado que veo un entrenamiento en el historial
+  Cuando deslizo su fila, toco "Eliminar" y confirmo en D16
+  Entonces desaparece del historial
+
 Escenario: AC5 — Todo se recalcula
   Dado que edité, agregué o eliminé datos de un entrenamiento pasado
   Cuando veo sugerencias, progreso, récords o el próximo día

@@ -131,7 +131,7 @@ describe('HistoryScreen (S18)', () => {
     expect(screen.getByText(principles['P-03'])).toBeOnTheScreen();
   });
 
-  it('RF-PROG-03.AC4 from S18: swiping a workout deletes it after D16', async () => {
+  it('RF-PROG-03.AC4b: swiping a workout deletes it after D16', async () => {
     const { user } = await renderScreen([on('w1', 28, 100), on('w2', 30, 105)]);
 
     await act(() =>

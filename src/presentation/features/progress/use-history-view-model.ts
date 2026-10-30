@@ -20,7 +20,7 @@ export type HistoryState =
   | { status: 'empty' }
   | { status: 'error' };
 
-/** D16 for a swiped workout (RF-PROG-03.AC4 from S18): its sets, for «Se eliminan … {n} series». */
+/** D16 for a swiped workout (RF-PROG-03.AC4b): its sets, for «Se eliminan … {n} series». */
 export interface HistoryConfirm {
   workoutId: Id;
   sets: number;
@@ -55,7 +55,7 @@ function monthsOf(items: readonly HistoryItem[]): HistoryMonth[] {
 
 /**
  * S18 · Historial (RF-PROG-01): the finished workouts from the local database. A swiped row is
- * deleted after D16 (RF-PROG-03.AC4, #322).
+ * deleted after D16 (RF-PROG-03.AC4b, #322).
  */
 export function useHistoryViewModel(): HistoryViewModel {
   const { observeHistory, deleteWorkout } = useUseCases();

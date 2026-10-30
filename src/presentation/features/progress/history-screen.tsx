@@ -127,7 +127,7 @@ export function HistoryScreen({ onOpenWorkout, onStartNext }: HistoryScreenProps
 /**
  * A workout of the history: its date, day and routine, duration, sets and records, and «Pendiente»
  * while an account's workout is not backed up yet (RF-PROG-01.AC2). Tapping it opens S19; swiping
- * it offers «Eliminar» (#322, RF-PROG-03.AC4), also to screen readers.
+ * it offers «Eliminar» (#322, RF-PROG-03.AC4b), also to screen readers.
  */
 const HistoryRow = memo(function HistoryRow({
   item,

@@ -84,7 +84,7 @@ describe('useHistoryViewModel', () => {
     expect(result.current.state).toMatchObject({ status: 'content' });
   });
 
-  it('RF-PROG-03.AC4 from S18: deleting asks with D16 and the workout leaves the history', async () => {
+  it('RF-PROG-03.AC4b: deleting asks with D16 and the workout leaves the history', async () => {
     const { result } = await renderViewModel([on('sep-30', 8, 30), on('oct-1', 9, 1)]);
     const [october] = result.current.state.status === 'content' ? result.current.state.months : [];
 
