@@ -83,4 +83,30 @@ describe('useHistoryViewModel', () => {
 
     expect(result.current.state).toMatchObject({ status: 'content' });
   });
+
+  it('RF-PROG-03.AC4 from S18: deleting asks with D16 and the workout leaves the history', async () => {
+    const { result } = await renderViewModel([on('sep-30', 8, 30), on('oct-1', 9, 1)]);
+    const [october] = result.current.state.status === 'content' ? result.current.state.months : [];
+
+    await act(() => result.current.actions.askDelete(october.items[0]));
+    expect(result.current.confirm).toEqual({ workoutId: 'oct-1', sets: 0 });
+    await act(() => result.current.actions.confirmDelete());
+
+    expect(result.current.confirm).toBeNull();
+    expect(result.current.state).toMatchObject({
+      status: 'content',
+      months: [{ title: 'septiembre 2026', items: [{ id: 'sep-30' }] }],
+    });
+  });
+
+  it('cancelling D16 keeps the workout', async () => {
+    const { result } = await renderViewModel([on('oct-1', 9, 1)]);
+    const [october] = result.current.state.status === 'content' ? result.current.state.months : [];
+
+    await act(() => result.current.actions.askDelete(october.items[0]));
+    await act(() => result.current.actions.closeConfirm());
+
+    expect(result.current.confirm).toBeNull();
+    expect(result.current.state).toMatchObject({ months: [{ items: [{ id: 'oct-1' }] }] });
+  });
 });
