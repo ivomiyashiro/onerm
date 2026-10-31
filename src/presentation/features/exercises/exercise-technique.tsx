@@ -33,7 +33,6 @@ export function ExerciseTechnique({ technique }: { technique: Technique }) {
           >
             {catalog.detail.mistakes}
           </Text>
-          {/* #319: a long mistake wraps under its own text, not under the bullet. */}
           {technique.mistakes.map((mistake) => (
             <View key={mistake} style={styles.mistake}>
               <Text
