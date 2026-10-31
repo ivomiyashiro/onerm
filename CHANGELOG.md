@@ -79,6 +79,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- «Errores comunes» (S17, S26): a long mistake wraps onto the next line, under its own text, instead of being cut off (#319).
 - The rest-end notification shows the OneRM plate in the Android status bar, tinted with the yellow accent, instead of a generic square (#293).
 - Routine editor: with many days, the pills fade out before the «⋯» button instead of being cut off next to it (#272).
 - Routine editor (S15): with the keyboard open, an exercise's sheet shows the field being filled and the «Listo»/«Guardar» button, now fixed at the bottom of the sheet; on Android, «Siguiente» on the keyboard goes from the sets to the minimum and maximum reps (#270).

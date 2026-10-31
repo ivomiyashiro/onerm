@@ -33,10 +33,18 @@ export function ExerciseTechnique({ technique }: { technique: Technique }) {
           >
             {catalog.detail.mistakes}
           </Text>
+          {/* #319: a long mistake wraps under its own text, not under the bullet. */}
           {technique.mistakes.map((mistake) => (
-            <Text key={mistake} style={[typography.bodyM, { color: colors.textSecondary }]}>
-              {catalog.detail.mistake(mistake)}
-            </Text>
+            <View key={mistake} style={styles.mistake}>
+              <Text
+                style={[typography.bodyM, { color: colors.textSecondary }]}
+                accessibilityElementsHidden
+                importantForAccessibility="no"
+              >
+                {catalog.detail.bullet}
+              </Text>
+              <Text style={[typography.bodyM, styles.mistakeText]}>{mistake}</Text>
+            </View>
           ))}
         </View>
       )}
@@ -62,4 +70,6 @@ const styles = StyleSheet.create({
     borderRadius: radius.lg,
     backgroundColor: colors.bgWarnSoft,
   },
+  mistake: { flexDirection: 'row', gap: space.s6 },
+  mistakeText: { flex: 1, color: colors.textSecondary },
 });
