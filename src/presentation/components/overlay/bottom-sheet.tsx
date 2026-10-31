@@ -18,6 +18,8 @@ import { Text } from '@/presentation/components/text';
 
 /** The gap between the floating sheet and the screen edges (Figma «BottomSheet»). */
 const FLOAT_GAP = space.s8;
+/** The visible circle of the × button, inside its 48 dp target. */
+const CLOSE_CIRCLE = 40;
 
 interface SheetContentProps {
   title: string;
@@ -185,22 +187,23 @@ const styles = StyleSheet.create({
   },
   handleArea: { alignItems: 'center', paddingTop: 10, paddingBottom: 6 },
   handle: { width: 44, height: 5, borderRadius: 5, backgroundColor: colors.handleGrab },
-  // #318: the title on the content's margin and centred with the ×.
+  // #318: the title on the content's margin and centred with the × (Figma's frame still has a
+  // 4 dp inset and the title on top).
   header: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 6, paddingBottom: 10 },
   titles: { flex: 1, gap: 4 },
   closeArea: {
     // The 48 dp target reaches past the 40 dp circle: the circle, not the target, lines up with the
     // content's right edge.
-    marginRight: -(size.targetMin - 40) / 2,
+    marginRight: -(size.targetMin - CLOSE_CIRCLE) / 2,
     width: size.targetMin,
     height: size.targetMin,
     alignItems: 'center',
     justifyContent: 'center',
   },
   closeCircle: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    width: CLOSE_CIRCLE,
+    height: CLOSE_CIRCLE,
+    borderRadius: CLOSE_CIRCLE / 2,
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: colors.bgSheetItem,
