@@ -1,4 +1,4 @@
-import { act, render, screen, userEvent, within } from '@testing-library/react-native';
+import { act, fireEvent, render, screen, userEvent, within } from '@testing-library/react-native';
 import { AccessibilityInfo, AppState, Vibration, type AppStateStatus } from 'react-native';
 import { State } from 'react-native-gesture-handler';
 import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-handler/jest-utils';
@@ -335,6 +335,22 @@ describe('WorkoutScreen (S09)', () => {
     );
 
     expect(screen.getByRole('header', { name: ROW.name })).toBeOnTheScreen();
+  });
+
+  it('#317: once the touch is a swipe, the screen takes it from the set, so the set is not pressed', async () => {
+    await renderScreen();
+    const set = screen.getByHintText(text.set.tapToAdjust);
+    const touch = (pageX: number, pageY = 300) => ({ nativeEvent: { pageX, pageY } });
+    const claims = (pageX: number, pageY?: number) =>
+      fireEvent(set, 'moveShouldSetResponderCapture', touch(pageX, pageY));
+
+    await fireEvent(set, 'startShouldSetResponderCapture', touch(200));
+
+    expect(await claims(210)).toBe(false);
+    expect(await claims(230)).toBe(true);
+    expect(await claims(170)).toBe(true);
+    // Down is left to the scroll.
+    expect(await claims(230, 320)).toBe(false);
   });
 
   it('#195: a load still to choose shows 0 and asks for it only when confirmed', async () => {

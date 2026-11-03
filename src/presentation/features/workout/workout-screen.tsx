@@ -212,7 +212,7 @@ function Workout({
         ))}
       </View>
       <GestureDetector gesture={swipe.gesture}>
-        <Animated.View style={[styles.flex, swipe.style]}>
+        <Animated.View style={[styles.flex, swipe.style]} {...swipe.capture}>
           <ScrollView contentContainerStyle={styles.content}>
             <View style={styles.title}>
               <Text
