@@ -80,6 +80,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Training (S09): on iOS, swiping to another exercise from a set, after closing a sheet like «¿Por qué?», no longer opens the set sheet as well (#317).
 - «Errores comunes» (S17, S26): a long mistake wraps onto the next line, under its own text, instead of being cut off (#319).
 - Sheets: the title and the «✕» are centred on the same line, and the header lines up with the sheet's content instead of sitting further in (#318).
 - The rest-end notification shows the OneRM plate in the Android status bar, tinted with the yellow accent, instead of a generic square (#293).
