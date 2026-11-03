@@ -144,7 +144,8 @@ export const catalog = {
     /** The accessible name of the exercise name in S09, which opens S26 (RF-CAT-02 AC7). */
     howToOf: (exercise: string) => `Cómo se hace ${exercise}`,
     mistakes: 'Errores comunes',
-    mistake: (text: string) => `• ${text}`,
+    /** «• {error}»: the bullet apart, so a long mistake wraps under its text (#319). */
+    bullet: '•',
     video: 'Ver un video',
     videoOnline: 'Se abre en YouTube.',
     videoOffline: 'Sin conexión. El video se abre en YouTube cuando tengas señal.',
