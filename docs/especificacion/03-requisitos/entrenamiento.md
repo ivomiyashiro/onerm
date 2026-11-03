@@ -222,7 +222,15 @@ Escenario: AC1 — Serie extra
   Cuando toco "Agregar serie"
   Entonces aparece una serie nueva precargada con los valores de la última
   Y la prescripción de la rutina no cambia
+
+Escenario: AC2 — Quitar una serie agregada
+  Dado que agregué una serie con "Agregar serie" y todavía no la registré
+  Cuando deslizo su fila y toco "Quitar"
+  Entonces la serie desaparece, sin confirmación ni "Deshacer" porque no había nada registrado
+  Y las series prescriptas pendientes no se pueden quitar
 ```
+
+**Notas:** una serie agregada vive en memoria hasta que se registra; quitarla no escribe nada en la base de datos (decisión de #321, 2026-10-30).
 
 ---
 
