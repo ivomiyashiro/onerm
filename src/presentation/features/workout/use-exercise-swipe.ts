@@ -22,7 +22,8 @@ const EDGE_RESISTANCE = 0.25;
  * no frame re-renders the screen.
  *
  * #317: like a swiped row (#254), once the touch is a swipe the screen takes it from what is under
- * the finger, so lifting it never presses a set (React Native's press survives the move).
+ * the finger, so lifting it never presses a set. The gesture usually cancels React Native's touch
+ * when it starts, but on iOS, after a sheet was open, it sometimes doesn't, and the press survives.
  */
 export function useExerciseSwipe({
   exerciseIndex,
