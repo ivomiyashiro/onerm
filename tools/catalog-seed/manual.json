@@ -16,5 +16,77 @@
       "license": "Catálogo propio",
       "attribution": "Catálogo de ejercicios de OneRM"
     }
+  },
+  {
+    "source": "manual",
+    "externalId": "selectorized-incline-chest-press",
+    "name": "Press inclinado en máquina",
+    "aliases": ["Incline machine press", "Machine incline chest press"],
+    "loadType": "external",
+    "primaryMuscles": ["chest"],
+    "secondaryMuscles": ["triceps", "shoulders"],
+    "primaryEquipment": "machine",
+    "equipment": ["machine"],
+    "mechanic": "compound",
+    "isUnilateral": false,
+    "attribution": {
+      "source": "OneRM",
+      "license": "Catálogo propio",
+      "attribution": "Catálogo de ejercicios de OneRM"
+    }
+  },
+  {
+    "source": "manual",
+    "externalId": "dumbbell-rear-delt-fly",
+    "name": "Vuelo posterior con mancuernas",
+    "aliases": ["Dumbbell rear delt fly", "Reverse fly", "Pájaros"],
+    "primaryEquipment": "dumbbell",
+    "equipment": ["dumbbell"],
+    "loadType": "external",
+    "primaryMuscles": ["shoulders"],
+    "secondaryMuscles": ["back"],
+    "mechanic": "isolation",
+    "isUnilateral": false,
+    "attribution": {
+      "source": "OneRM",
+      "license": "Catálogo propio",
+      "attribution": "Catálogo de ejercicios de OneRM"
+    }
+  },
+  {
+    "source": "manual",
+    "externalId": "cable-rear-delt-fly",
+    "name": "Vuelo posterior en polea",
+    "aliases": ["Cable rear delt fly", "Cable reverse fly"],
+    "primaryEquipment": "cable",
+    "equipment": ["cable"],
+    "loadType": "external",
+    "primaryMuscles": ["shoulders"],
+    "secondaryMuscles": ["back"],
+    "mechanic": "isolation",
+    "isUnilateral": false,
+    "attribution": {
+      "source": "OneRM",
+      "license": "Catálogo propio",
+      "attribution": "Catálogo de ejercicios de OneRM"
+    }
+  },
+  {
+    "source": "manual",
+    "externalId": "machine-rear-delt-fly",
+    "name": "Vuelo posterior en máquina",
+    "aliases": ["Machine rear delt fly", "Reverse pec deck", "Pec deck invertido"],
+    "primaryEquipment": "machine",
+    "equipment": ["machine"],
+    "loadType": "external",
+    "primaryMuscles": ["shoulders"],
+    "secondaryMuscles": ["back"],
+    "mechanic": "isolation",
+    "isUnilateral": false,
+    "attribution": {
+      "source": "OneRM",
+      "license": "Catálogo propio",
+      "attribution": "Catálogo de ejercicios de OneRM"
+    }
   }
 ]

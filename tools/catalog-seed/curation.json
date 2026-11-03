@@ -1279,5 +1279,30 @@
     "externalId": "plate-loaded-incline-chest-press",
     "slug": "press-inclinado-en-maquina-de-discos",
     "machine": "incline-chest-press"
+  },
+  {
+    "id": "da79885d-3fd6-404e-97b9-4bdd2e9ad960",
+    "source": "manual",
+    "externalId": "selectorized-incline-chest-press",
+    "slug": "press-inclinado-en-maquina"
+  },
+  {
+    "id": "1c22376e-055d-42d7-8f3d-cba3e34a1c85",
+    "source": "manual",
+    "externalId": "dumbbell-rear-delt-fly",
+    "slug": "vuelo-posterior-con-mancuernas"
+  },
+  {
+    "id": "277f33c0-dd7f-4ac4-b203-2ea59a5db026",
+    "source": "manual",
+    "externalId": "cable-rear-delt-fly",
+    "slug": "vuelo-posterior-en-polea"
+  },
+  {
+    "id": "73134ed0-689b-4d3d-ade2-64ba19281505",
+    "source": "manual",
+    "externalId": "machine-rear-delt-fly",
+    "slug": "vuelo-posterior-en-maquina",
+    "machine": "pec-deck"
   }
 ]
