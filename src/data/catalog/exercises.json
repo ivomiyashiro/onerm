@@ -1,6 +1,6 @@
 {
-  "version": 7,
-  "contentHash": "04de85783597ee70",
+  "version": 8,
+  "contentHash": "673a75515db4188e",
   "exercises": [
     {
       "id": "69aee190-c7d4-4241-a7c3-171912305d67",
@@ -8769,6 +8769,185 @@
         ]
       },
       "machine": "incline-chest-press",
+      "videoUrl": null,
+      "attributions": [
+        {
+          "source": "OneRM",
+          "license": "Catálogo propio",
+          "attribution": "Catálogo de ejercicios de OneRM"
+        }
+      ],
+      "deprecatedAt": null
+    },
+    {
+      "id": "da79885d-3fd6-404e-97b9-4bdd2e9ad960",
+      "slug": "press-inclinado-en-maquina",
+      "name": "Press inclinado en máquina",
+      "aliases": [
+        "Incline machine press",
+        "Machine incline chest press"
+      ],
+      "loadType": "external",
+      "primaryMuscles": [
+        "chest"
+      ],
+      "secondaryMuscles": [
+        "triceps",
+        "shoulders"
+      ],
+      "primaryEquipment": "machine",
+      "equipment": [
+        "machine"
+      ],
+      "mechanic": "compound",
+      "isUnilateral": false,
+      "technique": {
+        "steps": [
+          "Ajustá el asiento para que las manijas queden a la altura de la parte alta del pecho.",
+          "Apoyá bien la espalda y juntá los omóplatos.",
+          "Empujá en diagonal, hacia adelante y arriba, hasta casi estirar los brazos.",
+          "Volvé despacio hasta sentir el estiramiento en el pecho."
+        ],
+        "mistakes": [
+          "Despegar la espalda del respaldo.",
+          "Subir los hombros al empujar."
+        ]
+      },
+      "machine": "incline-chest-press",
+      "videoUrl": null,
+      "attributions": [
+        {
+          "source": "OneRM",
+          "license": "Catálogo propio",
+          "attribution": "Catálogo de ejercicios de OneRM"
+        }
+      ],
+      "deprecatedAt": null
+    },
+    {
+      "id": "1c22376e-055d-42d7-8f3d-cba3e34a1c85",
+      "slug": "vuelo-posterior-con-mancuernas",
+      "name": "Vuelo posterior con mancuernas",
+      "aliases": [
+        "Dumbbell rear delt fly",
+        "Reverse fly",
+        "Pájaros"
+      ],
+      "loadType": "external",
+      "primaryMuscles": [
+        "shoulders"
+      ],
+      "secondaryMuscles": [
+        "back"
+      ],
+      "primaryEquipment": "dumbbell",
+      "equipment": [
+        "dumbbell"
+      ],
+      "mechanic": "isolation",
+      "isUnilateral": false,
+      "technique": {
+        "steps": [
+          "Inclinate con la espalda recta o apoyá el pecho en un banco inclinado.",
+          "Dejá los brazos colgando con los codos apenas doblados.",
+          "Abrí los brazos hacia los costados hasta la altura de los hombros.",
+          "Bajá despacio."
+        ],
+        "mistakes": [
+          "Doblar los codos: se vuelve un remo.",
+          "Usar impulso."
+        ]
+      },
+      "machine": null,
+      "videoUrl": null,
+      "attributions": [
+        {
+          "source": "OneRM",
+          "license": "Catálogo propio",
+          "attribution": "Catálogo de ejercicios de OneRM"
+        }
+      ],
+      "deprecatedAt": null
+    },
+    {
+      "id": "277f33c0-dd7f-4ac4-b203-2ea59a5db026",
+      "slug": "vuelo-posterior-en-polea",
+      "name": "Vuelo posterior en polea",
+      "aliases": [
+        "Cable rear delt fly",
+        "Cable reverse fly"
+      ],
+      "loadType": "external",
+      "primaryMuscles": [
+        "shoulders"
+      ],
+      "secondaryMuscles": [
+        "back"
+      ],
+      "primaryEquipment": "cable",
+      "equipment": [
+        "cable"
+      ],
+      "mechanic": "isolation",
+      "isUnilateral": false,
+      "technique": {
+        "steps": [
+          "Poné las dos poleas a la altura de los hombros y parate en el medio.",
+          "Agarrá cada cable con la mano contraria, con los brazos cruzados adelante.",
+          "Abrí los brazos hacia los costados y atrás, con los codos apenas doblados.",
+          "Volvé despacio hasta cruzar los brazos."
+        ],
+        "mistakes": [
+          "Doblar los codos: se vuelve un remo.",
+          "Tirar con el cuerpo hacia atrás."
+        ]
+      },
+      "machine": null,
+      "videoUrl": null,
+      "attributions": [
+        {
+          "source": "OneRM",
+          "license": "Catálogo propio",
+          "attribution": "Catálogo de ejercicios de OneRM"
+        }
+      ],
+      "deprecatedAt": null
+    },
+    {
+      "id": "73134ed0-689b-4d3d-ade2-64ba19281505",
+      "slug": "vuelo-posterior-en-maquina",
+      "name": "Vuelo posterior en máquina",
+      "aliases": [
+        "Machine rear delt fly",
+        "Reverse pec deck",
+        "Pec deck invertido"
+      ],
+      "loadType": "external",
+      "primaryMuscles": [
+        "shoulders"
+      ],
+      "secondaryMuscles": [
+        "back"
+      ],
+      "primaryEquipment": "machine",
+      "equipment": [
+        "machine"
+      ],
+      "mechanic": "isolation",
+      "isUnilateral": false,
+      "technique": {
+        "steps": [
+          "Sentate mirando hacia el respaldo, con el pecho apoyado.",
+          "Agarrá las manijas con los brazos estirados a la altura de los hombros.",
+          "Abrí los brazos hacia atrás en un arco.",
+          "Volvé despacio."
+        ],
+        "mistakes": [
+          "Despegar el pecho del respaldo.",
+          "Doblar los codos para tirar."
+        ]
+      },
+      "machine": "pec-deck",
       "videoUrl": null,
       "attributions": [
         {

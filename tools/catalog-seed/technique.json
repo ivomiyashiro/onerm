@@ -551,7 +551,7 @@
     "mistakes": ["Despegar la espalda del respaldo.", "Subir los hombros al empujar."]
   },
   {
-    "exercises": ["press-inclinado-en-maquina-de-discos"],
+    "exercises": ["press-inclinado-en-maquina-de-discos", "press-inclinado-en-maquina"],
     "steps": [
       "Ajustá el asiento para que las manijas queden a la altura de la parte alta del pecho.",
       "Apoyá bien la espalda y juntá los omóplatos.",
@@ -1147,5 +1147,35 @@
       "Volvé al pecho. Hacé todas las repeticiones y cambiá de lado."
     ],
     "mistakes": ["Dejar que el torso gire.", "Pararse muy cerca de la polea."]
+  },
+  {
+    "exercises": ["vuelo-posterior-con-mancuernas"],
+    "steps": [
+      "Inclinate con la espalda recta o apoyá el pecho en un banco inclinado.",
+      "Dejá los brazos colgando con los codos apenas doblados.",
+      "Abrí los brazos hacia los costados hasta la altura de los hombros.",
+      "Bajá despacio."
+    ],
+    "mistakes": ["Doblar los codos: se vuelve un remo.", "Usar impulso."]
+  },
+  {
+    "exercises": ["vuelo-posterior-en-polea"],
+    "steps": [
+      "Poné las dos poleas a la altura de los hombros y parate en el medio.",
+      "Agarrá cada cable con la mano contraria, con los brazos cruzados adelante.",
+      "Abrí los brazos hacia los costados y atrás, con los codos apenas doblados.",
+      "Volvé despacio hasta cruzar los brazos."
+    ],
+    "mistakes": ["Doblar los codos: se vuelve un remo.", "Tirar con el cuerpo hacia atrás."]
+  },
+  {
+    "exercises": ["vuelo-posterior-en-maquina"],
+    "steps": [
+      "Sentate mirando hacia el respaldo, con el pecho apoyado.",
+      "Agarrá las manijas con los brazos estirados a la altura de los hombros.",
+      "Abrí los brazos hacia atrás en un arco.",
+      "Volvé despacio."
+    ],
+    "mistakes": ["Despegar el pecho del respaldo.", "Doblar los codos para tirar."]
   }
 ]
