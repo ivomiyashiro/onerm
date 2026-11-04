@@ -14,6 +14,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Added
 
+- «Press inclinado en máquina» now has a picture of its machine, with the weight stack, and a line on how to recognize it (#331).
 - Training (S09): a set added with «Agregar serie» and not logged yet can be removed by swiping it left, with «Quitar» (#321).
 - History (S18): swiping a workout left offers «Eliminar»; after D16 it leaves the history and the suggestions are recalculated (#322).
 - New exercises: «Press inclinado en máquina» and «Vuelo posterior» with dumbbells, on a cable and on a machine (#328).

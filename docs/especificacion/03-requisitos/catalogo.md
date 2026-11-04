@@ -102,8 +102,6 @@ Escenario: AC4 — Imagen de la máquina
   # Una imagen por máquina (vocabulario `MACHINES`), no por ejercicio: la máquina Smith sirve
   # para todos sus ejercicios. Las imágenes son ilustraciones generadas con IA y revisadas
   # una por una; se atribuyen en «Créditos» (RF-CAT-05).
-  # Excepción: «Press inclinado en máquina» no tiene imagen hasta #331; la de press inclinado se
-  # carga con discos y esa máquina usa selector de peso.
 
 Escenario: AC5 — Video
   Dado que abro un ejercicio

@@ -82,6 +82,10 @@ const machines: Record<Machine, { picture: string; hint: string }> = {
     'Press inclinado',
     'Asiento vertical y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Se carga con discos.',
   ),
+  'selectorized-incline-chest-press': machine(
+    'Press inclinado con selector',
+    'Respaldo reclinado y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Atrás, una torre con una pila de placas: el peso se elige con un perno.',
+  ),
   'pec-deck': machine(
     'Aperturas (pec deck)',
     'Asiento con respaldo vertical y dos brazos que se abren y se juntan delante del pecho.',

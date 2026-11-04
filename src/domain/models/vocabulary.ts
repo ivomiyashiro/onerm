@@ -51,6 +51,7 @@ export const MACHINES = [
   'hip-adduction',
   'chest-press',
   'incline-chest-press',
+  'selectorized-incline-chest-press',
   'pec-deck',
   'shoulder-press',
   'pullover',
