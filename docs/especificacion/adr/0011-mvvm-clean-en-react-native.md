@@ -15,6 +15,7 @@ El TPO exige MVVM, Clean Architecture y gestión explícita del estado. En React
    - Expone **acciones**.
    - Llama a **casos de uso**. Nunca a repositorios ni SDKs de forma directa.
    - No contiene JSX. La vista solo renderiza el estado y llama acciones.
+   - Además del ViewModel, pueden consumir casos de uso los hooks `use-*` de una feature y los archivos `*-watcher.tsx` ([ADR-0013](0013-estructura-objetivo-de-la-arquitectura.md)). Los componentes visuales no pueden.
 2. **Estado global en Zustand**, solo para lo que comparten varias pantallas: dueño de los datos (invitado o usuario), estado de sync, entrenamiento en curso y temporizador. Equivale al estado compartido de un `StateFlow` de Android.
 3. **Datos persistentes:** la fuente de verdad es SQLite. Los ViewModels se **suscriben** a `repository.observe…()` a través de los casos de uso. No se duplican en stores globales.
 4. **Inyección de dependencias:** un *composition root* (`src/di`) crea las implementaciones (repositorios, data sources, sync) y las provee por **React Context**. En los tests se inyectan versiones falsas.
