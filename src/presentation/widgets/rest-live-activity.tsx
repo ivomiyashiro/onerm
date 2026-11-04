@@ -32,7 +32,7 @@ export interface RestLiveActivityProps {
  * The rest on the iPhone lock screen and in the Dynamic Island (#305). The `'widget'` directive
  * turns it into a string that runs in the widget extension, apart from the app: it can only use
  * Expo UI and its props, so the texts come in the props and the colors are written here (marca
- * §10 and §15). The system counts the time down and empties the bar from the range, with no
+ * §10 and §23). The system counts the time down and empties the bar from the range, with no
  * updates from the app, and marks it stale at the end, when it says the rest ended until the
  * next one updates it.
  */
