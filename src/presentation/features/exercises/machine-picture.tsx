@@ -23,6 +23,7 @@ const PICTURES: Record<Machine, ImageSourcePropType> = {
   'hip-adduction': require('@/presentation/assets/machines/hip-adduction.jpg'),
   'chest-press': require('@/presentation/assets/machines/chest-press.jpg'),
   'incline-chest-press': require('@/presentation/assets/machines/incline-chest-press.jpg'),
+  'selectorized-incline-chest-press': require('@/presentation/assets/machines/selectorized-incline-chest-press.jpg'),
   'pec-deck': require('@/presentation/assets/machines/pec-deck.jpg'),
   'shoulder-press': require('@/presentation/assets/machines/shoulder-press.jpg'),
   pullover: require('@/presentation/assets/machines/pullover.jpg'),

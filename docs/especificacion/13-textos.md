@@ -306,6 +306,7 @@ El nombre de cada máquina (para el nombre accesible de su imagen) y la línea q
 | `hip-adduction` | Aductora | Asiento con dos almohadillas que van por dentro de las rodillas. |
 | `chest-press` | Press de pecho | Asiento con respaldo vertical y dos manijas a la altura del pecho. |
 | `incline-chest-press` | Press inclinado | Asiento vertical y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Se carga con discos. |
+| `selectorized-incline-chest-press` | Press inclinado con selector | Respaldo reclinado y dos brazos con manijas que se empujan en diagonal, hacia adelante y arriba. Atrás, una torre con una pila de placas: el peso se elige con un perno. |
 | `pec-deck` | Aperturas (pec deck) | Asiento con respaldo vertical y dos brazos que se abren y se juntan delante del pecho. |
 | `shoulder-press` | Press de hombros | Asiento con respaldo vertical y dos manijas a la altura de los hombros que se empujan hacia arriba. |
 | `pullover` | Pullover | Asiento con un brazo que pasa por encima de la cabeza y almohadillas para los codos. |

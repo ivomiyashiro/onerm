@@ -1,6 +1,6 @@
 {
-  "version": 8,
-  "contentHash": "d72561aa6a314e44",
+  "version": 9,
+  "contentHash": "b5bcaa709d455c01",
   "exercises": [
     {
       "id": "69aee190-c7d4-4241-a7c3-171912305d67",
@@ -8813,7 +8813,7 @@
           "Subir los hombros al empujar."
         ]
       },
-      "machine": null,
+      "machine": "selectorized-incline-chest-press",
       "videoUrl": null,
       "attributions": [
         {

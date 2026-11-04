@@ -3,7 +3,7 @@
 -- (RN-AUTH-03), and the data checks of 07 §2.2.
 begin;
 create extension if not exists pgtap with schema extensions;
-select plan(19);
+select plan(20);
 
 insert into auth.users (id, email) values
   ('00000000-0000-0000-0000-00000000000a', 'a@test.local');
@@ -23,6 +23,9 @@ values ('PLT-1', 'Full body', 'novice', 3, 60, 'x');
 select throws_ok(
   $$update public.exercises set machine = 'rowing-boat' where id = '30000000-0000-0000-0000-000000000001'$$,
   '23514', null, 'a machine outside the vocabulary is rejected (#306)');
+select lives_ok(
+  $$update public.exercises set machine = 'selectorized-incline-chest-press' where id = '30000000-0000-0000-0000-000000000001'$$,
+  'the incline press with a weight stack is in the vocabulary (#331)');
 select throws_ok(
   $$update public.exercises set video_url = 'http://example.com/v' where id = '30000000-0000-0000-0000-000000000001'$$,
   '23514', null, 'a video that is not https is rejected (#306)');
