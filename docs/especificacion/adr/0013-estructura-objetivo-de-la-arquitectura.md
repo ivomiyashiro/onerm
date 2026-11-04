@@ -1,6 +1,6 @@
 # ADR-0013 — Estructura objetivo de la arquitectura y límites de F11
 
-- **Estado:** Propuesto
+- **Estado:** Aceptado
 - **Fecha:** 2026-11-04
 - **Relacionado:** ADR-0009, ADR-0011, 12-arquitectura, RNF-11, F11 Arquitectura (#332)
 

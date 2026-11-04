@@ -22,7 +22,7 @@ Cada decisión técnica relevante se registra con su **contexto, alternativas, c
 | [0010](0010-base-local-sqlite-drizzle.md) | Base local: expo-sqlite + Drizzle ORM | Aceptado |
 | [0011](0011-mvvm-clean-en-react-native.md) | MVVM + Clean en RN: ViewModel como hook, Zustand y DI por Context | Aceptado |
 | [0012](0012-soporte-ios.md) | iOS ejecutable (simulador), sin publicar; Android como referencia | Aceptado |
-| [0013](0013-estructura-objetivo-de-la-arquitectura.md) | Estructura objetivo de la arquitectura y límites de F11 | Propuesto |
+| [0013](0013-estructura-objetivo-de-la-arquitectura.md) | Estructura objetivo de la arquitectura y límites de F11 | Aceptado |
 
 ## Plantilla
 
