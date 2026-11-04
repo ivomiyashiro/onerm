@@ -28,6 +28,7 @@
 | F8 | [Sync](https://github.com/ivomiyashiro/onerm/milestone/9) | Respaldo, restauración, multidispositivo y unión de los datos del invitado | RF-SYNC-*, RF-AUTH-05 · RNF-04, 05, 10, 12 | Idempotencia, convergencia con dos clientes simulados, pull de más de 500 filas en la misma ventana y unión del invitado sin duplicar ni perder filas |
 | F9 | [Cierre](https://github.com/ivomiyashiro/onerm/milestone/10) | Should, accesibilidad, iOS y entrega | RNF-16..20, 22, 23 | Checklist de [etapa-2-entrega-final.md](etapa-2-entrega-final.md) completo y README según §7.4 |
 | F10 | [Pulido](https://github.com/ivomiyashiro/onerm/milestone/11) | Bugs y mejoras de UX encontrados al probar en dispositivos físicos | RF-ENT-04, RF-ENT-06 · RNF-23 | Las cards `tipo: fix` están cerradas y el recorrido principal funciona en un iPhone y un Android físicos sin los problemas reportados |
+| F11 | [Arquitectura](https://github.com/ivomiyashiro/onerm/milestone/13) | Ordenar la estructura de carpetas y capas sin cambiar el comportamiento de la app | ADR-0013 · RNF-11 | Cards no Could cerradas; recorrido A, B y C y perf equivalentes a la línea base; 12 §5 y `CLAUDE.md` describen la estructura real; `phase-judge` sin BLOCKER |
 
 Lo que queda fuera del MVP (los RF Could y las ideas nuevas) está en el milestone [Post-MVP](https://github.com/ivomiyashiro/onerm/milestone/12) (#51).
 
@@ -75,3 +76,4 @@ Lo que queda fuera del MVP (los RF Could y las ideas nuevas) está en el milesto
 | 2026-10-02 | Se adopta Kanban liviano: backlog completo de cards (#1–#16 y #18–#53), sin sprints ni estimaciones. |
 | 2026-10-14 | Revisión de F5: el stack refleja lo construido (gráficos con `react-native-svg`, sin librería, y vibración con `Vibration`, sin `expo-haptics`). |
 | 2026-10-16 | Fase F10 Pulido (#187–#199), a partir de las pruebas en un iPhone físico. Milestone Post-MVP para lo que queda fuera (#51). El Project pasa a llamarse «OneRM». |
+| 2026-11-04 | Fase F11 Arquitectura (#332–#348 y #350): ordena la estructura sin cambiar el comportamiento, con los límites de ADR-0013 y la línea base de `docs/pruebas/332-regresion-arquitectura.md`. |
