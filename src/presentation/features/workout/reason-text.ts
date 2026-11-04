@@ -79,9 +79,12 @@ function formatLoad(kg: number | null, unit: LoadUnit): string {
   return `${loadNumber(toUnit(kg, unit), unit)} ${common.units[unit]}`;
 }
 
+/** The engine's percents are shares of W (0,125): whole, as the texts show them (#320). */
+const wholePercent = (share: number) => Math.round(share * 100);
+
 /** The increase against W, rounded: «+4 %». */
 const percentOver = (loadKg: number, workingLoadKg: number) =>
-  Math.round((loadKg / workingLoadKg - 1) * 100);
+  wholePercent(loadKg / workingLoadKg - 1);
 
 /** RF-SUG-07.AC1: the short line under the suggestion, novice or technical (13 §4). */
 export function reasonLine(input: ReasonInput): string {
@@ -130,7 +133,7 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
         : r.PRESCRIPTION_CHANGED.novice(repRange.min, repRange.max);
     case 'REENTRY':
       return advanced
-        ? r.REENTRY.advanced(reason.gapDays, reason.decreasePercent)
+        ? r.REENTRY.advanced(reason.gapDays, wholePercent(reason.decreasePercent))
         : r.REENTRY.novice(reason.gapDays);
     case 'DELOAD':
       return advanced ? r.DELOAD.advanced() : r.DELOAD.novice(reason.stagnantExposures);
@@ -148,11 +151,11 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
         : r.HIGH_INCREASE.novice(load);
     case 'INCREASE_LOAD':
       return advanced
-        ? r.INCREASE_LOAD.advanced(reason.increasePercent, load)
+        ? r.INCREASE_LOAD.advanced(wholePercent(reason.increasePercent), load)
         : r.INCREASE_LOAD.novice(sets, repRange.max, load);
     case 'EXTEND_REPS':
       return advanced
-        ? r.EXTEND_REPS.advanced(suggestion.reps, reason.increasePercent)
+        ? r.EXTEND_REPS.advanced(suggestion.reps, wholePercent(reason.increasePercent))
         : r.EXTEND_REPS.novice(suggestion.reps);
     case 'ADD_REP':
       return advanced
@@ -308,7 +311,7 @@ function factsOf(input: ReasonInput): WhyFact[] {
     facts.push({ label: labels.advanced.daysOff, value: String(reason.gapDays) });
     facts.push({
       label: labels.advanced.adjustment,
-      value: labels.decreaseValue(reason.decreasePercent),
+      value: labels.decreaseValue(wholePercent(reason.decreasePercent)),
     });
   }
   if (reason.code === 'DELOAD' && suggestion.loadKg !== null) {

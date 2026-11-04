@@ -1,4 +1,5 @@
 import type { SuggestionExplanation } from '@/domain/rules/suggestion/explanation';
+import { increasePercent } from '@/domain/rules/suggestion/progression';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 import { aPrescription } from '@/domain/testing/builders';
 import {
@@ -16,7 +17,7 @@ const INCREASE: Suggestion = {
   reps: 8,
   reason: {
     code: 'INCREASE_LOAD',
-    increasePercent: 5,
+    increasePercent: increasePercent(62.5, 60),
     afterOvershoot: false,
     workingLoadKg: 60,
     limitingSide: null,
@@ -56,8 +57,52 @@ describe('reason line (RF-SUG-07.AC1, 13 §4)', () => {
 
   it('intermediate and advanced read the technical one', () => {
     expect(reasonLine(input(INCREASE, { level: 'intermediate' }))).toBe(
-      'Tope alcanzado: +5 % → 62,5 kg.',
+      'Tope alcanzado: +4 % → 62,5 kg.',
     );
+  });
+
+  describe('EXTEND_REPS (#320)', () => {
+    const extend: Suggestion = {
+      loadKg: 14,
+      reps: 14,
+      reason: {
+        code: 'EXTEND_REPS',
+        nextLoadKg: 16,
+        increasePercent: increasePercent(16, 14),
+        workingLoadKg: 14,
+        limitingSide: null,
+      },
+    };
+
+    it('a novice is told how many reps to try and why the weight stays', () => {
+      expect(reasonLine(input(extend))).toBe(
+        'Antes de subir, intentá 14 repeticiones: el próximo peso es un salto grande.',
+      );
+    });
+
+    it('the technical line has no jargon and a rounded percent', () => {
+      expect(reasonLine(input(extend, { level: 'advanced' }))).toBe(
+        'Mismo peso, intentá 14 repeticiones: subir ahora sería un salto de 14 %.',
+      );
+    });
+  });
+
+  it('REENTRY: the technical line and S10 show the decrease as a whole percent (#320)', () => {
+    const reentry: Suggestion = {
+      loadKg: 54,
+      reps: 8,
+      reason: {
+        code: 'REENTRY',
+        gapDays: 30,
+        decreasePercent: 0.1,
+        workingLoadKg: 60,
+        limitingSide: null,
+      },
+    };
+    const advanced = input(reentry, { level: 'advanced' });
+
+    expect(reasonLine(advanced)).toBe('Reentrada (30 días): −10 %.');
+    expect(whyDetail(advanced).facts).toContainEqual({ label: 'Ajuste', value: '−10 %' });
   });
 
   it('loads go in the user unit', () => {
@@ -97,7 +142,7 @@ describe('reason line (RF-SUG-07.AC1, 13 §4)', () => {
         code: 'FROM_EXERCISE_HISTORY',
         workingLoadKg: 55,
         limitingSide: null,
-        withReentry: { gapDays: 30, decreasePercent: 10 },
+        withReentry: { gapDays: 30, decreasePercent: 0.1 },
       },
     };
 
@@ -131,7 +176,7 @@ describe('S10 «¿Por qué?» (RF-SUG-07.AC2)', () => {
     const detail = whyDetail(input(INCREASE, { level: 'advanced', effortMode: 'rir' }));
 
     expect(detail.body).toBe(
-      `Tope alcanzado: +5 % → 62,5 kg. ${suggestions.reasons.INCREASE_LOAD.detail()}`,
+      `Tope alcanzado: +4 % → 62,5 kg. ${suggestions.reasons.INCREASE_LOAD.detail()}`,
     );
     expect(detail.facts).toEqual([
       { label: 'La última vez', value: '60 kg × 12 · 12 · 12' },
