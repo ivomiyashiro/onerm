@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { SheetOverlay } from '@/presentation/components/overlay/bottom-sheet';
-import type { ScreenId } from '@/presentation/features/dev/screen-routes';
+import type { ScreenId } from '@/presentation/navigation/screen-routes';
 import { dev } from '@/presentation/strings/dev';
 import { colors, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';

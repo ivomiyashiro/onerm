@@ -5,7 +5,7 @@ import {
   SCREEN_IDS,
   screenRoutes,
   type ScreenRoute,
-} from '@/presentation/features/dev/screen-routes';
+} from '@/presentation/navigation/screen-routes';
 import { dev } from '@/presentation/strings/dev';
 import { colors, size, typography } from '@/presentation/theme';
 import { Text } from '@/presentation/components/text';

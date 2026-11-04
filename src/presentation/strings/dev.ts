@@ -1,4 +1,4 @@
-import type { ScreenId } from '@/presentation/features/dev/screen-routes';
+import type { ScreenId } from '@/presentation/navigation/screen-routes';
 
 /**
  * Development-only texts: the screen list and the placeholders of the screens that are not
