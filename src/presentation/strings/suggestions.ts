@@ -96,9 +96,9 @@ export const suggestions = {
     },
     EXTEND_REPS: {
       novice: (reps: number) =>
-        `Antes de subir, intentá ${reps}: el próximo peso es un salto grande.`,
+        `Antes de subir, intentá ${reps} repeticiones: el próximo peso es un salto grande.`,
       advanced: (reps: number, percent: number) =>
-        `Overshoot: ${reps} (tope + 2) antes de +${percent} %.`,
+        `Mismo peso, intentá ${reps} repeticiones: subir ahora sería un salto de ${percent} %.`,
       detail: (nextLoad: string) =>
         `El siguiente peso disponible (${nextLoad}) es más de un 10 % mayor. Primero sumás repeticiones para que el salto sea manejable.`,
     },

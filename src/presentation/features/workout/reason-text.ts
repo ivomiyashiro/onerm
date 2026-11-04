@@ -148,11 +148,11 @@ function lineOf(suggestion: Suggestion, input: ReasonInput): string {
         : r.HIGH_INCREASE.novice(load);
     case 'INCREASE_LOAD':
       return advanced
-        ? r.INCREASE_LOAD.advanced(reason.increasePercent, load)
+        ? r.INCREASE_LOAD.advanced(Math.round(reason.increasePercent), load)
         : r.INCREASE_LOAD.novice(sets, repRange.max, load);
     case 'EXTEND_REPS':
       return advanced
-        ? r.EXTEND_REPS.advanced(suggestion.reps, reason.increasePercent)
+        ? r.EXTEND_REPS.advanced(suggestion.reps, Math.round(reason.increasePercent))
         : r.EXTEND_REPS.novice(suggestion.reps);
     case 'ADD_REP':
       return advanced

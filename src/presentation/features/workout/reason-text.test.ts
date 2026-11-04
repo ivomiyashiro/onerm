@@ -60,6 +60,50 @@ describe('reason line (RF-SUG-07.AC1, 13 §4)', () => {
     );
   });
 
+  it('the increase of the technical line is rounded (#320)', () => {
+    const increase: Suggestion = {
+      loadKg: 62.5,
+      reps: 8,
+      reason: {
+        code: 'INCREASE_LOAD',
+        increasePercent: 4.166666666666667,
+        afterOvershoot: false,
+        workingLoadKg: 60,
+        limitingSide: null,
+      },
+    };
+
+    expect(reasonLine(input(increase, { level: 'advanced' }))).toBe(
+      'Tope alcanzado: +4 % → 62,5 kg.',
+    );
+  });
+
+  describe('EXTEND_REPS (#320)', () => {
+    const extend: Suggestion = {
+      loadKg: 14,
+      reps: 14,
+      reason: {
+        code: 'EXTEND_REPS',
+        nextLoadKg: 16,
+        increasePercent: 14.285714285714285,
+        workingLoadKg: 14,
+        limitingSide: null,
+      },
+    };
+
+    it('a novice is told how many reps to try and why the weight stays', () => {
+      expect(reasonLine(input(extend))).toBe(
+        'Antes de subir, intentá 14 repeticiones: el próximo peso es un salto grande.',
+      );
+    });
+
+    it('the technical line has no jargon and a rounded percent', () => {
+      expect(reasonLine(input(extend, { level: 'advanced' }))).toBe(
+        'Mismo peso, intentá 14 repeticiones: subir ahora sería un salto de 14 %.',
+      );
+    });
+  });
+
   it('loads go in the user unit', () => {
     expect(reasonLine(input(INCREASE, { unit: 'lb' }))).toBe(
       '¡Completaste 3 × 12! Subimos a 137,8 lb.',
