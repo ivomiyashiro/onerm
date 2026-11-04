@@ -6,7 +6,7 @@ import { fireGestureHandler, getByGestureTestId } from 'react-native-gesture-han
 import {
   layOut,
   renderReorderScreen,
-} from '@/presentation/features/routine-editor/routine-editor-reorder-screen';
+} from '@/presentation/features/routine-editor/routine-editor-reorder.fixture';
 import { routines as text } from '@/presentation/strings/routines';
 
 jest.useFakeTimers();
