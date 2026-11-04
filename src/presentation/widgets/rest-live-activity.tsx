@@ -95,7 +95,7 @@ function RestLiveActivity(props: RestLiveActivityProps, environment: LiveActivit
       <VStack
         alignment="leading"
         spacing={12}
-        modifiers={[padding({ all: 16 }), activityBackgroundTint(glass)]}
+        modifiers={[padding({ all: 14 }), activityBackgroundTint(glass)]}
       >
         <HStack>
           <VStack alignment="leading" spacing={4}>
