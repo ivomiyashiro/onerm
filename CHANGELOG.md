@@ -8,6 +8,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Changed
 
+- The rest on the iPhone lock screen and in the Dynamic Island: the brand's dark background over the blurred wallpaper, the time in lime and a bar that empties during the rest (#323).
 - The logo plate rounds its two uncut corners like the primary button, in the app, the app icon, the splash and the notification icon.
 - Training (S09): the rest closes on its own when it reaches zero, with a vibration, so the next set can be logged right away; there is no «¡Descanso terminado!» screen to close any more (#314).
 - Training (S09): the rest no longer asks «¿Cuántas más podías hacer?» again for a set; the row of the set asks it once, and the rest only asks it during calibration (#292).
@@ -83,6 +84,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Suggestions: the line that asks for extra reps before a big jump is now plain Spanish. The percents of an increase or a reentry showed a wrong number with many decimals («+0.125 %»): they now show the whole percent («+13 %») (#320).
 - Training (S09): on iOS, swiping to another exercise from a set, after closing a sheet like «¿Por qué?», no longer opens the set sheet as well (#317).
 - «Errores comunes» (S17, S26): a long mistake wraps onto the next line, under its own text, instead of being cut off (#319).
 - Sheets: the title and the «✕» are centred on the same line, and the header lines up with the sheet's content instead of sitting further in (#318).
