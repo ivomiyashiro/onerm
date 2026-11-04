@@ -4,6 +4,7 @@ import {
   font,
   foregroundStyle,
   frame,
+  labelsHidden,
   lineLimit,
   monospacedDigit,
   multilineTextAlignment,
@@ -86,7 +87,7 @@ function RestLiveActivity(props: RestLiveActivityProps, environment: LiveActivit
     <ProgressView
       timerInterval={range}
       countsDown
-      modifiers={[progressViewStyle('linear'), tint(lime)]}
+      modifiers={[progressViewStyle('linear'), tint(lime), labelsHidden()]}
     />
   );
   return {
