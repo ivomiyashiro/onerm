@@ -1,7 +1,7 @@
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { SCREEN_IDS, screenRoutes } from '../../src/presentation/features/dev/screen-routes';
+import { SCREEN_IDS, screenRoutes } from '../../src/presentation/navigation/screen-routes';
 
 const app = join(__dirname, '../../app');
 

@@ -1,7 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
 import { DevMenuScreen } from '@/presentation/features/dev/dev-menu-screen';
-import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
+import { SCREEN_IDS, screenRoutes } from '@/presentation/navigation/screen-routes';
 import { dev } from '@/presentation/strings/dev';
 
 jest.useFakeTimers();

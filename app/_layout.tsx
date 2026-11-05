@@ -10,7 +10,7 @@ import { LaunchSplashProvider } from '@/presentation/features/startup/launch-spl
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';
 import { OverlayHost } from '@/presentation/components/overlay/overlay-host';
-import { SCREEN_IDS, screenRoutes } from '@/presentation/features/dev/screen-routes';
+import { SCREEN_IDS, screenRoutes } from '@/presentation/navigation/screen-routes';
 import { colors } from '@/presentation/theme';
 
 // The native splash stays until the animated one, its identical frame, is on screen (marca §16).
