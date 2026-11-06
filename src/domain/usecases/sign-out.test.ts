@@ -2,7 +2,7 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { SyncResult } from '@/domain/services/sync-engine';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 
 function setup() {

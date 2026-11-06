@@ -81,7 +81,7 @@ import type { LocalDate } from '@/domain/models/local-date';
 import type { Id } from '@/domain/models/vocabulary';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import type { RejectedChange } from '@/domain/models/rejected-change';
-import type { GuestSummary, GuestUnion } from '@/domain/repositories/guest-union';
+import type { GuestSummary, GuestUnion } from '@/domain/services/guest-union';
 import type { Observer } from '@/domain/repositories/observer';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';

@@ -1,5 +1,5 @@
 import type { SyncStatus } from '@/domain/models/sync-status';
-import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { SyncResult } from '@/domain/services/sync-engine';
 
 /** Everything the backup status depends on (RF-SYNC-06). */
 export interface SyncStatusInput {

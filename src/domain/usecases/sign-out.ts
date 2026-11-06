@@ -1,6 +1,6 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
-import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
+import type { SyncResult } from '@/domain/services/sync-engine';
 
 /** What S21 does when the person taps «Cerrar sesión» (RF-AUTH-07). */
 export type SignOutPlan =

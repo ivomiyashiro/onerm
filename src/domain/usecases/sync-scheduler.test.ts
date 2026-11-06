@@ -1,4 +1,4 @@
-import type { SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import type { SyncEngine, SyncResult } from '@/domain/services/sync-engine';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 
 /** An engine whose runs the test finishes by hand, to see what happens while one is running. */

@@ -14,7 +14,7 @@ import type {
   NewPasswordOutcome,
   PasswordResetOutcome,
   RecoveryLinkOutcome,
-} from '@/domain/repositories/auth-gateway';
+} from '@/domain/services/auth-gateway';
 
 /** Where supabase-js keeps the session; read here too to know the user without a connection. */
 export const SESSION_STORAGE_KEY = 'onerm.auth.session';

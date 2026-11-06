@@ -1,6 +1,6 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
-import type { GoogleOutcome } from '@/domain/repositories/auth-gateway';
+import type { GoogleOutcome } from '@/domain/services/auth-gateway';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

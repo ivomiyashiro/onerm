@@ -1,4 +1,4 @@
-import type { LocalDatabase } from '@/domain/repositories/local-database';
+import type { LocalDatabase } from '@/domain/services/local-database';
 
 import type { AppDatabase } from './app-database';
 import { connectionPragmas } from './connection-pragmas';

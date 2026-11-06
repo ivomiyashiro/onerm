@@ -3,7 +3,7 @@ import { and, count, eq, isNull, ne, sql } from 'drizzle-orm';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { appState, profiles, routines, workouts } from '@/data/db/schema';
-import type { GuestSummary, GuestUnion } from '@/domain/repositories/guest-union';
+import type { GuestSummary, GuestUnion } from '@/domain/services/guest-union';
 
 import { writeRemoteRow } from './pull';
 import { USER_TABLES, type RemoteRow } from './sync-tables';

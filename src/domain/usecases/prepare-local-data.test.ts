@@ -1,4 +1,4 @@
-import type { LocalDatabase } from '@/domain/repositories/local-database';
+import type { LocalDatabase } from '@/domain/services/local-database';
 import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
 
 describe('PrepareLocalData (07 §6)', () => {

@@ -1,5 +1,5 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 export type OpenRecoveryLinkResult =
   /** `alreadyIn`: the device was already signed in to this account, so leaving must not sign out. */

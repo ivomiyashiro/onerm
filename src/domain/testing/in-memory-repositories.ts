@@ -18,16 +18,16 @@ import type {
   NewPasswordOutcome,
   PasswordResetOutcome,
   RecoveryLinkOutcome,
-} from '@/domain/repositories/auth-gateway';
+} from '@/domain/services/auth-gateway';
 import type {
   DevicePermissions,
   NotificationPermission,
-} from '@/domain/repositories/device-permissions';
+} from '@/domain/services/device-permissions';
 import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
-import type { RestCountdown } from '@/domain/repositories/rest-countdown';
-import type { RestNotifier } from '@/domain/repositories/rest-notifier';
+import type { RestCountdown } from '@/domain/services/rest-countdown';
+import type { RestNotifier } from '@/domain/services/rest-notifier';
 import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';

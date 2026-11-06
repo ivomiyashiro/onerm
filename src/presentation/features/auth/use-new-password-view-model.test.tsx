@@ -2,7 +2,7 @@ import { act, renderHook, waitFor } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import type { DataOwner } from '@/domain/models/data-owner';
-import type { RecoveryLinkOutcome } from '@/domain/repositories/auth-gateway';
+import type { RecoveryLinkOutcome } from '@/domain/services/auth-gateway';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

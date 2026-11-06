@@ -1,5 +1,5 @@
 import { emailProblem, type EmailProblem } from '@/domain/rules/auth/credentials';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 export type RequestPasswordResetResult =
   | { status: 'invalid'; email: EmailProblem }

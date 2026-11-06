@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import type { GuestSummary } from '@/domain/repositories/guest-union';
+import type { GuestSummary } from '@/domain/services/guest-union';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

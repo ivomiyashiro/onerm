@@ -1,6 +1,6 @@
 import { render } from '@testing-library/react-native';
 
-import type { SyncTriggerListener } from '@/domain/repositories/sync-triggers';
+import type { SyncTriggerListener } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';

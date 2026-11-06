@@ -35,12 +35,12 @@ import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-chan
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
-import type { DevicePermissions } from '@/domain/repositories/device-permissions';
-import type { RestCountdown } from '@/domain/repositories/rest-countdown';
-import type { RestNotifier } from '@/domain/repositories/rest-notifier';
-import type { SyncEngine } from '@/domain/repositories/sync-engine';
-import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
+import type { DevicePermissions } from '@/domain/services/device-permissions';
+import type { RestCountdown } from '@/domain/services/rest-countdown';
+import type { RestNotifier } from '@/domain/services/rest-notifier';
+import type { SyncEngine } from '@/domain/services/sync-engine';
+import type { SyncTriggers } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import {
   CancelGuestUnion,
@@ -48,7 +48,7 @@ import {
   ReadPendingUnion,
   StartGuestUnion,
 } from '@/domain/usecases/guest-union';
-import type { GuestUnion } from '@/domain/repositories/guest-union';
+import type { GuestUnion } from '@/domain/services/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';

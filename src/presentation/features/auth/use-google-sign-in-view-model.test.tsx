@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import type { DataOwner } from '@/domain/models/data-owner';
-import type { GoogleOutcome } from '@/domain/repositories/auth-gateway';
+import type { GoogleOutcome } from '@/domain/services/auth-gateway';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

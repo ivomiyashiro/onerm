@@ -1,4 +1,4 @@
-import type { RestCountdown } from '@/domain/repositories/rest-countdown';
+import type { RestCountdown } from '@/domain/services/rest-countdown';
 
 import { RestCountdownNotification } from '../../../modules/rest-countdown';
 

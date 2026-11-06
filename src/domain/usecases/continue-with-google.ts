@@ -1,5 +1,5 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 import { EnterAccount } from '@/domain/usecases/enter-account';
 
 export type ContinueWithGoogleResult =

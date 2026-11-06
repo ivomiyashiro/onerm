@@ -11,7 +11,7 @@ import type {
   NewPasswordOutcome,
   PasswordResetOutcome,
   RecoveryLinkOutcome,
-} from '@/domain/repositories/auth-gateway';
+} from '@/domain/services/auth-gateway';
 
 /** A request without an answer in this time fails like a network error (07 §4.1, #175). */
 const NETWORK_TIMEOUT_MS = 15_000;

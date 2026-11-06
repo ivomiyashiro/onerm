@@ -1,7 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import type { PasswordResetOutcome } from '@/domain/repositories/auth-gateway';
+import type { PasswordResetOutcome } from '@/domain/services/auth-gateway';
 import { FakeAuthGateway } from '@/domain/testing/in-memory-repositories';
 import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
 import { PasswordRecoveryScreen } from '@/presentation/features/auth/password-recovery-screen';
