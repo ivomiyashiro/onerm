@@ -4,7 +4,7 @@ import { routineTemplates, templateDays, templateExercises } from '@/data/db/sch
 import type { TableChanges } from '@/data/db/table-changes';
 import { toRoutineTemplates } from '@/data/mappers/catalog-mappers';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';
 
 /** The templates in the local database: read-only for the app (06 §2). */

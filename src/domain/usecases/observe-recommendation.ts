@@ -1,7 +1,7 @@
 import type { Profile } from '@/domain/models/profile';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { TrainingGoal } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';
 import { templateMinutes } from '@/domain/rules/routine/session-duration';

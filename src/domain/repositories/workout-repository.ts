@@ -1,6 +1,6 @@
 import type { Workout } from '@/domain/models/workout';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** The workout aggregate is read and written as a whole (06 §2). */
 export interface WorkoutRepository {

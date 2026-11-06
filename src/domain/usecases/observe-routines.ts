@@ -3,7 +3,7 @@ import type { Routine } from '@/domain/models/routine';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';

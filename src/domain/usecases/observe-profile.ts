@@ -1,5 +1,5 @@
 import type { Profile } from '@/domain/models/profile';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 
 /** S21: the profile as stored. Null before the onboarding creates it. */

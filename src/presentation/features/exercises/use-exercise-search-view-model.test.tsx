@@ -3,7 +3,7 @@ import type { ReactNode } from 'react';
 
 import type { Exercise } from '@/domain/models/exercise';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import { anExercise } from '@/domain/testing/builders';
 import { ObserveExercises } from '@/domain/usecases/observe-exercises';
 import { useExerciseSearchViewModel } from '@/presentation/features/exercises/use-exercise-search-view-model';

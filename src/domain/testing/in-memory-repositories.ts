@@ -23,7 +23,7 @@ import type {
   DevicePermissions,
   NotificationPermission,
 } from '@/domain/services/device-permissions';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RestCountdown } from '@/domain/services/rest-countdown';

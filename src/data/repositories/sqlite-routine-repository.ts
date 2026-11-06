@@ -8,7 +8,7 @@ import type { TableChanges } from '@/data/db/table-changes';
 import { fromRoutine, toRoutines } from '@/data/mappers/routine-mapper';
 import type { RotationDay, Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 
 const TABLES = [routines, routineDays, routineExercises];

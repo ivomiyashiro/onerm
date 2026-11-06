@@ -1,4 +1,4 @@
-import type { Unsubscribe } from '@/domain/repositories/observer';
+import type { Unsubscribe } from '@/domain/observer';
 import type { SyncActivity, SyncScheduler } from '@/domain/usecases/sync-scheduler';
 
 /** What the sync is doing (RN-SYNC-06): something waiting for a connection retries after a run. */

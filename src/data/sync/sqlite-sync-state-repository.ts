@@ -6,7 +6,7 @@ import { appState, syncState, workoutExercises, workouts, workoutSets } from '@/
 import { currentUserId } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type {
   LocalSyncState,
   SyncStateRepository,

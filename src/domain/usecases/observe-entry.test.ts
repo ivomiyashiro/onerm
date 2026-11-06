@@ -1,5 +1,5 @@
 import type { Profile } from '@/domain/models/profile';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import {
   InMemoryOnboardingRepository,

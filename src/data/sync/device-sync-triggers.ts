@@ -1,5 +1,5 @@
 import type { TableChanges } from '@/data/db/table-changes';
-import type { Unsubscribe } from '@/domain/repositories/observer';
+import type { Unsubscribe } from '@/domain/observer';
 import type { SyncTriggerListener, SyncTriggers } from '@/domain/services/sync-triggers';
 
 import { USER_TABLES } from './sync-tables';

@@ -1,6 +1,6 @@
 import type { RestMessage, RestTimer } from '@/domain/models/rest-timer';
 import type { DevicePermissions } from '@/domain/services/device-permissions';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RestCountdown } from '@/domain/services/rest-countdown';
 import type { RestNotifier } from '@/domain/services/rest-notifier';
 import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';

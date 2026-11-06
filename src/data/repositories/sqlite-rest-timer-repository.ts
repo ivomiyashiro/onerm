@@ -3,7 +3,7 @@ import { observeQuery } from '@/data/db/observe-query';
 import { appState } from '@/data/db/schema';
 import type { TableChanges } from '@/data/db/table-changes';
 import type { RestTimer } from '@/domain/models/rest-timer';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RestTimerRepository } from '@/domain/repositories/rest-timer-repository';
 
 /** The rest timer in the single row of `app_state` (07 §2.4): local only, never synced. */

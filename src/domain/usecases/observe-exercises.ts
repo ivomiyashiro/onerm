@@ -1,6 +1,6 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** Observes the catalog. Example use case of the composition root (#18). */
 export class ObserveExercises {

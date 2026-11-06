@@ -8,7 +8,7 @@ import { toExercise } from '@/data/mappers/catalog-mappers';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** The catalog in the local database: read-only for the app (06 §2). */
 export class SqliteExerciseRepository implements ExerciseRepository {

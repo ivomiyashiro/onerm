@@ -2,7 +2,7 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { exerciseExposures } from '@/domain/rules/suggestion/exposures';
 import { observeTogether } from '@/domain/usecases/observe-together';

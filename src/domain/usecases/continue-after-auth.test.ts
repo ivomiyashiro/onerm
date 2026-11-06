@@ -1,6 +1,6 @@
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import { InMemoryProfileRepository } from '@/domain/testing/in-memory-repositories';
 

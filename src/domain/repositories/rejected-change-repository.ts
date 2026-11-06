@@ -1,5 +1,5 @@
 import type { RejectedChange } from '@/domain/models/rejected-change';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** The changes the server rejected (RN-SYNC-11, RF-SYNC-06.AC4). */
 export interface RejectedChangeRepository {

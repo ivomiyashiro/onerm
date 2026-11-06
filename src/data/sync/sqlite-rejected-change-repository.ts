@@ -7,7 +7,7 @@ import { routines } from '@/data/db/schema';
 import { currentUserId } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
 import type { RecordKind, RejectedChange } from '@/domain/models/rejected-change';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
 
 import { writeRemoteRow } from './pull';

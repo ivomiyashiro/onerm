@@ -1,5 +1,5 @@
 import type { OnboardingStep } from '@/domain/models/onboarding';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** The onboarding step saved on this device (local only, 07 §2.4). */
 export interface OnboardingRepository {

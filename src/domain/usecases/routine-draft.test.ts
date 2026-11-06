@@ -1,6 +1,6 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Profile } from '@/domain/models/profile';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { aRoutine, aRoutineDay, anExercise, aWorkout } from '@/domain/testing/builders';
 import {

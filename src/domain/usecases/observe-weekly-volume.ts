@@ -4,7 +4,7 @@ import type { Profile } from '@/domain/models/profile';
 import type { Muscle } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { addDays, startOfWeek } from '@/domain/rules/calendar';

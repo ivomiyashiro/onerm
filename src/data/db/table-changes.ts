@@ -1,4 +1,4 @@
-import type { Unsubscribe } from '@/domain/repositories/observer';
+import type { Unsubscribe } from '@/domain/observer';
 
 /**
  * Tells when a table of the local database changed, so `observe…()` can read again (spike #11).

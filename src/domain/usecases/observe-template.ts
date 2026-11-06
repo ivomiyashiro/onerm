@@ -6,7 +6,7 @@ import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id, TrainingGoal } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';

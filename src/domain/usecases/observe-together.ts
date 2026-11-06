@@ -1,4 +1,4 @@
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** Something to observe, like a repository's `observe…` bound to its arguments. */
 export type Source<T> = (observer: Observer<T>) => Unsubscribe;
