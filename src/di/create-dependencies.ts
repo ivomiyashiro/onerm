@@ -30,8 +30,8 @@ import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repo
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
-import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
-import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
+import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
+import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
@@ -259,12 +259,12 @@ export function appBackup({ localDatabase, changes }: Storage): Backup {
   // also in the background (RNF-22, #180).
   NetInfo.configure({ reachabilityShouldRun: () => false });
   const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
-  const rejected = new SqliteRejectedChangeRepository(
+  const rejected = new SyncRejectedChangeRepository(
     () => localDatabase.database,
     changes,
     client ?? null,
   );
-  const union = new SqliteGuestUnion(() => localDatabase.database, client ?? null);
+  const union = new SyncGuestUnion(() => localDatabase.database, client ?? null);
   if (client === undefined) {
     return {
       engine: { sync: async () => 'guest' },

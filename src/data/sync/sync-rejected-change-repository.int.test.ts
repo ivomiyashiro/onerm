@@ -5,7 +5,7 @@ import { openTestDatabase } from '@/data/db/open-test-database';
 import { appState, routineDays, routineExercises, routines } from '@/data/db/schema';
 import { writeSyncRow } from '@/data/db/sync-writes';
 import { ManualTableChanges } from '@/data/db/table-changes';
-import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
+import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
 import type { RejectedChange } from '@/domain/models/rejected-change';
 
 const USER = 'u1';
@@ -35,7 +35,7 @@ function setUp() {
     notes: null,
   });
   db.update(routines).set({ conflict: '23514' }).where(eq(routines.id, 'r1')).run();
-  const repository = new SqliteRejectedChangeRepository(() => db, new ManualTableChanges(), null);
+  const repository = new SyncRejectedChangeRepository(() => db, new ManualTableChanges(), null);
   const list = () => {
     let seen: RejectedChange[] = [];
     repository.observe({ next: (changes) => (seen = changes), error: () => {} })();
@@ -44,7 +44,7 @@ function setUp() {
   return { db, repository, list };
 }
 
-describe('SqliteRejectedChangeRepository (RN-SYNC-11)', () => {
+describe('SyncRejectedChangeRepository (RN-SYNC-11)', () => {
   it('RF-SYNC-06.AC4: lists the rejected record, its reason and what depends on it', () => {
     const { list } = setUp();
 
@@ -80,7 +80,7 @@ describe('SqliteRejectedChangeRepository (RN-SYNC-11)', () => {
         }),
       }),
     } as unknown as SupabaseClient;
-    const repository = new SqliteRejectedChangeRepository(
+    const repository = new SyncRejectedChangeRepository(
       () => db,
       new ManualTableChanges(),
       unreachable,

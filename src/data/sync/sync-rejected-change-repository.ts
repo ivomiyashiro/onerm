@@ -34,7 +34,7 @@ const NAMES: Readonly<Record<string, (row: Record<string, unknown>) => string>> 
 };
 
 /** The rejected changes on the local database (RN-SYNC-11), with the server for discarding. */
-export class SqliteRejectedChangeRepository implements RejectedChangeRepository {
+export class SyncRejectedChangeRepository implements RejectedChangeRepository {
   constructor(
     private readonly db: () => AppDatabase,
     private readonly changes: TableChanges,

@@ -16,7 +16,7 @@ const PROFILE_SYNC = USER_TABLES.find((sync) => sync.table === profiles)!;
  * The union of 07 §4.3 on the local database, with the server only to read the account. The
  * guest's rows are the ones with `user_id` null (07 §2.1).
  */
-export class SqliteGuestUnion implements GuestUnion {
+export class SyncGuestUnion implements GuestUnion {
   constructor(
     private readonly db: () => AppDatabase,
     /** Null without a server configured. */
