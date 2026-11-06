@@ -1,6 +1,6 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
-import type { GuestSummary, GuestUnion } from '@/domain/repositories/guest-union';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
+import type { GuestSummary, GuestUnion } from '@/domain/services/guest-union';
 
 /** The account a guest device waits to be united with (07 §4.3 step 0). */
 export interface PendingUnion {

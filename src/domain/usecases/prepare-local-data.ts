@@ -1,4 +1,4 @@
-import type { LocalDatabase } from '@/domain/repositories/local-database';
+import type { LocalDatabase } from '@/domain/services/local-database';
 
 /**
  * Leaves the local database ready before the UI mounts (07 §6). If a migration fails it rejects,

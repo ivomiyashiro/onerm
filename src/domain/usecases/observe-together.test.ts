@@ -1,4 +1,4 @@
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import { firstValue, observeTogether } from '@/domain/usecases/observe-together';
 
 /** A source the test drives by hand; `failOnSubscribe` errors during the subscribe call itself. */

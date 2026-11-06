@@ -1,4 +1,4 @@
-import type { GuestSummary, GuestUnion } from '@/domain/repositories/guest-union';
+import type { GuestSummary, GuestUnion } from '@/domain/services/guest-union';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

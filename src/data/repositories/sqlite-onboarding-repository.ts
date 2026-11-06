@@ -4,7 +4,7 @@ import { appState } from '@/data/db/schema';
 import type { TableChanges } from '@/data/db/table-changes';
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** `app_state.onboarding_step` stores the step's number: 1–3 for the questions, 4 for S06. */
 const STEPS: readonly OnboardingStep[] = ['level', 'goal', 'days', 'recommendation'];

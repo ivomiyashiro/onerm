@@ -1,7 +1,7 @@
 import * as Notifications from 'expo-notifications';
 
 import type { RestMessage } from '@/domain/models/rest-timer';
-import type { RestNotifier } from '@/domain/repositories/rest-notifier';
+import type { RestNotifier } from '@/domain/services/rest-notifier';
 
 /** Fixed: scheduling again replaces the notice, and cancelling leaves none (spike #14). */
 export const REST_NOTIFICATION_ID = 'rest-timer';

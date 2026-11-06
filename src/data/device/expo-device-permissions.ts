@@ -4,7 +4,7 @@ import { Linking, Platform } from 'react-native';
 import type {
   DevicePermissions,
   NotificationPermission,
-} from '@/domain/repositories/device-permissions';
+} from '@/domain/services/device-permissions';
 import { ExactAlarm } from '../../../modules/exact-alarm';
 
 /**

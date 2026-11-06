@@ -11,7 +11,7 @@ import type { TableChanges } from '@/data/db/table-changes';
 import { fromWorkout, toWorkouts } from '@/data/mappers/workout-mapper';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 
 const TABLES = [workouts, workoutExercises, workoutSets];

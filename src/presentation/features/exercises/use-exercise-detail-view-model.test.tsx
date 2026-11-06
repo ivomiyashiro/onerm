@@ -1,7 +1,7 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import { anExercise } from '@/domain/testing/builders';
 import type { Exercise } from '@/domain/models/exercise';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';

@@ -1,7 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import type { RecoveryLinkOutcome } from '@/domain/repositories/auth-gateway';
+import type { RecoveryLinkOutcome } from '@/domain/services/auth-gateway';
 import {
   FakeAuthGateway,
   InMemoryAccountRepository,

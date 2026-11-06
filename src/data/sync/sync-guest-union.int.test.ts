@@ -1,7 +1,7 @@
 import { openTestDatabase } from '@/data/db/open-test-database';
 import { routines, workouts } from '@/data/db/schema';
 import { softDelete, writeSyncRow } from '@/data/db/sync-writes';
-import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
+import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
 import { eq } from 'drizzle-orm';
 
 const workout = (id: string, status: 'finished' | 'in_progress') => ({
@@ -16,7 +16,7 @@ const workout = (id: string, status: 'finished' | 'in_progress') => ({
   notes: null,
 });
 
-describe('SqliteGuestUnion: the guest summary (RN-AUTH-05, D01)', () => {
+describe('SyncGuestUnion: the guest summary (RN-AUTH-05, D01)', () => {
   it('counts finished workouts and routines, not deleted ones, and the workout in progress', async () => {
     const { db } = openTestDatabase();
     const guest = { now: 1, userId: null };
@@ -27,7 +27,7 @@ describe('SqliteGuestUnion: the guest summary (RN-AUTH-05, D01)', () => {
     writeSyncRow(db, workouts, workout('w2', 'finished'), guest);
     writeSyncRow(db, workouts, workout('w3', 'in_progress'), guest);
 
-    const summary = await new SqliteGuestUnion(() => db, null).guestSummary();
+    const summary = await new SyncGuestUnion(() => db, null).guestSummary();
 
     expect(summary).toEqual({ workouts: 2, routines: 1, workoutInProgress: true });
   });

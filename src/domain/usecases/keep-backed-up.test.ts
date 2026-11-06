@@ -1,5 +1,5 @@
-import type { SyncEngine } from '@/domain/repositories/sync-engine';
-import type { SyncTriggerListener, SyncTriggers } from '@/domain/repositories/sync-triggers';
+import type { SyncEngine } from '@/domain/services/sync-engine';
+import type { SyncTriggerListener, SyncTriggers } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 

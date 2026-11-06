@@ -1,5 +1,5 @@
 import type { RejectedChange } from '@/domain/models/rejected-change';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
 import type { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 

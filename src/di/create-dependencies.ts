@@ -30,17 +30,17 @@ import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repo
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
-import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
-import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
+import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
+import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
-import type { DevicePermissions } from '@/domain/repositories/device-permissions';
-import type { RestCountdown } from '@/domain/repositories/rest-countdown';
-import type { RestNotifier } from '@/domain/repositories/rest-notifier';
-import type { SyncEngine } from '@/domain/repositories/sync-engine';
-import type { SyncTriggers } from '@/domain/repositories/sync-triggers';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
+import type { DevicePermissions } from '@/domain/services/device-permissions';
+import type { RestCountdown } from '@/domain/services/rest-countdown';
+import type { RestNotifier } from '@/domain/services/rest-notifier';
+import type { SyncEngine } from '@/domain/services/sync-engine';
+import type { SyncTriggers } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
 import {
   CancelGuestUnion,
@@ -48,7 +48,7 @@ import {
   ReadPendingUnion,
   StartGuestUnion,
 } from '@/domain/usecases/guest-union';
-import type { GuestUnion } from '@/domain/repositories/guest-union';
+import type { GuestUnion } from '@/domain/services/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
 import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
@@ -259,12 +259,12 @@ export function appBackup({ localDatabase, changes }: Storage): Backup {
   // also in the background (RNF-22, #180).
   NetInfo.configure({ reachabilityShouldRun: () => false });
   const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
-  const rejected = new SqliteRejectedChangeRepository(
+  const rejected = new SyncRejectedChangeRepository(
     () => localDatabase.database,
     changes,
     client ?? null,
   );
-  const union = new SqliteGuestUnion(() => localDatabase.database, client ?? null);
+  const union = new SyncGuestUnion(() => localDatabase.database, client ?? null);
   if (client === undefined) {
     return {
       engine: { sync: async () => 'guest' },

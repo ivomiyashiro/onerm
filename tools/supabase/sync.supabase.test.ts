@@ -30,8 +30,8 @@ import { pushChanges } from '@/data/sync/push';
 import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import { isRestored, lastSyncedAt, markRestored } from '@/data/sync/sync-state-table';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
-import { SqliteRejectedChangeRepository } from '@/data/sync/sqlite-rejected-change-repository';
-import { SqliteGuestUnion } from '@/data/sync/sqlite-guest-union';
+import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
+import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
 import { ManualTableChanges } from '@/data/db/table-changes';
 import type { RejectedChange } from '@/domain/models/rejected-change';
 
@@ -471,7 +471,7 @@ describe('sync engine against Supabase (07 §4.1)', () => {
     await a.push();
     a.write(routineExercises, routineExercise(e, d, 'x'.repeat(281)));
     await a.push();
-    const rejected = new SqliteRejectedChangeRepository(
+    const rejected = new SyncRejectedChangeRepository(
       () => a.db,
       new ManualTableChanges(),
       a.client,
@@ -564,7 +564,7 @@ describe('sync engine against Supabase (07 §4.1)', () => {
       .set({ serverUpdatedAt: null, conflict: '23514', dirty: true })
       .where(eq(routines.id, r))
       .run();
-    const rejected = new SqliteRejectedChangeRepository(
+    const rejected = new SyncRejectedChangeRepository(
       () => a.db,
       new ManualTableChanges(),
       a.client,
@@ -749,7 +749,7 @@ describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
   let userId: string;
   let account: Device;
   let guest: Device;
-  let union: SqliteGuestUnion;
+  let union: SyncGuestUnion;
 
   beforeEach(async () => {
     const email = `${randomUUID()}@test.local`;
@@ -759,7 +759,7 @@ describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
     // The guest's phone, already signed in to the same account (07 §4.3 step 0).
     const clientG = await signIn(email);
     guest = device(clientG, null);
-    union = new SqliteGuestUnion(() => guest.db, clientG);
+    union = new SyncGuestUnion(() => guest.db, clientG);
   });
 
   const rows = <T extends SyncTable>(on: Device, table: T) =>
@@ -770,7 +770,7 @@ describe('guest union (RF-AUTH-05, 07 §4.3)', () => {
 
   it('RN-AUTH-07: without the session of that account nothing is read or united', async () => {
     guest.write(routines, routine(randomUUID()));
-    const anonymous = new SqliteGuestUnion(() => guest.db, anonClient());
+    const anonymous = new SyncGuestUnion(() => guest.db, anonClient());
 
     await expect(anonymous.accountHasData(userId)).resolves.toBe('offline');
     await expect(anonymous.unite({ userId, email: null, keepGuestData: true })).resolves.toBe(

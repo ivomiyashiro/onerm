@@ -10,7 +10,7 @@ import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
-import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { SyncResult } from '@/domain/services/sync-engine';
 import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
 import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
 import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';

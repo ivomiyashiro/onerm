@@ -1,7 +1,7 @@
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { Profile } from '@/domain/models/profile';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type {
   LocalSyncState,

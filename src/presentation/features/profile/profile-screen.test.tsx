@@ -11,7 +11,7 @@ import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
-import type { SyncResult } from '@/domain/repositories/sync-engine';
+import type { SyncResult } from '@/domain/services/sync-engine';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import { SyncNow } from '@/domain/usecases/sync-now';
 import type { SyncActivity } from '@/domain/usecases/sync-scheduler';

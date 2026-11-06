@@ -1,4 +1,4 @@
-import type { Unsubscribe } from '@/domain/repositories/observer';
+import type { Unsubscribe } from '@/domain/observer';
 
 /** The device events that start a sync (RN-SYNC-06). */
 export interface SyncTriggerListener {

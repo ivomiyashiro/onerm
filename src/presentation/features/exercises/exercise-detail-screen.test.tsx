@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { Exercise } from '@/domain/models/exercise';
 import type { Workout } from '@/domain/models/workout';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import { aBilateralSet, aWorkout, aWorkoutExercise, anExercise } from '@/domain/testing/builders';
 import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
 import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';

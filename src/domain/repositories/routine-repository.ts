@@ -1,6 +1,6 @@
 import type { RotationDay, Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /**
  * The routine aggregate is read and written as a whole (06 §2). Days and exercises are ordered

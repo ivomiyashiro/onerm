@@ -1,5 +1,5 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 export type EnterAccountResult =
   /** The account whose data is on the device is back in. */

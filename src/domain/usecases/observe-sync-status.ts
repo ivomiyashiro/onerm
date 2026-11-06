@@ -1,5 +1,5 @@
 import type { SyncStatus } from '@/domain/models/sync-status';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { Workout } from '@/domain/models/workout';
 import type {
   LocalSyncState,

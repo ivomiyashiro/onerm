@@ -1,4 +1,4 @@
-import type { Unsubscribe } from '@/domain/repositories/observer';
+import type { Unsubscribe } from '@/domain/observer';
 import type { SyncScheduler } from '@/domain/usecases/sync-scheduler';
 
 /** What S23 shows (RF-SYNC-03). */

@@ -1,7 +1,7 @@
 import { getTableName } from 'drizzle-orm';
 import type { SQLiteTable } from 'drizzle-orm/sqlite-core';
 
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 import { sameValue } from './same-value';
 import type { TableChanges } from './table-changes';

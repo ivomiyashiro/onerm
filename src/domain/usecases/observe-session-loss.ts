@@ -1,5 +1,5 @@
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 /**
  * RF-AUTH-06.AC4: tells when the server revokes or refuses to renew the session of the account

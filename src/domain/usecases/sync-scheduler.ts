@@ -1,5 +1,5 @@
-import type { Unsubscribe } from '@/domain/repositories/observer';
-import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import type { Unsubscribe } from '@/domain/observer';
+import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/services/sync-engine';
 import { retryDelayMs } from '@/domain/rules/sync/sync-timing';
 
 /** What the backup status needs from the scheduler (RF-SYNC-06). */

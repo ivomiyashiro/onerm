@@ -7,7 +7,7 @@ import { currentUserId, writeSyncRow } from '@/data/db/sync-writes';
 import type { TableChanges } from '@/data/db/table-changes';
 import { fromProfile, toProfile } from '@/data/mappers/profile-mapper';
 import type { Profile } from '@/domain/models/profile';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 
 /** The profile of the device's owner: the single live row of `profiles` (07 §2.2). */

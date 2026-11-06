@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from 'react';
 
 import { createDependencies, type Device, type Storage } from '@/di/create-dependencies';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 

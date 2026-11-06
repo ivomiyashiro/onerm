@@ -1,4 +1,4 @@
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 import type {
   LocalSyncState,
   SyncStateRepository,

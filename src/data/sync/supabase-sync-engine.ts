@@ -2,7 +2,7 @@ import type { SupabaseClient } from '@supabase/supabase-js';
 
 import type { AppDatabase } from '@/data/db/app-database';
 import { currentUserId } from '@/data/db/sync-writes';
-import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/repositories/sync-engine';
+import type { RestoreProgress, SyncEngine, SyncResult } from '@/domain/services/sync-engine';
 import { isOlderVersion } from '@/domain/rules/sync/sync-timing';
 
 import { countToPull, pullCatalog, pullChanges } from './pull';

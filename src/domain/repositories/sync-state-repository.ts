@@ -1,5 +1,5 @@
 import type { Id } from '@/domain/models/vocabulary';
-import type { Observer, Unsubscribe } from '@/domain/repositories/observer';
+import type { Observer, Unsubscribe } from '@/domain/observer';
 
 /** What the device knows about its backup (07 §2.4). Local database only. */
 export interface LocalSyncState {

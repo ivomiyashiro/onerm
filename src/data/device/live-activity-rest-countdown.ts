@@ -1,4 +1,4 @@
-import type { RestCountdown } from '@/domain/repositories/rest-countdown';
+import type { RestCountdown } from '@/domain/services/rest-countdown';
 
 /** What the Live Activity shows (see `rest-live-activity.tsx`); dates as epoch ms. */
 interface RestActivityProps {

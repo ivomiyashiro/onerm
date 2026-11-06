@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { GuestSummary } from '@/domain/repositories/guest-union';
+import type { GuestSummary } from '@/domain/services/guest-union';
 import type { PendingUnion } from '@/domain/usecases/guest-union';
 import { useAppStore } from '@/presentation/state/app-store-context';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';

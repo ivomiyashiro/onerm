@@ -1,6 +1,6 @@
 import type { AccountState } from '@/domain/models/account';
 import type { AccountRepository } from '@/domain/repositories/account-repository';
-import type { AuthGateway } from '@/domain/repositories/auth-gateway';
+import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 /**
  * At app start: whose data this is and whether the session is still there (RF-AUTH-06.AC1). It

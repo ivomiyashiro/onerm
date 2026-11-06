@@ -4,7 +4,7 @@ import {
   type AppStateSource,
   type NetworkSource,
 } from '@/data/sync/device-sync-triggers';
-import type { SyncTriggerListener } from '@/domain/repositories/sync-triggers';
+import type { SyncTriggerListener } from '@/domain/services/sync-triggers';
 
 function setUp() {
   const changes = new ManualTableChanges();

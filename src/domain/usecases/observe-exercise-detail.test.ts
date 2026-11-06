@@ -1,6 +1,6 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Workout } from '@/domain/models/workout';
-import type { Observer } from '@/domain/repositories/observer';
+import type { Observer } from '@/domain/observer';
 import { aBilateralSet, aWorkout, aWorkoutExercise, anExercise } from '@/domain/testing/builders';
 import {
   ObserveExerciseDetail,
