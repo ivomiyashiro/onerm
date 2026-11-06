@@ -1,7 +1,7 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { StartAsGuest } from '@/domain/usecases/start-as-guest';
+import { StartAsGuest } from '@/domain/usecases/auth/start-as-guest';
 import { WelcomeScreen } from '@/presentation/features/welcome/welcome-screen';
 import { auth } from '@/presentation/strings/auth';
 import { someUseCases } from '@/presentation/use-cases/testing';

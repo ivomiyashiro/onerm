@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { FakeAuthGateway } from '@/domain/testing/in-memory-repositories';
-import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
+import { RequestPasswordReset } from '@/domain/usecases/auth/request-password-reset';
 import { usePasswordRecoveryViewModel } from '@/presentation/features/auth/use-password-recovery-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { someUseCases } from '@/presentation/use-cases/testing';

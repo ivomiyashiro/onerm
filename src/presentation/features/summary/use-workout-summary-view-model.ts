@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { WorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+import type { WorkoutSummary } from '@/domain/usecases/workout/observe-workout-summary';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WorkoutSummaryState =

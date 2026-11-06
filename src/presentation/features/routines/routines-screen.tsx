@@ -3,7 +3,7 @@ import { Pressable, ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { RoutineSummary, RoutinesOverview } from '@/domain/usecases/observe-routines';
+import type { RoutineSummary, RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';

@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import type { DetailExercise, WorkoutDetail } from '@/domain/usecases/observe-workout-detail';
+import type {
+  DetailExercise,
+  WorkoutDetail,
+} from '@/domain/usecases/progress/observe-workout-detail';
 import {
   formErrors,
   formFromPrefill,

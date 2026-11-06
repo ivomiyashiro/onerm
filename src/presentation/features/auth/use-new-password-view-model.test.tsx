@@ -8,9 +8,9 @@ import {
   InMemoryAccountRepository,
   InMemoryProfileRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
+import { CompletePasswordRecovery } from '@/domain/usecases/auth/complete-password-recovery';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { OpenRecoveryLink } from '@/domain/usecases/auth/open-recovery-link';
 import { useNewPasswordViewModel } from '@/presentation/features/auth/use-new-password-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

@@ -9,7 +9,7 @@ import type {
   SummaryLine,
   SummarySet,
   WorkoutSummary,
-} from '@/domain/usecases/observe-workout-summary';
+} from '@/domain/usecases/workout/observe-workout-summary';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';

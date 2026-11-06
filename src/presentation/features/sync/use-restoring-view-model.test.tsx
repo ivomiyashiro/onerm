@@ -1,8 +1,8 @@
 import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { ObserveRestoration, type Restoration } from '@/domain/usecases/observe-restoration';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { ObserveRestoration, type Restoration } from '@/domain/usecases/sync/observe-restoration';
 import { useRestoringViewModel } from '@/presentation/features/sync/use-restoring-view-model';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

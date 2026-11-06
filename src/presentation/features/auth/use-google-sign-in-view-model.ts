@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import type { ContinueWithGoogleResult } from '@/domain/usecases/continue-with-google';
+import type { ContinueWithGoogleResult } from '@/domain/usecases/auth/continue-with-google';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { auth } from '@/presentation/strings/auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';

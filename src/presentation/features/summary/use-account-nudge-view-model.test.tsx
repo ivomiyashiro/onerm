@@ -2,7 +2,7 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import { InMemoryAccountRepository } from '@/domain/testing/in-memory-repositories';
-import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
+import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/auth/account-nudge';
 import { useAccountNudgeViewModel } from '@/presentation/features/summary/use-account-nudge-view-model';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

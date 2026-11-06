@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import type { SignInResult } from '@/domain/usecases/sign-in';
+import type { SignInResult } from '@/domain/usecases/auth/sign-in';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 import { auth } from '@/presentation/strings/auth';

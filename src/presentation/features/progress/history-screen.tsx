@@ -3,7 +3,7 @@ import { Pressable, ScrollView, SectionList, StyleSheet, View } from 'react-nati
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { HistoryItem } from '@/domain/usecases/observe-history';
+import type { HistoryItem } from '@/domain/usecases/progress/observe-history';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { SkeletonRow } from '@/presentation/components/feedback/skeleton';
 import { Badge } from '@/presentation/components/badge/badge';

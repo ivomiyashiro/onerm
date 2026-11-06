@@ -4,7 +4,7 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
+import { ObserveSessionLoss } from '@/domain/usecases/auth/observe-session-loss';
 import { SessionWatcher } from '@/presentation/features/auth/session-watcher';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

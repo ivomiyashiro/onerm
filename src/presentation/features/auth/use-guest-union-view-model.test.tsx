@@ -6,10 +6,10 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { FinishGuestUnion, StartGuestUnion } from '@/domain/usecases/guest-union';
-import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
-import { SyncNow } from '@/domain/usecases/sync-now';
-import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
+import { FinishGuestUnion, StartGuestUnion } from '@/domain/usecases/auth/guest-union';
+import { ObserveSyncActivity } from '@/domain/usecases/sync/observe-sync-activity';
+import { SyncNow } from '@/domain/usecases/sync/sync-now';
+import type { SyncActivity } from '@/domain/usecases/sync/sync-scheduler';
 import { useGuestUnionViewModel } from '@/presentation/features/auth/use-guest-union-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

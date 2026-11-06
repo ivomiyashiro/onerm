@@ -3,7 +3,10 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { DetailExercise, WorkoutDetail } from '@/domain/usecases/observe-workout-detail';
+import type {
+  DetailExercise,
+  WorkoutDetail,
+} from '@/domain/usecases/progress/observe-workout-detail';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';

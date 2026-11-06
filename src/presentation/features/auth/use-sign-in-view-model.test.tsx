@@ -9,9 +9,9 @@ import {
   InMemoryAccountRepository,
   InMemoryProfileRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { SignIn } from '@/domain/usecases/sign-in';
-import { SyncNow } from '@/domain/usecases/sync-now';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { SignIn } from '@/domain/usecases/auth/sign-in';
+import { SyncNow } from '@/domain/usecases/sync/sync-now';
 import { useSignInViewModel } from '@/presentation/features/auth/use-sign-in-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';

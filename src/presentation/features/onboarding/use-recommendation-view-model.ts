@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 
-import type { Recommendation } from '@/domain/usecases/observe-recommendation';
+import type { Recommendation } from '@/domain/usecases/onboarding/observe-recommendation';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RecommendationState =

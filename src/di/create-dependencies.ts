@@ -41,49 +41,49 @@ import type { RestCountdown } from '@/domain/services/rest-countdown';
 import type { RestNotifier } from '@/domain/services/rest-notifier';
 import type { SyncEngine } from '@/domain/services/sync-engine';
 import type { SyncTriggers } from '@/domain/services/sync-triggers';
-import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import { KeepBackedUp } from '@/domain/usecases/sync/keep-backed-up';
 import {
   CancelGuestUnion,
   FinishGuestUnion,
   ReadPendingUnion,
   StartGuestUnion,
-} from '@/domain/usecases/guest-union';
+} from '@/domain/usecases/auth/guest-union';
 import type { GuestUnion } from '@/domain/services/guest-union';
-import { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
-import { ObserveRestoration } from '@/domain/usecases/observe-restoration';
-import { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
-import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
-import { SyncNow } from '@/domain/usecases/sync-now';
+import { ObserveBackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
+import { ObserveRestoration } from '@/domain/usecases/sync/observe-restoration';
+import { ObserveSyncActivity } from '@/domain/usecases/sync/observe-sync-activity';
+import { ObserveSyncStatus } from '@/domain/usecases/sync/observe-sync-status';
+import { SyncNow } from '@/domain/usecases/sync/sync-now';
 import {
   DiscardRejectedChange,
   ObserveRejectedChanges,
   RetryRejectedChange,
-} from '@/domain/usecases/rejected-changes';
+} from '@/domain/usecases/sync/rejected-changes';
 import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
-import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
-import { ActivateRoutine } from '@/domain/usecases/activate-routine';
-import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
-import { AdoptTemplate } from '@/domain/usecases/adopt-template';
-import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
-import { DeleteRoutine } from '@/domain/usecases/delete-routine';
-import { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
-import { ObserveEntry } from '@/domain/usecases/observe-entry';
-import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
-import { ObserveNextDay } from '@/domain/usecases/observe-next-day';
-import { ObserveWorkout } from '@/domain/usecases/observe-workout';
-import { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
-import { ObserveExerciseProgress } from '@/domain/usecases/observe-exercise-progress';
-import { ObserveHistory } from '@/domain/usecases/observe-history';
-import { ObserveWeeklyVolume } from '@/domain/usecases/observe-weekly-volume';
-import { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
-import { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+import { SyncScheduler } from '@/domain/usecases/sync/sync-scheduler';
+import { ActivateRoutine } from '@/domain/usecases/routines/activate-routine';
+import { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
+import { AdoptTemplate } from '@/domain/usecases/routines/adopt-template';
+import { AnswerOnboarding } from '@/domain/usecases/onboarding/answer-onboarding';
+import { DeleteRoutine } from '@/domain/usecases/routines/delete-routine';
+import { FinishOnboarding } from '@/domain/usecases/onboarding/finish-onboarding';
+import { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
+import { ObserveExerciseDetail } from '@/domain/usecases/exercises/observe-exercise-detail';
+import { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
+import { ObserveNextDay } from '@/domain/usecases/routines/observe-next-day';
+import { ObserveWorkout } from '@/domain/usecases/workout/observe-workout';
+import { ObserveWorkoutInProgress } from '@/domain/usecases/workout/observe-workout-in-progress';
+import { ObserveExerciseProgress } from '@/domain/usecases/progress/observe-exercise-progress';
+import { ObserveHistory } from '@/domain/usecases/progress/observe-history';
+import { ObserveWeeklyVolume } from '@/domain/usecases/progress/observe-weekly-volume';
+import { ObserveWorkoutDetail } from '@/domain/usecases/progress/observe-workout-detail';
+import { ObserveWorkoutSummary } from '@/domain/usecases/workout/observe-workout-summary';
 import {
   AddPastSet,
   DeletePastSet,
   DeleteWorkout,
   UpdatePastSet,
-} from '@/domain/usecases/past-workout-edits';
+} from '@/domain/usecases/progress/past-workout-edits';
 import {
   AddRestTime,
   AskRestPermission,
@@ -92,35 +92,43 @@ import {
   RescheduleRest,
   SkipRest,
   StartRest,
-} from '@/domain/usecases/rest-timer';
-import { StartWorkout } from '@/domain/usecases/start-workout';
+} from '@/domain/usecases/workout/rest-timer';
+import { StartWorkout } from '@/domain/usecases/workout/start-workout';
 import {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
   SubstituteExercise,
-} from '@/domain/usecases/workout-lifecycle';
-import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
-import { ObserveProfile } from '@/domain/usecases/observe-profile';
-import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
-import { ObserveRoutines } from '@/domain/usecases/observe-routines';
-import { ObserveTemplate } from '@/domain/usecases/observe-template';
-import { EditRoutineDraft, LoadRoutineDraft, SaveRoutine } from '@/domain/usecases/routine-draft';
-import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
-import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
-import { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { ReadAccount } from '@/domain/usecases/read-account';
-import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
-import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
-import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
-import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
-import { SignIn } from '@/domain/usecases/sign-in';
-import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
-import { SignUp } from '@/domain/usecases/sign-up';
-import { StartAsGuest } from '@/domain/usecases/start-as-guest';
-import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
-import { UpdateProfile } from '@/domain/usecases/update-profile';
+} from '@/domain/usecases/workout/workout-lifecycle';
+import { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout/workout-sets';
+import { ObserveProfile } from '@/domain/usecases/profile/observe-profile';
+import { ObserveRecommendation } from '@/domain/usecases/onboarding/observe-recommendation';
+import { ObserveRoutines } from '@/domain/usecases/routines/observe-routines';
+import { ObserveTemplate } from '@/domain/usecases/routines/observe-template';
+import {
+  EditRoutineDraft,
+  LoadRoutineDraft,
+  SaveRoutine,
+} from '@/domain/usecases/routines/routine-draft';
+import { PrepareLocalData } from '@/domain/usecases/startup/prepare-local-data';
+import { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/auth/account-nudge';
+import { ObserveSessionLoss } from '@/domain/usecases/auth/observe-session-loss';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { ReadAccount } from '@/domain/usecases/auth/read-account';
+import { CompletePasswordRecovery } from '@/domain/usecases/auth/complete-password-recovery';
+import { OpenRecoveryLink } from '@/domain/usecases/auth/open-recovery-link';
+import { RequestPasswordReset } from '@/domain/usecases/auth/request-password-reset';
+import { ContinueWithGoogle } from '@/domain/usecases/auth/continue-with-google';
+import { SignIn } from '@/domain/usecases/auth/sign-in';
+import {
+  BackUpBeforeSignOut,
+  ConfirmSignOut,
+  PrepareSignOut,
+} from '@/domain/usecases/auth/sign-out';
+import { SignUp } from '@/domain/usecases/auth/sign-up';
+import { StartAsGuest } from '@/domain/usecases/auth/start-as-guest';
+import { UpdateLoadSetting } from '@/domain/usecases/profile/update-load-setting';
+import { UpdateProfile } from '@/domain/usecases/profile/update-profile';
 import { createAppStore, type AppStore } from '@/presentation/state/app-store';
 import { workout as workoutText } from '@/presentation/strings/workout';
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';

@@ -4,7 +4,7 @@ import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { fromUnit, toUnit } from '@/domain/rules/units';
 import type { PrefilledSet } from '@/domain/rules/workout/prefill';
 import { SET_LIMITS, validateWorkoutSet } from '@/domain/rules/workout-set-rules';
-import type { SetInput } from '@/domain/usecases/workout-sets';
+import type { SetInput } from '@/domain/usecases/workout/workout-sets';
 import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 
 /** What the «Ajustar serie» and «Editar serie» sheets edit. Loads in kg, like the domain. */

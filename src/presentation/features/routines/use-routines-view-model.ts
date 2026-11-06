@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { RoutineChange } from '@/domain/usecases/routine-change';
-import type { RoutinesOverview } from '@/domain/usecases/observe-routines';
+import type { RoutineChange } from '@/domain/usecases/routines/routine-change';
+import type { RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
 import type { RoutinesDialog } from '@/presentation/features/routines/routine-change-dialog';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
