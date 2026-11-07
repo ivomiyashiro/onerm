@@ -8,8 +8,8 @@ import {
   InMemoryAccountRepository,
   InMemoryProfileRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { ContinueWithGoogle } from '@/domain/usecases/auth/continue-with-google';
 import { useGoogleSignInViewModel } from '@/presentation/features/auth/use-google-sign-in-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

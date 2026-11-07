@@ -1,8 +1,8 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import type { ObserveRestoration, Restoration } from '@/domain/usecases/observe-restoration';
+import type { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import type { ObserveRestoration, Restoration } from '@/domain/usecases/sync/observe-restoration';
 import { RestoringScreen } from '@/presentation/features/sync/restoring-screen';
 import { profile } from '@/presentation/strings/profile';
 import { someUseCases } from '@/presentation/use-cases/testing';

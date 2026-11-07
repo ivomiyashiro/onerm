@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
-import type { Recommendation } from '@/domain/usecases/observe-recommendation';
+import type { Recommendation } from '@/domain/usecases/onboarding/observe-recommendation';
 import { Badge } from '@/presentation/components/badge/badge';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';

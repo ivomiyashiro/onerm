@@ -2,8 +2,8 @@ import { act, renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import type { AccountState } from '@/domain/models/account';
-import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
-import type { ReadAccount } from '@/domain/usecases/read-account';
+import { PrepareLocalData } from '@/domain/usecases/startup/prepare-local-data';
+import type { ReadAccount } from '@/domain/usecases/auth/read-account';
 import { useStartupViewModel } from '@/presentation/features/startup/use-startup-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

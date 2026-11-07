@@ -8,8 +8,8 @@ import {
   InMemoryAccountRepository,
   InMemoryProfileRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { SignUp } from '@/domain/usecases/sign-up';
+import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { SignUp } from '@/domain/usecases/auth/sign-up';
 import { useSignUpViewModel } from '@/presentation/features/auth/use-sign-up-view-model';
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';

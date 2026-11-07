@@ -5,7 +5,7 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { Observer } from '@/domain/observer';
 import { anExercise } from '@/domain/testing/builders';
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
 import { useExerciseSearchViewModel } from '@/presentation/features/exercises/use-exercise-search-view-model';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
 import { someUseCases } from '@/presentation/use-cases/testing';

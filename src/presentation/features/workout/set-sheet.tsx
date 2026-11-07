@@ -2,7 +2,7 @@ import { StyleSheet, View } from 'react-native';
 
 import type { EffortMode } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
-import type { WorkoutExerciseView } from '@/domain/usecases/observe-workout';
+import type { WorkoutExerciseView } from '@/domain/usecases/workout/observe-workout';
 import { Button } from '@/presentation/components/button/button';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';

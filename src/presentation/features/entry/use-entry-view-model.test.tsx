@@ -7,7 +7,7 @@ import {
   InMemoryProfileRepository,
   FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ObserveEntry } from '@/domain/usecases/observe-entry';
+import { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
 import { useEntryViewModel } from '@/presentation/features/entry/use-entry-view-model';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

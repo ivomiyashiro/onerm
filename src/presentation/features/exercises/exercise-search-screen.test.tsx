@@ -4,7 +4,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Observer } from '@/domain/observer';
 import { anExercise } from '@/domain/testing/builders';
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
 import { ExerciseSearchScreen } from '@/presentation/features/exercises/exercise-search-screen';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { WeeklyVolume } from '@/domain/usecases/observe-weekly-volume';
+import type { WeeklyVolume } from '@/domain/usecases/progress/observe-weekly-volume';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WeeklyVolumeState =

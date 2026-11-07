@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 
-import type { SignUpResult } from '@/domain/usecases/sign-up';
+import type { SignUpResult } from '@/domain/usecases/auth/sign-up';
 import { auth } from '@/presentation/strings/auth';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';

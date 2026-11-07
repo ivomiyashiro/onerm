@@ -7,7 +7,7 @@ import {
   InMemoryProfileRepository,
   FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ObserveEntry } from '@/domain/usecases/observe-entry';
+import { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
 import { EntryGate } from '@/presentation/features/entry/entry-gate';
 import { LaunchSplashProvider } from '@/presentation/features/startup/launch-splash';
 import { strings } from '@/presentation/strings';

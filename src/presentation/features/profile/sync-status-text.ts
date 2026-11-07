@@ -1,5 +1,5 @@
 import type { SyncStatus } from '@/domain/models/sync-status';
-import type { BackupNotice } from '@/domain/usecases/observe-backup-notice';
+import type { BackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
 import { home } from '@/presentation/strings/home';
 import { profile } from '@/presentation/strings/profile';
 

@@ -11,13 +11,17 @@ import {
   InMemoryRoutineRepository,
 } from '@/domain/testing/in-memory-repositories';
 import type { SyncResult } from '@/domain/services/sync-engine';
-import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
-import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
-import { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
-import { SyncNow } from '@/domain/usecases/sync-now';
-import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
-import { ObserveProfile } from '@/domain/usecases/observe-profile';
-import { UpdateProfile } from '@/domain/usecases/update-profile';
+import {
+  BackUpBeforeSignOut,
+  ConfirmSignOut,
+  PrepareSignOut,
+} from '@/domain/usecases/auth/sign-out';
+import { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
+import { ObserveSyncStatus } from '@/domain/usecases/sync/observe-sync-status';
+import { SyncNow } from '@/domain/usecases/sync/sync-now';
+import { SyncScheduler } from '@/domain/usecases/sync/sync-scheduler';
+import { ObserveProfile } from '@/domain/usecases/profile/observe-profile';
+import { UpdateProfile } from '@/domain/usecases/profile/update-profile';
 import { useProfileViewModel } from '@/presentation/features/profile/use-profile-view-model';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';

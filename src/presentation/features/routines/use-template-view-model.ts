@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { TemplateDetail } from '@/domain/usecases/observe-template';
+import type { TemplateDetail } from '@/domain/usecases/routines/observe-template';
 import type { RoutinesDialog } from '@/presentation/features/routines/routine-change-dialog';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 

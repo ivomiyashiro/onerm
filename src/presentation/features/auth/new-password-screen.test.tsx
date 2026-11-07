@@ -6,15 +6,15 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
-import { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
+import { CompletePasswordRecovery } from '@/domain/usecases/auth/complete-password-recovery';
+import { OpenRecoveryLink } from '@/domain/usecases/auth/open-recovery-link';
 import { NewPasswordScreen } from '@/presentation/features/auth/new-password-screen';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
 import { auth } from '@/presentation/strings/auth';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';
-import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
+import type { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
 
 jest.useFakeTimers();
 

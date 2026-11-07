@@ -8,9 +8,9 @@ import {
   FakeRestCountdown,
   FakeRestNotifier,
 } from '@/domain/testing/in-memory-repositories';
-import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
-import type { RoutinesOverview } from '@/domain/usecases/observe-routines';
-import { firstValue } from '@/domain/usecases/observe-together';
+import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
+import type { RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
+import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 async function dependencies() {
   const localDatabase = openTestLocalDatabase((db) => loadCatalogSnapshot(db, CATALOG_SNAPSHOT));

@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 
-import type { OpenRecoveryLinkResult } from '@/domain/usecases/open-recovery-link';
+import type { OpenRecoveryLinkResult } from '@/domain/usecases/auth/open-recovery-link';
 import { auth } from '@/presentation/strings/auth';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';

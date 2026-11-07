@@ -1,8 +1,8 @@
 import { render } from '@testing-library/react-native';
 
 import type { SyncTriggerListener } from '@/domain/services/sync-triggers';
-import { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
-import { SyncScheduler } from '@/domain/usecases/sync-scheduler';
+import { KeepBackedUp } from '@/domain/usecases/sync/keep-backed-up';
+import { SyncScheduler } from '@/domain/usecases/sync/sync-scheduler';
 import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

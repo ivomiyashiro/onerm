@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { Restoration } from '@/domain/usecases/observe-restoration';
+import type { Restoration } from '@/domain/usecases/sync/observe-restoration';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface RestoringViewModel {

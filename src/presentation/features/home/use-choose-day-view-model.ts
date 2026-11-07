@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { DayChoice, NextDayOverview } from '@/domain/usecases/observe-next-day';
+import type { DayChoice, NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type ChooseDayState =

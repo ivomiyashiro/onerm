@@ -15,7 +15,7 @@ import {
   replaceExercise,
   updateExercise,
 } from '@/domain/rules/routine/routine-edits';
-import type { RoutineDraft } from '@/domain/usecases/routine-draft';
+import type { RoutineDraft } from '@/domain/usecases/routines/routine-draft';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** What the prescription sheet edits, as typed: the numbers are checked on «Guardar». */
