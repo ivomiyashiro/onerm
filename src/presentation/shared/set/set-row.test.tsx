@@ -1,8 +1,7 @@
 import { render, screen } from '@testing-library/react-native';
 
 import { aBilateralSet } from '@/domain/testing/builders';
-import { SetRow } from '@/presentation/shared/set/set-row';
-import type { SetRowView } from '@/presentation/features/workout/use-workout-view-model';
+import { SetRow, type SetRowView } from '@/presentation/shared/set/set-row';
 
 async function renderRow(row: SetRowView) {
   await render(
