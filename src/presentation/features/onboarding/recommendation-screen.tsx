@@ -13,7 +13,7 @@ import {
   useRecommendationViewModel,
   type RecommendationExit,
 } from '@/presentation/features/onboarding/use-recommendation-view-model';
-import { TemplateWhySheet } from '@/presentation/features/routines/template-why-sheet';
+import { TemplateWhySheet } from '@/presentation/shared/template-why-sheet';
 import { onboarding } from '@/presentation/strings/onboarding';
 import { routines } from '@/presentation/strings/routines';
 import { colors, space, typography } from '@/presentation/theme';

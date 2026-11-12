@@ -1,6 +1,6 @@
 import { render, screen, userEvent } from '@testing-library/react-native';
 
-import { ExerciseRow } from '@/presentation/features/exercises/exercise-row';
+import { ExerciseRow } from '@/presentation/shared/exercise/exercise-row';
 import { anExercise } from '@/domain/testing/builders';
 
 jest.useFakeTimers();

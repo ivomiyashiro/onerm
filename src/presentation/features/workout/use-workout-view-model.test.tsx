@@ -22,7 +22,7 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import { AskRestPermission } from '@/domain/usecases/workout/rest-timer';
 import { LogSet } from '@/domain/usecases/workout/workout-sets';
-import { stepReps, typeLoad } from '@/presentation/features/workout/set-form';
+import { stepReps, typeLoad } from '@/presentation/shared/set/set-form';
 import {
   useWorkoutViewModel,
   type WorkoutContent,

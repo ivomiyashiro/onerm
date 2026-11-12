@@ -9,8 +9,8 @@ import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-m
 import { Icon } from '@/presentation/components/icons/icon';
 import type { SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
-import type { RirField } from '@/presentation/features/workout/set-form';
-import { effortOptions, effortTitle } from '@/presentation/features/workout/set-sheet';
+import type { RirField } from '@/presentation/shared/set/set-form';
+import { effortOptions, effortTitle } from '@/presentation/shared/set/set-sheet';
 import type { SetRowView } from '@/presentation/features/workout/use-workout-view-model';
 import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';

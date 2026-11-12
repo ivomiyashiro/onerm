@@ -1,5 +1,5 @@
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
-import { deltaOf, trendCounts, trendOf } from '@/presentation/features/home/trend';
+import { deltaOf, trendCounts, trendOf } from '@/presentation/shared/trend';
 
 describe('trend (Figma «ExerciseRow»)', () => {
   it('each kind of reason gets its icon', () => {

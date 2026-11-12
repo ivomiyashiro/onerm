@@ -5,7 +5,7 @@ import { toUnit } from '@/domain/rules/shared/units';
 import type { ProgressPeriod } from '@/domain/rules/progress/period';
 import type { ExerciseProgressView } from '@/domain/usecases/progress/observe-exercise-progress';
 import type { ChartPoint } from '@/presentation/features/progress/progress-chart';
-import { loadText } from '@/presentation/features/summary/record-card';
+import { loadText } from '@/presentation/shared/record-card';
 import { common } from '@/presentation/strings/common';
 import { estimateText, shortDate } from '@/presentation/strings/numbers';
 import { progress } from '@/presentation/strings/progress';

@@ -17,7 +17,7 @@ import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { useAccountNudgeViewModel } from '@/presentation/features/summary/use-account-nudge-view-model';
-import { loadText, RecordCard } from '@/presentation/features/summary/record-card';
+import { loadText, RecordCard } from '@/presentation/shared/record-card';
 import { CountUp, EntranceStep, useEntrance } from '@/presentation/components/motion/entrance';
 import {
   DoneMark,
@@ -25,7 +25,7 @@ import {
   ENTRANCE_TOTAL_MS,
 } from '@/presentation/features/summary/summary-motion';
 import { useWorkoutSummaryViewModel } from '@/presentation/features/summary/use-workout-summary-view-model';
-import { reasonIcon } from '@/presentation/features/workout/reason-text';
+import { reasonIcon } from '@/presentation/shared/reason-text';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';

@@ -21,7 +21,7 @@ import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Dialog } from '@/presentation/components/overlay/dialog';
 import { Text } from '@/presentation/components/text';
 import { RestNotificationsRow } from '@/presentation/features/profile/rest-notifications-row';
-import { syncStatusText } from '@/presentation/features/profile/sync-status-text';
+import { syncStatusText } from '@/presentation/shared/sync-status-text';
 import {
   useProfileViewModel,
   type ProfileViewModel,

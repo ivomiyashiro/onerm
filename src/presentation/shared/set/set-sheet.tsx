@@ -20,7 +20,7 @@ import {
   type RirField,
   type SetForm,
   type SetFormErrors,
-} from '@/presentation/features/workout/set-form';
+} from '@/presentation/shared/set/set-form';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';

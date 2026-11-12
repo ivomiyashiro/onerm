@@ -22,7 +22,7 @@ import {
   whyDetail,
   type ReasonInput,
   type WhyDetail,
-} from '@/presentation/features/workout/reason-text';
+} from '@/presentation/shared/reason-text';
 import {
   formErrors,
   formFromPrefill,
@@ -31,7 +31,7 @@ import {
   type RirField,
   type SetForm,
   type SetFormErrors,
-} from '@/presentation/features/workout/set-form';
+} from '@/presentation/shared/set/set-form';
 import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 

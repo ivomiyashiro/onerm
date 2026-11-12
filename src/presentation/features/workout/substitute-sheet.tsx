@@ -6,7 +6,7 @@ import { Button } from '@/presentation/components/button/button';
 import { SearchField } from '@/presentation/components/input/search-field';
 import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
-import { ExerciseRow } from '@/presentation/features/exercises/exercise-row';
+import { ExerciseRow } from '@/presentation/shared/exercise/exercise-row';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { workout as text } from '@/presentation/strings/workout';

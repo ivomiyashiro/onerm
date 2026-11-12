@@ -18,9 +18,9 @@ import {
   useWorkoutDetailViewModel,
   type WorkoutDetailViewModel,
 } from '@/presentation/features/progress/use-workout-detail-view-model';
-import { RecordCard } from '@/presentation/features/summary/record-card';
-import { SetRow } from '@/presentation/features/workout/set-row';
-import { SetSheet } from '@/presentation/features/workout/set-sheet';
+import { RecordCard } from '@/presentation/shared/record-card';
+import { SetRow } from '@/presentation/shared/set/set-row';
+import { SetSheet } from '@/presentation/shared/set/set-sheet';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';
