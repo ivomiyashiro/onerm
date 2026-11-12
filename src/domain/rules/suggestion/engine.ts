@@ -1,5 +1,5 @@
 import type { LocalDate } from '@/domain/models/local-date';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import { suggestBodyweight } from '@/domain/rules/suggestion/bodyweight';
 import { consolidate, increaseByEffort } from '@/domain/rules/suggestion/effort';
 import type {

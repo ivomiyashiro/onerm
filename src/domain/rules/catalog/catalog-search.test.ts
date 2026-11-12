@@ -1,5 +1,5 @@
 import { anExercise } from '@/domain/testing/builders';
-import { NO_FILTERS, searchExercises } from '@/domain/rules/catalog-search';
+import { NO_FILTERS, searchExercises } from '@/domain/rules/catalog/catalog-search';
 
 const BENCH = anExercise({
   id: 'bench',

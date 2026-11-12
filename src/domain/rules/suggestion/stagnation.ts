@@ -1,4 +1,4 @@
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import type { PerformanceMark, Priority } from '@/domain/rules/suggestion/engine-types';
 import type { ExposureAnalysis } from '@/domain/rules/suggestion/exposure-analysis';
 import { decreaseLoad } from '@/domain/rules/suggestion/load-grid';

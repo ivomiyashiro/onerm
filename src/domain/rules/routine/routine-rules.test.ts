@@ -1,4 +1,4 @@
-import { validateRoutine } from '@/domain/rules/routine-rules';
+import { validateRoutine } from '@/domain/rules/routine/routine-rules';
 import { aPrescription, aRoutine, aRoutineDay, aRoutineExercise } from '@/domain/testing/builders';
 
 const days = (n: number) => Array.from({ length: n }, (_, i) => aRoutineDay({ id: `day-${i}` }));

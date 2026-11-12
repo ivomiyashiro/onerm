@@ -6,12 +6,12 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { effectiveSets, workoutMinutes } from '@/domain/rules/progress/workout-stats';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { loadGridFor } from '@/domain/rules/suggestion/load-grid-for';
-import { isSubstitution } from '@/domain/rules/substitution';
+import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';
 import { recordsOf, type SummaryRecord } from '@/domain/usecases/workout/observe-workout-summary';
 

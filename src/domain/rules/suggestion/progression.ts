@@ -1,4 +1,4 @@
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import type { EngineState, Priority, LoadedRecord } from '@/domain/rules/suggestion/engine-types';
 import { increaseLoad, nearestOnGrid } from '@/domain/rules/suggestion/load-grid';
 import { SUGGESTION_PARAMETERS } from '@/domain/rules/suggestion/parameters';

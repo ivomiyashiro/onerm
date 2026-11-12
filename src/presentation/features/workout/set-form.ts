@@ -1,9 +1,9 @@
 import type { EffortMode, LoadType, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
-import { fromUnit, toUnit } from '@/domain/rules/units';
+import { fromUnit, toUnit } from '@/domain/rules/shared/units';
 import type { PrefilledSet } from '@/domain/rules/workout/prefill';
-import { SET_LIMITS, validateWorkoutSet } from '@/domain/rules/workout-set-rules';
+import { SET_LIMITS, validateWorkoutSet } from '@/domain/rules/workout/workout-set-rules';
 import type { SetInput } from '@/domain/usecases/workout/workout-sets';
 import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 

@@ -1,4 +1,4 @@
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import type { Id } from '@/domain/models/vocabulary';
 import type { E1rm } from '@/domain/rules/suggestion/e1rm';
 import type { Exposure, ExposureSet } from '@/domain/rules/suggestion/exposures';

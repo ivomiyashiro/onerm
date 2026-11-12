@@ -9,8 +9,8 @@ import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { limitingSide } from '@/domain/rules/limiting-side';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { personalRecords, workoutRecords } from '@/domain/rules/progress/personal-records';
 import { totalLoadKg, workoutMinutes } from '@/domain/rules/progress/workout-stats';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
@@ -18,9 +18,9 @@ import { nextDay } from '@/domain/rules/routine/next-day';
 import type { E1rm } from '@/domain/rules/suggestion/e1rm';
 import { exerciseExposures } from '@/domain/rules/suggestion/exposures';
 import type { SuggestionCode } from '@/domain/rules/suggestion/suggestion';
-import { isSubstitution } from '@/domain/rules/substitution';
+import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { suggestionFor } from '@/domain/rules/workout/suggestion-for';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';
 
 /** A record of RN-PROG-03 (a) or (b) beaten in the workout (RF-PROG-05.AC2). */

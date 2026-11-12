@@ -1,7 +1,7 @@
 import { StyleSheet, View } from 'react-native';
 
 import type { RoutineDay } from '@/domain/models/routine';
-import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
+import { ROUTINE_LIMITS } from '@/domain/rules/routine/routine-rules';
 import { TextField } from '@/presentation/components/input/text-field';
 import { BottomSheet, MenuItem } from '@/presentation/components/overlay/bottom-sheet';
 import { common } from '@/presentation/strings/common';

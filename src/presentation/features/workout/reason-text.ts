@@ -7,7 +7,7 @@ import type {
   SuggestionCode,
   SuggestionReason,
 } from '@/domain/rules/suggestion/suggestion';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import type { IconName } from '@/presentation/components/icons/icon';
 import { TREND_ICONS, trendOf } from '@/presentation/features/home/trend';
 import { common } from '@/presentation/strings/common';

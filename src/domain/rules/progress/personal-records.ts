@@ -1,5 +1,5 @@
 import type { Id } from '@/domain/models/vocabulary';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import { estimatedOneRepMax, type E1rm } from '@/domain/rules/suggestion/e1rm';
 import type { Exposure } from '@/domain/rules/suggestion/exposures';
 

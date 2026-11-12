@@ -26,9 +26,9 @@ import {
   type Muscle,
 } from '@/domain/models/vocabulary';
 import { WORKOUT_EXERCISE_STATUSES, WORKOUT_STATUSES } from '@/domain/models/workout';
-import { PRESCRIPTION_LIMITS } from '@/domain/rules/prescription-rules';
-import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
-import { SET_LIMITS } from '@/domain/rules/workout-set-rules';
+import { PRESCRIPTION_LIMITS } from '@/domain/rules/routine/prescription-rules';
+import { ROUTINE_LIMITS } from '@/domain/rules/routine/routine-rules';
+import { SET_LIMITS } from '@/domain/rules/workout/workout-set-rules';
 
 /**
  * The local database (07 §2, ADR-0010). Times are INTEGER ms since the epoch (UTC); loads are kg.

@@ -7,13 +7,13 @@ import type {
   WorkoutSet,
 } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/position-order';
-import type { Violation } from '@/domain/rules/violation';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
+import type { Violation } from '@/domain/rules/shared/violation';
 import {
   isEffectiveSet,
   validateWorkoutSet,
   type SetViolationCode,
-} from '@/domain/rules/workout-set-rules';
+} from '@/domain/rules/workout/workout-set-rules';
 import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 type SetMeta = 'id' | 'workoutExerciseId' | 'position' | 'completedAt';

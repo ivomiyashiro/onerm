@@ -2,10 +2,10 @@ import type { Prescription } from '@/domain/models/prescription';
 import type { RoutineExercise } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout, WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
-import { limitingSide } from '@/domain/rules/limiting-side';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
-import { sortByPosition } from '@/domain/rules/position-order';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 
 /** An effective set as the engine sees it: a unilateral set by its limiting side (RN-ENT-06). */
 export interface ExposureSet {

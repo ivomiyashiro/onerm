@@ -6,7 +6,7 @@ import type {
 } from '@/data/db/schema';
 import type { Exercise } from '@/domain/models/exercise';
 import type { RoutineTemplate, TemplateDay } from '@/domain/models/routine-template';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 
 type ExerciseRow = typeof exercises.$inferSelect;
 type TemplateRow = typeof routineTemplates.$inferSelect;

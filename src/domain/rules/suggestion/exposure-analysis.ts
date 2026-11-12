@@ -1,5 +1,5 @@
 import type { RepRange } from '@/domain/models/prescription';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import { workingLoad, type Exposure, type ExposureSet } from '@/domain/rules/suggestion/exposures';
 import type { LimitingSide } from '@/domain/rules/suggestion/suggestion';
 

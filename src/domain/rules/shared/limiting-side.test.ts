@@ -1,4 +1,4 @@
-import { limitingSide } from '@/domain/rules/limiting-side';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
 import { aUnilateralSet } from '@/domain/testing/builders';
 
 describe('RN-ENT-06 · limiting side', () => {

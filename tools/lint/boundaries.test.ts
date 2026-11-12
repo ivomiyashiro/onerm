@@ -15,7 +15,7 @@ const eslint = new ESLint({ cwd: root, overrideConfigFile: true, overrideConfig:
 
 const DATA = "import { dataFixture } from '@/data/__fixtures__/boundaries-target';";
 const DI = "import { diFixture } from '@/di/__fixtures__/boundaries-target';";
-const DOMAIN = "import { areLoadsEqual } from '@/domain/rules/load-equality';";
+const DOMAIN = "import { areLoadsEqual } from '@/domain/rules/shared/load-equality';";
 const PRESENTATION = "import { HomeScreen } from '@/presentation/features/home/home-screen';";
 
 async function boundaryErrors(filePath: string, code: string): Promise<string[]> {

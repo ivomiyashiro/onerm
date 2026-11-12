@@ -1,7 +1,7 @@
 import type { WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
-import { limitingSide } from '@/domain/rules/limiting-side';
-import { isWholeBetween } from '@/domain/rules/numbers';
-import type { Violation } from '@/domain/rules/violation';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
+import { isWholeBetween } from '@/domain/rules/shared/numbers';
+import type { Violation } from '@/domain/rules/shared/violation';
 
 /** RN-ENT-02 limits. RIR 5 means "5 or more". */
 export const SET_LIMITS = {

@@ -1,4 +1,4 @@
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import type {
   EngineState,
   Priority,

@@ -1,7 +1,7 @@
 import type { RotationDay } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 
 /**
  * RN-RUT-01 (ADR-0006): the first live day after the day of the last finished workout of the

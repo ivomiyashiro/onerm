@@ -12,7 +12,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { LinearGradient } from 'expo-linear-gradient';
 
 import type { Id } from '@/domain/models/vocabulary';
-import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
+import { ROUTINE_LIMITS } from '@/domain/rules/routine/routine-rules';
 import { Button } from '@/presentation/components/button/button';
 import { Chip } from '@/presentation/components/chip/chip';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';

@@ -3,7 +3,7 @@ import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 
 import type { EffortMode, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon } from '@/presentation/components/icons/icon';

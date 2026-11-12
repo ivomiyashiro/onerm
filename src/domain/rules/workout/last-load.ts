@@ -1,6 +1,6 @@
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 
 /**
  * #195: the last working load the user logged in this exercise, for the set sheet: in the first

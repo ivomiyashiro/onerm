@@ -3,7 +3,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import { Logo } from '@/presentation/components/brand/logo';
 import type { LoadUnit } from '@/domain/models/vocabulary';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import { Button } from '@/presentation/components/button/button';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { backupNoticeText } from '@/presentation/features/profile/sync-status-text';

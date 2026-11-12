@@ -1,4 +1,4 @@
-import { isSubstitution } from '@/domain/rules/substitution';
+import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { aWorkoutExercise } from '@/domain/testing/builders';
 
 describe('RN-ENT-10 · substitution', () => {
