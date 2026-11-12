@@ -5,7 +5,7 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { AppProviders } from '@/di/app-providers';
 import { GuestUnionGate } from '@/presentation/features/auth/guest-union-gate';
 import { SessionWatcher } from '@/presentation/features/auth/session-watcher';
-import { EntryGate } from '@/presentation/features/entry/entry-gate';
+import { EntryGate } from '@/presentation/features/startup/entry-gate';
 import { LaunchSplashProvider } from '@/presentation/features/startup/launch-splash';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { SyncWatcher } from '@/presentation/features/sync/sync-watcher';
