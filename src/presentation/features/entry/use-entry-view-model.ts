@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import type { Entry } from '@/domain/usecases/observe-entry';
+import type { Entry } from '@/domain/usecases/startup/observe-entry';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type EntryState =

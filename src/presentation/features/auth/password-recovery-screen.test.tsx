@@ -3,7 +3,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { PasswordResetOutcome } from '@/domain/services/auth-gateway';
 import { FakeAuthGateway } from '@/domain/testing/in-memory-repositories';
-import { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
+import { RequestPasswordReset } from '@/domain/usecases/auth/request-password-reset';
 import { PasswordRecoveryScreen } from '@/presentation/features/auth/password-recovery-screen';
 import { auth } from '@/presentation/strings/auth';
 import { someUseCases } from '@/presentation/use-cases/testing';

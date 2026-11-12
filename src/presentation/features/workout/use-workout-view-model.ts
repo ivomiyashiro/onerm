@@ -11,7 +11,10 @@ import {
   substituteOptions,
   type SubstituteOptions,
 } from '@/domain/rules/workout/substitute-options';
-import type { WorkoutExerciseView, WorkoutOverview } from '@/domain/usecases/observe-workout';
+import type {
+  WorkoutExerciseView,
+  WorkoutOverview,
+} from '@/domain/usecases/workout/observe-workout';
 import type { IconName } from '@/presentation/components/icons/icon';
 import {
   reasonIcon,

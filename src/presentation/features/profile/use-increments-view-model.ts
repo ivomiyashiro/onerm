@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { LoadIncrements } from '@/domain/models/profile';
 import type { LoadUnit } from '@/domain/models/vocabulary';
-import type { LoadSetting } from '@/domain/usecases/update-load-setting';
+import type { LoadSetting } from '@/domain/usecases/profile/update-load-setting';
 import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 

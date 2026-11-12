@@ -2,7 +2,7 @@ import { renderHook } from '@testing-library/react-native';
 import type { ReactNode } from 'react';
 
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
-import { ObserveExercises } from '@/domain/usecases/observe-exercises';
+import { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
 import { UseCasesProvider, useUseCases } from '@/presentation/use-cases/use-cases-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 

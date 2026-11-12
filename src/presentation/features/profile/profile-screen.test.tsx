@@ -13,12 +13,16 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import type { SyncResult } from '@/domain/services/sync-engine';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
-import { SyncNow } from '@/domain/usecases/sync-now';
-import type { SyncActivity } from '@/domain/usecases/sync-scheduler';
-import { BackUpBeforeSignOut, ConfirmSignOut, PrepareSignOut } from '@/domain/usecases/sign-out';
-import { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
-import { ObserveProfile } from '@/domain/usecases/observe-profile';
-import { UpdateProfile } from '@/domain/usecases/update-profile';
+import { SyncNow } from '@/domain/usecases/sync/sync-now';
+import type { SyncActivity } from '@/domain/usecases/sync/sync-scheduler';
+import {
+  BackUpBeforeSignOut,
+  ConfirmSignOut,
+  PrepareSignOut,
+} from '@/domain/usecases/auth/sign-out';
+import { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
+import { ObserveProfile } from '@/domain/usecases/profile/observe-profile';
+import { UpdateProfile } from '@/domain/usecases/profile/update-profile';
 import { ProfileScreen } from '@/presentation/features/profile/profile-screen';
 import { dialogs } from '@/presentation/strings/dialogs';
 import { onboarding } from '@/presentation/strings/onboarding';

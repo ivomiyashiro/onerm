@@ -4,7 +4,7 @@ import type { ReactNode } from 'react';
 import type { Observer } from '@/domain/observer';
 import { anExercise } from '@/domain/testing/builders';
 import type { Exercise } from '@/domain/models/exercise';
-import { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
+import { ObserveExerciseDetail } from '@/domain/usecases/exercises/observe-exercise-detail';
 import { useExerciseDetailViewModel } from '@/presentation/features/exercises/use-exercise-detail-view-model';
 import { someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

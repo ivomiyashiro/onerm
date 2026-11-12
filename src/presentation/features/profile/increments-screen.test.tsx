@@ -3,8 +3,8 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { InMemoryProfileRepository } from '@/domain/testing/in-memory-repositories';
-import { ObserveProfile } from '@/domain/usecases/observe-profile';
-import { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
+import { ObserveProfile } from '@/domain/usecases/profile/observe-profile';
+import { UpdateLoadSetting } from '@/domain/usecases/profile/update-load-setting';
 import { IncrementsScreen } from '@/presentation/features/profile/increments-screen';
 import { profile as text } from '@/presentation/strings/profile';
 import { someUseCases } from '@/presentation/use-cases/testing';

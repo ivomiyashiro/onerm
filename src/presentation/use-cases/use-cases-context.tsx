@@ -1,60 +1,60 @@
 import { createContext, useContext, type ReactNode } from 'react';
 
-import type { ActivateRoutine } from '@/domain/usecases/activate-routine';
-import type { AdjustActiveRoutine } from '@/domain/usecases/adjust-active-routine';
-import type { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/account-nudge';
-import type { ObserveSessionLoss } from '@/domain/usecases/observe-session-loss';
-import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import type { ReadAccount } from '@/domain/usecases/read-account';
-import type { CompletePasswordRecovery } from '@/domain/usecases/complete-password-recovery';
-import type { OpenRecoveryLink } from '@/domain/usecases/open-recovery-link';
-import type { RequestPasswordReset } from '@/domain/usecases/request-password-reset';
-import type { ContinueWithGoogle } from '@/domain/usecases/continue-with-google';
-import type { SignIn } from '@/domain/usecases/sign-in';
-import type { SignUp } from '@/domain/usecases/sign-up';
-import type { KeepBackedUp } from '@/domain/usecases/keep-backed-up';
+import type { ActivateRoutine } from '@/domain/usecases/routines/activate-routine';
+import type { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
+import type { AnswerAccountNudge, ReadAccountNudge } from '@/domain/usecases/auth/account-nudge';
+import type { ObserveSessionLoss } from '@/domain/usecases/auth/observe-session-loss';
+import type { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import type { ReadAccount } from '@/domain/usecases/auth/read-account';
+import type { CompletePasswordRecovery } from '@/domain/usecases/auth/complete-password-recovery';
+import type { OpenRecoveryLink } from '@/domain/usecases/auth/open-recovery-link';
+import type { RequestPasswordReset } from '@/domain/usecases/auth/request-password-reset';
+import type { ContinueWithGoogle } from '@/domain/usecases/auth/continue-with-google';
+import type { SignIn } from '@/domain/usecases/auth/sign-in';
+import type { SignUp } from '@/domain/usecases/auth/sign-up';
+import type { KeepBackedUp } from '@/domain/usecases/sync/keep-backed-up';
 import type {
   CancelGuestUnion,
   FinishGuestUnion,
   ReadPendingUnion,
   StartGuestUnion,
-} from '@/domain/usecases/guest-union';
-import type { ObserveBackupNotice } from '@/domain/usecases/observe-backup-notice';
-import type { ObserveRestoration } from '@/domain/usecases/observe-restoration';
-import type { ObserveSyncActivity } from '@/domain/usecases/observe-sync-activity';
-import type { ObserveSyncStatus } from '@/domain/usecases/observe-sync-status';
-import type { SyncNow } from '@/domain/usecases/sync-now';
+} from '@/domain/usecases/auth/guest-union';
+import type { ObserveBackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
+import type { ObserveRestoration } from '@/domain/usecases/sync/observe-restoration';
+import type { ObserveSyncActivity } from '@/domain/usecases/sync/observe-sync-activity';
+import type { ObserveSyncStatus } from '@/domain/usecases/sync/observe-sync-status';
+import type { SyncNow } from '@/domain/usecases/sync/sync-now';
 import type {
   DiscardRejectedChange,
   ObserveRejectedChanges,
   RetryRejectedChange,
-} from '@/domain/usecases/rejected-changes';
+} from '@/domain/usecases/sync/rejected-changes';
 import type {
   BackUpBeforeSignOut,
   ConfirmSignOut,
   PrepareSignOut,
-} from '@/domain/usecases/sign-out';
-import type { AdoptTemplate } from '@/domain/usecases/adopt-template';
-import type { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
-import type { DeleteRoutine } from '@/domain/usecases/delete-routine';
-import type { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
-import type { ObserveEntry } from '@/domain/usecases/observe-entry';
-import type { ObserveExerciseDetail } from '@/domain/usecases/observe-exercise-detail';
-import type { ObserveExercises } from '@/domain/usecases/observe-exercises';
-import type { ObserveNextDay } from '@/domain/usecases/observe-next-day';
-import type { ObserveWorkout } from '@/domain/usecases/observe-workout';
-import type { ObserveWorkoutInProgress } from '@/domain/usecases/observe-workout-in-progress';
-import type { ObserveExerciseProgress } from '@/domain/usecases/observe-exercise-progress';
-import type { ObserveHistory } from '@/domain/usecases/observe-history';
-import type { ObserveWeeklyVolume } from '@/domain/usecases/observe-weekly-volume';
-import type { ObserveWorkoutDetail } from '@/domain/usecases/observe-workout-detail';
-import type { ObserveWorkoutSummary } from '@/domain/usecases/observe-workout-summary';
+} from '@/domain/usecases/auth/sign-out';
+import type { AdoptTemplate } from '@/domain/usecases/routines/adopt-template';
+import type { AnswerOnboarding } from '@/domain/usecases/onboarding/answer-onboarding';
+import type { DeleteRoutine } from '@/domain/usecases/routines/delete-routine';
+import type { FinishOnboarding } from '@/domain/usecases/onboarding/finish-onboarding';
+import type { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
+import type { ObserveExerciseDetail } from '@/domain/usecases/exercises/observe-exercise-detail';
+import type { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
+import type { ObserveNextDay } from '@/domain/usecases/routines/observe-next-day';
+import type { ObserveWorkout } from '@/domain/usecases/workout/observe-workout';
+import type { ObserveWorkoutInProgress } from '@/domain/usecases/workout/observe-workout-in-progress';
+import type { ObserveExerciseProgress } from '@/domain/usecases/progress/observe-exercise-progress';
+import type { ObserveHistory } from '@/domain/usecases/progress/observe-history';
+import type { ObserveWeeklyVolume } from '@/domain/usecases/progress/observe-weekly-volume';
+import type { ObserveWorkoutDetail } from '@/domain/usecases/progress/observe-workout-detail';
+import type { ObserveWorkoutSummary } from '@/domain/usecases/workout/observe-workout-summary';
 import type {
   AddPastSet,
   DeletePastSet,
   DeleteWorkout,
   UpdatePastSet,
-} from '@/domain/usecases/past-workout-edits';
+} from '@/domain/usecases/progress/past-workout-edits';
 import type {
   AddRestTime,
   AskRestPermission,
@@ -63,28 +63,33 @@ import type {
   RescheduleRest,
   SkipRest,
   StartRest,
-} from '@/domain/usecases/rest-timer';
-import type { StartWorkout } from '@/domain/usecases/start-workout';
+} from '@/domain/usecases/workout/rest-timer';
+import type { StartWorkout } from '@/domain/usecases/workout/start-workout';
 import type {
   DiscardWorkout,
   FinishWorkout,
   ReadWorkoutResume,
   SubstituteExercise,
-} from '@/domain/usecases/workout-lifecycle';
-import type { DeleteSet, LogSet, RestoreSet, UpdateSet } from '@/domain/usecases/workout-sets';
-import type { ObserveProfile } from '@/domain/usecases/observe-profile';
-import type { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
-import type { ObserveRoutines } from '@/domain/usecases/observe-routines';
-import type { ObserveTemplate } from '@/domain/usecases/observe-template';
+} from '@/domain/usecases/workout/workout-lifecycle';
+import type {
+  DeleteSet,
+  LogSet,
+  RestoreSet,
+  UpdateSet,
+} from '@/domain/usecases/workout/workout-sets';
+import type { ObserveProfile } from '@/domain/usecases/profile/observe-profile';
+import type { ObserveRecommendation } from '@/domain/usecases/onboarding/observe-recommendation';
+import type { ObserveRoutines } from '@/domain/usecases/routines/observe-routines';
+import type { ObserveTemplate } from '@/domain/usecases/routines/observe-template';
 import type {
   EditRoutineDraft,
   LoadRoutineDraft,
   SaveRoutine,
-} from '@/domain/usecases/routine-draft';
-import type { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
-import type { StartAsGuest } from '@/domain/usecases/start-as-guest';
-import type { UpdateLoadSetting } from '@/domain/usecases/update-load-setting';
-import type { UpdateProfile } from '@/domain/usecases/update-profile';
+} from '@/domain/usecases/routines/routine-draft';
+import type { PrepareLocalData } from '@/domain/usecases/startup/prepare-local-data';
+import type { StartAsGuest } from '@/domain/usecases/auth/start-as-guest';
+import type { UpdateLoadSetting } from '@/domain/usecases/profile/update-load-setting';
+import type { UpdateProfile } from '@/domain/usecases/profile/update-profile';
 
 /**
  * The use cases ViewModels can call (ADR-0011 §4). The composition root (`src/di`) creates them

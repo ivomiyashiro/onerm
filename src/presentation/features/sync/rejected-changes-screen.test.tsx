@@ -2,7 +2,7 @@ import { render, screen, userEvent } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import type { RejectedChange } from '@/domain/models/rejected-change';
-import { ObserveRejectedChanges } from '@/domain/usecases/rejected-changes';
+import { ObserveRejectedChanges } from '@/domain/usecases/sync/rejected-changes';
 import { RejectedChangesScreen } from '@/presentation/features/sync/rejected-changes-screen';
 import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';

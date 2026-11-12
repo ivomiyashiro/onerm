@@ -12,9 +12,9 @@ import {
   InMemoryWorkoutRepository,
   FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { FinishOnboarding } from '@/domain/usecases/finish-onboarding';
-import { ObserveEntry } from '@/domain/usecases/observe-entry';
-import { ObserveRecommendation } from '@/domain/usecases/observe-recommendation';
+import { FinishOnboarding } from '@/domain/usecases/onboarding/finish-onboarding';
+import { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
+import { ObserveRecommendation } from '@/domain/usecases/onboarding/observe-recommendation';
 import { useRecommendationViewModel } from '@/presentation/features/onboarding/use-recommendation-view-model';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider } from '@/presentation/use-cases/use-cases-context';

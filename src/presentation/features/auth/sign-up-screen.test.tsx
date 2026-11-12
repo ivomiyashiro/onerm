@@ -6,8 +6,8 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import type { ContinueAfterAuth } from '@/domain/usecases/continue-after-auth';
-import { SignUp } from '@/domain/usecases/sign-up';
+import type { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
+import { SignUp } from '@/domain/usecases/auth/sign-up';
 import { SignUpScreen } from '@/presentation/features/auth/sign-up-screen';
 import { auth } from '@/presentation/strings/auth';
 import { createAppStore } from '@/presentation/state/app-store';

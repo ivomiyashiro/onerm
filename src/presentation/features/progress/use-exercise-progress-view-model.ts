@@ -3,7 +3,7 @@ import { useEffect, useState } from 'react';
 import type { Id } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/units';
 import type { ProgressPeriod } from '@/domain/rules/progress/period';
-import type { ExerciseProgressView } from '@/domain/usecases/observe-exercise-progress';
+import type { ExerciseProgressView } from '@/domain/usecases/progress/observe-exercise-progress';
 import type { ChartPoint } from '@/presentation/features/progress/progress-chart';
 import { loadText } from '@/presentation/features/summary/record-card';
 import { common } from '@/presentation/strings/common';

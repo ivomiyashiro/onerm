@@ -75,7 +75,7 @@ Estructura recomendada por la cátedra: **problema → escenario → acción del
 | Arquitectura, capas, ViewModel | README «Architecture», [12-arquitectura](../especificacion/12-arquitectura.md), [ADR-0011](../especificacion/adr/0011-mvvm-clean-en-react-native.md); ejemplo: `src/presentation/features/workout/use-workout-view-model.ts` |
 | Estado y navegación | Zustand (`src/presentation/state`), Expo Router (`app/`) |
 | Persistencia | Drizzle + SQLite (`src/data/db/schema.ts`, `src/data/repositories`), migraciones en `drizzle/` |
-| Networking y sincronización | `src/data/sync` (push, pull, motor), `src/domain/usecases/sync-scheduler.ts`; [07](../especificacion/07-datos-y-sincronizacion.md) |
+| Networking y sincronización | `src/data/sync` (push, pull, motor), `src/domain/usecases/sync/sync-scheduler.ts`; [07](../especificacion/07-datos-y-sincronizacion.md) |
 | Motor de sugerencias | `src/domain/rules/suggestion`, con los casos de referencia como tests |
 | Capacidades del dispositivo | Notificación programada, alarmas exactas, pantalla encendida y vibración; GPS, cámara y sensores descartados porque no resuelven el problema |
 | UX | Un toque por serie, acción principal abajo, nada interrumpe el entrenamiento, «¿Por qué?» en cada sugerencia; accesibilidad en [48](../pruebas/48-accesibilidad.md) |

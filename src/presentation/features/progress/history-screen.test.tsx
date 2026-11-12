@@ -13,7 +13,7 @@ import {
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { ObserveHistory } from '@/domain/usecases/observe-history';
+import { ObserveHistory } from '@/domain/usecases/progress/observe-history';
 import { HistoryScreen } from '@/presentation/features/progress/history-screen';
 import { common } from '@/presentation/strings/common';
 import { dialogs } from '@/presentation/strings/dialogs';

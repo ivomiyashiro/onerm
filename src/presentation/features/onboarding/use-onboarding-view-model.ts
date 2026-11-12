@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
-import type { OnboardingAnswers } from '@/domain/usecases/observe-entry';
+import type { OnboardingAnswers } from '@/domain/usecases/startup/observe-entry';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** The three questions of S05, in order (RF-PERF-01). */

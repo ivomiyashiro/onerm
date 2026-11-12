@@ -2,7 +2,7 @@ import { ScrollView, StyleSheet, View } from 'react-native';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 
 import type { LoadIncrements } from '@/domain/models/profile';
-import { LOAD_SETTING_MAX, type LoadSetting } from '@/domain/usecases/update-load-setting';
+import { LOAD_SETTING_MAX, type LoadSetting } from '@/domain/usecases/profile/update-load-setting';
 import { Button } from '@/presentation/components/button/button';
 import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Notice } from '@/presentation/components/feedback/notice';

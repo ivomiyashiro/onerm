@@ -3,8 +3,8 @@ import { ManualTableChanges } from '@/data/db/table-changes';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
 import type { Workout } from '@/domain/models/workout';
 import { aWorkout, aWorkoutExercise } from '@/domain/testing/builders';
-import { firstValue } from '@/domain/usecases/observe-together';
-import { DeleteSet, LogSet, RestoreSet } from '@/domain/usecases/workout-sets';
+import { firstValue } from '@/domain/usecases/shared/observe-together';
+import { DeleteSet, LogSet, RestoreSet } from '@/domain/usecases/workout/workout-sets';
 
 const SET = { isUnilateral: false, loadKg: 60, reps: 8, rir: null, isWarmup: false } as const;
 

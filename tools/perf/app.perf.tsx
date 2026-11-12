@@ -20,9 +20,9 @@ import {
   FakeRestCountdown,
   FakeRestNotifier,
 } from '@/domain/testing/in-memory-repositories';
-import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
-import type { WorkoutOverview } from '@/domain/usecases/observe-workout';
-import { firstValue } from '@/domain/usecases/observe-together';
+import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
+import type { WorkoutOverview } from '@/domain/usecases/workout/observe-workout';
+import { firstValue } from '@/domain/usecases/shared/observe-together';
 import { HomeScreen } from '@/presentation/features/home/home-screen';
 import { HistoryScreen } from '@/presentation/features/progress/history-screen';
 import { WorkoutScreen } from '@/presentation/features/workout/workout-screen';

@@ -2,7 +2,7 @@ import { render, screen, userEvent, waitFor } from '@testing-library/react-nativ
 import { Text } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
-import { PrepareLocalData } from '@/domain/usecases/prepare-local-data';
+import { PrepareLocalData } from '@/domain/usecases/startup/prepare-local-data';
 import { LaunchSplashProvider } from '@/presentation/features/startup/launch-splash';
 import { StartupGate } from '@/presentation/features/startup/startup-gate';
 import { createAppStore } from '@/presentation/state/app-store';

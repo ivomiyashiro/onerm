@@ -1,7 +1,7 @@
-import type { BackupNotice } from '@/domain/usecases/observe-backup-notice';
+import type { BackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
 import { useEffect, useState } from 'react';
 
-import type { NextDayOverview } from '@/domain/usecases/observe-next-day';
+import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 type NextDay = Extract<NextDayOverview, { kind: 'nextDay' }>;

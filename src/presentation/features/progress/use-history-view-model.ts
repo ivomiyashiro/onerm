@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import type { HistoryItem } from '@/domain/usecases/observe-history';
+import type { HistoryItem } from '@/domain/usecases/progress/observe-history';
 import { common } from '@/presentation/strings/common';
 import { progress as text } from '@/presentation/strings/progress';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';

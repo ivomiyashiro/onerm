@@ -9,8 +9,8 @@ import {
   InMemoryProfileRepository,
   FixedSyncStateRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { AnswerOnboarding } from '@/domain/usecases/answer-onboarding';
-import { ObserveEntry } from '@/domain/usecases/observe-entry';
+import { AnswerOnboarding } from '@/domain/usecases/onboarding/answer-onboarding';
+import { ObserveEntry } from '@/domain/usecases/startup/observe-entry';
 import { OnboardingScreen } from '@/presentation/features/onboarding/onboarding-screen';
 import { onboarding as strings } from '@/presentation/strings/onboarding';
 import { someUseCases } from '@/presentation/use-cases/testing';

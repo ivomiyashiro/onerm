@@ -4,7 +4,7 @@ import {
   FakeAuthGateway,
   InMemoryAccountRepository,
 } from '@/domain/testing/in-memory-repositories';
-import { FinishGuestUnion, StartGuestUnion } from '@/domain/usecases/guest-union';
+import { FinishGuestUnion, StartGuestUnion } from '@/domain/usecases/auth/guest-union';
 import { GuestUnionGate } from '@/presentation/features/auth/guest-union-gate';
 import { createAppStore } from '@/presentation/state/app-store';
 import { AppStoreProvider } from '@/presentation/state/app-store-context';
