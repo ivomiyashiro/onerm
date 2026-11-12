@@ -1,6 +1,6 @@
 import type { LoadUnit } from '@/domain/models/vocabulary';
 import type { Suggestion, SuggestionCode } from '@/domain/rules/suggestion/suggestion';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import type { IconName } from '@/presentation/components/icons/icon';
 import { common } from '@/presentation/strings/common';
 import { home } from '@/presentation/strings/home';

@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 
 import type { Exercise } from '@/domain/models/exercise';
 import type { Equipment, Muscle } from '@/domain/models/vocabulary';
-import { searchExercises, type CatalogSearch } from '@/domain/rules/catalog-search';
+import { searchExercises, type CatalogSearch } from '@/domain/rules/catalog/catalog-search';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type ExerciseSearchState =

@@ -1,7 +1,7 @@
 import type { LocalDate } from '@/domain/models/local-date';
 import type { Workout } from '@/domain/models/workout';
-import { daysBetween, startOfWeek } from '@/domain/rules/calendar';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { daysBetween, startOfWeek } from '@/domain/rules/shared/calendar';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 
 /** Whole minutes from start to finish; never negative, even after a correction. */
 export function workoutMinutes(workout: Pick<Workout, 'startedAt' | 'finishedAt'>): number {

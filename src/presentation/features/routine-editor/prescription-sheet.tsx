@@ -1,7 +1,7 @@
 import { useRef, useState, type ReactNode } from 'react';
 import { ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
-import { ROUTINE_LIMITS } from '@/domain/rules/routine-rules';
+import { ROUTINE_LIMITS } from '@/domain/rules/routine/routine-rules';
 import { Button } from '@/presentation/components/button/button';
 import { Chip } from '@/presentation/components/chip/chip';
 import { Segmented } from '@/presentation/components/choice/segmented';

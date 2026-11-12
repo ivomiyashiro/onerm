@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Routine, RoutineExercise } from '@/domain/models/routine';
 import type { ExerciseRole, Id } from '@/domain/models/vocabulary';
-import { validatePrescription } from '@/domain/rules/prescription-rules';
+import { validatePrescription } from '@/domain/rules/routine/prescription-rules';
 import {
   moveDay,
   moveDayTo,

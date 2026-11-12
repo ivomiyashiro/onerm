@@ -1,6 +1,6 @@
 import type { Prescription } from '@/domain/models/prescription';
-import { isWholeBetween } from '@/domain/rules/numbers';
-import type { Violation } from '@/domain/rules/violation';
+import { isWholeBetween } from '@/domain/rules/shared/numbers';
+import type { Violation } from '@/domain/rules/shared/violation';
 
 /** RN-RUT-04 limits. */
 export const PRESCRIPTION_LIMITS = {

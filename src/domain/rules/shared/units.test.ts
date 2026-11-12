@@ -1,4 +1,4 @@
-import { fromUnit, LB_TO_KG, toUnit } from '@/domain/rules/units';
+import { fromUnit, LB_TO_KG, toUnit } from '@/domain/rules/shared/units';
 
 describe('RN-PERF-05 · units', () => {
   it('1 lb is 0.45359237 kg', () => {

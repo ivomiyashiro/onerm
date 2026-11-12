@@ -1,4 +1,4 @@
-import { daysBetween } from '@/domain/rules/calendar';
+import { daysBetween } from '@/domain/rules/shared/calendar';
 import type { Priority, SuggestionContext } from '@/domain/rules/suggestion/engine-types';
 import { firstFinishedFrom } from '@/domain/rules/suggestion/history-order';
 import { decreaseLoad } from '@/domain/rules/suggestion/load-grid';

@@ -2,8 +2,8 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { LocalDate } from '@/domain/models/local-date';
 import { MUSCLES, type Id, type Muscle } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
-import { addDays } from '@/domain/rules/calendar';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { addDays } from '@/domain/rules/shared/calendar';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 
 /** P-03: a direct set counts 1, an indirect one 0.5. */
 const PRIMARY_SET = 1;

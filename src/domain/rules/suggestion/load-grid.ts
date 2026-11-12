@@ -1,6 +1,6 @@
 import type { LoadUnit } from '@/domain/models/vocabulary';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
-import { fromUnit, toUnit } from '@/domain/rules/units';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
+import { fromUnit, toUnit } from '@/domain/rules/shared/units';
 
 /**
  * The multiples of the exercise increment in the user unit (RN-SUG-09, RN-PERF-06), and the

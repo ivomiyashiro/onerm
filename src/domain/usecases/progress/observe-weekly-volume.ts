@@ -7,7 +7,7 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { Observer, Unsubscribe } from '@/domain/observer';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { addDays, startOfWeek } from '@/domain/rules/calendar';
+import { addDays, startOfWeek } from '@/domain/rules/shared/calendar';
 import { weeklyVolume } from '@/domain/rules/progress/weekly-volume';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';

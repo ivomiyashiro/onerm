@@ -11,7 +11,7 @@ import type { ProfileRepository } from '@/domain/repositories/profile-repository
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { RoutineTemplateRepository } from '@/domain/repositories/routine-template-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { prescriptionFor } from '@/domain/rules/routine/prescription-defaults';
 import { templateMinutes } from '@/domain/rules/routine/session-duration';

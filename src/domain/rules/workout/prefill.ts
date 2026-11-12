@@ -1,5 +1,5 @@
 import type { WorkoutSet } from '@/domain/models/workout';
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
 
 /** The values a new set starts with; for a unilateral one the reps go to both sides. */

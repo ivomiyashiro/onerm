@@ -1,4 +1,4 @@
-import { addDays, daysBetween, startOfWeek } from '@/domain/rules/calendar';
+import { addDays, daysBetween, startOfWeek } from '@/domain/rules/shared/calendar';
 
 describe('RN-GEN-01 · calendar days', () => {
   it('counts calendar days between two local dates', () => {

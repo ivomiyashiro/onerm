@@ -1,10 +1,10 @@
 import type { Routine } from '@/domain/models/routine';
-import { isWholeBetween } from '@/domain/rules/numbers';
+import { isWholeBetween } from '@/domain/rules/shared/numbers';
 import {
   validatePrescription,
   type PrescriptionViolationCode,
-} from '@/domain/rules/prescription-rules';
-import type { Violation } from '@/domain/rules/violation';
+} from '@/domain/rules/routine/prescription-rules';
+import type { Violation } from '@/domain/rules/shared/violation';
 
 /** RN-RUT-05 limits. */
 export const ROUTINE_LIMITS = {

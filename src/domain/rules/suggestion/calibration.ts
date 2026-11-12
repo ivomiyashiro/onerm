@@ -1,7 +1,7 @@
 import type { Prescription } from '@/domain/models/prescription';
 import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { limitingSide } from '@/domain/rules/limiting-side';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
 import { estimatedOneRepMax } from '@/domain/rules/suggestion/e1rm';
 import { floorToGrid, type LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { SUGGESTION_PARAMETERS } from '@/domain/rules/suggestion/parameters';
@@ -10,7 +10,7 @@ import {
   estimateFromE1rm,
   fromWorkingLoad,
 } from '@/domain/rules/suggestion/without-routine-history';
-import { fromUnit } from '@/domain/rules/units';
+import { fromUnit } from '@/domain/rules/shared/units';
 
 const { E1RM_MAX, CALIBRATION_STEP_UP, CALIBRATION_STEP_DOWN } = SUGGESTION_PARAMETERS;
 

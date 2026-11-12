@@ -2,8 +2,8 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout, WorkoutExercise } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/position-order';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 import { firstValue } from '@/domain/usecases/shared/observe-together';
 import type { SkipRest } from '@/domain/usecases/workout/rest-timer';
 

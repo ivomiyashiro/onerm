@@ -1,5 +1,5 @@
 import type { LocalDate } from '@/domain/models/local-date';
-import { addDays } from '@/domain/rules/calendar';
+import { addDays } from '@/domain/rules/shared/calendar';
 
 /** RF-PROG-04.AC3: the periods of the chart. */
 export const PROGRESS_PERIODS = ['fourWeeks', 'threeMonths', 'all'] as const;

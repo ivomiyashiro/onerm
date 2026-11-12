@@ -1,8 +1,8 @@
 import type { Id } from '@/domain/models/vocabulary';
 import type { Prescription } from '@/domain/models/prescription';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { limitingSide } from '@/domain/rules/limiting-side';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { limitingSide } from '@/domain/rules/shared/limiting-side';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { suggestAfterCalibrationSet } from '@/domain/rules/suggestion/calibration';
 import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import type { Suggestion, SuggestionCode } from '@/domain/rules/suggestion/suggestion';

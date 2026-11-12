@@ -2,7 +2,7 @@ import type { routineDays, routineExercises, routines } from '@/data/db/schema';
 import type { SyncValues } from '@/data/db/sync-writes';
 import { groupBy } from '@/data/mappers/catalog-mappers';
 import type { Routine, RoutineDay, RoutineExercise } from '@/domain/models/routine';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 
 type RoutineRow = typeof routines.$inferSelect;
 type DayRow = typeof routineDays.$inferSelect;

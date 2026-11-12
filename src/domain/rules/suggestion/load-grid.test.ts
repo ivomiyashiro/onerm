@@ -6,7 +6,7 @@ import {
   roundOnGrid,
   type LoadGrid,
 } from '@/domain/rules/suggestion/load-grid';
-import { fromUnit, toUnit } from '@/domain/rules/units';
+import { fromUnit, toUnit } from '@/domain/rules/shared/units';
 
 const barbellKg: LoadGrid = { unit: 'kg', increment: 2.5, minLoad: 20 };
 const dumbbellKg: LoadGrid = { unit: 'kg', increment: 2, minLoad: 2 };

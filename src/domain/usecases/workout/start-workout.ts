@@ -7,7 +7,7 @@ import type { ExerciseRepository } from '@/domain/repositories/exercise-reposito
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 export type StartWorkoutResult =

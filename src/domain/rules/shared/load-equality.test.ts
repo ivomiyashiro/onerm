@@ -1,4 +1,4 @@
-import { areLoadsEqual } from '@/domain/rules/load-equality';
+import { areLoadsEqual } from '@/domain/rules/shared/load-equality';
 
 describe('RN-GEN-02 · load equality', () => {
   it('are equal when they differ by less than 0.05 kg', () => {

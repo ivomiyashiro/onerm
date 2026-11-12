@@ -18,7 +18,7 @@ import {
   type SuggestionExplanation,
 } from '@/domain/rules/suggestion/explanation';
 import type { Suggestion } from '@/domain/rules/suggestion/suggestion';
-import { isSubstitution } from '@/domain/rules/substitution';
+import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { currentSuggestion } from '@/domain/rules/workout/current-suggestion';
 import { explanationFor } from '@/domain/rules/workout/suggestion-for';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';

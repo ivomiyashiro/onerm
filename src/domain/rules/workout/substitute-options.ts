@@ -1,6 +1,6 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
-import { NO_FILTERS, searchExercises } from '@/domain/rules/catalog-search';
+import { NO_FILTERS, searchExercises } from '@/domain/rules/catalog/catalog-search';
 
 export interface SubstituteOptions {
   /** Share a primary muscle with the original. */

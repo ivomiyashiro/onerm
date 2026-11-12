@@ -1,4 +1,4 @@
-import { byPosition, sortByPosition } from '@/domain/rules/position-order';
+import { byPosition, sortByPosition } from '@/domain/rules/shared/position-order';
 
 describe('I-10 · order by (position, id)', () => {
   it('orders by position', () => {

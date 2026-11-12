@@ -1,4 +1,4 @@
-import { isEffectiveSet, validateWorkoutSet } from '@/domain/rules/workout-set-rules';
+import { isEffectiveSet, validateWorkoutSet } from '@/domain/rules/workout/workout-set-rules';
 import { aBilateralSet, aUnilateralSet, aWorkoutExercise } from '@/domain/testing/builders';
 
 const external = aWorkoutExercise({ loadType: 'external', isUnilateral: false });

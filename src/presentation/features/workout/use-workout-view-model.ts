@@ -3,8 +3,8 @@ import { useEffect, useState } from 'react';
 import type { Exercise } from '@/domain/models/exercise';
 import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/position-order';
-import { isEffectiveSet } from '@/domain/rules/workout-set-rules';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
+import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, isOpen, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import {

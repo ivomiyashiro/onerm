@@ -9,8 +9,8 @@ import type { RoutineRepository } from '@/domain/repositories/routine-repository
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { addDay, addExercise, withPositions } from '@/domain/rules/routine/routine-edits';
-import { validateRoutine, type RoutineViolationCode } from '@/domain/rules/routine-rules';
-import type { Violation } from '@/domain/rules/violation';
+import { validateRoutine, type RoutineViolationCode } from '@/domain/rules/routine/routine-rules';
+import type { Violation } from '@/domain/rules/shared/violation';
 import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /** What the routine editor (S15) starts from. */

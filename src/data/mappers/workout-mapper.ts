@@ -2,7 +2,7 @@ import type { workoutExercises, workouts, workoutSets } from '@/data/db/schema';
 import type { SyncValues } from '@/data/db/sync-writes';
 import { groupBy } from '@/data/mappers/catalog-mappers';
 import type { Workout, WorkoutExercise, WorkoutSet } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/position-order';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
 
 type WorkoutRow = typeof workouts.$inferSelect;
 type ExerciseRow = typeof workoutExercises.$inferSelect;

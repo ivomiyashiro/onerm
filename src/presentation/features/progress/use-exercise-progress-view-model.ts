@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import type { ProgressPeriod } from '@/domain/rules/progress/period';
 import type { ExerciseProgressView } from '@/domain/usecases/progress/observe-exercise-progress';
 import type { ChartPoint } from '@/presentation/features/progress/progress-chart';

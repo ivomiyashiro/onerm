@@ -1,4 +1,4 @@
-import { validatePrescription } from '@/domain/rules/prescription-rules';
+import { validatePrescription } from '@/domain/rules/routine/prescription-rules';
 import { aPrescription } from '@/domain/testing/builders';
 
 const codes = (overrides: Parameters<typeof aPrescription>[0]) =>

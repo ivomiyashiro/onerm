@@ -1,8 +1,8 @@
 import type { RestMessage } from '@/domain/models/rest-timer';
 import type { EffortMode, ExperienceLevel, Id, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/position-order';
-import { toUnit } from '@/domain/rules/units';
+import { sortByPosition } from '@/domain/rules/shared/position-order';
+import { toUnit } from '@/domain/rules/shared/units';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import type { WorkoutExerciseView } from '@/domain/usecases/workout/observe-workout';

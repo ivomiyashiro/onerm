@@ -1,5 +1,5 @@
 import type { LoadUnit } from '@/domain/models/vocabulary';
-import { toUnit } from '@/domain/rules/units';
+import { toUnit } from '@/domain/rules/shared/units';
 import { common } from '@/presentation/strings/common';
 
 /** RN-PERF-05: kg with up to 2 decimals, lb with up to 1. */
