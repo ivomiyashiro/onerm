@@ -13,7 +13,7 @@ import {
   toSetInput,
   type SetForm,
   type SetFormErrors,
-} from '@/presentation/features/workout/set-form';
+} from '@/presentation/shared/set/set-form';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WorkoutDetailState =

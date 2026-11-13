@@ -9,7 +9,7 @@ import type {
 } from '@/domain/rules/suggestion/suggestion';
 import { toUnit } from '@/domain/rules/shared/units';
 import type { IconName } from '@/presentation/components/icons/icon';
-import { TREND_ICONS, trendOf } from '@/presentation/features/home/trend';
+import { TREND_ICONS, trendOf } from '@/presentation/shared/trend';
 import { common } from '@/presentation/strings/common';
 import { dayMonth, decimal, estimateText, loadNumber } from '@/presentation/strings/numbers';
 import { principles } from '@/presentation/strings/principles';

@@ -16,7 +16,7 @@ import {
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { useWorkoutDetailViewModel } from '@/presentation/features/progress/use-workout-detail-view-model';
-import { stepReps } from '@/presentation/features/workout/set-form';
+import { stepReps } from '@/presentation/shared/set/set-form';
 import { routineUseCasesOver, someUseCases } from '@/presentation/use-cases/testing';
 import { UseCasesProvider, type UseCases } from '@/presentation/use-cases/use-cases-context';
 

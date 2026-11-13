@@ -1,4 +1,4 @@
-import { syncStatusText } from '@/presentation/features/profile/sync-status-text';
+import { syncStatusText } from '@/presentation/shared/sync-status-text';
 
 const NOW = new Date('2026-10-15T12:00:00Z');
 const ago = (ms: number) => new Date(NOW.getTime() - ms);

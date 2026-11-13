@@ -3,20 +3,39 @@ import { Animated, Easing, Pressable, StyleSheet, View } from 'react-native';
 
 import type { EffortMode, LoadUnit } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
+import type { PrefilledSet } from '@/domain/rules/workout/prefill';
 import { toUnit } from '@/domain/rules/shared/units';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { useReduceMotion } from '@/presentation/components/feedback/use-reduce-motion';
 import { Icon } from '@/presentation/components/icons/icon';
 import type { SwipeA11y } from '@/presentation/components/list/swipe-row';
 import { Text } from '@/presentation/components/text';
-import type { RirField } from '@/presentation/features/workout/set-form';
-import { effortOptions, effortTitle } from '@/presentation/features/workout/set-sheet';
-import type { SetRowView } from '@/presentation/features/workout/use-workout-view-model';
+import type { RirField } from '@/presentation/shared/set/set-form';
+import { effortOptions, effortTitle } from '@/presentation/shared/set/set-sheet';
 import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';
 import { motion } from '@/presentation/theme/motion';
+
+/** One row of the set list (08 §5): logged, the current one, or still to do. */
+export type SetRowView =
+  | {
+      kind: 'done';
+      number: number;
+      set: WorkoutSet;
+      /** RF-ENT-02.AC4: the effort options stay in the row until one is chosen or the next set. */
+      askEffort: boolean;
+      /** RF-SUG-02.AC4: a calibration set without its effort, asked below («Falta esfuerzo»). */
+      missingEffort: boolean;
+    }
+  | {
+      kind: 'current' | 'pending';
+      number: number;
+      values: PrefilledSet;
+      /** RF-ENT-05.AC2: added with «Agregar serie», so it can be removed while not logged. */
+      extra: boolean;
+    };
 
 interface SetRowProps {
   row: SetRowView;

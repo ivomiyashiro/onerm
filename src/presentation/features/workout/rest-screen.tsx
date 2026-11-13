@@ -13,7 +13,7 @@ import { Text } from '@/presentation/components/text';
 import { RestRing } from '@/presentation/features/workout/rest-ring';
 import type { RestView } from '@/presentation/features/workout/rest-view';
 import { SetEffort } from '@/presentation/features/workout/set-effort';
-import type { RirField } from '@/presentation/features/workout/set-form';
+import type { RirField } from '@/presentation/shared/set/set-form';
 import { countdown, elapsed } from '@/presentation/strings/numbers';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, radius, space, typography } from '@/presentation/theme';

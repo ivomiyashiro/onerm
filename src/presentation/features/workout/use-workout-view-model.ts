@@ -22,7 +22,7 @@ import {
   whyDetail,
   type ReasonInput,
   type WhyDetail,
-} from '@/presentation/features/workout/reason-text';
+} from '@/presentation/shared/reason-text';
 import {
   formErrors,
   formFromPrefill,
@@ -31,28 +31,12 @@ import {
   type RirField,
   type SetForm,
   type SetFormErrors,
-} from '@/presentation/features/workout/set-form';
+} from '@/presentation/shared/set/set-form';
 import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
+import type { SetRowView } from '@/presentation/shared/set/set-row';
 import { useUseCases } from '@/presentation/use-cases/use-cases-context';
 
-/** One row of the set list (08 §5): logged, the current one, or still to do. */
-export type SetRowView =
-  | {
-      kind: 'done';
-      number: number;
-      set: WorkoutSet;
-      /** RF-ENT-02.AC4: the effort options stay in the row until one is chosen or the next set. */
-      askEffort: boolean;
-      /** RF-SUG-02.AC4: a calibration set without its effort, asked below («Falta esfuerzo»). */
-      missingEffort: boolean;
-    }
-  | {
-      kind: 'current' | 'pending';
-      number: number;
-      values: PrefilledSet;
-      /** RF-ENT-05.AC2: added with «Agregar serie», so it can be removed while not logged. */
-      extra: boolean;
-    };
+export type { SetRowView };
 
 export interface WorkoutContent {
   status: 'content';

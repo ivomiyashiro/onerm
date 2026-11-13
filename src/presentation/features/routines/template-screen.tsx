@@ -10,7 +10,7 @@ import { EmptyState } from '@/presentation/components/feedback/empty-state';
 import { Notice } from '@/presentation/components/feedback/notice';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { Text } from '@/presentation/components/text';
-import { TemplateWhySheet } from '@/presentation/features/routines/template-why-sheet';
+import { TemplateWhySheet } from '@/presentation/shared/template-why-sheet';
 import { RoutineChangeDialog } from '@/presentation/features/routines/routine-change-dialog';
 import { useTemplateViewModel } from '@/presentation/features/routines/use-template-view-model';
 import { catalog } from '@/presentation/strings/catalog';

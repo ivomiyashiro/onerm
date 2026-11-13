@@ -4,8 +4,8 @@ import type { EffortMode } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { Segmented } from '@/presentation/components/choice/segmented';
 import { Text } from '@/presentation/components/text';
-import type { RirField } from '@/presentation/features/workout/set-form';
-import { effortOptions, effortTitle } from '@/presentation/features/workout/set-sheet';
+import type { RirField } from '@/presentation/shared/set/set-form';
+import { effortOptions, effortTitle } from '@/presentation/shared/set/set-sheet';
 import { workout as text } from '@/presentation/strings/workout';
 import { colors, space, typography } from '@/presentation/theme';
 

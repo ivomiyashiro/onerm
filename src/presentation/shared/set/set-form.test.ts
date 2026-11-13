@@ -9,7 +9,7 @@ import {
   stepReps,
   toSetInput,
   typeLoad,
-} from '@/presentation/features/workout/set-form';
+} from '@/presentation/shared/set/set-form';
 
 const KG = { unit: 'kg', increment: 2.5, minLoad: 20 } as const;
 const LB = { unit: 'lb', increment: 5, minLoad: 45 } as const;

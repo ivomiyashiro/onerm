@@ -7,7 +7,7 @@ import {
   reasonLine,
   whyDetail,
   type ReasonInput,
-} from '@/presentation/features/workout/reason-text';
+} from '@/presentation/shared/reason-text';
 import { principles } from '@/presentation/strings/principles';
 import { suggestions } from '@/presentation/strings/suggestions';
 

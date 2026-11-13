@@ -4,7 +4,7 @@ import { Pressable, StyleSheet, View } from 'react-native';
 import { Button } from '@/presentation/components/button/button';
 import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
-import type { WhyDetail } from '@/presentation/features/workout/reason-text';
+import type { WhyDetail } from '@/presentation/shared/reason-text';
 import { common } from '@/presentation/strings/common';
 import { suggestions } from '@/presentation/strings/suggestions';
 import { colors, radius, space, typography } from '@/presentation/theme';

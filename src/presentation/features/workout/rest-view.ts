@@ -6,7 +6,7 @@ import { toUnit } from '@/domain/rules/shared/units';
 import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import type { WorkoutExerciseView } from '@/domain/usecases/workout/observe-workout';
-import { reasonLine } from '@/presentation/features/workout/reason-text';
+import { reasonLine } from '@/presentation/shared/reason-text';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
 import { loadNumber } from '@/presentation/strings/numbers';

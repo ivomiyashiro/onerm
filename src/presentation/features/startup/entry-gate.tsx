@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import type { Entry } from '@/domain/usecases/startup/observe-entry';
-import { useEntryViewModel } from '@/presentation/features/entry/use-entry-view-model';
+import { useEntryViewModel } from '@/presentation/features/startup/use-entry-view-model';
 import { LaunchReady } from '@/presentation/features/startup/launch-splash';
 import { StartupErrorScreen } from '@/presentation/features/startup/startup-error-screen';
 import { colors } from '@/presentation/theme';

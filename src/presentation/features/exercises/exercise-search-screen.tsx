@@ -11,7 +11,7 @@ import { SearchField } from '@/presentation/components/input/search-field';
 import { TopBar } from '@/presentation/components/navigation/top-bar';
 import { BottomSheet } from '@/presentation/components/overlay/bottom-sheet';
 import { Text } from '@/presentation/components/text';
-import { ExerciseRow } from '@/presentation/features/exercises/exercise-row';
+import { ExerciseRow } from '@/presentation/shared/exercise/exercise-row';
 import {
   useExerciseSearchViewModel,
   type ExerciseSearchViewModel,
