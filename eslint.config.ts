@@ -31,7 +31,8 @@ const TEST_FILES = [
   'src/presentation/use-cases/testing.ts',
 ];
 // What only test code may import: any testing folder or file, the fixtures and the in-memory
-// database of the integration tests (plus @testing-library, below).
+// database of the integration tests (plus @testing-library, below). The names are reserved for test
+// code: a production folder called testing would be reported too, on purpose.
 const TEST_ONLY_FILES = [
   `${LAYER_FOLDERS}/**/testing.{ts,tsx}`,
   `${LAYER_FOLDERS}/**/testing/**`,

@@ -18,10 +18,12 @@ const feature = (name: string, file: string) =>
   `import { x } from '@/presentation/features/${name}/${file}';`;
 const USE_CASES = "import { useUseCases } from '@/presentation/use-cases/use-cases-context';";
 
+// Only boundaries/dependencies: an import that doesn't resolve fails another rule, so it can't make
+// a case below fail for the wrong reason.
 async function boundaryErrors(filePath: string, code: string): Promise<string[]> {
   const [result] = await eslint.lintText(code, { filePath: path.join(root, filePath) });
   return result.messages
-    .filter((message) => message.ruleId?.startsWith('boundaries/'))
+    .filter((message) => message.ruleId === 'boundaries/dependencies')
     .map((message) => message.message);
 }
 
