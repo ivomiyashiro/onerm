@@ -20,6 +20,32 @@ const INFRASTRUCTURE_SDKS = [
   '@react-native-community/netinfo',
 ];
 
+// The folders the layers live in. Only their files get a category: a file outside them stays
+// unknown, so boundaries/no-unknown-files still reports it.
+const LAYER_FOLDERS = '{src/domain,src/data,src/presentation,src/di,app}';
+// Test code (#338): tests, fixtures and the fakes the tests share. Everything else is production.
+const TEST_FILES = [
+  `${LAYER_FOLDERS}/**/*.test.{ts,tsx}`,
+  `${LAYER_FOLDERS}/**/*.fixture.{ts,tsx}`,
+  'src/domain/testing/**',
+  'src/presentation/use-cases/testing.ts',
+];
+// What only test code may import: any testing folder or file, the fixtures and the in-memory
+// database of the integration tests (plus @testing-library, below).
+const TEST_ONLY_FILES = [
+  `${LAYER_FOLDERS}/**/testing.{ts,tsx}`,
+  `${LAYER_FOLDERS}/**/testing/**`,
+  `${LAYER_FOLDERS}/**/*.fixture.{ts,tsx}`,
+  'src/data/db/open-test-database.ts',
+];
+// Where use cases are taken from (ADR-0011 §1, updated in #332): ViewModels and feature hooks
+// (use-*), watchers and the use-cases folder itself. Visual components receive data and callbacks.
+const USE_CASE_CONSUMERS = [
+  'src/presentation/**/use-*.{ts,tsx}',
+  'src/presentation/**/*-watcher.tsx',
+  'src/presentation/use-cases/**',
+];
+
 // Props (and object keys inside props, such as `action={{ label }}` or `options={{ title }}`) that
 // carry UI text. Literal values are not allowed in them (RNF-21).
 const TEXT_PROPS =
@@ -77,6 +103,16 @@ export default defineConfig([
         // a src/domain/app/ folder was classified as app and inherited its permissions.
         { type: 'domain', partialMatch: false, pattern: 'src/domain/**' },
         { type: 'data', partialMatch: false, pattern: 'src/data/**' },
+        // Before presentation: the first matching element wins. Each feature is its own element, so
+        // one feature can be told apart from another (#338).
+        {
+          type: 'feature',
+          partialMatch: false,
+          pattern: 'src/presentation/features/*',
+          capture: ['feature'],
+        },
+        // The rest of presentation: components, shared, strings, theme, state, navigation, use-cases,
+        // widgets and assets.
         { type: 'presentation', partialMatch: false, pattern: 'src/presentation/**' },
         { type: 'di', partialMatch: false, pattern: 'src/di/**' },
         { type: 'app', partialMatch: false, pattern: 'app/**' },
@@ -84,6 +120,12 @@ export default defineConfig([
         { type: 'migrations', partialMatch: false, pattern: 'drizzle/**' },
         // Local native modules (Expo Modules API): only data wraps them behind a domain port.
         { type: 'native-modules', partialMatch: false, pattern: 'modules/**' },
+      ],
+      // Every file is either test code or production, so a policy can apply to production only.
+      'boundaries/files-single-match': true,
+      'boundaries/files': [
+        { category: 'test', pattern: TEST_FILES },
+        { category: 'production', pattern: `${LAYER_FOLDERS}/**` },
       ],
     },
     rules: {
@@ -97,6 +139,9 @@ export default defineConfig([
           default: 'disallow',
           // Without this the rule ignores external packages and domain could import React.
           checkAllOrigins: true,
+          // Without this the rule ignores imports inside one element, such as presentation's
+          // strings → components or domain → domain/testing (#338). Each layer allows itself below.
+          checkInternals: true,
           policies: [
             // domain is pure TypeScript: no other layers and no external packages.
             {
@@ -116,6 +161,7 @@ export default defineConfig([
                 { to: { module: { origin: 'external' } } },
               ],
             },
+            // What features share: never a feature (#338).
             {
               from: { element: { type: 'presentation' } },
               allow: [
@@ -123,11 +169,50 @@ export default defineConfig([
                 { to: { module: { origin: 'external' } } },
               ],
             },
+            // A feature uses domain, what features share and its own files, never another feature.
+            {
+              from: { element: { type: 'feature' } },
+              allow: [
+                { to: { element: { types: { anyOf: ['domain', 'presentation'] } } } },
+                {
+                  to: {
+                    element: {
+                      type: 'feature',
+                      captured: { feature: '{{ from.element.captured.feature }}' },
+                    },
+                  },
+                },
+                { to: { module: { origin: 'external' } } },
+              ],
+            },
+            // The only two features that use another one, each to one file (#337).
+            {
+              // The routine editor embeds the whole exercise search screen.
+              from: { file: { path: 'src/presentation/features/routine-editor/**' } },
+              allow: {
+                to: {
+                  file: { path: 'src/presentation/features/exercises/exercise-search-screen.tsx' },
+                },
+              },
+            },
+            {
+              // The how-to sheet brings video-link and a ViewModel with use cases.
+              from: { file: { path: 'src/presentation/features/workout/**' } },
+              allow: {
+                to: { file: { path: 'src/presentation/features/exercises/how-to-sheet.tsx' } },
+              },
+            },
             // Composition root: the only layer that knows both data and presentation.
             {
               from: { element: { type: 'di' } },
               allow: [
-                { to: { element: { types: { anyOf: ['domain', 'data', 'presentation', 'di'] } } } },
+                {
+                  to: {
+                    element: {
+                      types: { anyOf: ['domain', 'data', 'feature', 'presentation', 'di'] },
+                    },
+                  },
+                },
                 { to: { module: { origin: 'external' } } },
               ],
             },
@@ -135,13 +220,65 @@ export default defineConfig([
             {
               from: { element: { type: 'app' } },
               allow: [
-                { to: { element: { types: { anyOf: ['domain', 'presentation', 'di', 'app'] } } } },
+                {
+                  to: {
+                    element: {
+                      types: { anyOf: ['domain', 'feature', 'presentation', 'di', 'app'] },
+                    },
+                  },
+                },
                 { to: { module: { origin: 'external' } } },
+              ],
+            },
+            // The texts and the tokens are the base of the components, not the other way round.
+            {
+              from: {
+                file: { path: ['src/presentation/strings/**', 'src/presentation/theme/**'] },
+              },
+              disallow: {
+                to: {
+                  file: { path: ['src/presentation/components/**', 'src/presentation/shared/**'] },
+                },
+              },
+            },
+            // Components don't know about navigation.
+            {
+              from: { file: { path: 'src/presentation/components/**' } },
+              disallow: { to: { module: { source: 'expo-router' } } },
+            },
+            {
+              // The exception: the row closes itself when its screen loses focus (useIsFocused),
+              // and doing it another way would change the gesture.
+              from: { file: { path: 'src/presentation/components/list/swipe-row.tsx' } },
+              allow: { to: { module: { source: 'expo-router' } } },
+            },
+            // Visual components receive data and callbacks; they don't take use cases.
+            {
+              from: {
+                element: { types: { anyOf: ['feature', 'presentation', 'app'] } },
+                file: { categories: 'production' },
+              },
+              disallow: {
+                to: { file: { path: 'src/presentation/use-cases/use-cases-context.tsx' } },
+              },
+            },
+            {
+              from: { file: { path: USE_CASE_CONSUMERS } },
+              allow: {
+                to: { file: { path: 'src/presentation/use-cases/use-cases-context.tsx' } },
+              },
+            },
+            // Production code never imports test code. Test code still follows the layers above.
+            {
+              from: { file: { categories: 'production' } },
+              disallow: [
+                { to: { module: { source: '@testing-library/**' } } },
+                { to: { file: { path: TEST_ONLY_FILES } } },
               ],
             },
             // Goes last because the last matching policy wins.
             {
-              from: { element: { types: { anyOf: ['presentation', 'app'] } } },
+              from: { element: { types: { anyOf: ['feature', 'presentation', 'app'] } } },
               disallow: { to: { module: { origin: 'external', source: INFRASTRUCTURE_SDKS } } },
             },
           ],
