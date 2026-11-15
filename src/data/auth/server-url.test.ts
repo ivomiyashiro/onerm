@@ -1,4 +1,4 @@
-import { isAllowedServerUrl } from '@/data/auth/app-supabase';
+import { isAllowedServerUrl } from '@/data/auth/server-url';
 
 describe('isAllowedServerUrl (RNF-09)', () => {
   it.each([

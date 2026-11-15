@@ -7,6 +7,7 @@ import {
 } from '@/data/auth/create-supabase-auth';
 import { expoSessionStorage } from '@/data/auth/expo-session-storage';
 import { NativeGoogleAccountPicker } from '@/data/auth/google-account-picker';
+import { isAllowedServerUrl } from '@/data/auth/server-url';
 import type { AuthGateway } from '@/domain/services/auth-gateway';
 
 /**
@@ -44,14 +45,6 @@ function googlePicker(): NativeGoogleAccountPicker | undefined {
   return iosClientId
     ? new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId })
     : undefined;
-}
-
-/** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
-const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
-
-/** Whether the app may talk to the server at `url` (RNF-09). */
-export function isAllowedServerUrl(url: string): boolean {
-  return url.startsWith('https://') || LOCAL_HOST.test(url);
 }
 
 function createAppSupabase(): SupabaseAuth | null {
