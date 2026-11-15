@@ -13,14 +13,7 @@ import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
 import { AppState, Platform } from 'react-native';
 
-import { isAllowedServerUrl } from '@/data/auth/app-supabase';
-import {
-  createSupabaseAuth,
-  UnconfiguredAuthGateway,
-  type SupabaseAuth,
-} from '@/data/auth/create-supabase-auth';
-import { expoSessionStorage } from '@/data/auth/expo-session-storage';
-import { NativeGoogleAccountPicker } from '@/data/auth/google-account-picker';
+import { appAuth, appSupabase } from '@/data/auth/app-supabase';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
@@ -188,62 +181,6 @@ export function appDevice(): Device {
           ),
     permissions: new ExpoDevicePermissions(),
   };
-}
-
-/**
- * Supabase Auth with the session sealed in the Keystore (RNF-07). The server comes from the build's
- * public variables; without them nothing can sign in. The token only refreshes with the app in
- * the foreground, as supabase-js recommends for React Native (spike #15).
- */
-export function appAuth(): AuthGateway {
-  return appSupabase()?.gateway ?? new UnconfiguredAuthGateway();
-}
-
-/** One supabase-js client for auth and sync (spike #15), or null without a server configured. */
-function appSupabase(): SupabaseAuth | null {
-  if (cachedSupabase === undefined) cachedSupabase = createAppSupabase();
-  return cachedSupabase;
-}
-
-let cachedSupabase: SupabaseAuth | null | undefined;
-
-/**
- * The WEB client of Google (spike #16): public by design, it goes inside the app. It is also the
- * `client_id` of the Google provider in Supabase.
- */
-const GOOGLE_WEB_CLIENT_ID =
-  '190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com';
-
-/**
- * iOS needs its own Google client (ADR-0012), and without it `configure` throws at startup (#49).
- * Until one is created, iOS has no Google picker: «Continuar con Google» fails like an error.
- */
-function googlePicker(): NativeGoogleAccountPicker | undefined {
-  if (Platform.OS !== 'ios')
-    return new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID });
-  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  return iosClientId
-    ? new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId })
-    : undefined;
-}
-
-function createAppSupabase(): SupabaseAuth | null {
-  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !publishableKey) return null;
-  if (!isAllowedServerUrl(url)) return null;
-
-  const supabase = createSupabaseAuth({
-    url,
-    publishableKey,
-    storage: expoSessionStorage,
-    google: googlePicker(),
-  });
-  AppState.addEventListener('change', (state) => {
-    if (state === 'active') supabase.client.auth.startAutoRefresh();
-    else supabase.client.auth.stopAutoRefresh();
-  });
-  return supabase;
 }
 
 /** The automatic backup (RF-SYNC-01): the engine, what it would upload, and its triggers. */
