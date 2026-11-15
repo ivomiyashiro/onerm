@@ -8,12 +8,10 @@ import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
 import { LiveActivityRestCountdown } from '@/data/device/live-activity-rest-countdown';
 import { NotificationRestCountdown } from '@/data/device/notification-rest-countdown';
-import NetInfo from '@react-native-community/netinfo';
-import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
-import { AppState, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
-import { appAuth, appSupabase } from '@/data/auth/app-supabase';
+import { appAuth } from '@/data/auth/app-supabase';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
@@ -23,18 +21,13 @@ import { SqliteRestTimerRepository } from '@/data/repositories/sqlite-rest-timer
 import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
-import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
-import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
-import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
+import { appBackup, type Backup } from '@/data/sync/app-backup';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
-import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { AuthGateway } from '@/domain/services/auth-gateway';
 import type { DevicePermissions } from '@/domain/services/device-permissions';
 import type { RestCountdown } from '@/domain/services/rest-countdown';
 import type { RestNotifier } from '@/domain/services/rest-notifier';
-import type { SyncEngine } from '@/domain/services/sync-engine';
-import type { SyncTriggers } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/sync/keep-backed-up';
 import {
   CancelGuestUnion,
@@ -42,7 +35,6 @@ import {
   ReadPendingUnion,
   StartGuestUnion,
 } from '@/domain/usecases/auth/guest-union';
-import type { GuestUnion } from '@/domain/services/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/sync/observe-restoration';
 import { ObserveSyncActivity } from '@/domain/usecases/sync/observe-sync-activity';
@@ -53,7 +45,6 @@ import {
   ObserveRejectedChanges,
   RetryRejectedChange,
 } from '@/domain/usecases/sync/rejected-changes';
-import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
 import { SyncScheduler } from '@/domain/usecases/sync/sync-scheduler';
 import { ActivateRoutine } from '@/domain/usecases/routines/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
@@ -180,54 +171,6 @@ export function appDevice(): Device {
             workoutText.restCountdown.channel,
           ),
     permissions: new ExpoDevicePermissions(),
-  };
-}
-
-/** The automatic backup (RF-SYNC-01): the engine, what it would upload, and its triggers. */
-export interface Backup {
-  engine: SyncEngine;
-  countUploadable(): Promise<number>;
-  triggers: SyncTriggers;
-  rejected: RejectedChangeRepository;
-  union: GuestUnion;
-}
-
-/**
- * The sync of 07 §4.1 against the configured server, triggered by the phone (RN-SYNC-06). Without
- * a server there is nothing to back up to, like a guest's device.
- */
-export function appBackup({ localDatabase, changes }: Storage): Backup {
-  const client = appSupabase()?.client;
-  // Only `isConnected` is used: NetInfo's reachability check would poll a URL every minute,
-  // also in the background (RNF-22, #180).
-  NetInfo.configure({ reachabilityShouldRun: () => false });
-  const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
-  const rejected = new SyncRejectedChangeRepository(
-    () => localDatabase.database,
-    changes,
-    client ?? null,
-  );
-  const union = new SyncGuestUnion(() => localDatabase.database, client ?? null);
-  if (client === undefined) {
-    return {
-      engine: { sync: async () => 'guest' },
-      countUploadable: async () => 0,
-      triggers,
-      rejected,
-      union,
-    };
-  }
-  const engine = new SupabaseSyncEngine(
-    () => localDatabase.database,
-    client,
-    Constants.expoConfig?.version ?? '0.0.0',
-  );
-  return {
-    engine,
-    countUploadable: () => engine.countUploadable(),
-    triggers,
-    rejected,
-    union,
   };
 }
 
