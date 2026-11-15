@@ -13,6 +13,7 @@ import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
 import { AppState, Platform } from 'react-native';
 
+import { isAllowedServerUrl } from '@/data/auth/app-supabase';
 import {
   createSupabaseAuth,
   UnconfiguredAuthGateway,
@@ -226,14 +227,11 @@ function googlePicker(): NativeGoogleAccountPicker | undefined {
     : undefined;
 }
 
-/** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
-const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
-
 function createAppSupabase(): SupabaseAuth | null {
   const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
   const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
   if (!url || !publishableKey) return null;
-  if (!url.startsWith('https://') && !LOCAL_HOST.test(url)) return null;
+  if (!isAllowedServerUrl(url)) return null;
 
   const supabase = createSupabaseAuth({
     url,
