@@ -509,6 +509,10 @@ export class FixedSyncStateRepository implements SyncStateRepository {
     return () => {};
   }
 
+  async get(): Promise<LocalSyncState> {
+    return this.state;
+  }
+
   observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe {
     return this.pendingWorkouts$.observe(observer);
   }

@@ -272,6 +272,7 @@ export function backupNoticeOver(local: LocalSyncState): ObserveBackupNotice {
 /** A device with nothing to back up or restore. Used by tests only. */
 export const restoredSyncState = {
   observe: (observer: Observer<LocalSyncState>) => (observer.next(BACKED_UP), () => {}),
+  get: async () => BACKED_UP,
 };
 
 const BACKED_UP: LocalSyncState = {

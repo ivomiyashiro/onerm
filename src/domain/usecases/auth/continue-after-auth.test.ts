@@ -1,6 +1,5 @@
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { ContinueAfterAuth } from '@/domain/usecases/auth/continue-after-auth';
-import type { Observer } from '@/domain/observer';
 import type { LocalSyncState } from '@/domain/repositories/sync-state-repository';
 import { InMemoryProfileRepository } from '@/domain/testing/in-memory-repositories';
 
@@ -9,16 +8,13 @@ function setup(profile = defaultProfile(), restoreCompleted = true) {
   const steps: unknown[] = [];
   const onboarding = { saveStep: async (step: unknown) => void steps.push(step) };
   const syncState = {
-    observe: (observer: Observer<LocalSyncState>) => (
-      observer.next({
-        owner: 'guest',
-        pending: 0,
-        conflicts: 0,
-        lastSyncedAt: null,
-        restoreCompleted,
-      }),
-      () => {}
-    ),
+    get: async (): Promise<LocalSyncState> => ({
+      owner: 'guest',
+      pending: 0,
+      conflicts: 0,
+      lastSyncedAt: null,
+      restoreCompleted,
+    }),
   };
   return {
     profiles,
