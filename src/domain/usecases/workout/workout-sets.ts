@@ -7,10 +7,9 @@ import type {
   WorkoutSet,
 } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { sortByPosition } from '@/domain/rules/shared/position-order';
 import type { Violation } from '@/domain/rules/shared/violation';
+import { exerciseOfSet, replaceExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
 import {
-  isEffectiveSet,
   validateWorkoutSet,
   type SetViolationCode,
 } from '@/domain/rules/workout/workout-set-rules';
@@ -28,36 +27,7 @@ export type SetWriteResult =
 
 type Workouts = Pick<WorkoutRepository, 'getInProgress' | 'save'>;
 
-/**
- * RN-ENT-09: an exercise with effective sets is done, also after being skipped. Without them it
- * goes back to pending, or stays skipped; in a finished workout it is skipped.
- */
-export function withSets(
-  workout: Workout,
-  exercise: WorkoutExercise,
-  sets: readonly WorkoutSet[],
-): WorkoutExercise {
-  const sorted = sortByPosition(sets);
-  const status = sorted.some(isEffectiveSet)
-    ? 'done'
-    : exercise.status === 'skipped' || workout.status === 'finished'
-      ? 'skipped'
-      : 'pending';
-  return { ...exercise, status, sets: sorted };
-}
-
-export function replaceExercise(workout: Workout, exercise: WorkoutExercise): Workout {
-  return {
-    ...workout,
-    exercises: workout.exercises.map((e) => (e.id === exercise.id ? exercise : e)),
-  };
-}
-
 const inProgress = (workouts: Workouts) => workouts.getInProgress();
-
-export function exerciseOfSet(workout: Workout, setId: Id) {
-  return workout.exercises.find((e) => e.sets.some((s) => s.id === setId));
-}
 
 /** Validates against the copy of the workout exercise and saves it (RN-ENT-02, RN-SYNC-01). */
 export async function write(

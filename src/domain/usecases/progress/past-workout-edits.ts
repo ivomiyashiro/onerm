@@ -1,14 +1,8 @@
 import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import {
-  exerciseOfSet,
-  replaceExercise,
-  withSets,
-  write,
-  type SetInput,
-  type SetWriteResult,
-} from '@/domain/usecases/workout/workout-sets';
+import { exerciseOfSet, replaceExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
+import { write, type SetInput, type SetWriteResult } from '@/domain/usecases/workout/workout-sets';
 
 type Workouts = Pick<WorkoutRepository, 'getFinishedById' | 'save'>;
 
