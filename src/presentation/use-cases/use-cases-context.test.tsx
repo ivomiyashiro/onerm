@@ -3,7 +3,13 @@ import type { ReactNode } from 'react';
 
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import { ObserveExercises } from '@/domain/usecases/exercises/observe-exercises';
-import { UseCasesProvider, useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useAuthUseCases,
+  UseCasesProvider,
+  useSyncUseCases,
+  useUseCases,
+  useWorkoutUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 import { someUseCases } from '@/presentation/use-cases/testing';
 
 describe('useUseCases', () => {
@@ -15,6 +21,21 @@ describe('useUseCases', () => {
     );
 
     const { result } = await renderHook(() => useUseCases(), { wrapper });
+
+    expect(result.current).toBe(useCases);
+  });
+
+  it.each([
+    ['useAuthUseCases', useAuthUseCases],
+    ['useWorkoutUseCases', useWorkoutUseCases],
+    ['useSyncUseCases', useSyncUseCases],
+  ])('%s returns the same object of the provider, with a narrower type', async (_, hook) => {
+    const useCases = someUseCases();
+    const wrapper = ({ children }: { children: ReactNode }) => (
+      <UseCasesProvider useCases={useCases}>{children}</UseCasesProvider>
+    );
+
+    const { result } = await renderHook(() => hook(), { wrapper });
 
     expect(result.current).toBe(useCases);
   });
