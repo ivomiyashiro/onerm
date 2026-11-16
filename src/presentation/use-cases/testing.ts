@@ -144,7 +144,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     getFinishedById: pending,
     ...noWrites,
   };
-  const exercises = { observeAll: never };
+  const exercises = { observeAll: never, getAll: pending };
   const onboarding = { observeStep: never, saveStep: async () => {} };
   return {
     observeExercises: new ObserveExercises(exercises),
@@ -348,6 +348,7 @@ export function routineUseCasesOver(repositories: {
       observer.next([...exercises]);
       return () => {};
     },
+    getAll: async () => [...exercises],
   };
   return {
     observeExercises: new ObserveExercises(catalog),

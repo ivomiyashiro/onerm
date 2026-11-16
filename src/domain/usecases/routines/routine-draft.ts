@@ -10,7 +10,6 @@ import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { addDay, addExercise, withPositions } from '@/domain/rules/routine/routine-edits';
 import { validateRoutine, type RoutineViolationCode } from '@/domain/rules/routine/routine-rules';
 import type { Violation } from '@/domain/rules/shared/violation';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /** What the routine editor (S15) starts from. */
 export interface RoutineDraft {
@@ -28,7 +27,7 @@ export interface RoutineDraft {
 export class LoadRoutineDraft {
   constructor(
     private readonly routines: Pick<RoutineRepository, 'getById'>,
-    private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
+    private readonly exercises: Pick<ExerciseRepository, 'getAll'>,
     private readonly profiles: Pick<ProfileRepository, 'get'>,
     private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
     private readonly newId: () => Id,
@@ -39,7 +38,7 @@ export class LoadRoutineDraft {
     const routine = routineId === null ? this.newRoutine() : await this.routines.getById(routineId);
     if (routine === null) return null;
     const [exercises, profile, inProgress] = await Promise.all([
-      firstValue<Exercise[]>((o) => this.exercises.observeAll(o)),
+      this.exercises.getAll(),
       this.profiles.get(),
       this.workouts.getInProgress(),
     ]);

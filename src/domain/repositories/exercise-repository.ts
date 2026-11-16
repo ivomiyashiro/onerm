@@ -5,6 +5,8 @@ import type { Observer, Unsubscribe } from '@/domain/observer';
 /** The catalog: read-only for the app (06 §2). Includes deprecated exercises (RN-CAT-01). */
 export interface ExerciseRepository {
   observeAll(observer: Observer<Exercise[]>): Unsubscribe;
+  /** `observeAll`'s first value, read once: for a command that reads before it writes. */
+  getAll(): Promise<Exercise[]>;
   /** Null when the id is not in the local catalog yet (RN-CAT-04). */
   observeById(id: Id, observer: Observer<Exercise | null>): Unsubscribe;
 }
