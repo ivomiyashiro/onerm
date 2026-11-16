@@ -13,6 +13,10 @@ export interface WorkoutRepository {
    */
   observeFinished(observer: Observer<Workout[]>): Unsubscribe;
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe;
+  /** `observeInProgress`'s first value, read once: for a command that reads before it writes. */
+  getInProgress(): Promise<Workout | null>;
+  /** A finished workout as `observeFinished` has it, or null if missing, deleted or unfinished. */
+  getFinishedById(id: Id): Promise<Workout | null>;
   save(workout: Workout): Promise<void>;
   /**
    * Discarding a workout in progress deletes it physically: it never left the device (RN-SYNC-13).

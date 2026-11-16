@@ -1,10 +1,8 @@
 import type { Profile } from '@/domain/models/profile';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout } from '@/domain/models/workout';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /**
  * The result of adopting, activating or deleting a routine. With a workout in progress the active
@@ -13,9 +11,9 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
 export type RoutineChange = { status: 'done' } | { status: 'workoutInProgress' };
 
 export async function hasWorkoutInProgress(
-  workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+  workouts: Pick<WorkoutRepository, 'getInProgress'>,
 ): Promise<boolean> {
-  return (await firstValue<Workout | null>((o) => workouts.observeInProgress(o))) !== null;
+  return (await workouts.getInProgress()) !== null;
 }
 
 /**

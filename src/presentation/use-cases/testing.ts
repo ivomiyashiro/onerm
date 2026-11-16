@@ -137,7 +137,13 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
   };
   const templates = { observeAll: never };
   const profiles = { observe: never, get: pending, ...noWrites };
-  const workouts = { observeInProgress: never, observeFinished: never, ...noWrites };
+  const workouts = {
+    observeInProgress: never,
+    observeFinished: never,
+    getInProgress: pending,
+    getFinishedById: pending,
+    ...noWrites,
+  };
   const exercises = { observeAll: never };
   const onboarding = { observeStep: never, saveStep: async () => {} };
   return {
@@ -377,7 +383,7 @@ export function routineUseCasesOver(repositories: {
 /** S18, S19 and S20: the history, the detail, the edits of the past and the progress. */
 function history(
   profiles: Pick<InMemoryProfileRepository, 'observe'>,
-  workouts: Pick<WorkoutRepository, 'observeFinished' | 'save' | 'delete'>,
+  workouts: Pick<WorkoutRepository, 'observeFinished' | 'getFinishedById' | 'save' | 'delete'>,
   exercises: { observeAll: ExerciseRepository['observeAll'] },
   newId: () => Id,
   now: () => Date,
@@ -402,7 +408,7 @@ function history(
 
 /** Skip, substitute, finish, discard and resume over `workouts`. */
 function lifecycle(
-  workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save' | 'delete'>,
+  workouts: Pick<WorkoutRepository, 'getInProgress' | 'save' | 'delete'>,
   newId: () => Id,
   now: () => Date,
   stopRest: Pick<SkipRest, 'execute'> = { execute: async () => {} },

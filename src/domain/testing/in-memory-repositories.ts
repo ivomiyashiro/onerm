@@ -292,6 +292,14 @@ export class InMemoryWorkoutRepository implements WorkoutRepository {
     return this.finished$.observe(observer);
   }
 
+  async getInProgress(): Promise<Workout | null> {
+    return this.inProgress;
+  }
+
+  async getFinishedById(id: Id): Promise<Workout | null> {
+    return this.finished.find((w) => w.id === id) ?? null;
+  }
+
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe {
     return this.inProgress$.observe({
       next: (inProgress) =>

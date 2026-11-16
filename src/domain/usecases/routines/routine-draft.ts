@@ -2,7 +2,6 @@ import type { Exercise } from '@/domain/models/exercise';
 import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -31,7 +30,7 @@ export class LoadRoutineDraft {
     private readonly routines: Pick<RoutineRepository, 'getById'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
     private readonly profiles: Pick<ProfileRepository, 'get'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
     private readonly newId: () => Id,
   ) {}
 
@@ -42,7 +41,7 @@ export class LoadRoutineDraft {
     const [exercises, profile, inProgress] = await Promise.all([
       firstValue<Exercise[]>((o) => this.exercises.observeAll(o)),
       this.profiles.get(),
-      firstValue<Workout | null>((o) => this.workouts.observeInProgress(o)),
+      this.workouts.getInProgress(),
     ]);
     return {
       routine,

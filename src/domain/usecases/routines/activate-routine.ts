@@ -11,7 +11,7 @@ import {
 export class ActivateRoutine {
   constructor(
     private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
   ) {}
 
   async execute(routineId: Id): Promise<RoutineChange> {

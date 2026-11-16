@@ -38,13 +38,26 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
   }
 
   observeInProgress(observer: Observer<Workout | null>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      TABLES,
-      // I-04 allows one; the latest wins if a sync ever left two.
-      () => this.read(eq(workouts.status, 'in_progress'), desc(workouts.startedAt))[0] ?? null,
-      observer,
+    return observeQuery(this.changes, TABLES, () => this.readInProgress(), observer);
+  }
+
+  async getInProgress(): Promise<Workout | null> {
+    return this.readInProgress();
+  }
+
+  /** The query of `observeFinished`, by id: always from the database, never its cached value. */
+  async getFinishedById(id: Id): Promise<Workout | null> {
+    return (
+      this.read(
+        and(eq(workouts.status, 'finished'), eq(workouts.id, id)) as SQL,
+        asc(workouts.finishedAt),
+      )[0] ?? null
     );
+  }
+
+  // I-04 allows one; the latest wins if a sync ever left two.
+  private readInProgress(): Workout | null {
+    return this.read(eq(workouts.status, 'in_progress'), desc(workouts.startedAt))[0] ?? null;
   }
 
   /**

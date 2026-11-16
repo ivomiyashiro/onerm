@@ -24,7 +24,7 @@ export class AdoptTemplate {
     private readonly templates: Pick<RoutineTemplateRepository, 'observeAll'>,
     private readonly routines: Pick<RoutineRepository, 'save'>,
     private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
     private readonly newId: () => Id,
   ) {}
 

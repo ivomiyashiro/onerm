@@ -1,19 +1,17 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout, WorkoutExercise } from '@/domain/models/workout';
+import type { WorkoutExercise } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 import type { SkipRest } from '@/domain/usecases/workout/rest-timer';
 
 /** RN-ENT-11: a workout in progress started longer ago than this is abandoned. */
 export const ABANDONED_AFTER_MS = 12 * 60 * 60 * 1000;
 
-type Workouts = Pick<WorkoutRepository, 'observeInProgress' | 'save'>;
+type Workouts = Pick<WorkoutRepository, 'getInProgress' | 'save'>;
 
-const inProgress = (workouts: Pick<WorkoutRepository, 'observeInProgress'>) =>
-  firstValue<Workout | null>((o) => workouts.observeInProgress(o));
+const inProgress = (workouts: Pick<WorkoutRepository, 'getInProgress'>) => workouts.getInProgress();
 
 const hasEffectiveSets = (exercise: WorkoutExercise) => exercise.sets.some(isEffectiveSet);
 
@@ -97,7 +95,7 @@ export class FinishWorkout {
 /** RF-ENT-12: deletes the workout in progress, physically (RN-SYNC-13), and stops its rest. */
 export class DiscardWorkout {
   constructor(
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress' | 'delete'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress' | 'delete'>,
     private readonly stopRest: Pick<SkipRest, 'execute'>,
   ) {}
 
@@ -118,7 +116,7 @@ export type WorkoutResume =
 /** RF-ENT-13: what opening the app does with a workout in progress. */
 export class ReadWorkoutResume {
   constructor(
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
     private readonly now: () => Date,
   ) {}
 

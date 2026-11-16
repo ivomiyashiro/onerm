@@ -1,6 +1,5 @@
 import type { Exercise } from '@/domain/models/exercise';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -22,14 +21,14 @@ export class StartWorkout {
   constructor(
     private readonly profiles: Pick<ProfileRepository, 'get'>,
     private readonly routines: Pick<RoutineRepository, 'getAll'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress' | 'save'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
     private readonly newId: () => Id,
     private readonly now: () => Date,
   ) {}
 
   async execute(dayId: Id): Promise<StartWorkoutResult> {
-    const running = await firstValue<Workout | null>((o) => this.workouts.observeInProgress(o));
+    const running = await this.workouts.getInProgress();
     if (running !== null) return { status: 'inProgress', workoutId: running.id };
 
     const [profile, routines, catalog] = await Promise.all([

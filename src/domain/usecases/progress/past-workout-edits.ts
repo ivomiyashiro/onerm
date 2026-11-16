@@ -1,7 +1,6 @@
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout, WorkoutSet } from '@/domain/models/workout';
+import type { WorkoutSet } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 import {
   exerciseOfSet,
   replaceExercise,
@@ -11,11 +10,10 @@ import {
   type SetWriteResult,
 } from '@/domain/usecases/workout/workout-sets';
 
-type Workouts = Pick<WorkoutRepository, 'observeFinished' | 'save'>;
+type Workouts = Pick<WorkoutRepository, 'getFinishedById' | 'save'>;
 
-const finishedWorkout = async (workouts: Pick<WorkoutRepository, 'observeFinished'>, id: Id) =>
-  (await firstValue<Workout[]>((o) => workouts.observeFinished(o))).find((w) => w.id === id) ??
-  null;
+const finishedWorkout = (workouts: Pick<WorkoutRepository, 'getFinishedById'>, id: Id) =>
+  workouts.getFinishedById(id);
 
 /**
  * RF-PROG-03.AC1, AC6: corrects a set of a finished workout; it keeps its place and time. The
@@ -79,7 +77,7 @@ export class DeletePastSet {
  * finished one: the workout in progress is discarded from S09 (RF-ENT-12).
  */
 export class DeleteWorkout {
-  constructor(private readonly workouts: Pick<WorkoutRepository, 'observeFinished' | 'delete'>) {}
+  constructor(private readonly workouts: Pick<WorkoutRepository, 'getFinishedById' | 'delete'>) {}
 
   async execute(workoutId: Id): Promise<void> {
     const workout = await finishedWorkout(this.workouts, workoutId);
