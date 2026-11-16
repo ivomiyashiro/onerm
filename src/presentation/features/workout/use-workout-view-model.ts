@@ -1,28 +1,12 @@
 import { useEffect, useState } from 'react';
 
 import type { Exercise } from '@/domain/models/exercise';
-import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary';
+import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
-import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
-import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
-import { firstIncomplete, isOpen, remainingSets } from '@/domain/rules/workout/remaining-sets';
-import {
-  substituteOptions,
-  type SubstituteOptions,
-} from '@/domain/rules/workout/substitute-options';
-import type {
-  WorkoutExerciseView,
-  WorkoutOverview,
-} from '@/domain/usecases/workout/observe-workout';
-import type { IconName } from '@/presentation/components/icons/icon';
-import {
-  reasonIcon,
-  reasonLine,
-  whyDetail,
-  type ReasonInput,
-  type WhyDetail,
-} from '@/presentation/shared/reason-text';
+import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
+import type { WorkoutOverview } from '@/domain/usecases/workout/observe-workout';
+import { whyDetail } from '@/presentation/shared/reason-text';
 import {
   formErrors,
   formFromPrefill,
@@ -30,68 +14,23 @@ import {
   toSetInput,
   type RirField,
   type SetForm,
-  type SetFormErrors,
 } from '@/presentation/shared/set/set-form';
 import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
-import type { SetRowView } from '@/presentation/shared/set/set-row';
 import {
-  useExercisesUseCases,
-  useWorkoutUseCases,
-} from '@/presentation/use-cases/use-cases-context';
+  useWorkoutOverlays,
+  type WorkoutConfirm,
+  type WorkoutSheet,
+} from '@/presentation/features/workout/use-workout-overlays';
+import {
+  contentOf,
+  reasonInputOf,
+  type WorkoutContent,
+  type WorkoutState,
+} from '@/presentation/features/workout/workout-content';
+import type { SetRowView } from '@/presentation/shared/set/set-row';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
-export type { SetRowView };
-
-export interface WorkoutContent {
-  status: 'content';
-  dayName: string;
-  startedAt: Date;
-  effortMode: EffortMode;
-  level: ExperienceLevel;
-  exerciseIndex: number;
-  exercises: readonly WorkoutExerciseView[];
-  exercise: WorkoutExerciseView;
-  /**
-   * The current exercise is skipped: an original replaced without effective sets (RN-ENT-10). Its
-   * sets can still be logged (RF-ENT-08.AC3).
-   */
-  skipped: boolean;
-  rows: SetRowView[];
-  /** RF-SUG-07.AC1: the reason of the suggestion, under the exercise. */
-  reason: { line: string; icon: IconName };
-  /**
-   * What the main button does: log the current set, go to the next exercise, wait for the effort
-   * of a calibration set (RF-SUG-02.AC4) or, with nothing left, finish (RF-ENT-11).
-   */
-  primary: 'done' | 'nextExercise' | 'awaitEffort' | 'finish';
-  /** The calibration set whose effort is asked below, with its number. */
-  awaitingEffort: { set: WorkoutSet; number: number } | null;
-}
-
-export type WorkoutState =
-  | { status: 'loading' }
-  /** No workout in progress (finished or discarded elsewhere): back to the tabs. */
-  | { status: 'none' }
-  | { status: 'error' }
-  | WorkoutContent;
-
-export type WorkoutSheet =
-  | { kind: 'adjust'; form: SetForm; errors: SetFormErrors | null }
-  | { kind: 'edit'; set: WorkoutSet; number: number; form: SetForm; errors: SetFormErrors | null }
-  | { kind: 'exercises' }
-  /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
-  | { kind: 'why'; detail: WhyDetail }
-  /** S26 «Cómo se hace» of the current exercise (RF-CAT-02 AC7). */
-  | { kind: 'howTo' }
-  | { kind: 'workoutMenu' }
-  /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
-  | { kind: 'substitute'; query: string; options: SubstituteOptions };
-
-/**
- * D10 before finishing with exercises without sets (RF-ENT-11.AC2), D09 before discarding, and
- * D18 when there is nothing to finish: no effective set at all (AC5).
- */
-export type WorkoutConfirm =
-  { kind: 'finish'; pending: number } | { kind: 'discard'; sets: number } | { kind: 'empty' };
+export type { SetRowView, WorkoutConfirm, WorkoutContent, WorkoutSheet, WorkoutState };
 
 export interface WorkoutViewModel extends Pick<
   Rest,
@@ -140,44 +79,6 @@ export interface WorkoutViewModel extends Pick<
   } & Rest['actions'];
 }
 
-/** The rows of an exercise: logged sets, then the current one and the rest still to do. */
-function rowsOf(view: WorkoutExerciseView, extra: number, effortSetId: Id | null): SetRowView[] {
-  const sets = sortByPosition(view.exercise.sets);
-  const rows: SetRowView[] = sets.map((set, index) => ({
-    kind: 'done',
-    number: index + 1,
-    set,
-    askEffort: set.id === effortSetId && !hasEffort(set),
-    missingEffort: set.id === view.awaitingEffort?.id,
-  }));
-  const remaining = remainingSets(view.exercise, extra);
-  const prescribedLeft = remainingSets(view.exercise);
-  for (let i = 0; i < remaining; i++) {
-    rows.push({
-      kind: i === 0 ? 'current' : 'pending',
-      number: sets.length + i + 1,
-      // RF-ENT-05: an extra set starts with the values of the last one.
-      values:
-        i >= prescribedLeft && sets.length > 0
-          ? valuesOf(sets.at(-1)!)
-          : prefill(view.suggestion, sets, view.recalculated),
-      extra: i >= prescribedLeft,
-    });
-  }
-  return rows;
-}
-
-function valuesOf(set: WorkoutSet): PrefilledSet {
-  return {
-    loadKg: set.loadKg,
-    reps: set.isUnilateral ? Math.min(set.repsLeft, set.repsRight) : set.reps,
-  };
-}
-
-function hasEffort(set: WorkoutSet): boolean {
-  return set.isUnilateral ? set.rirLeft !== null && set.rirRight !== null : set.rir !== null;
-}
-
 /**
  * S09 · Entrenamiento en curso (RF-ENT-02..05, RF-ENT-14, RF-SUG-01.AC2). Every write goes to the
  * local database and the screen follows it (RN-SYNC-01): nothing waits for the network.
@@ -193,7 +94,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     finishWorkout,
     discardWorkout,
   } = useWorkoutUseCases();
-  const { observeExercises } = useExercisesUseCases();
   const [overview, setOverview] = useState<WorkoutOverview | null | 'loading' | 'error'>('loading');
   const [chosenIndex, setChosenIndex] = useState<number | null>(null);
   // RF-ENT-08.AC1 (D1): the exercises the user moved on from without sets. «Hecho» doesn't go
@@ -202,27 +102,18 @@ export function useWorkoutViewModel(): WorkoutViewModel {
   const [passedOver, setPassedOver] = useState<ReadonlySet<Id>>(NO_IDS);
   const [extras, setExtras] = useState<Record<Id, number>>({});
   const [effortSetId, setEffortSetId] = useState<Id | null>(null);
-  const [sheet, setSheet] = useState<WorkoutSheet | null>(null);
-  const [deleted, setDeleted] = useState<WorkoutSet | null>(null);
-  const [confirm, setConfirm] = useState<WorkoutConfirm | null>(null);
-  const [catalog, setCatalog] = useState<Exercise[]>([]);
 
   useEffect(
     () => observeWorkout.execute({ next: setOverview, error: () => setOverview('error') }),
     [observeWorkout],
   );
 
-  // S11 reads the catalog only while it is open.
-  const substituting = sheet?.kind === 'substitute';
-  useEffect(() => {
-    if (!substituting) return;
-    return observeExercises.execute({ next: setCatalog, error: () => setCatalog([]) });
-  }, [substituting, observeExercises]);
-
   const state = contentOf(overview, chosenIndex, extras, effortSetId, passedOver);
   const content = state.status === 'content' ? state : null;
   const current = content?.rows.find((row) => row.kind === 'current') ?? null;
   const extraOf = (id: Id) => extras[id] ?? 0;
+  const overlays = useWorkoutOverlays(content?.exercise.exercise.exerciseId ?? null);
+  const { sheet, setSheet, deleted, setDeleted, setConfirm } = overlays;
   const rest = useRest(typeof overview === 'object' ? overview : null, extraOf);
 
   /** Logs the current set and, after its last prescribed set, moves on (RF-ENT-02.AC7). */
@@ -251,14 +142,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     return 'logged';
   }
 
-  const shownSheet: WorkoutSheet | null =
-    sheet?.kind === 'substitute' && content
-      ? {
-          ...sheet,
-          options: substituteOptions(catalog, content.exercise.exercise.exerciseId, sheet.query),
-        }
-      : sheet;
-
   /**
    * #241: a finished workout leaves its dialog or sheet open; S12 replaces the screen with them.
    * Closing an overlay in the same moment as the navigation made Android (Fabric) insert a view
@@ -275,15 +158,16 @@ export function useWorkoutViewModel(): WorkoutViewModel {
 
   return {
     state,
-    sheet: shownSheet,
+    sheet: overlays.shownSheet,
     deleted,
-    confirm,
+    confirm: overlays.confirm,
     rest: rest.rest,
     restMinimized: rest.restMinimized,
     dialog: rest.dialog,
     notice: rest.notice,
     actions: {
       ...rest.actions,
+      ...overlays.actions,
       async done() {
         if (!content || content.primary !== 'done' || current?.kind !== 'current') return 'none';
         const form = formFromPrefill(current.values);
@@ -302,13 +186,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         if (content) {
           setSheet({ kind: 'why', detail: whyDetail(reasonInputOf(content, content.exercise)) });
         }
-      },
-      editForm(change) {
-        setSheet((open) =>
-          open?.kind === 'adjust' || open?.kind === 'edit'
-            ? { ...open, form: change(open.form), errors: null }
-            : open,
-        );
       },
       async confirmAdjust() {
         if (sheet?.kind !== 'adjust' || !content) return 'invalid';
@@ -352,7 +229,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setDeleted(null);
         await restoreSet.execute(deleted);
       },
-      dismissUndo: () => setDeleted(null),
       async chooseEffort(set, field, rir) {
         const exercise = content?.exercises.find((e) => e.exercise.id === set.workoutExerciseId);
         if (!exercise) return;
@@ -385,7 +261,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         );
         setChosenIndex(next ?? (content.exerciseIndex + 1) % content.exercises.length);
       },
-      openExercises: () => setSheet({ kind: 'exercises' }),
       addSet() {
         if (!content) return;
         const id = content.exercise.exercise.id;
@@ -397,13 +272,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         const id = content.exercise.exercise.id;
         setExtras((all) => ({ ...all, [id]: Math.max(0, (all[id] ?? 0) - 1) }));
       },
-      closeSheet: () => setSheet(null),
-      openHowTo: () => setSheet({ kind: 'howTo' }),
-      openWorkoutMenu: () => setSheet({ kind: 'workoutMenu' }),
-      openSubstitute: () =>
-        setSheet({ kind: 'substitute', query: '', options: { sameMuscle: [], others: [] } }),
-      searchSubstitute: (query) =>
-        setSheet((open) => (open?.kind === 'substitute' ? { ...open, query } : open)),
       async substitute(exercise) {
         if (!content) return;
         setSheet(null);
@@ -439,69 +307,8 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setConfirm(null);
         await discardWorkout.execute();
       },
-      closeConfirm: () => setConfirm(null),
     },
   };
 }
 
 const NO_IDS: ReadonlySet<Id> = new Set();
-
-function contentOf(
-  overview: WorkoutOverview | null | 'loading' | 'error',
-  chosenIndex: number | null,
-  extras: Record<Id, number>,
-  effortSetId: Id | null,
-  passedOver: ReadonlySet<Id>,
-): WorkoutState {
-  if (overview === 'loading') return { status: 'loading' };
-  if (overview === 'error') return { status: 'error' };
-  if (overview === null || overview.exercises.length === 0) return { status: 'none' };
-  const { exercises } = overview;
-  const extraOf = (id: Id) => extras[id] ?? 0;
-  // Until the user picks one, the first exercise with sets left (RF-ENT-13 resumes there too).
-  // Nothing is passed over yet: that only happens when the user moves, which picks one.
-  const firstOpen = exercises.findIndex((e) => isOpen(e.exercise, extraOf(e.exercise.id)));
-  const exerciseIndex = Math.min(chosenIndex ?? Math.max(firstOpen, 0), exercises.length - 1);
-  const exercise = exercises[exerciseIndex];
-  const rows = rowsOf(exercise, extraOf(exercise.exercise.id), effortSetId);
-  const waiting = rows.find((row) => row.kind === 'done' && row.missingEffort);
-  const anyLeft = exercises.some((e) => isOpen(e.exercise, extraOf(e.exercise.id), passedOver));
-  return {
-    status: 'content',
-    dayName: overview.workout.dayNameSnapshot,
-    startedAt: overview.workout.startedAt,
-    effortMode: overview.effortMode,
-    level: overview.level,
-    exerciseIndex,
-    exercises,
-    exercise,
-    skipped: exercise.exercise.status === 'skipped',
-    rows,
-    reason: {
-      line: reasonLine(reasonInputOf(overview, exercise)),
-      icon: reasonIcon(exercise.suggestion.reason.code),
-    },
-    primary: rows.some((r) => r.kind === 'current')
-      ? waiting
-        ? 'awaitEffort'
-        : 'done'
-      : anyLeft
-        ? 'nextExercise'
-        : 'finish',
-    awaitingEffort: waiting?.kind === 'done' ? { set: waiting.set, number: waiting.number } : null,
-  };
-}
-
-function reasonInputOf(
-  { level, effortMode }: Pick<WorkoutOverview, 'level' | 'effortMode'>,
-  view: WorkoutExerciseView,
-): ReasonInput {
-  return {
-    explanation: view.explanation,
-    level,
-    effortMode,
-    // Bodyweight shows no load: any unit will do.
-    unit: view.grid?.unit ?? 'kg',
-    basisName: view.basisName,
-  };
-}
