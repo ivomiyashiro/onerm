@@ -8,18 +8,10 @@ import { ExpoDevicePermissions } from '@/data/device/expo-device-permissions';
 import { ExpoRestNotifier, silenceRestNoticeInForeground } from '@/data/device/expo-rest-notifier';
 import { LiveActivityRestCountdown } from '@/data/device/live-activity-rest-countdown';
 import { NotificationRestCountdown } from '@/data/device/notification-rest-countdown';
-import NetInfo from '@react-native-community/netinfo';
-import Constants from 'expo-constants';
 import { randomUUID } from 'expo-crypto';
-import { AppState, Platform } from 'react-native';
+import { Platform } from 'react-native';
 
-import {
-  createSupabaseAuth,
-  UnconfiguredAuthGateway,
-  type SupabaseAuth,
-} from '@/data/auth/create-supabase-auth';
-import { expoSessionStorage } from '@/data/auth/expo-session-storage';
-import { NativeGoogleAccountPicker } from '@/data/auth/google-account-picker';
+import { appAuth } from '@/data/auth/app-supabase';
 import { SqliteAccountRepository } from '@/data/repositories/sqlite-account-repository';
 
 import { SqliteExerciseRepository } from '@/data/repositories/sqlite-exercise-repository';
@@ -29,18 +21,13 @@ import { SqliteRestTimerRepository } from '@/data/repositories/sqlite-rest-timer
 import { SqliteRoutineRepository } from '@/data/repositories/sqlite-routine-repository';
 import { SqliteRoutineTemplateRepository } from '@/data/repositories/sqlite-routine-template-repository';
 import { SqliteWorkoutRepository } from '@/data/repositories/sqlite-workout-repository';
-import { DeviceSyncTriggers } from '@/data/sync/device-sync-triggers';
-import { SyncGuestUnion } from '@/data/sync/sync-guest-union';
-import { SyncRejectedChangeRepository } from '@/data/sync/sync-rejected-change-repository';
+import { appBackup, type Backup } from '@/data/sync/app-backup';
 import { SqliteSyncStateRepository } from '@/data/sync/sqlite-sync-state-repository';
-import { SupabaseSyncEngine } from '@/data/sync/supabase-sync-engine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { AuthGateway } from '@/domain/services/auth-gateway';
 import type { DevicePermissions } from '@/domain/services/device-permissions';
 import type { RestCountdown } from '@/domain/services/rest-countdown';
 import type { RestNotifier } from '@/domain/services/rest-notifier';
-import type { SyncEngine } from '@/domain/services/sync-engine';
-import type { SyncTriggers } from '@/domain/services/sync-triggers';
 import { KeepBackedUp } from '@/domain/usecases/sync/keep-backed-up';
 import {
   CancelGuestUnion,
@@ -48,7 +35,6 @@ import {
   ReadPendingUnion,
   StartGuestUnion,
 } from '@/domain/usecases/auth/guest-union';
-import type { GuestUnion } from '@/domain/services/guest-union';
 import { ObserveBackupNotice } from '@/domain/usecases/sync/observe-backup-notice';
 import { ObserveRestoration } from '@/domain/usecases/sync/observe-restoration';
 import { ObserveSyncActivity } from '@/domain/usecases/sync/observe-sync-activity';
@@ -59,7 +45,6 @@ import {
   ObserveRejectedChanges,
   RetryRejectedChange,
 } from '@/domain/usecases/sync/rejected-changes';
-import type { RejectedChangeRepository } from '@/domain/repositories/rejected-change-repository';
 import { SyncScheduler } from '@/domain/usecases/sync/sync-scheduler';
 import { ActivateRoutine } from '@/domain/usecases/routines/activate-routine';
 import { AdjustActiveRoutine } from '@/domain/usecases/routines/adjust-active-routine';
@@ -186,113 +171,6 @@ export function appDevice(): Device {
             workoutText.restCountdown.channel,
           ),
     permissions: new ExpoDevicePermissions(),
-  };
-}
-
-/**
- * Supabase Auth with the session sealed in the Keystore (RNF-07). The server comes from the build's
- * public variables; without them nothing can sign in. The token only refreshes with the app in
- * the foreground, as supabase-js recommends for React Native (spike #15).
- */
-export function appAuth(): AuthGateway {
-  return appSupabase()?.gateway ?? new UnconfiguredAuthGateway();
-}
-
-/** One supabase-js client for auth and sync (spike #15), or null without a server configured. */
-function appSupabase(): SupabaseAuth | null {
-  if (cachedSupabase === undefined) cachedSupabase = createAppSupabase();
-  return cachedSupabase;
-}
-
-let cachedSupabase: SupabaseAuth | null | undefined;
-
-/**
- * The WEB client of Google (spike #16): public by design, it goes inside the app. It is also the
- * `client_id` of the Google provider in Supabase.
- */
-const GOOGLE_WEB_CLIENT_ID =
-  '190800915067-rcghu8e9tmhjam3mrqra4g5mbdbibb3s.apps.googleusercontent.com';
-
-/**
- * iOS needs its own Google client (ADR-0012), and without it `configure` throws at startup (#49).
- * Until one is created, iOS has no Google picker: «Continuar con Google» fails like an error.
- */
-function googlePicker(): NativeGoogleAccountPicker | undefined {
-  if (Platform.OS !== 'ios')
-    return new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID });
-  const iosClientId = process.env.EXPO_PUBLIC_GOOGLE_IOS_CLIENT_ID;
-  return iosClientId
-    ? new NativeGoogleAccountPicker({ webClientId: GOOGLE_WEB_CLIENT_ID, iosClientId })
-    : undefined;
-}
-
-/** The server has to be reached over https (RNF-09); plain http only for the dev machine. */
-const LOCAL_HOST = /^http:\/\/(localhost|127\.0\.0\.1|10\.0\.2\.2)(:|\/|$)/;
-
-function createAppSupabase(): SupabaseAuth | null {
-  const url = process.env.EXPO_PUBLIC_SUPABASE_URL;
-  const publishableKey = process.env.EXPO_PUBLIC_SUPABASE_PUBLISHABLE_KEY;
-  if (!url || !publishableKey) return null;
-  if (!url.startsWith('https://') && !LOCAL_HOST.test(url)) return null;
-
-  const supabase = createSupabaseAuth({
-    url,
-    publishableKey,
-    storage: expoSessionStorage,
-    google: googlePicker(),
-  });
-  AppState.addEventListener('change', (state) => {
-    if (state === 'active') supabase.client.auth.startAutoRefresh();
-    else supabase.client.auth.stopAutoRefresh();
-  });
-  return supabase;
-}
-
-/** The automatic backup (RF-SYNC-01): the engine, what it would upload, and its triggers. */
-export interface Backup {
-  engine: SyncEngine;
-  countUploadable(): Promise<number>;
-  triggers: SyncTriggers;
-  rejected: RejectedChangeRepository;
-  union: GuestUnion;
-}
-
-/**
- * The sync of 07 §4.1 against the configured server, triggered by the phone (RN-SYNC-06). Without
- * a server there is nothing to back up to, like a guest's device.
- */
-export function appBackup({ localDatabase, changes }: Storage): Backup {
-  const client = appSupabase()?.client;
-  // Only `isConnected` is used: NetInfo's reachability check would poll a URL every minute,
-  // also in the background (RNF-22, #180).
-  NetInfo.configure({ reachabilityShouldRun: () => false });
-  const triggers = new DeviceSyncTriggers(changes, AppState, NetInfo);
-  const rejected = new SyncRejectedChangeRepository(
-    () => localDatabase.database,
-    changes,
-    client ?? null,
-  );
-  const union = new SyncGuestUnion(() => localDatabase.database, client ?? null);
-  if (client === undefined) {
-    return {
-      engine: { sync: async () => 'guest' },
-      countUploadable: async () => 0,
-      triggers,
-      rejected,
-      union,
-    };
-  }
-  const engine = new SupabaseSyncEngine(
-    () => localDatabase.database,
-    client,
-    Constants.expoConfig?.version ?? '0.0.0',
-  );
-  return {
-    engine,
-    countUploadable: () => engine.countUploadable(),
-    triggers,
-    rejected,
-    union,
   };
 }
 
