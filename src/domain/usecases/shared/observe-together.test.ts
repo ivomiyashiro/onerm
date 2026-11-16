@@ -1,5 +1,5 @@
 import type { Observer, Unsubscribe } from '@/domain/observer';
-import { firstValue, observeTogether } from '@/domain/usecases/shared/observe-together';
+import { observeTogether } from '@/domain/usecases/shared/observe-together';
 
 /** A source the test drives by hand; `failOnSubscribe` errors during the subscribe call itself. */
 function aSource<T>(options: { initial?: T; failOnSubscribe?: boolean } = {}) {
@@ -76,20 +76,5 @@ describe('observeTogether', () => {
 
     expect(values).toEqual([[1, 2]]);
     expect(a.subscribers() + b.subscribers()).toBe(0);
-  });
-});
-
-describe('firstValue', () => {
-  it('resolves with the first value and stops observing', async () => {
-    const a = aSource<number>({ initial: 1 });
-
-    await expect(firstValue(a.observe)).resolves.toBe(1);
-    expect(a.subscribers()).toBe(0);
-  });
-
-  it('rejects with the error of the source', async () => {
-    const a = aSource<number>({ failOnSubscribe: true });
-
-    await expect(firstValue(a.observe)).rejects.toThrow('disk');
   });
 });
