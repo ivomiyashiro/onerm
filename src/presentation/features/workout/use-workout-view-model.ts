@@ -5,12 +5,8 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
 import { firstIncomplete, remainingSets } from '@/domain/rules/workout/remaining-sets';
-import {
-  substituteOptions,
-  type SubstituteOptions,
-} from '@/domain/rules/workout/substitute-options';
 import type { WorkoutOverview } from '@/domain/usecases/workout/observe-workout';
-import { whyDetail, type WhyDetail } from '@/presentation/shared/reason-text';
+import { whyDetail } from '@/presentation/shared/reason-text';
 import {
   formErrors,
   formFromPrefill,
@@ -18,9 +14,13 @@ import {
   toSetInput,
   type RirField,
   type SetForm,
-  type SetFormErrors,
 } from '@/presentation/shared/set/set-form';
 import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
+import {
+  useWorkoutOverlays,
+  type WorkoutConfirm,
+  type WorkoutSheet,
+} from '@/presentation/features/workout/use-workout-overlays';
 import {
   contentOf,
   reasonInputOf,
@@ -28,31 +28,9 @@ import {
   type WorkoutState,
 } from '@/presentation/features/workout/workout-content';
 import type { SetRowView } from '@/presentation/shared/set/set-row';
-import {
-  useExercisesUseCases,
-  useWorkoutUseCases,
-} from '@/presentation/use-cases/use-cases-context';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
-export type { SetRowView, WorkoutContent, WorkoutState };
-
-export type WorkoutSheet =
-  | { kind: 'adjust'; form: SetForm; errors: SetFormErrors | null }
-  | { kind: 'edit'; set: WorkoutSet; number: number; form: SetForm; errors: SetFormErrors | null }
-  | { kind: 'exercises' }
-  /** S10 «¿Por qué?» (RF-SUG-07.AC2). */
-  | { kind: 'why'; detail: WhyDetail }
-  /** S26 «Cómo se hace» of the current exercise (RF-CAT-02 AC7). */
-  | { kind: 'howTo' }
-  | { kind: 'workoutMenu' }
-  /** S11 · Sustituir ejercicio (RF-ENT-09.AC1). */
-  | { kind: 'substitute'; query: string; options: SubstituteOptions };
-
-/**
- * D10 before finishing with exercises without sets (RF-ENT-11.AC2), D09 before discarding, and
- * D18 when there is nothing to finish: no effective set at all (AC5).
- */
-export type WorkoutConfirm =
-  { kind: 'finish'; pending: number } | { kind: 'discard'; sets: number } | { kind: 'empty' };
+export type { SetRowView, WorkoutConfirm, WorkoutContent, WorkoutSheet, WorkoutState };
 
 export interface WorkoutViewModel extends Pick<
   Rest,
@@ -116,7 +94,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     finishWorkout,
     discardWorkout,
   } = useWorkoutUseCases();
-  const { observeExercises } = useExercisesUseCases();
   const [overview, setOverview] = useState<WorkoutOverview | null | 'loading' | 'error'>('loading');
   const [chosenIndex, setChosenIndex] = useState<number | null>(null);
   // RF-ENT-08.AC1 (D1): the exercises the user moved on from without sets. «Hecho» doesn't go
@@ -125,27 +102,18 @@ export function useWorkoutViewModel(): WorkoutViewModel {
   const [passedOver, setPassedOver] = useState<ReadonlySet<Id>>(NO_IDS);
   const [extras, setExtras] = useState<Record<Id, number>>({});
   const [effortSetId, setEffortSetId] = useState<Id | null>(null);
-  const [sheet, setSheet] = useState<WorkoutSheet | null>(null);
-  const [deleted, setDeleted] = useState<WorkoutSet | null>(null);
-  const [confirm, setConfirm] = useState<WorkoutConfirm | null>(null);
-  const [catalog, setCatalog] = useState<Exercise[]>([]);
 
   useEffect(
     () => observeWorkout.execute({ next: setOverview, error: () => setOverview('error') }),
     [observeWorkout],
   );
 
-  // S11 reads the catalog only while it is open.
-  const substituting = sheet?.kind === 'substitute';
-  useEffect(() => {
-    if (!substituting) return;
-    return observeExercises.execute({ next: setCatalog, error: () => setCatalog([]) });
-  }, [substituting, observeExercises]);
-
   const state = contentOf(overview, chosenIndex, extras, effortSetId, passedOver);
   const content = state.status === 'content' ? state : null;
   const current = content?.rows.find((row) => row.kind === 'current') ?? null;
   const extraOf = (id: Id) => extras[id] ?? 0;
+  const overlays = useWorkoutOverlays(content?.exercise.exercise.exerciseId ?? null);
+  const { sheet, setSheet, deleted, setDeleted, setConfirm } = overlays;
   const rest = useRest(typeof overview === 'object' ? overview : null, extraOf);
 
   /** Logs the current set and, after its last prescribed set, moves on (RF-ENT-02.AC7). */
@@ -174,14 +142,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     return 'logged';
   }
 
-  const shownSheet: WorkoutSheet | null =
-    sheet?.kind === 'substitute' && content
-      ? {
-          ...sheet,
-          options: substituteOptions(catalog, content.exercise.exercise.exerciseId, sheet.query),
-        }
-      : sheet;
-
   /**
    * #241: a finished workout leaves its dialog or sheet open; S12 replaces the screen with them.
    * Closing an overlay in the same moment as the navigation made Android (Fabric) insert a view
@@ -198,15 +158,16 @@ export function useWorkoutViewModel(): WorkoutViewModel {
 
   return {
     state,
-    sheet: shownSheet,
+    sheet: overlays.shownSheet,
     deleted,
-    confirm,
+    confirm: overlays.confirm,
     rest: rest.rest,
     restMinimized: rest.restMinimized,
     dialog: rest.dialog,
     notice: rest.notice,
     actions: {
       ...rest.actions,
+      ...overlays.actions,
       async done() {
         if (!content || content.primary !== 'done' || current?.kind !== 'current') return 'none';
         const form = formFromPrefill(current.values);
@@ -225,13 +186,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         if (content) {
           setSheet({ kind: 'why', detail: whyDetail(reasonInputOf(content, content.exercise)) });
         }
-      },
-      editForm(change) {
-        setSheet((open) =>
-          open?.kind === 'adjust' || open?.kind === 'edit'
-            ? { ...open, form: change(open.form), errors: null }
-            : open,
-        );
       },
       async confirmAdjust() {
         if (sheet?.kind !== 'adjust' || !content) return 'invalid';
@@ -275,7 +229,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setDeleted(null);
         await restoreSet.execute(deleted);
       },
-      dismissUndo: () => setDeleted(null),
       async chooseEffort(set, field, rir) {
         const exercise = content?.exercises.find((e) => e.exercise.id === set.workoutExerciseId);
         if (!exercise) return;
@@ -308,7 +261,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         );
         setChosenIndex(next ?? (content.exerciseIndex + 1) % content.exercises.length);
       },
-      openExercises: () => setSheet({ kind: 'exercises' }),
       addSet() {
         if (!content) return;
         const id = content.exercise.exercise.id;
@@ -320,13 +272,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         const id = content.exercise.exercise.id;
         setExtras((all) => ({ ...all, [id]: Math.max(0, (all[id] ?? 0) - 1) }));
       },
-      closeSheet: () => setSheet(null),
-      openHowTo: () => setSheet({ kind: 'howTo' }),
-      openWorkoutMenu: () => setSheet({ kind: 'workoutMenu' }),
-      openSubstitute: () =>
-        setSheet({ kind: 'substitute', query: '', options: { sameMuscle: [], others: [] } }),
-      searchSubstitute: (query) =>
-        setSheet((open) => (open?.kind === 'substitute' ? { ...open, query } : open)),
       async substitute(exercise) {
         if (!content) return;
         setSheet(null);
@@ -362,7 +307,6 @@ export function useWorkoutViewModel(): WorkoutViewModel {
         setConfirm(null);
         await discardWorkout.execute();
       },
-      closeConfirm: () => setConfirm(null),
     },
   };
 }
