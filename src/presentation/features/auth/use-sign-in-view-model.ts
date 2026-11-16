@@ -2,7 +2,7 @@ import { useRef, useState } from 'react';
 
 import type { SignInResult } from '@/domain/usecases/auth/sign-in';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 import { auth } from '@/presentation/strings/auth';
 
 export interface SignInState {
@@ -36,7 +36,7 @@ const MESSAGE: Record<Exclude<SignInResult['status'], 'invalid' | 'done'>, strin
 
 /** S02 · Iniciar sesión (RF-AUTH-03). `initialEmail` comes from S03 when the email is taken. */
 export function useSignInViewModel(initialEmail = ''): SignInViewModel {
-  const { signIn } = useUseCases();
+  const { signIn } = useAuthUseCases();
   const afterAuth = useAfterAuth();
   const [form, setForm] = useState({
     email: initialEmail,

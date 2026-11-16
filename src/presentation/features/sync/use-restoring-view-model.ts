@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Restoration } from '@/domain/usecases/sync/observe-restoration';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases, useSyncUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface RestoringViewModel {
   state: Restoration;
@@ -17,7 +17,8 @@ export interface RestoringViewModel {
  * one (a new account), the onboarding begins (07 §4.2, AC3).
  */
 export function useRestoringViewModel(): RestoringViewModel {
-  const { observeRestoration, continueAfterAuth } = useUseCases();
+  const { observeRestoration } = useSyncUseCases();
+  const { continueAfterAuth } = useAuthUseCases();
   const [state, setState] = useState<Restoration>({ status: 'starting' });
 
   useEffect(() => observeRestoration.execute(setState), [observeRestoration]);

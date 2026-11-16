@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSummary } from '@/domain/usecases/workout/observe-workout-summary';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WorkoutSummaryState =
   | { status: 'loading' }
@@ -13,7 +13,7 @@ export type WorkoutSummaryState =
 
 /** S12 · Resumen del entrenamiento (RF-ENT-11.AC1): it follows the local data. */
 export function useWorkoutSummaryViewModel(workoutId: Id): WorkoutSummaryState {
-  const { observeWorkoutSummary } = useUseCases();
+  const { observeWorkoutSummary } = useWorkoutUseCases();
   const [state, setState] = useState<WorkoutSummaryState>({ status: 'loading' });
 
   useEffect(

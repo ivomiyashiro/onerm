@@ -91,26 +91,9 @@ import type { StartAsGuest } from '@/domain/usecases/auth/start-as-guest';
 import type { UpdateLoadSetting } from '@/domain/usecases/profile/update-load-setting';
 import type { UpdateProfile } from '@/domain/usecases/profile/update-profile';
 
-/**
- * The use cases ViewModels can call (ADR-0011 §4). The composition root (`src/di`) creates them
- * with the real repositories; tests create them with fake ones.
- */
-export interface UseCases {
-  observeExercises: ObserveExercises;
-  observeExerciseDetail: ObserveExerciseDetail;
-  observeRoutines: ObserveRoutines;
-  observeTemplate: ObserveTemplate;
-  observeNextDay: ObserveNextDay;
-  adoptTemplate: AdoptTemplate;
-  activateRoutine: ActivateRoutine;
-  deleteRoutine: DeleteRoutine;
-  prepareLocalData: PrepareLocalData;
-  observeEntry: ObserveEntry;
+/** Accounts and sign-in (RF-AUTH), the account nudge and the guest union. */
+export interface AuthUseCases {
   startAsGuest: StartAsGuest;
-  answerOnboarding: AnswerOnboarding;
-  observeRecommendation: ObserveRecommendation;
-  finishOnboarding: FinishOnboarding;
-  observeProfile: ObserveProfile;
   readAccount: ReadAccount;
   observeSessionLoss: ObserveSessionLoss;
   readAccountNudge: ReadAccountNudge;
@@ -124,28 +107,43 @@ export interface UseCases {
   completePasswordRecovery: CompletePasswordRecovery;
   prepareSignOut: PrepareSignOut;
   backUpBeforeSignOut: BackUpBeforeSignOut;
-  /** RF-SYNC-01: the automatic backup while the app runs. */
-  keepBackedUp: KeepBackedUp;
   /** RF-AUTH-05: the union of the guest's data with the account (07 §4.3). */
   readPendingUnion: ReadPendingUnion;
   startGuestUnion: StartGuestUnion;
   finishGuestUnion: FinishGuestUnion;
   cancelGuestUnion: CancelGuestUnion;
-  observeSyncStatus: ObserveSyncStatus;
-  observeBackupNotice: ObserveBackupNotice;
-  observeRestoration: ObserveRestoration;
-  observeSyncActivity: ObserveSyncActivity;
-  syncNow: SyncNow;
-  observeRejectedChanges: ObserveRejectedChanges;
-  discardRejectedChange: DiscardRejectedChange;
-  retryRejectedChange: RetryRejectedChange;
   confirmSignOut: ConfirmSignOut;
-  updateProfile: UpdateProfile;
+}
+
+/** The onboarding and its recommendation (RF-ONB). */
+export interface OnboardingUseCases {
+  answerOnboarding: AnswerOnboarding;
+  observeRecommendation: ObserveRecommendation;
+  finishOnboarding: FinishOnboarding;
+}
+
+/** What the app does at launch: the local data and where to enter. */
+export interface StartupUseCases {
+  prepareLocalData: PrepareLocalData;
+  observeEntry: ObserveEntry;
+}
+
+/** Routines, templates, the next day and the routine editor (RF-RUT). */
+export interface RoutinesUseCases {
+  observeRoutines: ObserveRoutines;
+  observeTemplate: ObserveTemplate;
+  observeNextDay: ObserveNextDay;
+  adoptTemplate: AdoptTemplate;
+  activateRoutine: ActivateRoutine;
+  deleteRoutine: DeleteRoutine;
   adjustActiveRoutine: AdjustActiveRoutine;
-  updateLoadSetting: UpdateLoadSetting;
   loadRoutineDraft: LoadRoutineDraft;
   editRoutineDraft: EditRoutineDraft;
   saveRoutine: SaveRoutine;
+}
+
+/** The workout in progress, its sets, the rest and its summary (RF-ENT). */
+export interface WorkoutUseCases {
   observeWorkout: ObserveWorkout;
   observeWorkoutInProgress: ObserveWorkoutInProgress;
   startWorkout: StartWorkout;
@@ -165,6 +163,10 @@ export interface UseCases {
   discardWorkout: DiscardWorkout;
   readWorkoutResume: ReadWorkoutResume;
   observeWorkoutSummary: ObserveWorkoutSummary;
+}
+
+/** The history, past workouts and the charts (RF-PRO). */
+export interface ProgressUseCases {
   observeHistory: ObserveHistory;
   observeWorkoutDetail: ObserveWorkoutDetail;
   updatePastSet: UpdatePastSet;
@@ -174,6 +176,48 @@ export interface UseCases {
   observeExerciseProgress: ObserveExerciseProgress;
   observeWeeklyVolume: ObserveWeeklyVolume;
 }
+
+/** The exercise catalog (RF-CAT). */
+export interface ExercisesUseCases {
+  observeExercises: ObserveExercises;
+  observeExerciseDetail: ObserveExerciseDetail;
+}
+
+/** The profile and its settings. */
+export interface ProfileUseCases {
+  observeProfile: ObserveProfile;
+  updateProfile: UpdateProfile;
+  updateLoadSetting: UpdateLoadSetting;
+}
+
+/** The backup and its status (RF-SYNC). */
+export interface SyncUseCases {
+  /** RF-SYNC-01: the automatic backup while the app runs. */
+  keepBackedUp: KeepBackedUp;
+  observeSyncStatus: ObserveSyncStatus;
+  observeBackupNotice: ObserveBackupNotice;
+  observeRestoration: ObserveRestoration;
+  observeSyncActivity: ObserveSyncActivity;
+  syncNow: SyncNow;
+  observeRejectedChanges: ObserveRejectedChanges;
+  discardRejectedChange: DiscardRejectedChange;
+  retryRejectedChange: RetryRejectedChange;
+}
+
+/**
+ * The use cases ViewModels can call (ADR-0011 §4), grouped by feature like `src/domain/usecases`.
+ * One flat object: the composition root (`src/di`) creates it with the real repositories; tests
+ * create it with fake ones.
+ */
+export type UseCases = AuthUseCases &
+  OnboardingUseCases &
+  StartupUseCases &
+  RoutinesUseCases &
+  WorkoutUseCases &
+  ProgressUseCases &
+  ExercisesUseCases &
+  ProfileUseCases &
+  SyncUseCases;
 
 const UseCasesContext = createContext<UseCases | null>(null);
 
@@ -193,4 +237,49 @@ export function useUseCases(): UseCases {
     throw new Error('useUseCases must be used inside UseCasesProvider');
   }
   return useCases;
+}
+
+/** The auth use cases: the same object as `useUseCases`, with a narrower type. */
+export function useAuthUseCases(): AuthUseCases {
+  return useUseCases();
+}
+
+/** The onboarding use cases: the same object as `useUseCases`, with a narrower type. */
+export function useOnboardingUseCases(): OnboardingUseCases {
+  return useUseCases();
+}
+
+/** The startup use cases: the same object as `useUseCases`, with a narrower type. */
+export function useStartupUseCases(): StartupUseCases {
+  return useUseCases();
+}
+
+/** The routines use cases: the same object as `useUseCases`, with a narrower type. */
+export function useRoutinesUseCases(): RoutinesUseCases {
+  return useUseCases();
+}
+
+/** The workout use cases: the same object as `useUseCases`, with a narrower type. */
+export function useWorkoutUseCases(): WorkoutUseCases {
+  return useUseCases();
+}
+
+/** The progress use cases: the same object as `useUseCases`, with a narrower type. */
+export function useProgressUseCases(): ProgressUseCases {
+  return useUseCases();
+}
+
+/** The exercises use cases: the same object as `useUseCases`, with a narrower type. */
+export function useExercisesUseCases(): ExercisesUseCases {
+  return useUseCases();
+}
+
+/** The profile use cases: the same object as `useUseCases`, with a narrower type. */
+export function useProfileUseCases(): ProfileUseCases {
+  return useUseCases();
+}
+
+/** The sync use cases: the same object as `useUseCases`, with a narrower type. */
+export function useSyncUseCases(): SyncUseCases {
+  return useUseCases();
 }

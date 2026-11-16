@@ -2,7 +2,11 @@ import type { BackupNotice } from '@/domain/usecases/sync/observe-backup-notice'
 import { useEffect, useState } from 'react';
 
 import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useRoutinesUseCases,
+  useSyncUseCases,
+  useWorkoutUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 type NextDay = Extract<NextDayOverview, { kind: 'nextDay' }>;
 
@@ -31,8 +35,9 @@ export interface HomeViewModel {
 
 /** S07 · Inicio: the next day of the active routine (RN-RUT-01), from the local database. */
 export function useHomeViewModel(): HomeViewModel {
-  const { observeNextDay, observeWorkoutInProgress, observeBackupNotice, startWorkout } =
-    useUseCases();
+  const { observeNextDay } = useRoutinesUseCases();
+  const { observeWorkoutInProgress, startWorkout } = useWorkoutUseCases();
+  const { observeBackupNotice } = useSyncUseCases();
   const [backupNotice, setBackupNotice] = useState<BackupNotice | null>(null);
   const [inProgressSince, setInProgressSince] = useState<Date | null>(null);
   const [state, setState] = useState<HomeState>({ status: 'loading' });

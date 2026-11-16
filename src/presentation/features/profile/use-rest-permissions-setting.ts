@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { AppState } from 'react-native';
 
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RestPermissionsSetting =
   | { status: 'loading' }
@@ -28,7 +28,7 @@ export interface RestPermissionsSettingViewModel {
  * permissions the rest notice needs, read again when the app comes back from the settings.
  */
 export function useRestPermissionsSetting(): RestPermissionsSettingViewModel {
-  const { readRestPermissions, askRestPermission } = useUseCases();
+  const { readRestPermissions, askRestPermission } = useWorkoutUseCases();
   const [state, setState] = useState<RestPermissionsSetting>({ status: 'loading' });
   const [exactAlarmsDialog, setExactAlarmsDialog] = useState(false);
 

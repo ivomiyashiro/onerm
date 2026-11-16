@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import type { SignUpResult } from '@/domain/usecases/auth/sign-up';
 import { auth } from '@/presentation/strings/auth';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface SignUpState {
   status: 'editing' | 'submitting' | 'done';
@@ -31,7 +31,7 @@ export interface SignUpViewModel {
 
 /** S03 · Crear cuenta (RF-AUTH-02). What was typed is kept when something fails (AC4). */
 export function useSignUpViewModel(): SignUpViewModel {
-  const { signUp } = useUseCases();
+  const { signUp } = useAuthUseCases();
   const afterAuth = useAfterAuth();
   const [form, setForm] = useState({
     email: '',

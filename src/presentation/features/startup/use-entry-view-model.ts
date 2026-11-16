@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { Entry } from '@/domain/usecases/startup/observe-entry';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useStartupUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type EntryState =
   { status: 'loading' } | { status: 'ready'; entry: Entry } | { status: 'error' };
@@ -13,7 +13,7 @@ export interface EntryViewModel {
 
 /** Which screens the app shows (08 §3), observed: answering the onboarding moves it along. */
 export function useEntryViewModel(): EntryViewModel {
-  const { observeEntry } = useUseCases();
+  const { observeEntry } = useStartupUseCases();
   const [state, setState] = useState<EntryState>({ status: 'loading' });
   // Changing it re-runs the effect, which subscribes again.
   const [attempt, setAttempt] = useState(0);

@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import type { WeeklyVolume } from '@/domain/usecases/progress/observe-weekly-volume';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useProgressUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WeeklyVolumeState =
   { status: 'loading' } | { status: 'content'; volume: WeeklyVolume } | { status: 'error' };
@@ -15,7 +15,7 @@ export interface WeeklyVolumeViewModel {
 
 /** S18 · Volumen (RF-PROG-06): this week first, and the earlier ones (AC2). */
 export function useWeeklyVolumeViewModel(): WeeklyVolumeViewModel {
-  const { observeWeeklyVolume } = useUseCases();
+  const { observeWeeklyVolume } = useProgressUseCases();
   const [weeksAgo, setWeeksAgo] = useState(0);
   const [state, setState] = useState<WeeklyVolumeState>({ status: 'loading' });
 

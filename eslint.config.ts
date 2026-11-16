@@ -46,6 +46,18 @@ const USE_CASE_CONSUMERS = [
   'src/presentation/**/*-watcher.tsx',
   'src/presentation/use-cases/**',
 ];
+// Screens and components use the app's Text (src/presentation/components/text.tsx).
+const NATIVE_TEXT_IMPORT = {
+  name: 'react-native',
+  importNames: ['Text'],
+  message: "Use Text from '@/presentation/components/text' (Android 15+ text clipping).",
+};
+const ALL_USE_CASES_IMPORT = {
+  name: '@/presentation/use-cases/use-cases-context',
+  importNames: ['useUseCases'],
+  message:
+    'Take the use cases from the hook of their group (useWorkoutUseCases, useSyncUseCases…): its signature shows what this hook depends on (#340).',
+};
 
 // Props (and object keys inside props, such as `action={{ label }}` or `options={{ title }}`) that
 // carry UI text. Literal values are not allowed in them (RNF-21).
@@ -304,19 +316,22 @@ export default defineConfig([
     files: ['src/presentation/**/*.tsx', 'app/**/*.tsx'],
     ignores: ['**/*.test.tsx', 'src/presentation/components/text.tsx'],
     rules: {
-      'no-restricted-imports': [
-        'error',
-        {
-          paths: [
-            {
-              name: 'react-native',
-              importNames: ['Text'],
-              message:
-                "Use Text from '@/presentation/components/text' (Android 15+ text clipping).",
-            },
-          ],
-        },
-      ],
+      'no-restricted-imports': ['error', { paths: [NATIVE_TEXT_IMPORT] }],
+    },
+  },
+  // Features and shared take the use cases from the hook of their group (#340), so each hook's
+  // signature shows what it depends on. A later no-restricted-imports replaces an earlier one for
+  // the same file, so the .tsx block repeats the Text rule above.
+  {
+    files: ['src/presentation/{features,shared}/**/*.ts'],
+    ignores: TEST_FILES,
+    rules: { 'no-restricted-imports': ['error', { paths: [ALL_USE_CASES_IMPORT] }] },
+  },
+  {
+    files: ['src/presentation/{features,shared}/**/*.tsx'],
+    ignores: TEST_FILES,
+    rules: {
+      'no-restricted-imports': ['error', { paths: [NATIVE_TEXT_IMPORT, ALL_USE_CASES_IMPORT] }],
     },
   },
   // Last: turns off the formatting rules that conflict with Prettier.

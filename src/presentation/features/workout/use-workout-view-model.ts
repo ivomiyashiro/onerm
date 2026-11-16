@@ -34,7 +34,10 @@ import {
 } from '@/presentation/shared/set/set-form';
 import { useRest, type Rest } from '@/presentation/features/workout/use-rest';
 import type { SetRowView } from '@/presentation/shared/set/set-row';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useExercisesUseCases,
+  useWorkoutUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 export type { SetRowView };
 
@@ -182,7 +185,6 @@ function hasEffort(set: WorkoutSet): boolean {
 export function useWorkoutViewModel(): WorkoutViewModel {
   const {
     observeWorkout,
-    observeExercises,
     logSet,
     updateSet,
     deleteSet,
@@ -190,7 +192,8 @@ export function useWorkoutViewModel(): WorkoutViewModel {
     substituteExercise,
     finishWorkout,
     discardWorkout,
-  } = useUseCases();
+  } = useWorkoutUseCases();
+  const { observeExercises } = useExercisesUseCases();
   const [overview, setOverview] = useState<WorkoutOverview | null | 'loading' | 'error'>('loading');
   const [chosenIndex, setChosenIndex] = useState<number | null>(null);
   // RF-ENT-08.AC1 (D1): the exercises the user moved on from without sets. «Hecho» doesn't go

@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import type { Id } from '@/domain/models/vocabulary';
 import type { TemplateDetail } from '@/domain/usecases/routines/observe-template';
 import type { RoutinesDialog } from '@/presentation/features/routines/routine-change-dialog';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useRoutinesUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type TemplateState =
   | { status: 'loading' }
@@ -27,7 +27,7 @@ export interface TemplateViewModel {
 
 /** S14 · Detalle de plantilla (RF-RUT-01, 02). `onAdopted` runs once the copy is active. */
 export function useTemplateViewModel(templateId: Id, onAdopted: () => void): TemplateViewModel {
-  const { observeTemplate, adoptTemplate } = useUseCases();
+  const { observeTemplate, adoptTemplate } = useRoutinesUseCases();
   const [state, setState] = useState<TemplateState>({ status: 'loading' });
   const [dialog, setDialog] = useState<RoutinesDialog | null>(null);
   // Changing it re-runs the effect, which subscribes again.

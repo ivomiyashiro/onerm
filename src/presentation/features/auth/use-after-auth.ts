@@ -1,7 +1,7 @@
 import { useCallback } from 'react';
 
 import { useAppStore } from '@/presentation/state/app-store-context';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases, useSyncUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** What every way into an account ends with (sign-up, sign-in, Google, a recovery link). */
 export interface AccountEntry {
@@ -17,7 +17,8 @@ export interface AccountEntry {
  * asks for; meanwhile the store keeps it as a guest.
  */
 export function useAfterAuth(): (entry: AccountEntry) => Promise<void> {
-  const { continueAfterAuth, syncNow } = useUseCases();
+  const { continueAfterAuth } = useAuthUseCases();
+  const { syncNow } = useSyncUseCases();
   const setAccount = useAppStore((s) => s.setAccount);
   const requestUnion = useAppStore((s) => s.requestUnion);
   return useCallback(

@@ -16,7 +16,7 @@ import {
   updateExercise,
 } from '@/domain/rules/routine/routine-edits';
 import type { RoutineDraft } from '@/domain/usecases/routines/routine-draft';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useRoutinesUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** What the prescription sheet edits, as typed: the numbers are checked on «Guardar». */
 export interface PrescriptionForm {
@@ -165,7 +165,8 @@ export function useRoutineEditorViewModel(
   routineId: Id | null,
   navigation: { onClose: () => void; onGoToWorkout: () => void },
 ): RoutineEditorViewModel {
-  const { loadRoutineDraft, editRoutineDraft, saveRoutine, activateRoutine } = useUseCases();
+  const { loadRoutineDraft, editRoutineDraft, saveRoutine, activateRoutine } =
+    useRoutinesUseCases();
   const [load, setLoad] = useState<'loading' | 'error' | 'missing' | 'ready'>('loading');
   const [editing, setEditing] = useState<Editing | null>(null);
   const [dialog, setDialog] = useState<EditorDialog | null>(null);

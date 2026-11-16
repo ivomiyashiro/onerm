@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface WelcomeViewModel {
   actions: {
@@ -11,7 +11,7 @@ export interface WelcomeViewModel {
 
 /** S01 · Bienvenida. */
 export function useWelcomeViewModel(): WelcomeViewModel {
-  const { startAsGuest } = useUseCases();
+  const { startAsGuest } = useAuthUseCases();
   // A ref, not state: two taps in the same frame must start only once.
   const starting = useRef(false);
 

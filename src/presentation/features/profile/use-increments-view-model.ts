@@ -4,7 +4,7 @@ import type { LoadIncrements } from '@/domain/models/profile';
 import type { LoadUnit } from '@/domain/models/vocabulary';
 import type { LoadSetting } from '@/domain/usecases/profile/update-load-setting';
 import { loadNumber, parseDecimal } from '@/presentation/strings/numbers';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useProfileUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type IncrementsState =
   | { status: 'loading' }
@@ -32,7 +32,7 @@ export interface IncrementsViewModel {
 
 /** S21 › Incrementos de peso (RF-PERF-06, RN-PERF-08): the values of the active unit. */
 export function useIncrementsViewModel(): IncrementsViewModel {
-  const { observeProfile, updateLoadSetting } = useUseCases();
+  const { observeProfile, updateLoadSetting } = useProfileUseCases();
   const [state, setState] = useState<IncrementsState>({ status: 'loading' });
   const [editing, setEditing] = useState<EditingSetting | null>(null);
   // Changing it re-runs the effect, which subscribes again.

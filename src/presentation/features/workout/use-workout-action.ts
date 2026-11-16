@@ -1,7 +1,10 @@
 import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useRoutinesUseCases,
+  useWorkoutUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 /** The central tab button (08 §2, marca §15). */
 export type WorkoutAction =
@@ -20,7 +23,8 @@ export interface WorkoutActionViewModel {
  * workout in progress (RN-ENT-01). Both only read and write the local database (AC6).
  */
 export function useWorkoutAction(onOpenWorkout: () => void): WorkoutActionViewModel {
-  const { observeNextDay, observeWorkoutInProgress, startWorkout } = useUseCases();
+  const { observeNextDay } = useRoutinesUseCases();
+  const { observeWorkoutInProgress, startWorkout } = useWorkoutUseCases();
   const [nextDay, setNextDay] = useState<{ id: Id; name: string } | null>(null);
   const [startedAt, setStartedAt] = useState<Date | null>(null);
 
