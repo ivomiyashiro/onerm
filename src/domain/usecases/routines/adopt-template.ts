@@ -1,4 +1,3 @@
-import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -6,7 +5,6 @@ import type { RoutineTemplateRepository } from '@/domain/repositories/routine-te
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { routineFromTemplate } from '@/domain/rules/routine/routine-from-template';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 import {
   hasWorkoutInProgress,
   setActiveRoutine,
@@ -21,7 +19,7 @@ import {
  */
 export class AdoptTemplate {
   constructor(
-    private readonly templates: Pick<RoutineTemplateRepository, 'observeAll'>,
+    private readonly templates: Pick<RoutineTemplateRepository, 'getAll'>,
     private readonly routines: Pick<RoutineRepository, 'save'>,
     private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
@@ -31,7 +29,7 @@ export class AdoptTemplate {
   async execute(templateId: Id): Promise<RoutineChange> {
     if (await hasWorkoutInProgress(this.workouts)) return { status: 'workoutInProgress' };
 
-    const templates = await firstValue<RoutineTemplate[]>((o) => this.templates.observeAll(o));
+    const templates = await this.templates.getAll();
     const template = templates.find((t) => t.id === templateId);
     if (template === undefined) throw new Error(`Template ${templateId} is not in the catalog`);
     const profile = (await this.profiles.get()) ?? defaultProfile();

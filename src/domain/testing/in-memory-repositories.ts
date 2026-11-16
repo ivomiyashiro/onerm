@@ -272,6 +272,10 @@ export class InMemoryRoutineTemplateRepository implements RoutineTemplateReposit
   observeAll(observer: Observer<RoutineTemplate[]>): Unsubscribe {
     return this.all$.observe(observer);
   }
+
+  async getAll(): Promise<RoutineTemplate[]> {
+    return this.templates;
+  }
 }
 
 /** The in-progress workout and the finished ones, with the writes of the workout use cases. */

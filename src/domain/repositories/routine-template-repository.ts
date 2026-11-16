@@ -4,4 +4,6 @@ import type { Observer, Unsubscribe } from '@/domain/observer';
 /** Templates of the catalog: read-only for the app (06 §2). */
 export interface RoutineTemplateRepository {
   observeAll(observer: Observer<RoutineTemplate[]>): Unsubscribe;
+  /** `observeAll`'s first value, read once: for a command that reads before it writes. */
+  getAll(): Promise<RoutineTemplate[]>;
 }

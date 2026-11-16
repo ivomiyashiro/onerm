@@ -166,3 +166,13 @@ describe('SqliteRoutineTemplateRepository', () => {
     expect(fb3?.days[0].exercises[0].id).toBe('PLT-FB3-B6');
   });
 });
+
+describe('SqliteRoutineTemplateRepository.getAll (#341)', () => {
+  it('reads what observeAll emits first, days and exercises in order', async () => {
+    const repository = new SqliteRoutineTemplateRepository(() => t.db, changes);
+
+    const { last } = lastValue<RoutineTemplate[]>((o) => repository.observeAll(o));
+
+    await expect(repository.getAll()).resolves.toEqual(last());
+  });
+});

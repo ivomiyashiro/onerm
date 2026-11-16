@@ -135,7 +135,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     getRotationDays: pending,
     ...noWrites,
   };
-  const templates = { observeAll: never };
+  const templates = { observeAll: never, getAll: pending };
   const profiles = { observe: never, get: pending, ...noWrites };
   const workouts = {
     observeInProgress: never,
