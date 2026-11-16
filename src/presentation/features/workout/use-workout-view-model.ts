@@ -5,7 +5,8 @@ import type { EffortMode, ExperienceLevel, Id } from '@/domain/models/vocabulary
 import type { WorkoutSet } from '@/domain/models/workout';
 import { sortByPosition } from '@/domain/rules/shared/position-order';
 import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
-import { prefill, type PrefilledSet } from '@/domain/rules/workout/prefill';
+import { prefill } from '@/domain/rules/workout/prefill';
+import { hasEffort, valuesOf } from '@/domain/rules/workout/set-values';
 import { firstIncomplete, isOpen, remainingSets } from '@/domain/rules/workout/remaining-sets';
 import {
   substituteOptions,
@@ -165,17 +166,6 @@ function rowsOf(view: WorkoutExerciseView, extra: number, effortSetId: Id | null
     });
   }
   return rows;
-}
-
-function valuesOf(set: WorkoutSet): PrefilledSet {
-  return {
-    loadKg: set.loadKg,
-    reps: set.isUnilateral ? Math.min(set.repsLeft, set.repsRight) : set.reps,
-  };
-}
-
-function hasEffort(set: WorkoutSet): boolean {
-  return set.isUnilateral ? set.rirLeft !== null && set.rirRight !== null : set.rir !== null;
 }
 
 /**
