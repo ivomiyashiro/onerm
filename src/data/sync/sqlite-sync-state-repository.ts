@@ -27,19 +27,25 @@ export class SqliteSyncStateRepository implements SyncStateRepository {
     return observeQuery(
       this.changes,
       [...USER_TABLES.map((sync) => sync.table), syncState, appState],
-      () => {
-        const db = this.db();
-        const owner = currentUserId(db);
-        return {
-          owner: owner === null ? 'guest' : 'user',
-          pending: owner === null ? 0 : countUploadable(db, owner),
-          conflicts: owner === null ? 0 : countConflicts(db, owner),
-          lastSyncedAt: lastSyncedAt(db),
-          restoreCompleted: owner === null || isRestored(db),
-        };
-      },
+      () => this.read(),
       observer,
     );
+  }
+
+  async get(): Promise<LocalSyncState> {
+    return this.read();
+  }
+
+  private read(): LocalSyncState {
+    const db = this.db();
+    const owner = currentUserId(db);
+    return {
+      owner: owner === null ? 'guest' : 'user',
+      pending: owner === null ? 0 : countUploadable(db, owner),
+      conflicts: owner === null ? 0 : countConflicts(db, owner),
+      lastSyncedAt: lastSyncedAt(db),
+      restoreCompleted: owner === null || isRestored(db),
+    };
   }
 
   observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe {

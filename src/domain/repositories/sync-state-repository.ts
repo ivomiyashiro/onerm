@@ -20,6 +20,8 @@ export interface LocalSyncState {
 
 export interface SyncStateRepository {
   observe(observer: Observer<LocalSyncState>): Unsubscribe;
+  /** `observe`'s first value, read once: for a command that reads before it writes. */
+  get(): Promise<LocalSyncState>;
   /**
    * The finished workouts of the account with something not backed up yet: the workout, one of
    * its exercises or one of its sets (RF-PROG-01.AC2). Empty for a guest, who backs up nothing.

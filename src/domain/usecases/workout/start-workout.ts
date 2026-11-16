@@ -1,14 +1,9 @@
-import type { Exercise } from '@/domain/models/exercise';
-import type { Profile } from '@/domain/models/profile';
-import type { Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
-import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { sortByPosition } from '@/domain/rules/shared/position-order';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 export type StartWorkoutResult =
   | { readonly status: 'started'; readonly workoutId: Id }
@@ -22,22 +17,22 @@ export type StartWorkoutResult =
  */
 export class StartWorkout {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe'>,
-    private readonly routines: Pick<RoutineRepository, 'observeAll'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save'>,
-    private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
+    private readonly profiles: Pick<ProfileRepository, 'get'>,
+    private readonly routines: Pick<RoutineRepository, 'getAll'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress' | 'save'>,
+    private readonly exercises: Pick<ExerciseRepository, 'getAll'>,
     private readonly newId: () => Id,
     private readonly now: () => Date,
   ) {}
 
   async execute(dayId: Id): Promise<StartWorkoutResult> {
-    const running = await firstValue<Workout | null>((o) => this.workouts.observeInProgress(o));
+    const running = await this.workouts.getInProgress();
     if (running !== null) return { status: 'inProgress', workoutId: running.id };
 
     const [profile, routines, catalog] = await Promise.all([
-      firstValue<Profile | null>((o) => this.profiles.observe(o)),
-      firstValue<Routine[]>((o) => this.routines.observeAll(o)),
-      firstValue<Exercise[]>((o) => this.exercises.observeAll(o)),
+      this.profiles.get(),
+      this.routines.getAll(),
+      this.exercises.getAll(),
     ]);
     const candidates = [
       ...routines.filter((r) => r.id === profile?.activeRoutineId),

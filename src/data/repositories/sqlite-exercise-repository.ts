@@ -18,12 +18,15 @@ export class SqliteExerciseRepository implements ExerciseRepository {
   ) {}
 
   observeAll(observer: Observer<Exercise[]>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      [exercises],
-      () => this.db().select().from(exercises).all().map(toExercise),
-      observer,
-    );
+    return observeQuery(this.changes, [exercises], () => this.readAll(), observer);
+  }
+
+  async getAll(): Promise<Exercise[]> {
+    return this.readAll();
+  }
+
+  private readAll(): Exercise[] {
+    return this.db().select().from(exercises).all().map(toExercise);
   }
 
   observeById(id: Id, observer: Observer<Exercise | null>): Unsubscribe {

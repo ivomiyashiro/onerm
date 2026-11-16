@@ -111,6 +111,8 @@ import type {
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
 
 const never = () => () => {};
+/** The direct read of a repository that never emits: it never resolves either. */
+const pending = () => new Promise<never>(() => {});
 /** The tests run with UTC dates, so the device zone of the machine plays no part. */
 const utcDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
 const epoch = () => new Date(0);
@@ -128,12 +130,21 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeAll: never,
     observeById: never,
     observeRotationDays: never,
+    getAll: pending,
+    getById: pending,
+    getRotationDays: pending,
     ...noWrites,
   };
-  const templates = { observeAll: never };
-  const profiles = { observe: never, ...noWrites };
-  const workouts = { observeInProgress: never, observeFinished: never, ...noWrites };
-  const exercises = { observeAll: never };
+  const templates = { observeAll: never, getAll: pending };
+  const profiles = { observe: never, get: pending, ...noWrites };
+  const workouts = {
+    observeInProgress: never,
+    observeFinished: never,
+    getInProgress: pending,
+    getFinishedById: pending,
+    ...noWrites,
+  };
+  const exercises = { observeAll: never, getAll: pending };
   const onboarding = { observeStep: never, saveStep: async () => {} };
   return {
     observeExercises: new ObserveExercises(exercises),
@@ -152,8 +163,8 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeProfile: new ObserveProfile(profiles),
     ...accountUseCases(),
     continueAfterAuth: new ContinueAfterAuth(profiles, onboarding, restoredSyncState),
-    updateProfile: new UpdateProfile(profiles, { observeById: never }),
-    adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
+    updateProfile: new UpdateProfile(profiles, { getById: pending }),
+    adjustActiveRoutine: new AdjustActiveRoutine(profiles, { getById: pending, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
     loadRoutineDraft: new LoadRoutineDraft(routines, exercises, profiles, workouts, neverIds),
@@ -261,6 +272,7 @@ export function backupNoticeOver(local: LocalSyncState): ObserveBackupNotice {
 /** A device with nothing to back up or restore. Used by tests only. */
 export const restoredSyncState = {
   observe: (observer: Observer<LocalSyncState>) => (observer.next(BACKED_UP), () => {}),
+  get: async () => BACKED_UP,
 };
 
 const BACKED_UP: LocalSyncState = {
@@ -337,6 +349,7 @@ export function routineUseCasesOver(repositories: {
       observer.next([...exercises]);
       return () => {};
     },
+    getAll: async () => [...exercises],
   };
   return {
     observeExercises: new ObserveExercises(catalog),
@@ -372,7 +385,7 @@ export function routineUseCasesOver(repositories: {
 /** S18, S19 and S20: the history, the detail, the edits of the past and the progress. */
 function history(
   profiles: Pick<InMemoryProfileRepository, 'observe'>,
-  workouts: Pick<WorkoutRepository, 'observeFinished' | 'save' | 'delete'>,
+  workouts: Pick<WorkoutRepository, 'observeFinished' | 'getFinishedById' | 'save' | 'delete'>,
   exercises: { observeAll: ExerciseRepository['observeAll'] },
   newId: () => Id,
   now: () => Date,
@@ -397,7 +410,7 @@ function history(
 
 /** Skip, substitute, finish, discard and resume over `workouts`. */
 function lifecycle(
-  workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save' | 'delete'>,
+  workouts: Pick<WorkoutRepository, 'getInProgress' | 'save' | 'delete'>,
   newId: () => Id,
   now: () => Date,
   stopRest: Pick<SkipRest, 'execute'> = { execute: async () => {} },

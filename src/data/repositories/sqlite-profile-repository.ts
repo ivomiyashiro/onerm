@@ -19,15 +19,16 @@ export class SqliteProfileRepository implements ProfileRepository {
   ) {}
 
   observe(observer: Observer<Profile | null>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      [profiles],
-      () => {
-        const row = this.db().select().from(profiles).where(isNull(profiles.deletedAt)).get();
-        return row === undefined ? null : toProfile(row);
-      },
-      observer,
-    );
+    return observeQuery(this.changes, [profiles], () => this.read(), observer);
+  }
+
+  async get(): Promise<Profile | null> {
+    return this.read();
+  }
+
+  private read(): Profile | null {
+    const row = this.db().select().from(profiles).where(isNull(profiles.deletedAt)).get();
+    return row === undefined ? null : toProfile(row);
   }
 
   /** Saving onto a deleted profile does nothing: a deleted row never comes back (RN-SYNC-15). */

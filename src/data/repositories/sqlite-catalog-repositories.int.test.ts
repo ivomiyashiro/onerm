@@ -94,6 +94,22 @@ describe('SqliteExerciseRepository', () => {
   });
 });
 
+describe('SqliteExerciseRepository.getAll (#341)', () => {
+  it('reads what observeAll emits first, deprecated exercises and order included', async () => {
+    const repository = new SqliteExerciseRepository(() => t.db, changes);
+    const id = CATALOG_SNAPSHOT.exercises[0].id;
+    t.db
+      .update(exercises)
+      .set({ deprecatedAt: 1_780_000_000_000 })
+      .where(eq(exercises.id, id))
+      .run();
+
+    const { last } = lastValue<Exercise[]>((o) => repository.observeAll(o));
+
+    await expect(repository.getAll()).resolves.toEqual(last());
+  });
+});
+
 describe('SqliteExerciseRepository.observeById', () => {
   it('emits the exercise with that id (RF-CAT-02)', () => {
     const repository = new SqliteExerciseRepository(() => t.db, changes);
@@ -148,5 +164,15 @@ describe('SqliteRoutineTemplateRepository', () => {
 
     expect(fb3?.days.map((day) => day.id)).toEqual(['PLT-FB3-B', 'PLT-FB3-A']);
     expect(fb3?.days[0].exercises[0].id).toBe('PLT-FB3-B6');
+  });
+});
+
+describe('SqliteRoutineTemplateRepository.getAll (#341)', () => {
+  it('reads what observeAll emits first, days and exercises in order', async () => {
+    const repository = new SqliteRoutineTemplateRepository(() => t.db, changes);
+
+    const { last } = lastValue<RoutineTemplate[]>((o) => repository.observeAll(o));
+
+    await expect(repository.getAll()).resolves.toEqual(last());
   });
 });

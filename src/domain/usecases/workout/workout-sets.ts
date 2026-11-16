@@ -14,7 +14,6 @@ import {
   validateWorkoutSet,
   type SetViolationCode,
 } from '@/domain/rules/workout/workout-set-rules';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 type SetMeta = 'id' | 'workoutExerciseId' | 'position' | 'completedAt';
 
@@ -27,7 +26,7 @@ export type SetWriteResult =
   /** The workout or the set is gone (finished or discarded elsewhere). */
   | { readonly status: 'missing' };
 
-type Workouts = Pick<WorkoutRepository, 'observeInProgress' | 'save'>;
+type Workouts = Pick<WorkoutRepository, 'getInProgress' | 'save'>;
 
 /**
  * RN-ENT-09: an exercise with effective sets is done, also after being skipped. Without them it
@@ -54,8 +53,7 @@ export function replaceExercise(workout: Workout, exercise: WorkoutExercise): Wo
   };
 }
 
-const inProgress = (workouts: Workouts) =>
-  firstValue<Workout | null>((o) => workouts.observeInProgress(o));
+const inProgress = (workouts: Workouts) => workouts.getInProgress();
 
 export function exerciseOfSet(workout: Workout, setId: Id) {
   return workout.exercises.find((e) => e.sets.some((s) => s.id === setId));

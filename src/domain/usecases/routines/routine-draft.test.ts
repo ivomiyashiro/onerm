@@ -25,6 +25,7 @@ function setUp({ inProgress = false, saved = [aRoutine()] } = {}) {
       observer.next([SQUAT, CURL]);
       return () => {};
     },
+    getAll: async () => [SQUAT, CURL],
   };
   let n = 0;
   const newId = () => `new-${++n}`;

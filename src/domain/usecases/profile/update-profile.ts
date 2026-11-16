@@ -1,9 +1,7 @@
 import type { Profile } from '@/domain/models/profile';
-import type { Routine } from '@/domain/models/routine';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import { withProfileChanges, type ProfileChanges } from '@/domain/rules/profile/profile-changes';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /** RN-PERF-03: D06 is offered when the routine's prescription may no longer fit. */
 export interface ProfileUpdate {
@@ -19,8 +17,8 @@ const MAX_DAYS = 6;
  */
 export class UpdateProfile {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
-    private readonly routines: Pick<RoutineRepository, 'observeById'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
+    private readonly routines: Pick<RoutineRepository, 'getById'>,
   ) {}
 
   async execute(changes: ProfileChanges): Promise<ProfileUpdate> {
@@ -28,7 +26,7 @@ export class UpdateProfile {
     if (daysPerWeek !== undefined && !(daysPerWeek >= MIN_DAYS && daysPerWeek <= MAX_DAYS)) {
       throw new RangeError(`daysPerWeek must be ${MIN_DAYS}–${MAX_DAYS}, got ${daysPerWeek}`);
     }
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     if (profile === null) throw new Error('There is no profile to update');
     await this.profiles.save(withProfileChanges(profile, changes));
 
@@ -40,9 +38,7 @@ export class UpdateProfile {
 
   private async hasActiveRoutine({ activeRoutineId }: Profile): Promise<boolean> {
     if (activeRoutineId === null) return false;
-    const routine = await firstValue<Routine | null>((o) =>
-      this.routines.observeById(activeRoutineId, o),
-    );
+    const routine = await this.routines.getById(activeRoutineId);
     return routine !== null;
   }
 }

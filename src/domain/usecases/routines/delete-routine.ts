@@ -1,9 +1,7 @@
-import type { Profile } from '@/domain/models/profile';
 import type { Id } from '@/domain/models/vocabulary';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 import {
   hasWorkoutInProgress,
   setActiveRoutine,
@@ -18,12 +16,12 @@ import {
 export class DeleteRoutine {
   constructor(
     private readonly routines: Pick<RoutineRepository, 'delete'>,
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
-    private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
+    private readonly workouts: Pick<WorkoutRepository, 'getInProgress'>,
   ) {}
 
   async execute(routineId: Id): Promise<RoutineChange> {
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     const isActive = profile?.activeRoutineId === routineId;
     if (isActive && (await hasWorkoutInProgress(this.workouts))) {
       return { status: 'workoutInProgress' };

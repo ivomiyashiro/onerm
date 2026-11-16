@@ -48,7 +48,7 @@ function setUp(inProgress = null as ReturnType<typeof aWorkout> | null) {
     new InMemoryProfileRepository({ ...defaultProfile(), activeRoutineId: 'r1' }),
     new InMemoryRoutineRepository([ROUTINE]),
     workouts,
-    { observeAll: (o) => (o.next([ROW, PULL_UP]), () => {}) },
+    { getAll: async () => [ROW, PULL_UP] },
     () => `id-${++n}`,
     () => NOW,
   );

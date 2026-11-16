@@ -13,7 +13,7 @@ import {
 } from '@/domain/testing/in-memory-repositories';
 import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
 import type { RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
+import { firstValue } from '@/domain/testing/first-value';
 import type { SyncActivity } from '@/domain/usecases/sync/sync-scheduler';
 
 async function dependencies() {

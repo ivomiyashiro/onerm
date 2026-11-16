@@ -423,3 +423,38 @@ describe('SqliteWorkoutRepository: one shared read of the finished history (#141
     expect(a.values.at(-1)).toEqual([]);
   });
 });
+
+describe('SqliteWorkoutRepository: direct reads (#341)', () => {
+  const finishedById = (id: string) =>
+    last<Workout[]>((o) => repository.observeFinished(o))().find((w) => w.id === id) ?? null;
+
+  it('getInProgress reads what observeInProgress emits first, with and without one', async () => {
+    await expect(repository.getInProgress()).resolves.toBeNull();
+
+    await repository.save(FINISHED);
+    await repository.save(IN_PROGRESS);
+
+    await expect(repository.getInProgress()).resolves.toEqual(
+      last<Workout | null>((o) => repository.observeInProgress(o))(),
+    );
+  });
+
+  it('getFinishedById reads what observeFinished + find gives: null if missing, deleted or not finished', async () => {
+    const other = aWorkout({ ...FINISHED, id: 'w3', exercises: [] });
+    await repository.save(FINISHED);
+    await repository.save(other);
+    await repository.save(IN_PROGRESS);
+    await repository.delete('w3');
+
+    await expect(repository.getFinishedById('w1')).resolves.toEqual(finishedById('w1'));
+    await expect(repository.getFinishedById('w1')).resolves.not.toBeNull();
+    await expect(repository.getFinishedById('w3')).resolves.toBeNull();
+    await expect(repository.getFinishedById('w2')).resolves.toBeNull();
+    await expect(repository.getFinishedById('missing')).resolves.toBeNull();
+    expect([finishedById('w3'), finishedById('w2'), finishedById('missing')]).toEqual([
+      null,
+      null,
+      null,
+    ]);
+  });
+});

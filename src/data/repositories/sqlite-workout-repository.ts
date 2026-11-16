@@ -33,18 +33,35 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
       changes,
       TABLES,
       () => this.finishedFingerprint(),
-      () => this.read(eq(workouts.status, 'finished'), asc(workouts.finishedAt)),
+      () => this.readFinished(),
     );
   }
 
   observeInProgress(observer: Observer<Workout | null>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      TABLES,
-      // I-04 allows one; the latest wins if a sync ever left two.
-      () => this.read(eq(workouts.status, 'in_progress'), desc(workouts.startedAt))[0] ?? null,
-      observer,
+    return observeQuery(this.changes, TABLES, () => this.readInProgress(), observer);
+  }
+
+  async getInProgress(): Promise<Workout | null> {
+    return this.readInProgress();
+  }
+
+  /** The query of `observeFinished`, by id: always from the database, never its cached value. */
+  async getFinishedById(id: Id): Promise<Workout | null> {
+    return this.readFinished(id)[0] ?? null;
+  }
+
+  /** The history `observeFinished` shares, or one workout of it. */
+  private readFinished(id?: Id): Workout[] {
+    const finished = eq(workouts.status, 'finished');
+    return this.read(
+      id === undefined ? finished : (and(finished, eq(workouts.id, id)) as SQL),
+      asc(workouts.finishedAt),
     );
+  }
+
+  // I-04 allows one; the latest wins if a sync ever left two.
+  private readInProgress(): Workout | null {
+    return this.read(eq(workouts.status, 'in_progress'), desc(workouts.startedAt))[0] ?? null;
   }
 
   /**

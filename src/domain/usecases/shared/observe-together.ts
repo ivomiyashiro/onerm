@@ -46,23 +46,3 @@ export function observeTogether<T extends readonly unknown[]>(
   if (!active) stop();
   return stop;
 }
-
-/** The current value of a source, for a command that reads before it writes. */
-export function firstValue<T>(source: Source<T>): Promise<T> {
-  return new Promise((resolve, reject) => {
-    let done = false;
-    // The value can arrive while subscribing, before `source` returns: then it is stopped below.
-    const subscription: { stop?: Unsubscribe } = {};
-    const settle = (finish: () => void) => {
-      if (done) return;
-      done = true;
-      finish();
-      subscription.stop?.();
-    };
-    subscription.stop = source({
-      next: (value) => settle(() => resolve(value)),
-      error: (error) => settle(() => reject(error)),
-    });
-    if (done) subscription.stop();
-  });
-}

@@ -68,6 +68,10 @@ export class InMemoryProfileRepository implements ProfileRepository {
     return this.profile$.observe(observer);
   }
 
+  async get(): Promise<Profile | null> {
+    return this.profile;
+  }
+
   async save(profile: Profile): Promise<void> {
     this.profile = profile;
     this.profile$.changed();
@@ -204,10 +208,25 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
   observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe {
     return this.all$.observe({
-      next: (routines) =>
-        observer.next([...routines.flatMap((r) => rotationDays(r, false)), ...this.deletedDays]),
+      next: (routines) => observer.next(this.rotationOf(routines)),
       error: (error) => observer.error(error),
     });
+  }
+
+  async getAll(): Promise<Routine[]> {
+    return [...this.routines];
+  }
+
+  async getById(id: Id): Promise<Routine | null> {
+    return this.routines.find((r) => r.id === id) ?? null;
+  }
+
+  async getRotationDays(): Promise<RotationDay[]> {
+    return this.rotationOf(this.routines);
+  }
+
+  private rotationOf(routines: Routine[]): RotationDay[] {
+    return [...routines.flatMap((r) => rotationDays(r, false)), ...this.deletedDays];
   }
 
   async save(routine: Routine): Promise<void> {
@@ -253,6 +272,10 @@ export class InMemoryRoutineTemplateRepository implements RoutineTemplateReposit
   observeAll(observer: Observer<RoutineTemplate[]>): Unsubscribe {
     return this.all$.observe(observer);
   }
+
+  async getAll(): Promise<RoutineTemplate[]> {
+    return this.templates;
+  }
 }
 
 /** The in-progress workout and the finished ones, with the writes of the workout use cases. */
@@ -271,6 +294,14 @@ export class InMemoryWorkoutRepository implements WorkoutRepository {
 
   observeFinished(observer: Observer<Workout[]>): Unsubscribe {
     return this.finished$.observe(observer);
+  }
+
+  async getInProgress(): Promise<Workout | null> {
+    return this.inProgress;
+  }
+
+  async getFinishedById(id: Id): Promise<Workout | null> {
+    return this.finished.find((w) => w.id === id) ?? null;
   }
 
   observeById(id: Id, observer: Observer<Workout | null>): Unsubscribe {
@@ -476,6 +507,10 @@ export class FixedSyncStateRepository implements SyncStateRepository {
   observe(observer: Observer<LocalSyncState>): Unsubscribe {
     observer.next(this.state);
     return () => {};
+  }
+
+  async get(): Promise<LocalSyncState> {
+    return this.state;
   }
 
   observePendingWorkouts(observer: Observer<ReadonlySet<Id>>): Unsubscribe {

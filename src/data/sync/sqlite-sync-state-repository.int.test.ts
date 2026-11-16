@@ -33,6 +33,30 @@ function setUp(owner = USER) {
   return { db, changes, seen, routine };
 }
 
+describe('SqliteSyncStateRepository.get (#341)', () => {
+  const firstOf = (repository: SqliteSyncStateRepository) => {
+    const seen: LocalSyncState[] = [];
+    repository.observe({ next: (state) => seen.push(state), error: () => {} });
+    return seen[0];
+  };
+
+  it('reads what observe emits first, for a guest and for a user with pending, rejected and synced rows', async () => {
+    const guest = setUp('guest');
+    const guestRepository = new SqliteSyncStateRepository(() => guest.db, guest.changes);
+    await expect(guestRepository.get()).resolves.toEqual(firstOf(guestRepository));
+
+    const { db, changes, routine } = setUp();
+    routine('r1');
+    routine('r2');
+    db.update(routines).set({ conflict: '23514' }).where(eq(routines.id, 'r2')).run();
+    markSynced(db, new Date(1_760_000_000_500));
+    const repository = new SqliteSyncStateRepository(() => db, changes);
+
+    await expect(repository.get()).resolves.toEqual(firstOf(repository));
+    expect(firstOf(repository)).toMatchObject({ owner: 'user', pending: 1, conflicts: 1 });
+  });
+});
+
 describe('SqliteSyncStateRepository (RF-SYNC-06)', () => {
   it('nothing pending and never backed up on a fresh device', () => {
     const { seen } = setUp();

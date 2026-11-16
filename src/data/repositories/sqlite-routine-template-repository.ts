@@ -18,15 +18,21 @@ export class SqliteRoutineTemplateRepository implements RoutineTemplateRepositor
     return observeQuery(
       this.changes,
       [routineTemplates, templateDays, templateExercises],
-      () => {
-        const db = this.db();
-        return toRoutineTemplates(
-          db.select().from(routineTemplates).orderBy(routineTemplates.daysPerWeek).all(),
-          db.select().from(templateDays).all(),
-          db.select().from(templateExercises).all(),
-        );
-      },
+      () => this.readAll(),
       observer,
+    );
+  }
+
+  async getAll(): Promise<RoutineTemplate[]> {
+    return this.readAll();
+  }
+
+  private readAll(): RoutineTemplate[] {
+    const db = this.db();
+    return toRoutineTemplates(
+      db.select().from(routineTemplates).orderBy(routineTemplates.daysPerWeek).all(),
+      db.select().from(templateDays).all(),
+      db.select().from(templateExercises).all(),
     );
   }
 }

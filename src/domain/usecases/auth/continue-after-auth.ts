@@ -1,12 +1,7 @@
-import type { Profile } from '@/domain/models/profile';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
-import type {
-  LocalSyncState,
-  SyncStateRepository,
-} from '@/domain/repositories/sync-state-repository';
+import type { SyncStateRepository } from '@/domain/repositories/sync-state-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /**
  * After signing up or in from the welcome screen: the device has no profile yet, so the onboarding
@@ -16,9 +11,9 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
  */
 export class ContinueAfterAuth {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly onboarding: Pick<OnboardingRepository, 'saveStep'>,
-    private readonly syncState: Pick<SyncStateRepository, 'observe'>,
+    private readonly syncState: Pick<SyncStateRepository, 'get'>,
   ) {}
 
   /**
@@ -26,10 +21,10 @@ export class ContinueAfterAuth {
    * the account's profile arrives later, the newer local one wins LWW (known limitation, 07 §4.2).
    */
   async execute({ evenIfRestoring = false } = {}): Promise<void> {
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     if (profile !== null) return;
     // The account's own profile may still be on its way (07 §4.2): a new one would win LWW.
-    const { restoreCompleted } = await firstValue<LocalSyncState>((o) => this.syncState.observe(o));
+    const { restoreCompleted } = await this.syncState.get();
     if (!restoreCompleted && !evenIfRestoring) return;
     await this.profiles.save(defaultProfile());
     await this.onboarding.saveStep('level');
