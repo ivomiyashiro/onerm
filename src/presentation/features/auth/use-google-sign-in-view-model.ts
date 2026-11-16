@@ -3,7 +3,7 @@ import { useRef, useState } from 'react';
 import type { ContinueWithGoogleResult } from '@/domain/usecases/auth/continue-with-google';
 import { useAfterAuth } from '@/presentation/features/auth/use-after-auth';
 import { auth } from '@/presentation/strings/auth';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface GoogleSignInState {
   /** `working`: Google's screen or the server is busy. `done`: signed in; the screen leaves. */
@@ -28,7 +28,7 @@ const MESSAGE: Record<Exclude<ContinueWithGoogleResult['status'], 'done' | 'canc
 
 /** «Continuar con Google» of S02 and S03 (RF-AUTH-04). Cancelling says nothing (AC4). */
 export function useGoogleSignInViewModel(): GoogleSignInViewModel {
-  const { continueWithGoogle } = useUseCases();
+  const { continueWithGoogle } = useAuthUseCases();
   const afterAuth = useAfterAuth();
   const [state, setState] = useState<GoogleSignInState>({ status: 'idle', message: null });
   // A ref, not state: two taps in the same frame must open Google only once.

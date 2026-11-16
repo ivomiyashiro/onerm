@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { Recommendation } from '@/domain/usecases/onboarding/observe-recommendation';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useOnboardingUseCases,
+  useRoutinesUseCases,
+  useStartupUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 export type RecommendationState =
   | { status: 'loading' }
@@ -30,7 +34,9 @@ export interface RecommendationViewModel {
 export function useRecommendationViewModel(
   onDone: (exit: RecommendationExit) => void,
 ): RecommendationViewModel {
-  const { observeRecommendation, observeEntry, adoptTemplate, finishOnboarding } = useUseCases();
+  const { observeRecommendation, finishOnboarding } = useOnboardingUseCases();
+  const { observeEntry } = useStartupUseCases();
+  const { adoptTemplate } = useRoutinesUseCases();
   const [state, setState] = useState<RecommendationState>({ status: 'loading' });
   // Changing it re-runs the effect, which subscribes again.
   const [attempt, setAttempt] = useState(0);

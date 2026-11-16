@@ -2,7 +2,10 @@ import { useEffect, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
 import type { DayChoice, NextDayOverview } from '@/domain/usecases/routines/observe-next-day';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useRoutinesUseCases,
+  useWorkoutUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 export type ChooseDayState =
   | { status: 'loading' }
@@ -24,7 +27,8 @@ export interface ChooseDayViewModel {
 
 /** S08 · Elegir día (RF-ENT-01.AC3): every day of the active routine, and start the chosen one. */
 export function useChooseDayViewModel(onStarted: () => void): ChooseDayViewModel {
-  const { observeNextDay, startWorkout } = useUseCases();
+  const { observeNextDay } = useRoutinesUseCases();
+  const { startWorkout } = useWorkoutUseCases();
   const [overview, setOverview] = useState<NextDayOverview | 'loading' | 'error'>('loading');
   const [selectedId, setSelectedId] = useState<Id | null>(null);
 

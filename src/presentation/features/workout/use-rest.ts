@@ -6,7 +6,7 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutOverview } from '@/domain/usecases/workout/observe-workout';
 import { restViewOf, type RestView } from '@/presentation/features/workout/rest-view';
 import { workout as text } from '@/presentation/strings/workout';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RestDialog = 'notifications' | 'exactAlarms';
 export type RestNotice = 'notifications' | 'exactAlarms';
@@ -55,7 +55,7 @@ export function useRest(
     skipRest,
     askRestPermission,
     readRestPermissions,
-  } = useUseCases();
+  } = useWorkoutUseCases();
   const [timer, setTimer] = useState<RestTimer | null>(null);
   const [restMinimized, setRestMinimized] = useState(false);
   // The end of the rest that already closed: the timer stays in the database for the lock screen.

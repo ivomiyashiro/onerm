@@ -4,7 +4,7 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { RoutineChange } from '@/domain/usecases/routines/routine-change';
 import type { RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
 import type { RoutinesDialog } from '@/presentation/features/routines/routine-change-dialog';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useRoutinesUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RoutinesState =
   { status: 'loading' } | { status: 'content'; overview: RoutinesOverview } | { status: 'error' };
@@ -28,7 +28,7 @@ type Pending = { dialog: RoutinesDialog; run?: () => Promise<RoutineChange> };
 
 /** S13 · Rutinas (RF-RUT-01, 07, 08), observed from the local database. */
 export function useRoutinesViewModel(): RoutinesViewModel {
-  const { observeRoutines, activateRoutine, deleteRoutine } = useUseCases();
+  const { observeRoutines, activateRoutine, deleteRoutine } = useRoutinesUseCases();
   const [state, setState] = useState<RoutinesState>({ status: 'loading' });
   const [pending, setPending] = useState<Pending | null>(null);
   // Changing it re-runs the effect, which subscribes again.

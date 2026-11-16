@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useSyncUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface VideoLinkViewModel {
   /**
@@ -13,7 +13,7 @@ export interface VideoLinkViewModel {
 
 /** «Ver un video» of S17 and S26: the only part of the help that needs a connection. */
 export function useVideoLinkViewModel(): VideoLinkViewModel {
-  const { observeSyncActivity } = useUseCases();
+  const { observeSyncActivity } = useSyncUseCases();
   const [offline, setOffline] = useState(false);
   // A boolean: React skips the render when it didn't change.
   useEffect(

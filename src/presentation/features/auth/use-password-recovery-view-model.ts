@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 
 import { auth } from '@/presentation/strings/auth';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface PasswordRecoveryState {
   /** `sent`: «Revisá tu correo». */
@@ -23,7 +23,7 @@ export interface PasswordRecoveryViewModel {
 
 /** S04 · Recuperar contraseña (RF-AUTH-08.AC1). `initialEmail` comes from S02. */
 export function usePasswordRecoveryViewModel(initialEmail = ''): PasswordRecoveryViewModel {
-  const { requestPasswordReset } = useUseCases();
+  const { requestPasswordReset } = useAuthUseCases();
   const [form, setForm] = useState({
     email: initialEmail,
     status: 'editing' as PasswordRecoveryState['status'],

@@ -10,7 +10,7 @@ import { common } from '@/presentation/strings/common';
 import { estimateText, shortDate } from '@/presentation/strings/numbers';
 import { progress } from '@/presentation/strings/progress';
 import { workout } from '@/presentation/strings/workout';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useProgressUseCases } from '@/presentation/use-cases/use-cases-context';
 
 const text = progress.exercise;
 
@@ -164,7 +164,7 @@ export function contentOf(view: ExerciseProgressView): ExerciseProgressContent {
 
 /** S20 · Progreso de ejercicio (RF-PROG-04, RF-PROG-05), «3 meses» first (Figma). */
 export function useExerciseProgressViewModel(exerciseId: Id): ExerciseProgressViewModel {
-  const { observeExerciseProgress } = useUseCases();
+  const { observeExerciseProgress } = useProgressUseCases();
   const [period, setPeriod] = useState<ProgressPeriod>('threeMonths');
   const [state, setState] = useState<ExerciseProgressState>({ status: 'loading' });
 

@@ -3,7 +3,7 @@ import { useEffect, useMemo, useState } from 'react';
 import type { Exercise } from '@/domain/models/exercise';
 import type { Equipment, Muscle } from '@/domain/models/vocabulary';
 import { searchExercises, type CatalogSearch } from '@/domain/rules/catalog/catalog-search';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useExercisesUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type ExerciseSearchState =
   | { status: 'loading' }
@@ -40,7 +40,7 @@ function toggle<T>(values: readonly T[], value: T): T[] {
  * well under 200 ms for the catalog size).
  */
 export function useExerciseSearchViewModel(): ExerciseSearchViewModel {
-  const { observeExercises } = useUseCases();
+  const { observeExercises } = useExercisesUseCases();
   const [catalog, setCatalog] = useState<CatalogState>({ status: 'loading' });
   const [search, setSearch] = useState<CatalogSearch>(EMPTY_SEARCH);
   // Changing it re-runs the effect, which subscribes again.

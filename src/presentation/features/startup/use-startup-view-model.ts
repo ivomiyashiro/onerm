@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 
 import { useAppStore } from '@/presentation/state/app-store-context';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases, useStartupUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type StartupState = { status: 'preparing' } | { status: 'ready' } | { status: 'error' };
 
@@ -16,7 +16,8 @@ export interface StartupViewModel {
  * fails, the screen offers to retry; the data is never deleted.
  */
 export function useStartupViewModel(): StartupViewModel {
-  const { prepareLocalData, readAccount } = useUseCases();
+  const { prepareLocalData } = useStartupUseCases();
+  const { readAccount } = useAuthUseCases();
   const setAccount = useAppStore((s) => s.setAccount);
   const [state, setState] = useState<StartupState>({ status: 'preparing' });
   // Changing it re-runs the effect, which prepares again.

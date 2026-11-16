@@ -3,7 +3,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import type { GuestSummary } from '@/domain/services/guest-union';
 import type { PendingUnion } from '@/domain/usecases/auth/guest-union';
 import { useAppStore } from '@/presentation/state/app-store-context';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases, useSyncUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** What the person chose in D01 or D01b, while it runs. */
 export type GuestUnionChoice = 'merge' | 'discard' | 'cancel';
@@ -44,14 +44,9 @@ export interface GuestUnionViewModel {
  * reconnection and on the foreground (D3); meanwhile the device stays the guest's.
  */
 export function useGuestUnionViewModel(): GuestUnionViewModel {
-  const {
-    readPendingUnion,
-    startGuestUnion,
-    finishGuestUnion,
-    cancelGuestUnion,
-    syncNow,
-    observeSyncActivity,
-  } = useUseCases();
+  const { readPendingUnion, startGuestUnion, finishGuestUnion, cancelGuestUnion } =
+    useAuthUseCases();
+  const { syncNow, observeSyncActivity } = useSyncUseCases();
   const unionRequests = useAppStore((s) => s.unionRequests);
   const setAccount = useAppStore((s) => s.setAccount);
   const [checking, setChecking] = useState(false);

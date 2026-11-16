@@ -1,7 +1,7 @@
 import { useEffect, useEffectEvent, useState } from 'react';
 
 import type { Id } from '@/domain/models/vocabulary';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useWorkoutUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface WorkoutResume {
   /** D02: a workout in progress started more than 12 h ago (RN-ENT-11). */
@@ -27,7 +27,7 @@ export function useWorkoutResume({
   onResume: () => void;
   onFinished: (workoutId: Id) => void;
 }): WorkoutResume {
-  const { readWorkoutResume, finishWorkout, discardWorkout } = useUseCases();
+  const { readWorkoutResume, finishWorkout, discardWorkout } = useWorkoutUseCases();
   const [abandoned, setAbandoned] = useState<WorkoutResume['abandoned']>(null);
   // The route's callbacks are new functions on every render; the read runs once.
   const resume = useEffectEvent(() => onResume());

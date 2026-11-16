@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useAuthUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export interface AccountNudgeViewModel {
   /** D13 is open (RF-AUTH-01.AC5). */
@@ -21,7 +21,7 @@ export function useAccountNudgeViewModel(
   enabled: boolean,
   onCreateAccount: () => void,
 ): AccountNudgeViewModel {
-  const { readAccountNudge, answerAccountNudge } = useUseCases();
+  const { readAccountNudge, answerAccountNudge } = useAuthUseCases();
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {

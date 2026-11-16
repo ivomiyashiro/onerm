@@ -14,7 +14,7 @@ import {
   type SetForm,
   type SetFormErrors,
 } from '@/presentation/shared/set/set-form';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useProgressUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type WorkoutDetailState =
   | { status: 'loading' }
@@ -71,7 +71,7 @@ export interface WorkoutDetailViewModel {
 /** S19 · Detalle de entrenamiento (RF-PROG-02, RF-PROG-03): reading, then editing the past. */
 export function useWorkoutDetailViewModel(workoutId: Id): WorkoutDetailViewModel {
   const { observeWorkoutDetail, updatePastSet, addPastSet, deletePastSet, deleteWorkout } =
-    useUseCases();
+    useProgressUseCases();
   const [state, setState] = useState<WorkoutDetailState>({ status: 'loading' });
   const [editing, setEditing] = useState(false);
   const [sheet, setSheet] = useState<DetailSheet | null>(null);

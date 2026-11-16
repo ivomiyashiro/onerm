@@ -6,7 +6,12 @@ import type { SyncStatus } from '@/domain/models/sync-status';
 import type { ExperienceLevel, TrainingGoal } from '@/domain/models/vocabulary';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
 import { useAppStore } from '@/presentation/state/app-store-context';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useAuthUseCases,
+  useProfileUseCases,
+  useRoutinesUseCases,
+  useSyncUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 export type ProfileState =
   { status: 'loading' } | { status: 'content'; profile: Profile } | { status: 'error' };
@@ -76,16 +81,10 @@ const CURRENT: Record<Setting, (profile: Profile) => ProfileChanges> = {
 
 /** S21 · Perfil (RF-PERF-03..05): each setting is saved locally at once. */
 export function useProfileViewModel(): ProfileViewModel {
-  const {
-    observeProfile,
-    updateProfile,
-    adjustActiveRoutine,
-    prepareSignOut,
-    backUpBeforeSignOut,
-    confirmSignOut,
-    observeSyncStatus,
-    syncNow,
-  } = useUseCases();
+  const { observeProfile, updateProfile } = useProfileUseCases();
+  const { adjustActiveRoutine } = useRoutinesUseCases();
+  const { prepareSignOut, backUpBeforeSignOut, confirmSignOut } = useAuthUseCases();
+  const { observeSyncStatus, syncNow } = useSyncUseCases();
   const account = useAppStore((s) => s.account);
   const setAccount = useAppStore((s) => s.setAccount);
   const [signOutDialog, setSignOutDialog] = useState<SignOutDialog | null>(null);

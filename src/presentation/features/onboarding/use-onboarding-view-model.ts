@@ -3,7 +3,10 @@ import { useEffect, useRef, useState } from 'react';
 import type { OnboardingStep } from '@/domain/models/onboarding';
 import type { ProfileChanges } from '@/domain/rules/profile/profile-changes';
 import type { OnboardingAnswers } from '@/domain/usecases/startup/observe-entry';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import {
+  useOnboardingUseCases,
+  useStartupUseCases,
+} from '@/presentation/use-cases/use-cases-context';
 
 /** The three questions of S05, in order (RF-PERF-01). */
 export const QUESTIONS = ['level', 'goal', 'days'] as const;
@@ -40,7 +43,8 @@ const ANSWER: Record<Question, (answers: OnboardingAnswers) => ProfileChanges> =
  * flow moves on to S06 by itself. A failed read shows the startup error (EntryGate).
  */
 export function useOnboardingViewModel(): OnboardingViewModel {
-  const { observeEntry, answerOnboarding } = useUseCases();
+  const { observeEntry } = useStartupUseCases();
+  const { answerOnboarding } = useOnboardingUseCases();
   const [state, setState] = useState<OnboardingState>({ status: 'loading' });
   // A ref, not state: two taps in the same frame must save only once.
   const saving = useRef(false);

@@ -4,7 +4,7 @@ import type { Id } from '@/domain/models/vocabulary';
 import type { HistoryItem } from '@/domain/usecases/progress/observe-history';
 import { common } from '@/presentation/strings/common';
 import { progress as text } from '@/presentation/strings/progress';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useProgressUseCases } from '@/presentation/use-cases/use-cases-context';
 
 /** A month of S18 (Figma «S18 · Historial»): «octubre 2026» and its workouts. */
 export interface HistoryMonth {
@@ -58,7 +58,7 @@ function monthsOf(items: readonly HistoryItem[]): HistoryMonth[] {
  * deleted after D16 (RF-PROG-03.AC4b, #322).
  */
 export function useHistoryViewModel(): HistoryViewModel {
-  const { observeHistory, deleteWorkout } = useUseCases();
+  const { observeHistory, deleteWorkout } = useProgressUseCases();
   const [state, setState] = useState<HistoryState>({ status: 'loading' });
   const [attempt, setAttempt] = useState(0);
   const [confirm, setConfirm] = useState<HistoryConfirm | null>(null);

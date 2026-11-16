@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 import type { RejectedChange } from '@/domain/models/rejected-change';
-import { useUseCases } from '@/presentation/use-cases/use-cases-context';
+import { useSyncUseCases } from '@/presentation/use-cases/use-cases-context';
 
 export type RejectedChangesState =
   | { status: 'loading' }
@@ -31,7 +31,7 @@ export interface RejectedChangesViewModel {
 
 /** S25 · Cambios que no se pudieron respaldar, and D12 (RF-SYNC-06.AC4, RN-SYNC-11). */
 export function useRejectedChangesViewModel(): RejectedChangesViewModel {
-  const { observeRejectedChanges, discardRejectedChange, retryRejectedChange } = useUseCases();
+  const { observeRejectedChanges, discardRejectedChange, retryRejectedChange } = useSyncUseCases();
   const [state, setState] = useState<RejectedChangesState>({ status: 'loading' });
   const [dialog, setDialog] = useState<RejectedChangeDialog | null>(null);
   // A ref, not state: two taps in the same frame must act only once.
