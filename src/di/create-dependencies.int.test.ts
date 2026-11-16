@@ -1,3 +1,4 @@
+import { UnconfiguredAuthGateway } from '@/data/auth/create-supabase-auth';
 import { CATALOG_SNAPSHOT } from '@/data/catalog/catalog-snapshot';
 import { loadCatalogSnapshot } from '@/data/catalog/load-catalog-snapshot';
 import { openTestLocalDatabase } from '@/data/db/open-test-database';
@@ -14,7 +15,6 @@ import type { NextDayOverview } from '@/domain/usecases/routines/observe-next-da
 import type { RoutinesOverview } from '@/domain/usecases/routines/observe-routines';
 import { firstValue } from '@/domain/usecases/shared/observe-together';
 import type { SyncActivity } from '@/domain/usecases/sync/sync-scheduler';
-import { UnconfiguredAuthGateway } from '@/data/auth/create-supabase-auth';
 
 async function dependencies() {
   const localDatabase = openTestLocalDatabase((db) => loadCatalogSnapshot(db, CATALOG_SNAPSHOT));
