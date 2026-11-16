@@ -208,10 +208,25 @@ export class InMemoryRoutineRepository implements RoutineRepository {
 
   observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe {
     return this.all$.observe({
-      next: (routines) =>
-        observer.next([...routines.flatMap((r) => rotationDays(r, false)), ...this.deletedDays]),
+      next: (routines) => observer.next(this.rotationOf(routines)),
       error: (error) => observer.error(error),
     });
+  }
+
+  async getAll(): Promise<Routine[]> {
+    return [...this.routines];
+  }
+
+  async getById(id: Id): Promise<Routine | null> {
+    return this.routines.find((r) => r.id === id) ?? null;
+  }
+
+  async getRotationDays(): Promise<RotationDay[]> {
+    return this.rotationOf(this.routines);
+  }
+
+  private rotationOf(routines: Routine[]): RotationDay[] {
+    return [...routines.flatMap((r) => rotationDays(r, false)), ...this.deletedDays];
   }
 
   async save(routine: Routine): Promise<void> {

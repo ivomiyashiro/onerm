@@ -1,8 +1,6 @@
-import type { Routine } from '@/domain/models/routine';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
 import { prescriptionFor } from '@/domain/rules/routine/prescription-defaults';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /**
  * D06 «Ajustar» (RF-PERF-03.AC2): rewrites the prescription of every exercise of the active
@@ -12,16 +10,14 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
 export class AdjustActiveRoutine {
   constructor(
     private readonly profiles: Pick<ProfileRepository, 'get'>,
-    private readonly routines: Pick<RoutineRepository, 'observeById' | 'save'>,
+    private readonly routines: Pick<RoutineRepository, 'getById' | 'save'>,
   ) {}
 
   async execute(): Promise<void> {
     const profile = await this.profiles.get();
     const activeRoutineId = profile?.activeRoutineId ?? null;
     if (profile === null || activeRoutineId === null) return;
-    const routine = await firstValue<Routine | null>((o) =>
-      this.routines.observeById(activeRoutineId, o),
-    );
+    const routine = await this.routines.getById(activeRoutineId);
     if (routine === null) return;
 
     await this.routines.save({

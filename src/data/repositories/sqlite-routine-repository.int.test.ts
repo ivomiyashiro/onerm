@@ -365,3 +365,26 @@ describe('SqliteRoutineRepository: observation', () => {
     ]);
   });
 });
+
+describe('SqliteRoutineRepository: direct reads (#341)', () => {
+  function firstRotationDays() {
+    const values: RotationDay[][] = [];
+    repository.observeRotationDays({ next: (days) => values.push(days), error: jest.fn() });
+    return values[0];
+  }
+
+  it('getAll, getById and getRotationDays read what their observe… emits first', async () => {
+    const second = aRoutine({ ...ROUTINE, id: 'r2', name: 'Upper', days: [] });
+    await repository.save(ROUTINE);
+    await repository.save({ ...ROUTINE, days: [ROUTINE.days[1]] });
+    await repository.save(second);
+    await repository.save(aRoutine({ ...ROUTINE, id: 'r3', name: 'Gone', days: [] }));
+    await repository.delete('r3');
+
+    await expect(repository.getAll()).resolves.toEqual(observeAll().last());
+    await expect(repository.getById('r1')).resolves.toEqual(observeById('r1')());
+    await expect(repository.getById('r3')).resolves.toBeNull();
+    await expect(repository.getById('missing')).resolves.toBeNull();
+    await expect(repository.getRotationDays()).resolves.toEqual(firstRotationDays());
+  });
+});

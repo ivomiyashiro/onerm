@@ -33,23 +33,33 @@ export class SqliteRoutineRepository implements RoutineRepository {
   }
 
   observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe {
-    return observeQuery(
-      this.changes,
-      [routineDays],
-      () =>
-        this.db()
-          .select({
-            id: routineDays.id,
-            routineId: routineDays.routineId,
-            position: routineDays.position,
-            deletedAt: routineDays.deletedAt,
-          })
-          .from(routineDays)
-          .orderBy(routineDays.position, routineDays.id)
-          .all()
-          .map(({ deletedAt, ...day }) => ({ ...day, isDeleted: deletedAt !== null })),
-      observer,
-    );
+    return observeQuery(this.changes, [routineDays], () => this.readRotationDays(), observer);
+  }
+
+  async getAll(): Promise<Routine[]> {
+    return this.read();
+  }
+
+  async getById(id: Id): Promise<Routine | null> {
+    return this.read(id)[0] ?? null;
+  }
+
+  async getRotationDays(): Promise<RotationDay[]> {
+    return this.readRotationDays();
+  }
+
+  private readRotationDays(): RotationDay[] {
+    return this.db()
+      .select({
+        id: routineDays.id,
+        routineId: routineDays.routineId,
+        position: routineDays.position,
+        deletedAt: routineDays.deletedAt,
+      })
+      .from(routineDays)
+      .orderBy(routineDays.position, routineDays.id)
+      .all()
+      .map(({ deletedAt, ...day }) => ({ ...day, isDeleted: deletedAt !== null }));
   }
 
   /**

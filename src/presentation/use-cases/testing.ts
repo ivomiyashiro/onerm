@@ -130,6 +130,9 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeAll: never,
     observeById: never,
     observeRotationDays: never,
+    getAll: pending,
+    getById: pending,
+    getRotationDays: pending,
     ...noWrites,
   };
   const templates = { observeAll: never };
@@ -154,8 +157,8 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     observeProfile: new ObserveProfile(profiles),
     ...accountUseCases(),
     continueAfterAuth: new ContinueAfterAuth(profiles, onboarding, restoredSyncState),
-    updateProfile: new UpdateProfile(profiles, { observeById: never }),
-    adjustActiveRoutine: new AdjustActiveRoutine(profiles, { observeById: never, ...noWrites }),
+    updateProfile: new UpdateProfile(profiles, { getById: pending }),
+    adjustActiveRoutine: new AdjustActiveRoutine(profiles, { getById: pending, ...noWrites }),
     updateLoadSetting: new UpdateLoadSetting(profiles),
     finishOnboarding: new FinishOnboarding(profiles, onboarding, () => new Date(0)),
     loadRoutineDraft: new LoadRoutineDraft(routines, exercises, profiles, workouts, neverIds),

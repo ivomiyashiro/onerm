@@ -1,5 +1,4 @@
 import type { Exercise } from '@/domain/models/exercise';
-import type { Routine } from '@/domain/models/routine';
 import type { Id } from '@/domain/models/vocabulary';
 import type { Workout } from '@/domain/models/workout';
 import type { ExerciseRepository } from '@/domain/repositories/exercise-repository';
@@ -22,7 +21,7 @@ export type StartWorkoutResult =
 export class StartWorkout {
   constructor(
     private readonly profiles: Pick<ProfileRepository, 'get'>,
-    private readonly routines: Pick<RoutineRepository, 'observeAll'>,
+    private readonly routines: Pick<RoutineRepository, 'getAll'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeInProgress' | 'save'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
     private readonly newId: () => Id,
@@ -35,7 +34,7 @@ export class StartWorkout {
 
     const [profile, routines, catalog] = await Promise.all([
       this.profiles.get(),
-      firstValue<Routine[]>((o) => this.routines.observeAll(o)),
+      this.routines.getAll(),
       firstValue<Exercise[]>((o) => this.exercises.observeAll(o)),
     ]);
     const candidates = [

@@ -12,6 +12,10 @@ export interface RoutineRepository {
   observeById(id: Id, observer: Observer<Routine | null>): Unsubscribe;
   /** Every routine day, deleted ones included, for the next day (RN-RUT-01). */
   observeRotationDays(observer: Observer<RotationDay[]>): Unsubscribe;
+  /** The first value of each `observe…`, read once: for a command that reads before it writes. */
+  getAll(): Promise<Routine[]>;
+  getById(id: Id): Promise<Routine | null>;
+  getRotationDays(): Promise<RotationDay[]>;
   /** Callers validate first with `validateRoutine` (I-02, I-03). */
   save(routine: Routine): Promise<void>;
   /** Logical delete of the routine with its days and exercises (I-07); history stays (I-08). */
