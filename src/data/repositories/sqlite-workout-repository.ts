@@ -33,7 +33,7 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
       changes,
       TABLES,
       () => this.finishedFingerprint(),
-      () => this.read(eq(workouts.status, 'finished'), asc(workouts.finishedAt)),
+      () => this.readFinished(),
     );
   }
 
@@ -47,11 +47,15 @@ export class SqliteWorkoutRepository implements WorkoutRepository {
 
   /** The query of `observeFinished`, by id: always from the database, never its cached value. */
   async getFinishedById(id: Id): Promise<Workout | null> {
-    return (
-      this.read(
-        and(eq(workouts.status, 'finished'), eq(workouts.id, id)) as SQL,
-        asc(workouts.finishedAt),
-      )[0] ?? null
+    return this.readFinished(id)[0] ?? null;
+  }
+
+  /** The history `observeFinished` shares, or one workout of it. */
+  private readFinished(id?: Id): Workout[] {
+    const finished = eq(workouts.status, 'finished');
+    return this.read(
+      id === undefined ? finished : (and(finished, eq(workouts.id, id)) as SQL),
+      asc(workouts.finishedAt),
     );
   }
 
