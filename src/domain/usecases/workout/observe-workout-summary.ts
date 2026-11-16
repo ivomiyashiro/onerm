@@ -11,27 +11,15 @@ import type { RoutineRepository } from '@/domain/repositories/routine-repository
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import { limitingSide } from '@/domain/rules/shared/limiting-side';
 import { sortByPosition } from '@/domain/rules/shared/position-order';
-import { personalRecords, workoutRecords } from '@/domain/rules/progress/personal-records';
 import { totalLoadKg, workoutMinutes } from '@/domain/rules/progress/workout-stats';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
 import { nextDay } from '@/domain/rules/routine/next-day';
-import type { E1rm } from '@/domain/rules/suggestion/e1rm';
-import { exerciseExposures } from '@/domain/rules/suggestion/exposures';
 import type { SuggestionCode } from '@/domain/rules/suggestion/suggestion';
 import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { suggestionFor } from '@/domain/rules/workout/suggestion-for';
 import { isEffectiveSet } from '@/domain/rules/workout/workout-set-rules';
+import { recordsOf, type SummaryRecord } from '@/domain/rules/progress/workout-records';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';
-
-/** A record of RN-PROG-03 (a) or (b) beaten in the workout (RF-PROG-05.AC2). */
-export type SummaryRecord =
-  | {
-      readonly kind: 'heaviestLoad';
-      readonly name: string | null;
-      readonly loadKg: number;
-      readonly reps: number;
-    }
-  | { readonly kind: 'e1rm'; readonly name: string | null; readonly e1rm: E1rm };
 
 /** A set as S12 shows it: one side's reps for a unilateral set, by its limiting side. */
 export interface SummarySet {
@@ -68,32 +56,6 @@ export interface WorkoutSummary {
   /** «Próximo: {día}» of its routine (RN-RUT-01); null if the routine is gone. */
   readonly nextDayName: string | null;
   readonly unit: LoadUnit;
-}
-
-/**
- * RN-PROG-03 (a) and (b) beaten by `workout`, by exercise in its order (S12, S19). Only with an
- * earlier EE of that exercise.
- */
-export function recordsOf(
-  workout: Workout,
-  finished: readonly Workout[],
-  nameOf: (exerciseId: Id) => string | null,
-): SummaryRecord[] {
-  const records: SummaryRecord[] = [];
-  for (const exerciseId of new Set(sortByPosition(workout.exercises).map((e) => e.exerciseId))) {
-    const exposures = exerciseExposures(exerciseId, finished);
-    const beaten = workoutRecords(exposures, workout.id);
-    const today = personalRecords(exposures.filter((e) => e.workoutId === workout.id));
-    const name = nameOf(exerciseId);
-    if (beaten.heaviestLoad && today.heaviestLoad) {
-      const { loadKg, reps } = today.heaviestLoad;
-      records.push({ kind: 'heaviestLoad', name, loadKg, reps });
-    }
-    if (beaten.e1rm && today.bestE1rm) {
-      records.push({ kind: 'e1rm', name, e1rm: today.bestE1rm.e1rm });
-    }
-  }
-  return records;
 }
 
 function summarySets(exercise: WorkoutExercise): SummarySet[] {

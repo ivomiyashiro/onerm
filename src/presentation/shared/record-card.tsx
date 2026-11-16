@@ -3,7 +3,7 @@ import { Animated, Easing, StyleSheet, View } from 'react-native';
 
 import type { LoadUnit } from '@/domain/models/vocabulary';
 import { toUnit } from '@/domain/rules/shared/units';
-import type { SummaryRecord } from '@/domain/usecases/workout/observe-workout-summary';
+import type { SummaryRecord } from '@/domain/rules/progress/workout-records';
 import { Icon } from '@/presentation/components/icons/icon';
 import { Text } from '@/presentation/components/text';
 import { catalog } from '@/presentation/strings/catalog';

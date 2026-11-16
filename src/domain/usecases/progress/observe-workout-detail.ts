@@ -13,7 +13,7 @@ import type { LoadGrid } from '@/domain/rules/suggestion/load-grid';
 import { loadGridFor } from '@/domain/rules/suggestion/load-grid-for';
 import { isSubstitution } from '@/domain/rules/catalog/substitution';
 import { observeTogether } from '@/domain/usecases/shared/observe-together';
-import { recordsOf, type SummaryRecord } from '@/domain/usecases/workout/observe-workout-summary';
+import { recordsOf, type SummaryRecord } from '@/domain/rules/progress/workout-records';
 
 /** An exercise of S19 with what its rows and the «Editar serie» sheet need. */
 export interface DetailExercise {
