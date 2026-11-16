@@ -30,7 +30,7 @@ export class LoadRoutineDraft {
   constructor(
     private readonly routines: Pick<RoutineRepository, 'observeById'>,
     private readonly exercises: Pick<ExerciseRepository, 'observeAll'>,
-    private readonly profiles: Pick<ProfileRepository, 'observe'>,
+    private readonly profiles: Pick<ProfileRepository, 'get'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
     private readonly newId: () => Id,
   ) {}
@@ -44,7 +44,7 @@ export class LoadRoutineDraft {
     if (routine === null) return null;
     const [exercises, profile, inProgress] = await Promise.all([
       firstValue<Exercise[]>((o) => this.exercises.observeAll(o)),
-      firstValue<Profile | null>((o) => this.profiles.observe(o)),
+      this.profiles.get(),
       firstValue<Workout | null>((o) => this.workouts.observeInProgress(o)),
     ]);
     return {

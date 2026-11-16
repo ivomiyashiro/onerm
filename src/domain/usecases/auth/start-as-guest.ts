@@ -1,8 +1,6 @@
-import type { Profile } from '@/domain/models/profile';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import { firstValue } from '@/domain/usecases/shared/observe-together';
 
 /**
  * RF-AUTH-01: «Continuar sin cuenta» creates the guest's profile with the defaults (RN-PERF-02),
@@ -10,12 +8,12 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
  */
 export class StartAsGuest {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly onboarding: Pick<OnboardingRepository, 'saveStep'>,
   ) {}
 
   async execute(): Promise<void> {
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     if (profile === null) await this.profiles.save(defaultProfile());
     await this.onboarding.saveStep('level');
   }

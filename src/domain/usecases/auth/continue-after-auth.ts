@@ -1,4 +1,3 @@
-import type { Profile } from '@/domain/models/profile';
 import type { OnboardingRepository } from '@/domain/repositories/onboarding-repository';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type {
@@ -16,7 +15,7 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
  */
 export class ContinueAfterAuth {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly onboarding: Pick<OnboardingRepository, 'saveStep'>,
     private readonly syncState: Pick<SyncStateRepository, 'observe'>,
   ) {}
@@ -26,7 +25,7 @@ export class ContinueAfterAuth {
    * the account's profile arrives later, the newer local one wins LWW (known limitation, 07 §4.2).
    */
   async execute({ evenIfRestoring = false } = {}): Promise<void> {
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     if (profile !== null) return;
     // The account's own profile may still be on its way (07 §4.2): a new one would win LWW.
     const { restoreCompleted } = await firstValue<LocalSyncState>((o) => this.syncState.observe(o));

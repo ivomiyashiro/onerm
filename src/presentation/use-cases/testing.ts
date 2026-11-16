@@ -111,6 +111,8 @@ import type {
 import type { UseCases } from '@/presentation/use-cases/use-cases-context';
 
 const never = () => () => {};
+/** The direct read of a repository that never emits: it never resolves either. */
+const pending = () => new Promise<never>(() => {});
 /** The tests run with UTC dates, so the device zone of the machine plays no part. */
 const utcDate = (instant: Date) => instant.toISOString().slice(0, 10) as LocalDate;
 const epoch = () => new Date(0);
@@ -131,7 +133,7 @@ export function someUseCases(overrides: Partial<UseCases> = {}): UseCases {
     ...noWrites,
   };
   const templates = { observeAll: never };
-  const profiles = { observe: never, ...noWrites };
+  const profiles = { observe: never, get: pending, ...noWrites };
   const workouts = { observeInProgress: never, observeFinished: never, ...noWrites };
   const exercises = { observeAll: never };
   const onboarding = { observeStep: never, saveStep: async () => {} };

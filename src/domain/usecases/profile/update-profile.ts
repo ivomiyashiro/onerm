@@ -19,7 +19,7 @@ const MAX_DAYS = 6;
  */
 export class UpdateProfile {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly routines: Pick<RoutineRepository, 'observeById'>,
   ) {}
 
@@ -28,7 +28,7 @@ export class UpdateProfile {
     if (daysPerWeek !== undefined && !(daysPerWeek >= MIN_DAYS && daysPerWeek <= MAX_DAYS)) {
       throw new RangeError(`daysPerWeek must be ${MIN_DAYS}–${MAX_DAYS}, got ${daysPerWeek}`);
     }
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     if (profile === null) throw new Error('There is no profile to update');
     await this.profiles.save(withProfileChanges(profile, changes));
 

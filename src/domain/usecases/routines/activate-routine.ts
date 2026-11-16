@@ -10,7 +10,7 @@ import {
 /** RF-RUT-07: the routine becomes the only active one (RN-RUT-02), never during a workout. */
 export class ActivateRoutine {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
   ) {}
 

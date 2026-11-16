@@ -1,4 +1,3 @@
-import type { Profile } from '@/domain/models/profile';
 import type { RoutineTemplate } from '@/domain/models/routine-template';
 import type { Id } from '@/domain/models/vocabulary';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
@@ -24,7 +23,7 @@ export class AdoptTemplate {
   constructor(
     private readonly templates: Pick<RoutineTemplateRepository, 'observeAll'>,
     private readonly routines: Pick<RoutineRepository, 'save'>,
-    private readonly profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+    private readonly profiles: Pick<ProfileRepository, 'get' | 'save'>,
     private readonly workouts: Pick<WorkoutRepository, 'observeInProgress'>,
     private readonly newId: () => Id,
   ) {}
@@ -35,8 +34,7 @@ export class AdoptTemplate {
     const templates = await firstValue<RoutineTemplate[]>((o) => this.templates.observeAll(o));
     const template = templates.find((t) => t.id === templateId);
     if (template === undefined) throw new Error(`Template ${templateId} is not in the catalog`);
-    const profile =
-      (await firstValue<Profile | null>((o) => this.profiles.observe(o))) ?? defaultProfile();
+    const profile = (await this.profiles.get()) ?? defaultProfile();
 
     const routine = routineFromTemplate(template, profile, this.newId);
     await this.routines.save(routine);

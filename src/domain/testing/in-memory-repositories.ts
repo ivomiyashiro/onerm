@@ -68,6 +68,10 @@ export class InMemoryProfileRepository implements ProfileRepository {
     return this.profile$.observe(observer);
   }
 
+  async get(): Promise<Profile | null> {
+    return this.profile;
+  }
+
   async save(profile: Profile): Promise<void> {
     this.profile = profile;
     this.profile$.changed();

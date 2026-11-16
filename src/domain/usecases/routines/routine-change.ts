@@ -23,10 +23,9 @@ export async function hasWorkoutInProgress(
  * the guest's is created with the defaults (RN-PERF-02); the onboarding stays pending.
  */
 export async function setActiveRoutine(
-  profiles: Pick<ProfileRepository, 'observe' | 'save'>,
+  profiles: Pick<ProfileRepository, 'get' | 'save'>,
   activeRoutineId: Id | null,
 ): Promise<void> {
-  const profile: Profile =
-    (await firstValue<Profile | null>((o) => profiles.observe(o))) ?? defaultProfile();
+  const profile: Profile = (await profiles.get()) ?? defaultProfile();
   await profiles.save({ ...profile, activeRoutineId });
 }

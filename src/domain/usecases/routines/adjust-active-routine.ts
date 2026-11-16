@@ -1,4 +1,3 @@
-import type { Profile } from '@/domain/models/profile';
 import type { Routine } from '@/domain/models/routine';
 import type { ProfileRepository } from '@/domain/repositories/profile-repository';
 import type { RoutineRepository } from '@/domain/repositories/routine-repository';
@@ -12,12 +11,12 @@ import { firstValue } from '@/domain/usecases/shared/observe-together';
  */
 export class AdjustActiveRoutine {
   constructor(
-    private readonly profiles: Pick<ProfileRepository, 'observe'>,
+    private readonly profiles: Pick<ProfileRepository, 'get'>,
     private readonly routines: Pick<RoutineRepository, 'observeById' | 'save'>,
   ) {}
 
   async execute(): Promise<void> {
-    const profile = await firstValue<Profile | null>((o) => this.profiles.observe(o));
+    const profile = await this.profiles.get();
     const activeRoutineId = profile?.activeRoutineId ?? null;
     if (profile === null || activeRoutineId === null) return;
     const routine = await firstValue<Routine | null>((o) =>

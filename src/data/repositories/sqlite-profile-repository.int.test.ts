@@ -121,3 +121,17 @@ describe('SqliteProfileRepository', () => {
     expect(t.db.select().from(profiles).all()).toEqual([]);
   });
 });
+
+describe('SqliteProfileRepository.get (#341)', () => {
+  it('reads what observe emits first: nothing, the saved profile, and nothing once deleted', async () => {
+    await expect(repository.get()).resolves.toEqual(observe()());
+
+    await repository.save(PROFILE);
+    await expect(repository.get()).resolves.toEqual(PROFILE);
+    expect(observe()()).toEqual(PROFILE);
+
+    t.db.update(profiles).set({ deletedAt: T0 }).run();
+    await expect(repository.get()).resolves.toBeNull();
+    expect(observe()()).toBeNull();
+  });
+});
