@@ -66,21 +66,19 @@ Algunos comandos escriben en dos repositorios, cada uno con su propia transacci�
 
 ## Decisión
 
-**Recomendación: C. No cambiar, y dejar el orden de escritura documentado como decisión aceptada.**
+**Decidido: C (2026-11-16). No cambiar, y dejar el orden de escritura documentado como decisión aceptada.**
 
 - **El riesgo es bajo:** ningún caso deja datos inconsistentes que el usuario no pueda ver o corregir.
 - **A y B tienen costo cierto:** A agrega transacciones al dominio y versiones síncronas de varias escrituras; B mezcla agregados en un repositorio. Las dos tocan código que hoy funciona, y la consigna de F11 es no cambiar el comportamiento.
 - **La atomicidad completa no existe igual:** la parte de red y de dispositivo no entra en ninguna transacción.
 - **Ya está cubierto donde más importa:** la unión del invitado (`unite`) es una sola transacción.
 
-Si se elige C:
+Con C:
 - Se agrega a ADR-0013 la regla de orden: primero la escritura que deja un estado válido por sí sola. Hoy se cumple, por ejemplo, borrar la rutina antes de quitar la activa, o guardar el perfil antes del paso.
 - `#343` se cierra como «not planned».
 - `#350` toma como regla para el revisor: «un comando nuevo con dos escrituras respeta ese orden».
 
-Si se elige A o B, se registra en un ADR-0014 nuevo, y #343 recibe la lista de comandos.
-
-**La decisión es de la persona:** este PR no se mergea solo.
+La persona eligió C. La regla de orden quedó en ADR-0013, «Lo que no se cambia».
 
 ## Código
 

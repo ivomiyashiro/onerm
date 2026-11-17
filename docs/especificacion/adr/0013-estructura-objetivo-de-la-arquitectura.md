@@ -2,7 +2,7 @@
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-11-04
-- **Relacionado:** ADR-0009, ADR-0011, 12-arquitectura, RNF-11, F11 Arquitectura (#332)
+- **Relacionado:** ADR-0009, ADR-0011, 12-arquitectura, RNF-11, F11 Arquitectura (#332), spike #342
 
 ## Contexto
 
@@ -39,6 +39,7 @@ Son límites de toda la fase. Si una card o un revisor pide alguno de estos camb
 | La orquestación que hoy está en ViewModels y hooks (`log` → descanso, `use-after-auth`) no se mueve a casos de uso. | Coordina efectos de la pantalla y funciona. Moverla es el cambio con más riesgo de alterar el comportamiento, y no aporta una regla nueva que probar. |
 | `WorkoutRepository.delete` sigue resolviendo si el borrado es físico o lógico según el estado (RN-SYNC-13, I-07), y RN-SYNC-15 sigue en `writeSyncRow`. | Son reglas de filas y tombstones: dependen de cómo se persiste, no del negocio. |
 | Las rutas siguen como literales. No se crean constantes de rutas. | `experiments.typedRoutes` ya las valida al compilar. Las constantes duplicarían esa garantía. |
+| Los comandos que escriben en dos repositorios no se vuelven atómicos: cada escritura sigue en su propia transacción. Se escribe primero lo que deja un estado válido por sí solo (borrar la rutina antes de quitar la activa, guardar el perfil antes del paso). | Spike #342: ninguno de los 13 comandos deja datos que el usuario no pueda ver o corregir si falla la segunda escritura, y la unión del invitado ya es una sola transacción. Hacerlo atómico obliga a llevar transacciones al dominio o a mezclar agregados en un repositorio. |
 | `domain/testing` y `presentation/use-cases/testing.ts` no se mueven. | Están bien ubicados junto a lo que simulan. El riesgo real es usarlos en producción, y #338 lo impide con el lint. |
 
 ### Consumidores de casos de uso
