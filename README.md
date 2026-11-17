@@ -41,13 +41,13 @@ Every operation has real, persistent effects; the non-functional requirements ar
 
 ## Architecture
 
-MVVM with Clean Architecture ([12-arquitectura](docs/especificacion/12-arquitectura.md), [ADR-0011](docs/especificacion/adr/0011-mvvm-clean-en-react-native.md)). In React Native the ViewModel is a hook per screen that exposes `{ state, actions }`, with the state as a discriminated union (`loading | content | empty | error | …`).
+MVVM with Clean Architecture ([12-arquitectura](docs/especificacion/12-arquitectura.md), [ADR-0011](docs/especificacion/adr/0011-mvvm-clean-en-react-native.md), [ADR-0013](docs/especificacion/adr/0013-estructura-objetivo-de-la-arquitectura.md)). In React Native the ViewModel is a hook per screen that exposes `{ state, actions }`, with the state as a discriminated union (`loading | content | empty | error | …`).
 
 ```
-app/                 Expo Router: screen composition only (each file re-exports a screen)
-src/presentation/    screens, components, ViewModels (hooks), theme, texts (strings)
-src/domain/          Pure TypeScript: models, rules (suggestion engine), use cases, repository interfaces
-src/data/            SQLite (Drizzle), Supabase, repositories, mappers, sync engine
+app/                 Expo Router: composes each screen and wires its navigation
+src/presentation/    features (screens, ViewModels), shared pieces, components, theme, texts (strings)
+src/domain/          Pure TypeScript: models, rules (suggestion engine), use cases by feature, repository and service interfaces
+src/data/            SQLite (Drizzle), Supabase, repositories, mappers, sync engine, infrastructure setup
 src/di/              composition root: creates the implementations and provides them via Context
 ```
 

@@ -16,9 +16,10 @@ El TPO exige MVVM, Clean Architecture y gestión explícita del estado. En React
    - Llama a **casos de uso**. Nunca a repositorios ni SDKs de forma directa.
    - No contiene JSX. La vista solo renderiza el estado y llama acciones.
    - Además del ViewModel, pueden consumir casos de uso los hooks `use-*` de una feature y los archivos `*-watcher.tsx` ([ADR-0013](0013-estructura-objetivo-de-la-arquitectura.md)). Los componentes visuales no pueden.
-2. **Estado global en Zustand**, solo para lo que comparten varias pantallas: dueño de los datos (invitado o usuario), estado de sync, entrenamiento en curso y temporizador. Equivale al estado compartido de un `StateFlow` de Android.
+2. **Estado global en Zustand**, solo para lo que comparten varias pantallas: dueño de los datos (invitado o usuario), estado de sync y pedidos de unión del invitado. Equivale al estado compartido de un `StateFlow` de Android.
+   - *Actualizado en F11 ([ADR-0013](0013-estructura-objetivo-de-la-arquitectura.md), «Deriva registrada»):* el texto original incluía el entrenamiento en curso y el temporizador. Nunca se guardaron en el store: se observan desde SQLite, como pide RN-SYNC-01.
 3. **Datos persistentes:** la fuente de verdad es SQLite. Los ViewModels se **suscriben** a `repository.observe…()` a través de los casos de uso. No se duplican en stores globales.
-4. **Inyección de dependencias:** un *composition root* (`src/di`) crea las implementaciones (repositorios, data sources, sync) y las provee por **React Context**. En los tests se inyectan versiones falsas.
+4. **Inyección de dependencias:** un *composition root* (`src/di`) crea las implementaciones (repositorios, servicios, sync) y las provee por **React Context**, agrupadas por feature. Solo compone: la configuración de la infraestructura vive en `src/data` (ADR-0013). En los tests se inyectan versiones falsas.
 5. **Casos de uso:** son funciones o clases del dominio que reciben interfaces de repositorio por constructor.
 
 ## Alternativas consideradas
@@ -40,5 +41,5 @@ El TPO exige MVVM, Clean Architecture y gestión explícita del estado. En React
 | `sealed class UiState` | Unión discriminada en TypeScript |
 | Hilt / Koin | Composition root + React Context |
 | Room DAO + `Flow` | Drizzle + `observe…()` |
-| Retrofit | `supabase-js` (HTTP/REST contra PostgREST) dentro de `RemoteDataSource` |
+| Retrofit | `supabase-js` (HTTP/REST contra PostgREST) dentro del motor de sync (`SupabaseSyncEngine`) y de `SupabaseAuthGateway` |
 | Navigation Compose | Expo Router |

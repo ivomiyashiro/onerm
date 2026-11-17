@@ -162,3 +162,78 @@ Se anotan para no atribuírselos a F11. Ninguno lo causó esta card, que no camb
 | **#372, caso 1:** matar la app con un entrenamiento en curso y reabrirla a veces deja Inicio con «En curso» en lugar de S09 (RF-ENT-13.AC1). Pasa en el development build, también en `aa9bd0c` (alrededor de 1 de cada 3 veces): la navegación queda en `/workout`, pero la pila nativa no lo muestra. En un build de release retomó S09 las 8 veces. | Android, development build | Propio del launcher del development build. Para probar RF-ENT-13, usar un build de release |
 | **#372, caso 2:** el descanso restaurado tras matar la app no dejó «¡Descanso terminado!» en la pantalla bloqueada. El descanso terminó antes de bloquear la pantalla, con la app en primer plano, donde el aviso se silencia a propósito (RF-ENT-06.AC6). Bloqueando antes del final, el aviso llega. | Android | No es un error. Para B5, bloquear con tiempo de sobra |
 | **#372, caso 3:** dos toques rápidos en «Hecho» registraban la serie y salteaban el descanso, porque «Saltear descanso» está en el mismo lugar. | Android e iOS | Corregido en #372: «Saltear descanso» no responde durante 600 ms después de que aparece el descanso |
+
+## 6. Resultado final de F11 (#348)
+
+**Fecha:** 16 de noviembre de 2026. **Commit:** `5e84b72` de `main` más la documentación de #348, que no cambia código. Capturas en [`348/`](348/).
+
+### Tests
+
+| Suite | Línea base | Final | Diferencia |
+|---|---|---|---|
+| Unitarios y de pantalla | 2789 en 242 suites | 2864 en 247 suites | +75 |
+| Integración | 225 en 20 suites | 233 en 20 suites | +8 |
+| Servidor | 39 de pgTAP y 56 de Jest | 39 y 56 | = |
+
+Todos pasan, y ninguna suite bajó. Los tests nuevos son de las cards: por ejemplo los `get…()` de los repositorios (#341), `server-url` (#339), las reglas movidas a `rules/` (#344, #345) y los tests del lint (#338, #340).
+
+### Performance
+
+**La línea base de la §2 no se puede comparar tal cual.** Corrí 3 veces `bun run perf` sobre `aa9bd0c`, el mismo commit de la línea base, y «S18 + S09 mount» dio **248** renders, no 227. Los componentes coinciden con los de `main` de hoy (Text 64, Animated(View) 26…). El escenario arma el historial con la fecha real, así que su tamaño depende del día en que se corre. Por eso la comparación final es contra `aa9bd0c` corrido hoy, 3 corridas de cada lado, con la regla de la §3.
+
+| Escenario | `aa9bd0c` hoy | Final | Card |
+|---|---|---|---|
+| S07 mount | 3 · 133 · 20 + 0 | 3 · 133 · 20 + 0 | — |
+| S07 3 s on screen (clock) | 3 · 6 | 3 · 6 | — |
+| S09 mount | 3 · 99 · 15 + 0 | 3 · **103** · 15 + 0 | #346 |
+| S09 3 s on screen (clock) | 3 · 6 | 3 · 6 | — |
+| S09 «Hecho» (RNF-03) | 4 · 144 · 22 + 7 | 4 · **152** · 22 + 7 | #346 |
+| S09 3 s of rest (countdown) | 3 · 18 | 3 · 18 | — |
+| S09 sync rewrites one catalog row | 0 · 0 · 2 + 1 | 0 · 0 · 2 + 1 | — |
+| logSet → observeWorkout (1000 workouts) | 0 · 1 · 20 + 5 | 0 · 1 · 20 + 5 | — |
+| S18 + S09 mount | 3–4 · 248 · 16 + 0 | 3–4 · **252** · 16 + 0 | #346 |
+| S18 + S09 «Hecho» | 4 · 144 · 24 + 7 | 4 · **152** · 24 + 7 | #346 |
+
+(commits · renders · lecturas + escrituras SQL)
+
+**Sin excesos según la §3:**
+- Las consultas SQL y los commits son iguales.
+- Los renders por componente (línea `components:`) son iguales en todos los escenarios.
+- Los únicos cambios son los renders totales: +4 al montar S09 y +8 en «Hecho». Son los cuatro componentes de sección que agregó #346 (`WorkoutHeader`, `ExercisePanel`, `ActionBar`, `WorkoutOverlays`), que renderizan una vez cada uno cuando renderiza `Workout`. Están explicados en su PR.
+- #341 no cambió ningún número: los comandos leen con `get…()` y ninguno se mide en estos escenarios.
+
+### Recorrido
+
+Mismo entorno que la §4: Pixel_10 en modo avión para A y B, el simulador del iPhone 17 Pro sin servidor, y C contra Supabase local. El JS sale del worktree de #348, sin `.env`. Los builds nativos son los mismos de las cards anteriores, porque F11 no tocó código nativo.
+
+| ID | Android | iOS |
+|---|---|---|
+| A1–A5 | ✅ | ✅ |
+| A6–A7 (80 kg × 6, «2 o 3») | ✅ | ✅ |
+| A8 matar durante el descanso y reabrir | ✅ (00:24, serie 2 guardada) | ✅ (02:02) |
+| A9 «Finalizar igual», «Ahora no» en D13 | ✅ | ✅ |
+| A10 «Empezar Día B» | ✅ | ✅ |
+| A11 Progreso | ✅ | ✅ |
+| A12 serie 1 a 85 kg, las demás igual | ✅ | ✅ |
+| B1 permisos | ✅ D05 y el sistema | ✅ el sistema |
+| B2 descanso a pantalla completa | ✅ | ✅ |
+| B3 notificación con la cuenta regresiva | ✅ | No aplica |
+| B4 bloqueado | ⚠️ ícono compacto, igual que la línea base | ✅ Live Activity, con su permiso |
+| B5 «¡Descanso terminado!» bloqueado | ✅ | ✅ |
+| B6–B7 agregar, deslizar y borrar | ✅ | ✅ |
+| C1–C2 crear la cuenta, unión | ✅ | ✅ |
+| C3 respaldo y filas en Postgres | ✅ 1 entrenamiento: 85 × 6, 80 × 6, 80 × 6 | ✅ 1 entrenamiento: 85 × 6 |
+| C4 cerrar sesión | ✅ | ✅ |
+| C5 iniciar sesión | ✅ | ✅ |
+| C6 Progreso, detalle e Inicio restaurados | ✅ | ✅ |
+| C7 «Continuar con Google» | ✅ «Ingresando…» y el flujo de Google | ✅ sin botón |
+
+Las filas de C3 coinciden con las de la línea base en las dos plataformas. **Ninguna regresión.**
+
+### Observaciones del recorrido final
+
+| Observación | Plataforma | ¿De F11? |
+|---|---|---|
+| **A8 la primera vez:** reabrí la app cuando el descanso ya había terminado, y el development build la abrió en Inicio con «En curso» (`A8-reabrir-tras-descanso.png`). Lo repetí dentro del descanso de la serie 2, como pide la §4, y retomó bien. | Android | No: propio del development build, también en `aa9bd0c`; en release retomó S09 8 de 8 veces (#372, §5) |
+| **El descanso restaurado tras A8 no dejó «¡Descanso terminado!»:** con la pantalla bloqueada se vio solo el ícono compacto, y `dumpsys notification` no mostró la notificación. La alarma sí sonó (`dumpsys alarm`). El descanso siguiente, sin matar la app, la mostró bien (B5). | Android | No: el descanso terminó antes de bloquear la pantalla y el aviso se silencia en primer plano (RF-ENT-06.AC6). Lo confirmó #372 (§5) |
+| Después de recargar con red, la app tardó cerca de 1 min y medio en responder (CPU al 100 %). Después anduvo normal. | Android | No: el mismo efecto de la §5 con el emulador exigido |

@@ -68,11 +68,32 @@ Estructura recomendada por la cátedra: **problema → escenario → acción del
 ### 8. Valor (30 s)
 > «Martín sabe qué hacer hoy en cada ejercicio, entiende por qué, lo registra con un toque aunque no haya señal y ve que progresa. Sin pagar un trainer y sin perder lo anotado.»
 
+## Si preguntan por la arquitectura
+
+**¿Por qué capas y clases en una app de una persona?**
+- **El motor se prueba sin la app.** Es una función pura en el dominio, así que los casos de referencia de `sugerencias.md` son tests literales (RNF-15), sin SQLite ni React.
+- **Sin señal tiene que funcionar igual.** La UI observa SQLite y nunca espera a la red (RN-SYNC-01). Separar los datos detrás de interfaces permite que la sync corra aparte, sin que la pantalla sepa que existe.
+- **Cada pieza se prueba con su doble.** Los casos de uso son clases que reciben interfaces por constructor. Así, los ViewModels se prueban con repositorios falsos en memoria, y los repositorios contra una base SQLite real.
+- **La regla no depende de la disciplina.** El lint impide que `domain` importe React o Drizzle, que `presentation` importe `data`, y que una feature importe otra (RNF-11). Una dependencia al revés hace fallar `bun run lint` en CI.
+- **Se puede explicar con el mapa de Android** de [ADR-0011](../especificacion/adr/0011-mvvm-clean-en-react-native.md): `useXViewModel` es el ViewModel con su `StateFlow`, el composition root hace de Hilt, y Drizzle con `observe…()` hace de Room con `Flow`.
+
+**¿Qué se ordenó en F11 y qué no?** La fase ordenó las carpetas sin cambiar lo que la app hace. Cada card se comparó con la misma línea base de tests, perf y recorrido ([332](../pruebas/332-regresion-arquitectura.md)). Quedaron así:
+- **Repositorios separados de los servicios.** Los casos de uso se agrupan por feature y las reglas por tema.
+- **El composition root (`src/di`) solo compone.** Las variables de entorno y la configuración de los SDKs pasaron a `src/data`.
+- **Los comandos leen una vez con `get…()`.**
+- **Las pantallas grandes se partieron en secciones.** Ningún componente que ya existía renderiza más. Solo se suman los renders de las secciones nuevas, una vez cada una.
+
+Lo que se decidió **no** cambiar está en [ADR-0013](../especificacion/adr/0013-estructura-objetivo-de-la-arquitectura.md), «Lo que no se cambia», cada decisión con su motivo:
+- no hay una capa `src/application` y los modelos no son clases;
+- los watchers siguen siendo componentes;
+- la orquestación de `log` → descanso sigue en el ViewModel;
+- las escrituras en dos repositorios no son atómicas, pero respetan un orden que siempre deja un estado válido (spike [342](../spikes/342-escrituras-atomicas.md)).
+
 ## Preguntas probables y dónde está la respuesta
 
 | Tema | Dónde |
 |---|---|
-| Arquitectura, capas, ViewModel | README «Architecture», [12-arquitectura](../especificacion/12-arquitectura.md), [ADR-0011](../especificacion/adr/0011-mvvm-clean-en-react-native.md); ejemplo: `src/presentation/features/workout/use-workout-view-model.ts` |
+| Arquitectura, capas, ViewModel | README «Architecture», [12-arquitectura](../especificacion/12-arquitectura.md), [ADR-0011](../especificacion/adr/0011-mvvm-clean-en-react-native.md), [ADR-0013](../especificacion/adr/0013-estructura-objetivo-de-la-arquitectura.md); ejemplo: `src/presentation/features/workout/use-workout-view-model.ts` |
 | Estado y navegación | Zustand (`src/presentation/state`), Expo Router (`app/`) |
 | Persistencia | Drizzle + SQLite (`src/data/db/schema.ts`, `src/data/repositories`), migraciones en `drizzle/` |
 | Networking y sincronización | `src/data/sync` (push, pull, motor), `src/domain/usecases/sync/sync-scheduler.ts`; [07](../especificacion/07-datos-y-sincronizacion.md) |

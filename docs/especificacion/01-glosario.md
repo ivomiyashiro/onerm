@@ -87,7 +87,8 @@ Los documentos se escriben en español y el código en inglés. Esta tabla es el
 | **Borrado lógico** | Eliminar marcando `deleted_at` en vez de borrar la fila, para que la eliminación se propague. La fila marcada se llama *tombstone*. | `deletedAt` |
 | **LWW** | *Last-Write-Wins*: ante dos versiones del mismo registro, gana la modificada más recientemente. | — |
 | **Dato derivado** | Dato que se calcula a partir del historial y **no** se guarda ni sincroniza: sugerencias, e1RM, récords, próximo día. | — |
-| **Fuente de verdad local** | La base SQLite del dispositivo. La UI siempre lee de ahí. | `LocalDataSource` |
+| **Fuente de verdad local** | La base SQLite del dispositivo. La UI siempre lee de ahí. | `AppDatabase` (Drizzle sobre SQLite) |
+| **Servicio** | Interfaz del dominio que no es un repositorio: autenticación, permisos, aviso y cuenta regresiva del descanso, base local y sync ([ADR-0013](adr/0013-estructura-objetivo-de-la-arquitectura.md)). Su implementación vive en `src/data`. | `domain/services/` (`AuthGateway`, `SyncEngine`, …) |
 
 ## Catálogo y seed
 
