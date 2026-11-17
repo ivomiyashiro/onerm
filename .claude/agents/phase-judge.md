@@ -18,6 +18,11 @@ Every card already passed a per-push review (`code-reviewer`, `security-reviewer
 3. **Specification against code:** read in full the sections the cards cite (RF with their Gherkin, RN, RNF, ADR, invariants, reference cases). Behaviour that differs, rules no card implemented, tests that don't test what their name says.
 4. **The next phases:** whether what this phase built gives the later phases what the specification says they need (for example, the write rules the sync of 07 §4 relies on).
 5. **Specification gaps:** places where the specification is silent, ambiguous or contradicts itself, so the code had to guess.
+6. **Structure audit (ADR-0013):** a per-diff reviewer doesn't see drift that builds up, so check the whole tree of `src/`, not only the range:
+   - `ls src/domain/usecases src/domain/rules`: no loose files at the root; `src/domain/repositories/` holds only `*-repository.ts` and `src/domain/services/` the ports ADR-0013 lists (or later ones with an ADR).
+   - Production files over 400 lines: `git ls-files 'src/*.ts' 'src/*.tsx' 'app/*.tsx' | grep -vE '\.(test|int\.test|fixture)\.|/testing' | xargs wc -l | sort -n | awk '$1 > 400 && $2 != "total"'`. Compare with the list at the start of the range (`git show <start>:<path> | wc -l`).
+   - Imports between features outside the lint's exceptions: `grep -rnoE "@/presentation/features/[a-z-]+" src/presentation/features`, dropping each file's own feature and the exceptions in `eslint.config.ts`.
+   - Lint exceptions against the previous phase: the cross-feature `allow` entries and the `eslint-disable` comments in `src` and `app`, now and at `<start>` (`git show <start>:eslint.config.ts`). Each new one needs its reason in a comment.
 
 Prove what you can: run the tests, write a temporary test, read the exact lines.
 
@@ -46,6 +51,9 @@ Context: …
 - A) … — pros / cons
 - B) … — pros / cons
 Recommendation: B (recomendada) — why.
+
+### Structure (ADR-0013)
+| Check | Now | Start of the phase | Note |
 
 ### Exit criteria
 | Card | Item | Met | Evidence |
