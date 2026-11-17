@@ -23,6 +23,7 @@ import {
   InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
+import { SKIP_REST_GUARD_MS } from '@/presentation/features/workout/rest-screen';
 import { WorkoutScreen } from '@/presentation/features/workout/workout-screen';
 import { catalog } from '@/presentation/strings/catalog';
 import { common } from '@/presentation/strings/common';
@@ -576,11 +577,23 @@ describe('WorkoutScreen (S09)', () => {
     it('AC4: «Saltear descanso» closes it', async () => {
       const { user, timers } = await renderRest();
       await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      await act(() => jest.advanceTimersByTime(SKIP_REST_GUARD_MS));
 
       await user.press(screen.getByRole('button', { name: text.rest.skipRest }));
 
       expect(timers.timer.endsAt).toBeNull();
       expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
+    });
+
+    it('#372: a second tap on «Hecho» lands on «Saltear descanso» and leaves the rest running', async () => {
+      const { user, timers } = await renderRest();
+      await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
+      const endsAt = timers.timer.endsAt;
+
+      await user.press(screen.getByRole('button', { name: text.rest.skipRest }));
+
+      expect(timers.timer.endsAt).toEqual(endsAt);
+      expect(screen.getByRole('header', { name: text.rest.title })).toBeOnTheScreen();
     });
 
     it('AC6: at the end it vibrates and closes, leaving «Hecho» for the next set', async () => {
