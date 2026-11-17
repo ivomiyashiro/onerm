@@ -1,7 +1,7 @@
 import type { Id } from '@/domain/models/vocabulary';
 import type { WorkoutSet } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
-import { exerciseOfSet, replaceExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
+import { exerciseOfSet, withExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
 import { write, type SetInput, type SetWriteResult } from '@/domain/usecases/workout/workout-sets';
 
 type Workouts = Pick<WorkoutRepository, 'getFinishedById' | 'save'>;
@@ -62,7 +62,7 @@ export class DeletePastSet {
     const exercise = workout && exerciseOfSet(workout, setId);
     if (!workout || !exercise) return;
     const sets = exercise.sets.filter((s) => s.id !== setId);
-    await this.workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
+    await this.workouts.save(withExercise(workout, withSets(workout, exercise, sets)));
   }
 }
 
