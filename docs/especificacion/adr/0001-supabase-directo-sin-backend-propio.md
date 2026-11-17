@@ -2,7 +2,8 @@
 
 - **Estado:** Aceptado
 - **Fecha:** 2026-09-30
-- **Relacionado:** RF-AUTH-*, RF-SYNC-*, RNF-06..09, RNF-11, ADR-0002
+- **Relacionado:** RF-AUTH-*, RF-SYNC-*, RNF-06..09, RNF-11, ADR-0002, ADR-0013
+- *Actualizado en F11 ([ADR-0013](0013-estructura-objetivo-de-la-arquitectura.md)):* `RemoteDataSource` y `AuthRepository` no existen con esos nombres. La frontera de networking son las implementaciones de los servicios del dominio: `SupabaseSyncEngine` (push y pull) y `SupabaseAuthGateway`, ambas en `src/data`. La decisión no cambia.
 
 ## Contexto
 

@@ -74,14 +74,14 @@ Estructura recomendada por la cátedra: **problema → escenario → acción del
 - **El motor se prueba sin la app.** Es una función pura en el dominio, así que los casos de referencia de `sugerencias.md` son tests literales (RNF-15), sin SQLite ni React.
 - **Sin señal tiene que funcionar igual.** La UI observa SQLite y nunca espera a la red (RN-SYNC-01). Separar los datos detrás de interfaces permite que la sync corra aparte, sin que la pantalla sepa que existe.
 - **Cada pieza se prueba con su doble.** Los casos de uso son clases que reciben interfaces por constructor. Así, los ViewModels se prueban con repositorios falsos en memoria, y los repositorios contra una base SQLite real.
-- **La regla no depende de la disciplina.** El lint impide que `domain` importe React o Drizzle, que `presentation` importe `data`, y que una feature importe otra (RNF-11). Una dependencia al revés no compila en CI.
+- **La regla no depende de la disciplina.** El lint impide que `domain` importe React o Drizzle, que `presentation` importe `data`, y que una feature importe otra (RNF-11). Una dependencia al revés hace fallar `bun run lint` en CI.
 - **Se puede explicar con el mapa de Android** de [ADR-0011](../especificacion/adr/0011-mvvm-clean-en-react-native.md): `useXViewModel` es el ViewModel con su `StateFlow`, el composition root hace de Hilt, y Drizzle con `observe…()` hace de Room con `Flow`.
 
 **¿Qué se ordenó en F11 y qué no?** La fase ordenó las carpetas sin cambiar lo que la app hace. Cada card se comparó con la misma línea base de tests, perf y recorrido ([332](../pruebas/332-regresion-arquitectura.md)). Quedaron así:
 - **Repositorios separados de los servicios.** Los casos de uso se agrupan por feature y las reglas por tema.
 - **El composition root (`src/di`) solo compone.** Las variables de entorno y la configuración de los SDKs pasaron a `src/data`.
 - **Los comandos leen una vez con `get…()`.**
-- **Las pantallas grandes se partieron en secciones,** sin cambiar sus renders.
+- **Las pantallas grandes se partieron en secciones.** Ningún componente que ya existía renderiza más. Solo se suman los renders de las secciones nuevas, una vez cada una.
 
 Lo que se decidió **no** cambiar está en [ADR-0013](../especificacion/adr/0013-estructura-objetivo-de-la-arquitectura.md), «Lo que no se cambia», cada decisión con su motivo:
 - no hay una capa `src/application` y los modelos no son clases;
