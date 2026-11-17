@@ -585,7 +585,7 @@ describe('WorkoutScreen (S09)', () => {
       expect(screen.queryByRole('header', { name: text.rest.title })).not.toBeOnTheScreen();
     });
 
-    it('#372: a second tap on «Hecho» lands on «Saltear descanso» and leaves the rest running', async () => {
+    it('AC4b (#372): a second tap on «Hecho» lands on «Saltear descanso» and leaves the rest running', async () => {
       const { user, timers } = await renderRest();
       await user.press(screen.getByRole('button', { name: text.primaryAction.done }));
       const endsAt = timers.timer.endsAt;

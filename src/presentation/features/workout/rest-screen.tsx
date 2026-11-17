@@ -74,7 +74,9 @@ function RestPanel({
   // #196: it follows the finger down, and minimizes when pulled far or fast enough.
   const [pulled] = useState(() => new Animated.Value(0));
   const translateY = Animated.add(entry, pulled);
-  // #372: armed from an effect, not state, so the guard adds no render to the rest.
+  // #372: armed from an effect, not state, so the guard adds no render to the rest. The panel
+  // mounts each time the rest shows, so reopening it from the bar arms it again: harmless, the
+  // bar isn't where «Saltear descanso» is.
   const skipArmed = useRef(false);
   useEffect(() => {
     const armed = setTimeout(() => {
