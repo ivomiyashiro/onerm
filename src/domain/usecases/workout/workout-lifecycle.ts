@@ -11,8 +11,6 @@ export const ABANDONED_AFTER_MS = 12 * 60 * 60 * 1000;
 
 type Workouts = Pick<WorkoutRepository, 'getInProgress' | 'save'>;
 
-const inProgress = (workouts: Pick<WorkoutRepository, 'getInProgress'>) => workouts.getInProgress();
-
 const hasEffectiveSets = (exercise: WorkoutExercise) => exercise.sets.some(isEffectiveSet);
 
 /** RN-ENT-09: without effective sets it doesn't count; with them it is done. */
@@ -33,7 +31,7 @@ export class SubstituteExercise {
 
   /** The id of the new workout exercise, or null if the original is gone. */
   async execute(workoutExerciseId: Id, substitute: Exercise): Promise<Id | null> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     const original = workout?.exercises.find((e) => e.id === workoutExerciseId);
     if (!workout || !original) return null;
     const replacement: WorkoutExercise = {
@@ -71,7 +69,7 @@ export class FinishWorkout {
 
   /** The id of the finished workout, for S12; null without one in progress. */
   async execute({ abandoned = false }: { abandoned?: boolean } = {}): Promise<Id | null> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     if (workout === null) return null;
     const lastSet = Math.max(
       ...workout.exercises.flatMap((e) => e.sets.map((s) => s.completedAt.getTime())),
@@ -100,7 +98,7 @@ export class DiscardWorkout {
   ) {}
 
   async execute(): Promise<void> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     if (workout !== null) await this.workouts.delete(workout.id);
     await this.stopRest.execute();
   }
@@ -121,7 +119,7 @@ export class ReadWorkoutResume {
   ) {}
 
   async execute(): Promise<WorkoutResume> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     if (workout === null) return { kind: 'none' };
     if (this.now().getTime() - workout.startedAt.getTime() <= ABANDONED_AFTER_MS) {
       return { kind: 'resume' };
