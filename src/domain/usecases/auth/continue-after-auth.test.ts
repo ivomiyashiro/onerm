@@ -62,3 +62,27 @@ describe('ContinueAfterAuth (RF-AUTH-02.AC1, RF-AUTH-03.AC1)', () => {
     expect(steps).toEqual(['level']);
   });
 });
+
+describe('ContinueAfterAuth: write order (spike #342, inventario: ContinueAfterAuth; ADR-0013)', () => {
+  it('if saving the step fails, the profile is already saved', async () => {
+    const { profiles } = setup();
+    profiles.profile = null;
+    const failing = new ContinueAfterAuth(
+      profiles,
+      { saveStep: () => Promise.reject(new Error('disk full')) },
+      {
+        get: async () => ({
+          owner: 'guest',
+          pending: 0,
+          conflicts: 0,
+          lastSyncedAt: null,
+          restoreCompleted: true,
+        }),
+      },
+    );
+
+    await expect(failing.execute()).rejects.toThrow('disk full');
+
+    expect(profiles.profile).toEqual(defaultProfile());
+  });
+});

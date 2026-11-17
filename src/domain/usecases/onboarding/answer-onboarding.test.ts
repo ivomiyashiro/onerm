@@ -48,3 +48,15 @@ describe('AnswerOnboarding', () => {
     expect(entry()).toMatchObject({ kind: 'onboarding', step: 'recommendation' });
   });
 });
+
+describe('AnswerOnboarding: write order (spike #342, inventario: AnswerOnboarding; ADR-0013)', () => {
+  it('if saving the step fails, the answer is saved and the entry stays on that question', async () => {
+    const { answer, profiles, onboarding, entry } = setUp(defaultProfile(), 'level');
+    jest.spyOn(onboarding, 'saveStep').mockRejectedValue(new Error('disk full'));
+
+    await expect(answer.execute({ level: 'intermediate' }, 'goal')).rejects.toThrow('disk full');
+
+    expect(profiles.profile).toMatchObject({ level: 'intermediate' });
+    expect(entry()).toMatchObject({ kind: 'onboarding', step: 'level' });
+  });
+});
