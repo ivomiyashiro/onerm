@@ -8,7 +8,7 @@ import type {
 } from '@/domain/models/workout';
 import type { WorkoutRepository } from '@/domain/repositories/workout-repository';
 import type { Violation } from '@/domain/rules/shared/violation';
-import { exerciseOfSet, replaceExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
+import { exerciseOfSet, withExercise, withSets } from '@/domain/rules/workout/workout-aggregate';
 import {
   validateWorkoutSet,
   type SetViolationCode,
@@ -27,8 +27,6 @@ export type SetWriteResult =
 
 type Workouts = Pick<WorkoutRepository, 'getInProgress' | 'save'>;
 
-const inProgress = (workouts: Workouts) => workouts.getInProgress();
-
 /** Validates against the copy of the workout exercise and saves it (RN-ENT-02, RN-SYNC-01). */
 export async function write(
   workouts: Pick<WorkoutRepository, 'save'>,
@@ -39,7 +37,7 @@ export async function write(
   const violations = validateWorkoutSet(set, exercise);
   if (violations.length > 0) return { status: 'invalid', violations };
   const sets = [...exercise.sets.filter((s) => s.id !== set.id), set];
-  await workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
+  await workouts.save(withExercise(workout, withSets(workout, exercise, sets)));
   return { status: 'saved', set };
 }
 
@@ -52,7 +50,7 @@ export class LogSet {
   ) {}
 
   async execute(workoutExerciseId: Id, input: SetInput): Promise<SetWriteResult> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     const exercise = workout?.exercises.find((e) => e.id === workoutExerciseId);
     if (!workout || !exercise) return { status: 'missing' };
     const position = Math.max(-1, ...exercise.sets.map((s) => s.position)) + 1;
@@ -72,7 +70,7 @@ export class UpdateSet {
   constructor(private readonly workouts: Workouts) {}
 
   async execute(setId: Id, input: SetInput): Promise<SetWriteResult> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     const exercise = workout && exerciseOfSet(workout, setId);
     const current = exercise?.sets.find((s) => s.id === setId);
     if (!workout || !exercise || !current) return { status: 'missing' };
@@ -87,12 +85,12 @@ export class DeleteSet {
   constructor(private readonly workouts: Workouts) {}
 
   async execute(setId: Id): Promise<WorkoutSet | null> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     const exercise = workout && exerciseOfSet(workout, setId);
     const set = exercise?.sets.find((s) => s.id === setId);
     if (!workout || !exercise || !set) return null;
     const sets = exercise.sets.filter((s) => s.id !== setId);
-    await this.workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
+    await this.workouts.save(withExercise(workout, withSets(workout, exercise, sets)));
     return set;
   }
 }
@@ -108,10 +106,10 @@ export class RestoreSet {
   ) {}
 
   async execute(set: WorkoutSet): Promise<void> {
-    const workout = await inProgress(this.workouts);
+    const workout = await this.workouts.getInProgress();
     const exercise = workout?.exercises.find((e) => e.id === set.workoutExerciseId);
     if (!workout || !exercise) return;
     const sets = [...exercise.sets, { ...set, id: this.newId() }];
-    await this.workouts.save(replaceExercise(workout, withSets(workout, exercise, sets)));
+    await this.workouts.save(withExercise(workout, withSets(workout, exercise, sets)));
   }
 }

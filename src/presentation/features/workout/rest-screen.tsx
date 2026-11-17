@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Animated, Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -23,6 +23,11 @@ const PULL_DISTANCE = 120;
 const PULL_VELOCITY = 800;
 /** The pull starts after this much down, and gives way to a sideways swipe. */
 const PULL_START = 12;
+/**
+ * #372: «Saltear descanso» sits where «Hecho» was, so a quick second tap on «Hecho» would skip the
+ * rest it just started. For this long after the rest comes up, a tap there does nothing.
+ */
+export const SKIP_REST_GUARD_MS = 600;
 
 interface RestScreenProps {
   rest: RestView;
@@ -69,6 +74,19 @@ function RestPanel({
   // #196: it follows the finger down, and minimizes when pulled far or fast enough.
   const [pulled] = useState(() => new Animated.Value(0));
   const translateY = Animated.add(entry, pulled);
+  // #372: armed from an effect, not state, so the guard adds no render to the rest. The panel
+  // mounts each time the rest shows, so reopening it from the bar arms it again: harmless, the
+  // bar isn't where «Saltear descanso» is.
+  const skipArmed = useRef(false);
+  useEffect(() => {
+    const armed = setTimeout(() => {
+      skipArmed.current = true;
+    }, SKIP_REST_GUARD_MS);
+    return () => clearTimeout(armed);
+  }, []);
+  const skip = () => {
+    if (skipArmed.current) onSkip();
+  };
   const pullDown = Gesture.Pan()
     .runOnJS(true)
     .withTestId('pull down rest')
@@ -146,7 +164,7 @@ function RestPanel({
           <Text style={[typography.bodyM, styles.next]}>{rest.nextText}</Text>
         </View>
         <View style={styles.bottom}>
-          <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={onSkip} />
+          <Button variant="secondary" size="xl" label={text.rest.skipRest} onPress={skip} />
         </View>
       </Animated.View>
     </GestureDetector>

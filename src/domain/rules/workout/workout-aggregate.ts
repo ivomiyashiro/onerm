@@ -21,7 +21,7 @@ export function withSets(
   return { ...exercise, status, sets: sorted };
 }
 
-export function replaceExercise(workout: Workout, exercise: WorkoutExercise): Workout {
+export function withExercise(workout: Workout, exercise: WorkoutExercise): Workout {
   return {
     ...workout,
     exercises: workout.exercises.map((e) => (e.id === exercise.id ? exercise : e)),

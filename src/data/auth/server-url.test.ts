@@ -16,6 +16,8 @@ describe('isAllowedServerUrl (RNF-09)', () => {
     'http://localhost.evil.com',
     'http://10.0.2.2.evil.com',
     'ftp://localhost',
+    'http://localhost:80@evil.com',
+    'http://10.0.2.2:1@evil.com',
   ])('rejects %s', (url) => {
     expect(isAllowedServerUrl(url)).toBe(false);
   });
