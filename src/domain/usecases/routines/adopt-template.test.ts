@@ -82,3 +82,15 @@ describe('AdoptTemplate', () => {
     await expect(adoptTemplate.execute('PLT-XX')).rejects.toThrow('PLT-XX');
   });
 });
+
+describe('AdoptTemplate: write order (spike #342, inventario: AdoptTemplate; ADR-0013)', () => {
+  it('if making it active fails, the copy is already in Mis rutinas', async () => {
+    const { adoptTemplate, profiles, routines } = setup({ routines: [] });
+    jest.spyOn(profiles, 'save').mockRejectedValue(new Error('disk full'));
+
+    await expect(adoptTemplate.execute('PLT-FB3')).rejects.toThrow('disk full');
+
+    expect(routines.routines.map((r) => r.id)).toEqual(['new-1']);
+    expect(profiles.profile?.activeRoutineId).not.toBe('new-1');
+  });
+});

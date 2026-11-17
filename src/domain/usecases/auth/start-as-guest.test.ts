@@ -46,3 +46,15 @@ describe('StartAsGuest (RF-AUTH-01.AC1)', () => {
     expect(profiles.profile?.daysPerWeek).toBe(5);
   });
 });
+
+describe('StartAsGuest: write order (spike #342, inventario: StartAsGuest; ADR-0013)', () => {
+  it('if saving the step fails, the profile is saved and the entry is still the first question', async () => {
+    const { startAsGuest, profiles, onboarding, entry } = setUp();
+    jest.spyOn(onboarding, 'saveStep').mockRejectedValue(new Error('disk full'));
+
+    await expect(startAsGuest.execute()).rejects.toThrow('disk full');
+
+    expect(profiles.profile).toEqual(defaultProfile());
+    expect(entry()).toMatchObject({ kind: 'onboarding', step: 'level' });
+  });
+});

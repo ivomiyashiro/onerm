@@ -1,11 +1,17 @@
 import { defaultProfile } from '@/domain/rules/routine/default-profile';
-import { aRoutine, aWorkout } from '@/domain/testing/builders';
+import { aRoutine, aRoutineTemplate, aWorkout } from '@/domain/testing/builders';
+import { firstValue } from '@/domain/testing/first-value';
 import {
   InMemoryProfileRepository,
   InMemoryRoutineRepository,
+  InMemoryRoutineTemplateRepository,
   InMemoryWorkoutRepository,
 } from '@/domain/testing/in-memory-repositories';
 import { DeleteRoutine } from '@/domain/usecases/routines/delete-routine';
+import {
+  ObserveRoutines,
+  type RoutinesOverview,
+} from '@/domain/usecases/routines/observe-routines';
 
 const IN_PROGRESS = aWorkout({ status: 'in_progress', finishedAt: null });
 
@@ -60,5 +66,25 @@ describe('DeleteRoutine', () => {
     await expect(deleteRoutine.execute('other')).resolves.toEqual({ status: 'done' });
 
     expect(routines.routines.map((r) => r.id)).toEqual(['active']);
+  });
+});
+
+describe('DeleteRoutine: write order (spike #342, inventario: DeleteRoutine; ADR-0013)', () => {
+  it('if clearing the active routine fails, the routine is gone and there is no active routine (RN-RUT-02)', async () => {
+    const { deleteRoutine, profiles, routines } = setup(null);
+    jest.spyOn(profiles, 'save').mockRejectedValue(new Error('disk full'));
+
+    await expect(deleteRoutine.execute('active')).rejects.toThrow('disk full');
+
+    expect(routines.routines.map((r) => r.id)).toEqual(['other']);
+    const overview = await firstValue<RoutinesOverview>((o) =>
+      new ObserveRoutines(
+        routines,
+        new InMemoryRoutineTemplateRepository([aRoutineTemplate()]),
+        profiles,
+        new InMemoryWorkoutRepository(null),
+      ).execute(o),
+    );
+    expect(overview.activeRoutineId).toBeNull();
   });
 });
