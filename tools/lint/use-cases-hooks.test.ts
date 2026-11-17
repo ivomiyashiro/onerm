@@ -29,6 +29,10 @@ describe('the use cases by group', () => {
     'src/presentation/features/workout/use-probe.ts',
     'src/presentation/features/sync/probe-watcher.tsx',
     'src/presentation/shared/set/use-probe.ts',
+    // #374: everywhere in presentation except the use-cases folder.
+    'src/presentation/navigation/use-probe.ts',
+    'src/presentation/components/list/use-probe.ts',
+    'src/presentation/widgets/use-probe.tsx',
   ])('%s may not take every use case with useUseCases', async (filePath) => {
     expect(
       await restrictedImportErrors(filePath, `${ALL}export const used = useUseCases;\n`),

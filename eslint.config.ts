@@ -39,11 +39,12 @@ const TEST_ONLY_FILES = [
   `${LAYER_FOLDERS}/**/*.fixture.{ts,tsx}`,
   'src/data/db/open-test-database.ts',
 ];
-// Where use cases are taken from (ADR-0011 §1, updated in #332): ViewModels and feature hooks
-// (use-*), watchers and the use-cases folder itself. Visual components receive data and callbacks.
+// Where use cases are taken from (ADR-0011 §1, updated in #332): a feature's ViewModels and hooks
+// (use-*), its watchers and the use-cases folder itself. Visual components receive data and
+// callbacks; hooks in components, shared, theme, navigation or widgets don't reach the domain (#374).
 const USE_CASE_CONSUMERS = [
-  'src/presentation/**/use-*.{ts,tsx}',
-  'src/presentation/**/*-watcher.tsx',
+  'src/presentation/features/**/use-*.{ts,tsx}',
+  'src/presentation/features/**/*-watcher.tsx',
   'src/presentation/use-cases/**',
 ];
 // Screens and components use the app's Text (src/presentation/components/text.tsx).
@@ -319,17 +320,21 @@ export default defineConfig([
       'no-restricted-imports': ['error', { paths: [NATIVE_TEXT_IMPORT] }],
     },
   },
-  // Features and shared take the use cases from the hook of their group (#340), so each hook's
-  // signature shows what it depends on. A later no-restricted-imports replaces an earlier one for
-  // the same file, so the .tsx block repeats the Text rule above.
+  // Use cases are taken from the hook of their group (#340), so each hook's signature shows what it
+  // depends on; `useUseCases` stays inside the use-cases folder (#374). A later no-restricted-imports
+  // replaces an earlier one for the same file, so the .tsx block repeats the Text rule above.
   {
-    files: ['src/presentation/{features,shared}/**/*.ts'],
-    ignores: TEST_FILES,
+    files: ['src/presentation/**/*.ts'],
+    ignores: [...TEST_FILES, 'src/presentation/use-cases/**'],
     rules: { 'no-restricted-imports': ['error', { paths: [ALL_USE_CASES_IMPORT] }] },
   },
   {
-    files: ['src/presentation/{features,shared}/**/*.tsx'],
-    ignores: TEST_FILES,
+    files: ['src/presentation/**/*.tsx'],
+    ignores: [
+      ...TEST_FILES,
+      'src/presentation/use-cases/**',
+      'src/presentation/components/text.tsx',
+    ],
     rules: {
       'no-restricted-imports': ['error', { paths: [NATIVE_TEXT_IMPORT, ALL_USE_CASES_IMPORT] }],
     },
