@@ -189,6 +189,13 @@ describe('RNF-11 · visual components do not take use cases (ADR-0011 §1)', () 
     ['a component', 'src/presentation/components/probe.tsx'],
     ['a shared piece', 'src/presentation/shared/probe.tsx'],
     ['a route', 'app/probe.tsx'],
+    // #374: only a feature's hooks and watchers consume use cases (ADR-0011 §1, ADR-0013).
+    ['a component hook', 'src/presentation/components/list/use-probe.ts'],
+    ['a shared hook', 'src/presentation/shared/set/use-probe.ts'],
+    ['a theme hook', 'src/presentation/theme/use-probe.ts'],
+    ['a navigation hook', 'src/presentation/navigation/use-probe.ts'],
+    ['a widget hook', 'src/presentation/widgets/use-probe.ts'],
+    ['a watcher outside a feature', 'src/presentation/shared/probe-watcher.tsx'],
   ])('%s → use-cases-context fails', async (_, file) => {
     expect(await boundaryErrors(file, USE_CASES)).not.toEqual([]);
   });
