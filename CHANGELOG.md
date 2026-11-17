@@ -84,6 +84,7 @@ The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) and 
 
 ### Fixed
 
+- Training (S09): tapping «Hecho» twice quickly no longer skips the rest it just started; «Saltear descanso», in the same place, waits a moment before it responds (#372).
 - Suggestions: the line that asks for extra reps before a big jump is now plain Spanish. The percents of an increase or a reentry showed a wrong number with many decimals («+0.125 %»): they now show the whole percent («+13 %») (#320).
 - Training (S09): on iOS, swiping to another exercise from a set, after closing a sheet like «¿Por qué?», no longer opens the set sheet as well (#317).
 - «Errores comunes» (S17, S26): a long mistake wraps onto the next line, under its own text, instead of being cut off (#319).

@@ -262,6 +262,11 @@ Escenario: AC4 — Saltear
   Cuando toco "Saltear"
   Entonces se detiene y no se emite ningún aviso
 
+Escenario: AC4b — Un segundo toque rápido en Hecho no saltea (#372)
+  Dado que acabo de tocar "Hecho" y se abrió el descanso
+  Cuando vuelvo a tocar en el mismo lugar antes de 600 ms
+  Entonces el toque no saltea el descanso, que sigue corriendo
+
 Escenario: AC5 — Aviso con la pantalla bloqueada
   Dado que el temporizador está corriendo, la pantalla está bloqueada y di permiso de notificaciones y de alarmas exactas
   Cuando el descanso termina
