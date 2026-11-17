@@ -48,7 +48,7 @@ ADR-0011 §1 nombraba solo a `useXViewModel`. En el código también los consume
 
 ### Deriva registrada
 
-ADR-0011 §2 y 12 §4 dicen que el store global guarda el entrenamiento en curso y el temporizador. **No es así:** `app-store.ts` guarda el dueño de los datos, el estado de sync y las solicitudes de unión. El entrenamiento en curso y el descanso se observan desde SQLite, que es lo que pide RN-SYNC-01. El código está bien y el texto quedó viejo: la corrección va en #348, junto con el resto de 12.
+ADR-0011 §2 y 12 §4 dicen que el store global guarda el entrenamiento en curso y el temporizador. **No es así:** `app-store.ts` guarda el dueño de los datos, el estado de sync y las solicitudes de unión. El entrenamiento en curso y el descanso se observan desde SQLite, que es lo que pide RN-SYNC-01. El código está bien y el texto quedó viejo. Se corrigió en #348, junto con el resto de 12.
 
 ## Alternativas consideradas
 

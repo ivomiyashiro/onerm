@@ -48,18 +48,21 @@ Discarded: the EAS ones (cloud builds and stores, paid and out of scope), `expo-
 - If an external skill conflicts with the specification, the Figma design or this file, **these win**. For example, `expo-router` pushes iOS patterns (Link previews, NativeTabs): use them only if the design asks for them.
 - **Don't send feedback** to Expo (`submit-expo-feedback`) or any other service unless the user asks.
 
-## Architecture (ADR-0011, 12-arquitectura)
+## Architecture (ADR-0011, ADR-0013, 12-arquitectura)
 
 ```
-app/                 Expo Router: screen composition only
-src/domain/          Pure TypeScript: models, rules (engine), use cases, repository interfaces
-src/data/            Drizzle/SQLite, supabase-js, repositories, mappers, sync
-src/presentation/    components, ViewModels (useXViewModel), theme, strings
-src/di/              composition root: creates the implementations and provides them via Context
+app/                 Expo Router: composes the screen and wires navigation with callbacks
+src/domain/          Pure TypeScript: models, rules/<topic>, usecases/<feature>, repositories (one per aggregate), services (the other ports)
+src/data/            Drizzle/SQLite, supabase-js, repositories, mappers, sync, and the infrastructure setup (env, SDKs, system listeners)
+src/presentation/    features/<feature> (screens, ViewModels, use-* hooks), shared, components, use-cases, state, theme, strings
+src/di/              composition root: only creates the implementations and provides them via Context
 ```
 
 - Dependencies point **towards the domain**. `domain` doesn't import React, Expo, Supabase or Drizzle. `presentation` doesn't import `data`. The lint enforces it (RNF-11): the rule is never disabled.
-- The **ViewModel** is a hook that exposes `{ state, actions }`. The state is a discriminated union (`loading | content | empty | error | …`). It calls use cases, never repositories or SDKs.
+- The **ViewModel** is a hook that exposes `{ state, actions }`. The state is a discriminated union (`loading | content | empty | error | …`). It calls use cases, never repositories or SDKs. Use cases are also consumed by a feature's `use-*` hooks and `*-watcher.tsx`, never by visual components (ADR-0011 §1).
+- A feature doesn't import another one, except for the exceptions listed in the lint: what several features use goes to `presentation/shared/`.
+- **Commands read with `get…()`**; `observe…()` is for what is really observed. A command that writes to two repositories writes first what leaves a valid state on its own (ADR-0013, spike #342).
+- ADR-0013 «Lo que no se cambia» lists the decisions not to reopen: no `src/application`, no domain classes, the watchers stay components, among others.
 - **SQLite is the source of truth** for the UI. Every write goes to the local database first (RN-SYNC-01). The UI observes the database; it never waits for the network.
 - The **suggestion engine** is a pure function in `src/domain/rules/` (ADR-0009). No implicit dates: "now" is passed in as a parameter.
 - UI texts come from `src/presentation/strings` (RNF-21). Never hard-coded in the component.
@@ -88,7 +91,7 @@ The `tdd` skill has the detail: what each layer's tests own, the tests not to wr
 - ViewModels: always tested, with fake repositories injected, covering every state of the union.
 - Screens: one Testing Library test per state (`loading`, `content`, `empty`, `error`…) checking what is shown and that actions call the ViewModel. Fine visual details are checked against Figma, not with tests.
 - Tests live next to the file: `foo.ts` → `foo.test.ts`.
-- **No tests in `app/`:** Expo Router treats every file in `app/` as a route. The screen lives in `src/presentation/features/<feature>/<x>-screen.tsx` (with its test next to it) and the `app/` file only re-exports it.
+- **No tests in `app/`:** Expo Router treats every file in `app/` as a route. The screen lives in `src/presentation/features/<feature>/<x>-screen.tsx` (with its test next to it) and the `app/` file renders it, wiring the navigation with callbacks (no business state, no use cases).
 - No production code without a test that calls for it, except config and purely visual components.
 
 ## Performance (#221, `docs/pruebas/221-performance.md`)
